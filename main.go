@@ -4,8 +4,7 @@ import (
 	"log"
 	"memnixrest/database"
 	"memnixrest/models"
-
-	"github.com/gofiber/fiber/v2"
+	"memnixrest/routes"
 )
 
 func main() {
@@ -23,10 +22,8 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Revision{})
 	database.DBConn.AutoMigrate(&models.User{})
 
-	app := fiber.New()
-
 	// Create the app
-	//app := routes.New()
+	app := routes.New()
 	// Listen to port 1812
 	log.Fatal(app.Listen(":1813"))
 }
