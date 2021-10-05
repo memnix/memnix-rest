@@ -33,6 +33,13 @@ func New() *fiber.App {
 	v1.Post("/user/new", handlers.CreateNewUser)    // Create a new user
 	v1.Put("/user/id/:id", handlers.UpdateUserByID) // Update an user using his id
 
+	// Identifiers
+	v1.Get("/identifiers", handlers.GetAllIdentifiers)                            // Get all identifiers
+	v1.Get("/identifier/id/:id", handlers.GetIdentifierByID)                      // Get identifier by id
+	v1.Get("/identifier/userid/:userID", handlers.GetIdentifierByUserID)          // Get identifier by user_id
+	v1.Get("/identifier/discordid/:discordID", handlers.GetIdentifierByDiscordID) // Get identifier by discord_id
+	v1.Post("/identifier/new", handlers.CreateNewIdentifier)                      // Create a new identifier
+
 	return app
 
 }
