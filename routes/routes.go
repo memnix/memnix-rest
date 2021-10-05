@@ -23,6 +23,10 @@ func New() *fiber.App {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
+	v1.Get("/", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
+	})
+
 	// Users
 	v1.Get("/users", handlers.GetAllUsers)          // Get all users
 	v1.Get("/user/id/:id", handlers.GetUserByID)    // Get user by id
