@@ -61,7 +61,7 @@ func GetIdentifierByDiscordID(c *fiber.Ctx) error {
 
 	identifier := new(models.Identifier)
 
-	if err := db.Where("identifier.discord_id = ?", id).First(&identifier).Error; err != nil {
+	if err := db.Where("identifiers.discord_id = ?", id).First(&identifier).Error; err != nil {
 		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
@@ -83,10 +83,10 @@ func GetIdentifierByUserID(c *fiber.Ctx) error {
 
 	identifier := new(models.Identifier)
 
-	if err := db.Where("identifier.user_id = ?", id).First(&identifier).Error; err != nil {
+	if err := db.Joins("User").Where("identifiers.user_id = ?", id).First(&identifier).Error; err != nil {
 		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
 			Success: false,
-			Message: err.Error(),
+			Message: "error",
 			Data:    nil,
 		})
 	}
@@ -114,7 +114,7 @@ func CreateNewIdentifier(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Create(identifier)
+	db.Preload("User").Create(identifier)
 
 	return c.JSON(ResponseHTTP{
 		Success: true,
