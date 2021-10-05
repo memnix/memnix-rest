@@ -13,6 +13,4 @@ type Card struct {
 	Deck         Deck
 	Tips         string `json:"card_tips" example:"The answer is from a book"`
 	Explication  string `json:"card_explication" example:"The number 42 is the answer to life has written in a very famous book"`
-	Contributors []User `gorm:"many2many:user_cards;"`
-	
 }
