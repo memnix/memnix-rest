@@ -16,17 +16,17 @@ func GetAllIdentifiers(c *fiber.Ctx) error {
 
 	var identifiers []models.Identifier
 
-	if res := db.Find(&identifiers); res.Error != nil {
+	if res := db.Joins("User").Find(&identifiers); res.Error != nil {
 
 		return c.JSON(ResponseHTTP{
 			Success: false,
-			Message: "Get All users",
+			Message: "Get All identifiers",
 			Data:    nil,
 		})
 	}
 	return c.JSON(ResponseHTTP{
 		Success: true,
-		Message: "Get All users",
+		Message: "Get All identifiers",
 		Data:    identifiers,
 	})
 
@@ -39,7 +39,7 @@ func GetIdentifierByID(c *fiber.Ctx) error {
 
 	identifier := new(models.Identifier)
 
-	if err := db.First(&identifier, id).Error; err != nil {
+	if err := db.Joins("User").First(&identifier, id).Error; err != nil {
 		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
@@ -61,7 +61,7 @@ func GetIdentifierByDiscordID(c *fiber.Ctx) error {
 
 	identifier := new(models.Identifier)
 
-	if err := db.Where("identifiers.discord_id = ?", id).First(&identifier).Error; err != nil {
+	if err := db.Joins("User").Where("identifiers.discord_id = ?", id).First(&identifier).Error; err != nil {
 		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
@@ -100,7 +100,7 @@ func GetIdentifierByUserID(c *fiber.Ctx) error {
 
 // POST
 
-// CreateNewUser
+// CreateNewIdentifier
 func CreateNewIdentifier(c *fiber.Ctx) error {
 	db := database.DBConn
 
@@ -118,7 +118,7 @@ func CreateNewIdentifier(c *fiber.Ctx) error {
 
 	return c.JSON(ResponseHTTP{
 		Success: true,
-		Message: "Success register an user",
+		Message: "Success register an identifier",
 		Data:    *identifier,
 	})
 }

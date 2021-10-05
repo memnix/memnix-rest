@@ -40,6 +40,30 @@ func New() *fiber.App {
 	v1.Get("/identifier/discordid/:discordID", handlers.GetIdentifierByDiscordID) // Get identifier by discord_id
 	v1.Post("/identifier/new", handlers.CreateNewIdentifier)                      // Create a new identifier
 
+	// Decks
+	v1.Get("/decks", handlers.GetAllDecks)
+	v1.Get("/deck/id/:id", handlers.GetDeckByID)
+	v1.Post("/deck/new", handlers.CreateNewDeck)
+
+	// Cards
+	v1.Get("/cards", handlers.GetAllCards)
+	v1.Get("/card/id/:id", handlers.GetCardByID)
+	v1.Get("/card/deck/:deckID", handlers.GetCardsFromDeck)
+	v1.Post("/card/new", handlers.CreateNewCard)
+
+	// Revision
+	v1.Get("/revisions", handlers.GetAllRevisions)
+	v1.Get("/revision/id/:id", handlers.GetRevisionByID)
+	v1.Get("/revision/userid/:userID", handlers.GetRevisionByUserID)
+	v1.Get("/revision/cardid/cardID", handlers.GetRevisionByCardID)
+	v1.Post("/revision/new", handlers.CreateNewRevision)
+
+	// Access
+	// TODO
+
+	// History
+	// TODO
+
 	return app
 
 }
