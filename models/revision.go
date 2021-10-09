@@ -7,10 +7,11 @@ import (
 // User structure
 type Revision struct {
 	gorm.Model
-	UserID uint `json:"user_id" example:"1"`
-	User   User
-	CardID uint `json:"card_id" example:"1"`
-	Card   Card
-	Result bool `json:"result" example:"true"` // True means that the answer was given right.
+	UserID    uint `json:"user_id" example:"1"`
+	User      User
+	CardID    uint `json:"card_id" example:"1"`
+	Card      Card
+	Result    bool `json:"result" example:"true"`  // True means that the answer was given right.
+	ResultInt uint `json:"result_int" example:"0"` // 0 means false, 1 means true ! This should fix Metabase issue
 
 }
