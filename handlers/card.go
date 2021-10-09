@@ -1,14 +1,39 @@
 package handlers
 
 import (
+	"math/rand"
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // GET
+
+func GetRandomDebugCard(c *fiber.Ctx) error {
+	rand.Seed(time.Now().UnixNano())
+	db := database.DBConn
+
+	var cards []models.Card
+	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
+
+		return c.JSON(ResponseHTTP{
+			Success: false,
+			Message: "Get All cards",
+			Data:    nil,
+		})
+	}
+
+	rdm := rand.Intn(len(cards)-0) + 0
+
+	return c.JSON(ResponseHTTP{
+		Success: true,
+		Message: "Get All cards",
+		Data:    cards[rdm],
+	})
+}
 
 // GetAllCards
 func GetAllCards(c *fiber.Ctx) error {

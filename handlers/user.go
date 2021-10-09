@@ -53,6 +53,28 @@ func GetUserByID(c *fiber.Ctx) error {
 	})
 }
 
+// GetUserByID
+func GetUserByDiscordID(c *fiber.Ctx) error {
+	id := c.Params("discordID")
+	db := database.DBConn
+
+	user := new(models.User)
+
+	if err := db.Where("users.discord_id = ?", id).First(&user).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(ResponseHTTP{
+		Success: true,
+		Message: "Success get user by ID.",
+		Data:    *user,
+	})
+}
+
 // POST
 
 // CreateNewUser

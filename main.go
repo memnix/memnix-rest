@@ -18,7 +18,6 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Card{})
 	database.DBConn.AutoMigrate(&models.Deck{})
 	database.DBConn.AutoMigrate(&models.History{})
-	database.DBConn.AutoMigrate(&models.Identifier{})
 	database.DBConn.AutoMigrate(&models.Revision{})
 	database.DBConn.AutoMigrate(&models.User{})
 

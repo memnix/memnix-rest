@@ -19,6 +19,11 @@ func New() *fiber.App {
 		return c.Next()
 	})
 
+	// debug group "/api/debug"
+	debug := api.Group("/debug", func(c *fiber.Ctx) error {
+		return c.Next()
+	})
+
 	api.Get("/", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
@@ -28,17 +33,11 @@ func New() *fiber.App {
 	})
 
 	// Users
-	v1.Get("/users", handlers.GetAllUsers)          // Get all users
-	v1.Get("/user/id/:id", handlers.GetUserByID)    // Get user by id
+	v1.Get("/users", handlers.GetAllUsers)       // Get all users
+	v1.Get("/user/id/:id", handlers.GetUserByID) // Get user by id
+	v1.Get("user/discordid/:discordID", handlers.GetUserByDiscordID)
 	v1.Post("/user/new", handlers.CreateNewUser)    // Create a new user
 	v1.Put("/user/id/:id", handlers.UpdateUserByID) // Update an user using his id
-
-	// Identifiers
-	v1.Get("/identifiers", handlers.GetAllIdentifiers)                            // Get all identifiers
-	v1.Get("/identifier/id/:id", handlers.GetIdentifierByID)                      // Get identifier by id
-	v1.Get("/identifier/userid/:userID", handlers.GetIdentifierByUserID)          // Get identifier by user_id
-	v1.Get("/identifier/discordid/:discordID", handlers.GetIdentifierByDiscordID) // Get identifier by discord_id
-	v1.Post("/identifier/new", handlers.CreateNewIdentifier)                      // Create a new identifier
 
 	// Decks
 	v1.Get("/decks", handlers.GetAllDecks)
@@ -50,6 +49,8 @@ func New() *fiber.App {
 	v1.Get("/card/id/:id", handlers.GetCardByID)
 	v1.Get("/card/deck/:deckID", handlers.GetCardsFromDeck)
 	v1.Post("/card/new", handlers.CreateNewCard)
+
+	debug.Get("/card", handlers.GetRandomDebugCard)
 
 	// Revision
 	v1.Get("/revisions", handlers.GetAllRevisions)
