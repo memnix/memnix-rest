@@ -14,15 +14,16 @@ import (
 
 // GET
 
+// GetNextCard
 func GetNextCard(c *fiber.Ctx) error {
-	userID_temp := c.Params("userID")
-	deckID_temp := c.Params("deckID")
+	userIDTemp := c.Params("userID")
+	deckIDTemp := c.Params("deckID")
 
-	userID, _ :=  strconv.Atoi(userID_temp)
-	deckID, _ :=  strconv.Atoi(deckID_temp)
+	userID, _ := strconv.Atoi(userIDTemp)
+	deckID, _ := strconv.Atoi(deckIDTemp)
 
 	card := core.FetchNextCard(c, uint(userID), uint(deckID))
-	
+
 	//TODO: Handle errors
 
 	return c.JSON(ResponseHTTP{
@@ -33,6 +34,7 @@ func GetNextCard(c *fiber.Ctx) error {
 
 }
 
+// GetRandomDebugCard
 func GetRandomDebugCard(c *fiber.Ctx) error {
 	rand.Seed(time.Now().UnixNano())
 	db := database.DBConn

@@ -80,6 +80,7 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 
 // POST
 
+// SubToDeck
 func SubToDeck(c *fiber.Ctx) error {
 	id := c.Params("deckID")
 	db := database.DBConn
@@ -94,7 +95,7 @@ func SubToDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	for x := 0; x<len(cards); x++ {
+	for x := 0; x < len(cards); x++ {
 		mem := new(models.Mem)
 
 		if err := c.BodyParser(&mem); err != nil {
@@ -104,9 +105,9 @@ func SubToDeck(c *fiber.Ctx) error {
 				Data:    nil,
 			})
 		}
-		
+
 		mem.CardID = cards[x].ID
-	
+
 		db.Preload("User").Preload("Card").Create(mem)
 
 	}

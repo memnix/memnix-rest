@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// User structure
+// History structure
 type History struct {
 	gorm.Model
 	UserID      uint `json:"user_id" example:"1"`

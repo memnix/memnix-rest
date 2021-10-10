@@ -10,6 +10,7 @@ import (
 
 // GET
 
+// GetAllUsers
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DBConn
 
@@ -53,7 +54,7 @@ func GetUserByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetUserByID
+// GetUserByDiscordID
 func GetUserByDiscordID(c *fiber.Ctx) error {
 	id := c.Params("discordID")
 	db := database.DBConn

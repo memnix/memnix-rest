@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// GetUser
 func GetUser(userID uint) models.User {
 	db := database.DBConn
 
@@ -20,6 +21,7 @@ func GetUser(userID uint) models.User {
 	return *user
 }
 
+// FetchNextCard
 func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.Card {
 	user := GetUser(userID)
 	mem := FetchNextMemByUserAndDeck(c, &user, deckID)
@@ -27,6 +29,7 @@ func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.Card {
 	return mem.Card
 }
 
+// UpdateMem
 func UpdateMem(c *fiber.Ctx, r *models.Revision, mem *models.Mem) {
 	db := database.DBConn
 
