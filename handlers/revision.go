@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"memnixrest/core"
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
@@ -115,10 +116,15 @@ func CreateNewRevision(c *fiber.Ctx) error {
 	}
 
 	db.Preload("User").Preload("Card").Create(revision)
+	
+	mem := core.GetMemByCardAndUser(c, revision.UserID, revision.CardID)
+	core.UpdateMem(c, revision, &mem)
 
 	return c.JSON(ResponseHTTP{
 		Success: true,
 		Message: "Success register a revision",
 		Data:    *revision,
 	})
+
+
 }

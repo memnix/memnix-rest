@@ -2,15 +2,36 @@ package handlers
 
 import (
 	"math/rand"
+	"memnixrest/core"
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // GET
+
+func GetNextCard(c *fiber.Ctx) error {
+	userID_temp := c.Params("userID")
+	deckID_temp := c.Params("deckID")
+
+	userID, _ :=  strconv.Atoi(userID_temp)
+	deckID, _ :=  strconv.Atoi(deckID_temp)
+
+	card := core.FetchNextCard(c, uint(userID), uint(deckID))
+	
+	//TODO: Handle errors
+
+	return c.JSON(ResponseHTTP{
+		Success: true,
+		Message: "Success get card by ID.",
+		Data:    card,
+	})
+
+}
 
 func GetRandomDebugCard(c *fiber.Ctx) error {
 	rand.Seed(time.Now().UnixNano())

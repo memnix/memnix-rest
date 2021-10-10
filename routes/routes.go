@@ -52,6 +52,14 @@ func New() *fiber.App {
 
 	debug.Get("/card", handlers.GetRandomDebugCard)
 
+	// Mem
+	debug.Get("/user/:userID/deck/:deckID/next", handlers.GetNextCard)
+	debug.Post("/mem/new", handlers.CreateNewMem)
+	debug.Put("/mem/id/:id", handlers.UpdateMemByID)
+	debug.Get("/mem/id/:id", handlers.GetMemByID)
+	debug.Get("/mem/user/:userID/card/:cardID", handlers.GetMemByCardAndUser)
+	debug.Post("/deck/:deckID/sub", handlers.SubToDeck)
+
 	// Revision
 	v1.Get("/revisions", handlers.GetAllRevisions)
 	v1.Get("/revision/id/:id", handlers.GetRevisionByID)

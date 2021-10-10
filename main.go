@@ -20,6 +20,8 @@ func main() {
 	database.DBConn.AutoMigrate(&models.History{})
 	database.DBConn.AutoMigrate(&models.Revision{})
 	database.DBConn.AutoMigrate(&models.User{})
+	database.DBConn.AutoMigrate(&models.Mem{})
+
 
 	// Create the app
 	app := routes.New()
