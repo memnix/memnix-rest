@@ -1,7 +1,7 @@
 # memnix-rest
 Memnix Rest API
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/memnix/memnix-rest)](https://goreportcard.com/report/github.com/memnix/memnix-rest) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/memnix/memnix-rest/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/memnix/memnix-rest/?branch=main) [![Total alerts](https://img.shields.io/lgtm/alerts/g/CorentinGS/KitsuRest.svg?logo=lgtm&logoWidth=18&style=flat-square)](https://lgtm.com/projects/g/CorentinGS/KitsuRest/alerts/) [![Build Status](https://scrutinizer-ci.com/g/memnix/memnix-rest/badges/build.png?b=main)](https://scrutinizer-ci.com/g/memnix/memnix-rest/build-status/main)  ![GitHub](https://img.shields.io/github/license/Memnix/memnix-rest?style=flat-square) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/memnix/memnix-rest?style=flat-square)
+[![Go Report Card](https://goreportcard.com/badge/github.com/memnix/memnix-rest)](https://goreportcard.com/report/github.com/memnix/memnix-rest) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/memnix/memnix-rest/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/memnix/memnix-rest/?branch=main) [![Build Status](https://scrutinizer-ci.com/g/memnix/memnix-rest/badges/build.png?b=main)](https://scrutinizer-ci.com/g/memnix/memnix-rest/build-status/main)  ![GitHub](https://img.shields.io/github/license/Memnix/memnix-rest?style=flat-square) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/memnix/memnix-rest?style=flat-square)
 ___
 ## Env
 
