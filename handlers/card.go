@@ -22,14 +22,14 @@ func GetNextCard(c *fiber.Ctx) error {
 	userID, _ := strconv.Atoi(userIDTemp)
 	deckID, _ := strconv.Atoi(deckIDTemp)
 
-	card := core.FetchNextCard(c, uint(userID), uint(deckID))
+	mem := core.FetchNextCard(c, uint(userID), uint(deckID))
 
 	//TODO: Handle errors
 
 	return c.JSON(ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
-		Data:    card,
+		Data:    mem,
 	})
 
 }
@@ -42,14 +42,14 @@ func GetTodayNextCard(c *fiber.Ctx) error {
 	userID, _ := strconv.Atoi(userIDTemp)
 	deckID, _ := strconv.Atoi(deckIDTemp)
 
-	card := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
+	mem := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
 
 	//TODO: Handle errors
 
 	return c.JSON(ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
-		Data:    card,
+		Data:    mem,
 	})
 }
 
