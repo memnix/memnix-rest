@@ -54,6 +54,7 @@ func New() *fiber.App {
 
 	// Mem
 	debug.Get("/user/:userID/deck/:deckID/next", handlers.GetNextCard)
+	debug.Get("/user/:userID/deck/:deckID/today", handlers.GetTodayNextCard)
 	debug.Post("/mem/new", handlers.CreateNewMem)
 	debug.Put("/mem/id/:id", handlers.UpdateMemByID)
 	debug.Get("/mem/id/:id", handlers.GetMemByID)

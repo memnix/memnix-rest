@@ -34,6 +34,25 @@ func GetNextCard(c *fiber.Ctx) error {
 
 }
 
+// GetTodayNextCard
+func GetTodayNextCard(c *fiber.Ctx) error {
+	userIDTemp := c.Params("userID")
+	deckIDTemp := c.Params("deckID")
+
+	userID, _ := strconv.Atoi(userIDTemp)
+	deckID, _ := strconv.Atoi(deckIDTemp)
+
+	card := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
+
+	//TODO: Handle errors
+
+	return c.JSON(ResponseHTTP{
+		Success: true,
+		Message: "Success get card by ID.",
+		Data:    card,
+	})
+}
+
 // GetRandomDebugCard
 func GetRandomDebugCard(c *fiber.Ctx) error {
 	rand.Seed(time.Now().UnixNano())
