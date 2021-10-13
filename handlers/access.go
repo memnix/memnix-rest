@@ -18,13 +18,13 @@ func GetAllAccesses(c *fiber.Ctx) error {
 
 	if res := db.Joins("User").Joins("Deck").Find(&accesses); res.Error != nil {
 
-		return c.JSON(ResponseHTTP{
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All accesses",
 			Data:    nil,
 		})
 	}
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All accesses",
 		Data:    accesses,
@@ -41,13 +41,13 @@ func GetAccessesByUserID(c *fiber.Ctx) error {
 
 	if res := db.Joins("User").Joins("Deck").Where("accesses.user_id = ?", userID).Find(&accesses); res.Error != nil {
 
-		return c.JSON(ResponseHTTP{
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All accesses",
 			Data:    nil,
 		})
 	}
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All accesses",
 		Data:    accesses,
@@ -63,14 +63,14 @@ func GetAccessByID(c *fiber.Ctx) error {
 	access := new(models.Access)
 
 	if err := db.Joins("User").Joins("Deck").First(&access, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get access by ID.",
 		Data:    *access,
@@ -87,14 +87,14 @@ func GetAccessByUserAndDeckID(c *fiber.Ctx) error {
 	access := new(models.Access)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", userID, deckID).First(&access).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get access by ID.",
 		Data:    *access,
@@ -110,7 +110,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 	access := new(models.Access)
 
 	if err := c.BodyParser(&access); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ResponseHTTP{
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -119,7 +119,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 
 	db.Preload("User").Preload("Deck").Create(access)
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register an access",
 		Data:    *access,
@@ -136,7 +136,7 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 	access := new(models.Access)
 
 	if err := db.First(&access, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -144,14 +144,14 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 	}
 
 	if err := UpdateAccess(c, access); err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Couldn't update the access",
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update access by Id.",
 		Data:    *access,
@@ -163,7 +163,7 @@ func UpdateAccess(c *fiber.Ctx, a *models.Access) error {
 	db := database.DBConn
 
 	if err := c.BodyParser(&a); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ResponseHTTP{
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,

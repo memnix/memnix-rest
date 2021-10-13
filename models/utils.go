@@ -1,4 +1,4 @@
-package handlers
+package models
 
 // ResponseHTTP structure
 type ResponseHTTP struct {

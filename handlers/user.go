@@ -18,13 +18,13 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 	if res := db.Find(&users); res.Error != nil {
 
-		return c.JSON(ResponseHTTP{
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All users",
 			Data:    nil,
 		})
 	}
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All users",
 		Data:    users,
@@ -40,14 +40,14 @@ func GetUserByID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.First(&user, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get user by ID.",
 		Data:    *user,
@@ -62,14 +62,14 @@ func GetUserByDiscordID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.Where("users.discord_id = ?", id).First(&user).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get user by ID.",
 		Data:    *user,
@@ -85,7 +85,7 @@ func CreateNewUser(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ResponseHTTP{
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -94,7 +94,7 @@ func CreateNewUser(c *fiber.Ctx) error {
 
 	db.Create(user)
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register an user",
 		Data:    *user,
@@ -111,7 +111,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.First(&user, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -119,14 +119,14 @@ func UpdateUserByID(c *fiber.Ctx) error {
 	}
 
 	if err := UpdateUser(c, user); err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Couldn't update the user",
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update user by Id.",
 		Data:    *user,
@@ -138,7 +138,7 @@ func UpdateUser(c *fiber.Ctx, u *models.User) error {
 	db := database.DBConn
 
 	if err := c.BodyParser(&u); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ResponseHTTP{
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,

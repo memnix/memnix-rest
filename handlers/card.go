@@ -26,7 +26,7 @@ func GetNextCard(c *fiber.Ctx) error {
 
 	//TODO: Handle errors
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    mem,
@@ -46,7 +46,7 @@ func GetTodayNextCard(c *fiber.Ctx) error {
 
 	//TODO: Handle errors
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    mem,
@@ -61,7 +61,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 	var cards []models.Card
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
 
-		return c.JSON(ResponseHTTP{
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All cards",
 			Data:    nil,
@@ -70,7 +70,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 
 	rdm := rand.Intn(len(cards)-0) + 0
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All cards",
 		Data:    cards[rdm],
@@ -85,13 +85,13 @@ func GetAllCards(c *fiber.Ctx) error {
 
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
 
-		return c.JSON(ResponseHTTP{
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All cards",
 			Data:    nil,
 		})
 	}
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All cards",
 		Data:    cards,
@@ -107,14 +107,14 @@ func GetCardByID(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := db.Joins("Deck").First(&card, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    *card,
@@ -129,14 +129,14 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 	var cards []models.Card
 
 	if err := db.Joins("Deck").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get cards by ID.",
 		Data:    cards,
@@ -152,7 +152,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := c.BodyParser(&card); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ResponseHTTP{
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -161,7 +161,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	db.Preload("Deck").Create(card)
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a card",
 		Data:    *card,

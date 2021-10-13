@@ -19,13 +19,13 @@ func GetAllRevisions(c *fiber.Ctx) error {
 
 	if res := db.Joins("User").Joins("Card").Find(&revisions); res.Error != nil {
 
-		return c.JSON(ResponseHTTP{
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All revisions",
 			Data:    nil,
 		})
 	}
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All revisions",
 		Data:    revisions,
@@ -41,14 +41,14 @@ func GetRevisionByID(c *fiber.Ctx) error {
 	revision := new(models.Revision)
 
 	if err := db.Joins("User").Joins("Card").First(&revision, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
@@ -63,14 +63,14 @@ func GetRevisionByUserID(c *fiber.Ctx) error {
 	revision := new(models.Revision)
 
 	if err := db.Joins("User").Joins("Card").Where("revisions.user_id = ?", id).First(&revision).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
@@ -85,14 +85,14 @@ func GetRevisionByCardID(c *fiber.Ctx) error {
 	revision := new(models.Revision)
 
 	if err := db.Joins("User").Joins("Card").Where("revisions.card_id = ?", id).First(&revision).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(ResponseHTTP{
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
@@ -108,7 +108,7 @@ func CreateNewRevision(c *fiber.Ctx) error {
 	revision := new(models.Revision)
 
 	if err := c.BodyParser(&revision); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ResponseHTTP{
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -120,7 +120,7 @@ func CreateNewRevision(c *fiber.Ctx) error {
 	mem := core.GetMemByCardAndUser(c, revision.UserID, revision.CardID)
 	core.UpdateMem(c, revision, &mem)
 
-	return c.JSON(ResponseHTTP{
+	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a revision",
 		Data:    *revision,
