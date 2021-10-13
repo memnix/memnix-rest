@@ -22,14 +22,20 @@ func GetNextCard(c *fiber.Ctx) error {
 	userID, _ := strconv.Atoi(userIDTemp)
 	deckID, _ := strconv.Atoi(deckIDTemp)
 
-	mem := core.FetchNextCard(c, uint(userID), uint(deckID))
+	res := core.FetchNextCard(c, uint(userID), uint(deckID))
 
-	//TODO: Handle errors
+	if !res.Success {
+		return c.JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Next card not found",
+			Data:    nil,
+		})
+	}
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
-		Data:    mem,
+		Data:    res.Data,
 	})
 
 }
@@ -42,14 +48,19 @@ func GetTodayNextCard(c *fiber.Ctx) error {
 	userID, _ := strconv.Atoi(userIDTemp)
 	deckID, _ := strconv.Atoi(deckIDTemp)
 
-	mem := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
-
-	//TODO: Handle errors
+	res := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
+	if !res.Success {
+		return c.JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "No more card for today!",
+			Data:    nil,
+		})
+	}
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success get card by ID.",
-		Data:    mem,
+		Message: "Success get card Today's card.",
+		Data:    res.Data,
 	})
 }
 
