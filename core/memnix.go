@@ -22,19 +22,19 @@ func GetUser(userID uint) models.User {
 }
 
 // FetchNextTodayCard
-func FetchNextTodayCard(c *fiber.Ctx, userID uint, deckID uint) models.Mem {
+func FetchNextTodayCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 	user := GetUser(userID)
-	mem := FetchNextTodayMemByUserAndDeck(c, &user, deckID)
+	res := FetchNextTodayMemByUserAndDeck(c, &user, deckID)
 
-	return mem
+	return res
 }
 
 // FetchNextCard
-func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.Mem {
+func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 	user := GetUser(userID)
-	mem := FetchNextMemByUserAndDeck(c, &user, deckID)
+	res := FetchNextMemByUserAndDeck(c, &user, deckID)
 
-	return mem
+	return res
 }
 
 // UpdateMem
