@@ -79,6 +79,7 @@ func UpdateMem(c *fiber.Ctx, r *models.Revision, mem *models.Mem) {
 	}
 
 	mem.NextDate = time.Now().AddDate(0, 0, int(mem.Interval))
+	mem.Total++
 
 	db.Save(mem)
 }
