@@ -53,24 +53,13 @@ func UpdateMem(c *fiber.Ctx, r *models.Revision, mem *models.Mem) {
 
 		mem.Repetition += 1
 
-		if mem.Repetition >= 3 {
-			mem.Quality = 5
-		} else {
-			mem.Quality = 4
-		}
 	} else {
 		mem.Repetition = 0
 		mem.Interval = 0
-		if mem.Repetition >= 3 {
-			mem.Quality = 3
-		} else if mem.Repetition < 3 && mem.Repetition >= 1 {
-			mem.Quality = 2
-		} else if mem.Total < 2 {
-			mem.Quality = 1
-		} else {
-			mem.Quality = 0
-		}
+
 	}
+
+	mem.Quality = r.Quality
 
 	mem.Efactor = mem.Efactor + (0.1 - (5.0-float32(mem.Quality))*(0.08+(5-float32(mem.Quality)))*0.02)
 

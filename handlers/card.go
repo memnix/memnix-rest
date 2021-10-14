@@ -29,6 +29,7 @@ func GetNextCard(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Next card not found",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -36,6 +37,7 @@ func GetNextCard(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    res.Data,
+		Count:   1,
 	})
 
 }
@@ -54,6 +56,7 @@ func GetTodayNextCard(c *fiber.Ctx) error {
 			Success: false,
 			Message: "No more card for today!",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -61,6 +64,7 @@ func GetTodayNextCard(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get card Today's card.",
 		Data:    res.Data,
+		Count:   1,
 	})
 }
 
@@ -76,6 +80,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All cards",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -85,6 +90,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Get All cards",
 		Data:    cards[rdm],
+		Count:   len(cards),
 	})
 }
 
@@ -100,12 +106,14 @@ func GetAllCards(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All cards",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All cards",
 		Data:    cards,
+		Count:   len(cards),
 	})
 
 }
@@ -122,6 +130,7 @@ func GetCardByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -129,6 +138,7 @@ func GetCardByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    *card,
+		Count:   1,
 	})
 }
 
@@ -144,6 +154,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -151,6 +162,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get cards by ID.",
 		Data:    cards,
+		Count:   len(cards),
 	})
 }
 
@@ -167,6 +179,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -176,5 +189,6 @@ func CreateNewCard(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success register a card",
 		Data:    *card,
+		Count:   1,
 	})
 }

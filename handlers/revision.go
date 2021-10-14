@@ -23,12 +23,14 @@ func GetAllRevisions(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All revisions",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All revisions",
 		Data:    revisions,
+		Count:   len(revisions),
 	})
 
 }
@@ -45,6 +47,7 @@ func GetRevisionByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -52,6 +55,7 @@ func GetRevisionByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
+		Count:   1,
 	})
 }
 
@@ -67,6 +71,7 @@ func GetRevisionByUserID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -74,6 +79,7 @@ func GetRevisionByUserID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
+		Count:   1,
 	})
 }
 
@@ -89,6 +95,7 @@ func GetRevisionByCardID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -96,6 +103,7 @@ func GetRevisionByCardID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
+		Count:   1,
 	})
 }
 
@@ -112,11 +120,12 @@ func CreateNewRevision(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
 	db.Preload("User").Preload("Card").Create(revision)
-	
+
 	mem := core.GetMemByCardAndUser(c, revision.UserID, revision.CardID)
 	core.UpdateMem(c, revision, &mem)
 
@@ -124,7 +133,7 @@ func CreateNewRevision(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success register a revision",
 		Data:    *revision,
+		Count:   1,
 	})
-
 
 }

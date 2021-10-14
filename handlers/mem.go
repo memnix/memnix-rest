@@ -22,12 +22,14 @@ func GetAllMem(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All mems",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All mems",
 		Data:    mems,
+		Count:   len(mems),
 	})
 
 }
@@ -44,6 +46,7 @@ func GetMemByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -51,6 +54,7 @@ func GetMemByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get mem by ID.",
 		Data:    *mem,
+		Count:   1,
 	})
 }
 
@@ -68,6 +72,7 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -75,6 +80,7 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get mem by UserID & CardID.",
 		Data:    *mem,
+		Count:   1,
 	})
 }
 
@@ -92,6 +98,7 @@ func SubToDeck(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -103,6 +110,7 @@ func SubToDeck(c *fiber.Ctx) error {
 				Success: false,
 				Message: err.Error(),
 				Data:    nil,
+				Count:   0,
 			})
 		}
 
@@ -116,6 +124,7 @@ func SubToDeck(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success subscribing to deck",
 		Data:    nil,
+		Count:   0,
 	})
 }
 
@@ -130,6 +139,7 @@ func CreateNewMem(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -139,6 +149,7 @@ func CreateNewMem(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success subscribing to deck",
 		Data:    *mem,
+		Count:   1,
 	})
 }
 
@@ -156,6 +167,7 @@ func UpdateMemByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -164,6 +176,7 @@ func UpdateMemByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Couldn't update the mem",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -171,6 +184,7 @@ func UpdateMemByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success update mem by Id.",
 		Data:    *mem,
+		Count:   1,
 	})
 }
 
@@ -183,6 +197,7 @@ func UpdateMem(c *fiber.Ctx, m *models.Mem) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 

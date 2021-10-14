@@ -22,12 +22,14 @@ func GetAllDecks(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All decks",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All decks",
 		Data:    decks,
+		Count:   len(decks),
 	})
 
 }
@@ -44,6 +46,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -51,6 +54,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get deck by ID.",
 		Data:    *deck,
+		Count:   1,
 	})
 }
 
@@ -67,6 +71,7 @@ func CreateNewDeck(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -76,5 +81,6 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success register a deck",
 		Data:    *deck,
+		Count:   1,
 	})
 }

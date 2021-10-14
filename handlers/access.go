@@ -23,12 +23,14 @@ func GetAllAccesses(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All accesses",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All accesses",
 		Data:    accesses,
+		Count:   len(accesses),
 	})
 }
 
@@ -46,12 +48,14 @@ func GetAccessesByUserID(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All accesses",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All accesses",
 		Data:    accesses,
+		Count:   len(accesses),
 	})
 
 }
@@ -68,6 +72,7 @@ func GetAccessByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -75,6 +80,7 @@ func GetAccessByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get access by ID.",
 		Data:    *access,
+		Count:   1,
 	})
 }
 
@@ -92,6 +98,7 @@ func GetAccessByUserAndDeckID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -99,6 +106,7 @@ func GetAccessByUserAndDeckID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get access by ID.",
 		Data:    *access,
+		Count:   1,
 	})
 }
 
@@ -115,6 +123,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -125,6 +134,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -153,6 +163,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success register an access",
 		Data:    *access,
+		Count:   1,
 	})
 }
 
@@ -170,6 +181,7 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -178,6 +190,7 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Couldn't update the access",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -185,6 +198,7 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success update access by Id.",
 		Data:    *access,
+		Count:   1,
 	})
 }
 
@@ -197,6 +211,7 @@ func UpdateAccess(c *fiber.Ctx, a *models.Access) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 

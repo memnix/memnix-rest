@@ -22,12 +22,14 @@ func GetAllUsers(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Get All users",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All users",
 		Data:    users,
+		Count:   len(users),
 	})
 
 }
@@ -44,6 +46,7 @@ func GetUserByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -51,6 +54,7 @@ func GetUserByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get user by ID.",
 		Data:    *user,
+		Count:   1,
 	})
 }
 
@@ -66,6 +70,7 @@ func GetUserByDiscordID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -73,6 +78,7 @@ func GetUserByDiscordID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get user by ID.",
 		Data:    *user,
+		Count:   1,
 	})
 }
 
@@ -89,6 +95,7 @@ func CreateNewUser(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -98,6 +105,7 @@ func CreateNewUser(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success register an user",
 		Data:    *user,
+		Count:   1,
 	})
 }
 
@@ -115,6 +123,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -123,6 +132,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 			Success: false,
 			Message: "Couldn't update the user",
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
@@ -130,6 +140,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success update user by Id.",
 		Data:    *user,
+		Count:   1,
 	})
 }
 
@@ -142,6 +153,7 @@ func UpdateUser(c *fiber.Ctx, u *models.User) error {
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
+			Count:   0,
 		})
 	}
 
