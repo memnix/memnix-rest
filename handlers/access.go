@@ -57,7 +57,6 @@ func GetAccessesByUserID(c *fiber.Ctx) error {
 		Data:    accesses,
 		Count:   len(accesses),
 	})
-
 }
 
 // GetAccessByID
