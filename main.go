@@ -21,6 +21,7 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Revision{})
 	database.DBConn.AutoMigrate(&models.User{})
 	database.DBConn.AutoMigrate(&models.Mem{})
+	database.DBConn.AutoMigrate(&models.Answer{})
 
 
 	// Create the app

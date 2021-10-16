@@ -64,7 +64,7 @@ func GetAnswersByCardID(c *fiber.Ctx) error {
 
 	cardID := c.Params("cardID")
 
-	var answers []models.Access
+	var answers []models.Answer
 
 	if res := db.Joins("Card").Where("answers.card_id = ?", cardID).Find(&answers); res.Error != nil {
 
