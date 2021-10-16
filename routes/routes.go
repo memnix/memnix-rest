@@ -68,12 +68,18 @@ func New() *fiber.App {
 	v1.Post("/revision/new", handlers.CreateNewRevision)           // Create a new revision
 
 	// Access
-	v1.Get("/accesses", handlers.GetAllAccesses)                                   // Get all users
-	v1.Get("/access/id/:id", handlers.GetAccessByID)                               // Get user by ID
-	v1.Get("/access/user/:userID/deck/:deckID", handlers.GetAccessByUserAndDeckID) // Get user by ID
+	v1.Get("/accesses", handlers.GetAllAccesses)                                   // Get all accesses
+	v1.Get("/access/id/:id", handlers.GetAccessByID)                               // Get access by ID
+	v1.Get("/access/user/:userID/deck/:deckID", handlers.GetAccessByUserAndDeckID) // Get access by userID & deckID
 	v1.Get("accesses/user/:userID", handlers.GetAccessesByUserID)                  // Get accesses by userID
-	v1.Post("/access/new", handlers.CreateNewAccess)                               // Create a new user
-	v1.Put("/access/id/:id", handlers.UpdateAccessByID)                            // Update an user using his ID
+	v1.Post("/access/new", handlers.CreateNewAccess)                               // Create a new access
+	v1.Put("/access/id/:id", handlers.UpdateAccessByID)                            // Update an access using his ID
+
+	// Answer
+	v1.Get("/answers", handlers.GetAllAnswers)                  // Get all answers
+	v1.Get("/answer/id/:id", handlers.GetAnswerByID)            // Get answer by ID
+	v1.Get("/answer/card/:cardID", handlers.GetAnswersByCardID) // Get answer by CardID
+	v1.Post("/answer/new", handlers.CreateNewAnswer)            // Create a new answer
 
 	// History
 	// TODO
