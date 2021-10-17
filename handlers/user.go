@@ -103,7 +103,11 @@ func CreateNewUser(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Create(user)
+	if err := db.Where("users.discord_id = ?", user.DiscordID).First(&user).Error; err != nil {
+		db.Create(user)
+	} else {
+		db.Save(user)
+	}
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
