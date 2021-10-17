@@ -89,6 +89,35 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	})
 }
 
+// UnsubToDeck
+func UnSubToDeck(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
+	deckID := c.Params("deckID")
+	userID := c.Params("userID")
+
+	access := new(models.Access)
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", userID, deckID).Find(&access).Error; err != nil {
+		return c.JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "This user isn't sub to the deck",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	access.Permission = 0
+	db.Preload("User").Preload("Deck").Save(access)
+
+	return c.JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success unsub to the deck",
+		Data:    nil,
+		Count:   0,
+	})
+}
+
 // SubToDeck
 func SubToDeck(c *fiber.Ctx) error {
 	deckID := c.Params("deckID")
