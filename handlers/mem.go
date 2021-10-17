@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"memnixrest/core"
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -84,53 +86,65 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 	})
 }
 
-// POST
+// GetNextMem
+func GetNextMem(c *fiber.Ctx) error {
+	userIDTemp := c.Params("userID")
+	deckIDTemp := c.Params("deckID")
 
-// SubToDeck
-func SubToDeck(c *fiber.Ctx) error {
-	id := c.Params("deckID")
-	db := database.DBConn
+	userID, _ := strconv.Atoi(userIDTemp)
+	deckID, _ := strconv.Atoi(deckIDTemp)
 
-	var cards []models.Card
+	res := core.FetchNextCard(c, uint(userID), uint(deckID))
 
-	if err := db.Joins("Deck").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+	if !res.Success {
+		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: err.Error(),
+			Message: "Next card not found",
 			Data:    nil,
 			Count:   0,
 		})
 	}
 
-	for x := 0; x < len(cards); x++ {
-		mem := new(models.Mem)
+	return c.JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success get card by ID.",
+		Data:    res.Data,
+		Count:   1,
+	})
 
-		if err := c.BodyParser(&mem); err != nil {
-			return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-				Success: false,
-				Message: err.Error(),
-				Data:    nil,
-				Count:   0,
-			})
-		}
+}
 
-		mem.CardID = cards[x].ID
+// GetTodayNextMem
+func GetTodayNextMem(c *fiber.Ctx) error {
+	userIDTemp := c.Params("userID")
+	deckIDTemp := c.Params("deckID")
 
-		db.Preload("User").Preload("Card").Create(mem)
+	userID, _ := strconv.Atoi(userIDTemp)
+	deckID, _ := strconv.Atoi(deckIDTemp)
 
+	res := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
+	if !res.Success {
+		return c.JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "No more card for today!",
+			Data:    nil,
+			Count:   0,
+		})
 	}
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success subscribing to deck",
-		Data:    nil,
-		Count:   0,
+		Message: "Success get card Today's card.",
+		Data:    res.Data,
+		Count:   1,
 	})
 }
 
+// POST
+
 // CreateNewMem
 func CreateNewMem(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
 
@@ -147,7 +161,7 @@ func CreateNewMem(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success subscribing to deck",
+		Message: "Success register a new mem",
 		Data:    *mem,
 		Count:   1,
 	})
@@ -157,7 +171,9 @@ func CreateNewMem(c *fiber.Ctx) error {
 
 // UpdateMemByID
 func UpdateMemByID(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("id")
 
 	mem := new(models.Mem)
@@ -190,7 +206,7 @@ func UpdateMemByID(c *fiber.Ctx) error {
 
 // UpdateMem
 func UpdateMem(c *fiber.Ctx, m *models.Mem) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	if err := c.BodyParser(&m); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{

@@ -13,22 +13,23 @@ import (
 
 // GetAllAccesses
 func GetAllAccesses(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
-	var accesses []models.Access
+	var accesses []models.Access // Accesses array
 
 	if res := db.Joins("User").Joins("Deck").Find(&accesses); res.Error != nil {
-
+		// Return error
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All accesses",
+			Message: "Failed to get all accesses",
 			Data:    nil,
 			Count:   0,
 		})
 	}
+	// Return success
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get All accesses",
+		Message: "Get all accesses",
 		Data:    accesses,
 		Count:   len(accesses),
 	})
@@ -36,24 +37,26 @@ func GetAllAccesses(c *fiber.Ctx) error {
 
 // GetAllAccesses
 func GetAccessesByUserID(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
+	// Params
 	userID := c.Params("userID")
 
-	var accesses []models.Access
+	var accesses []models.Access // Accesses array
 
 	if res := db.Joins("User").Joins("Deck").Where("accesses.user_id = ?", userID).Find(&accesses); res.Error != nil {
-
+		// Return error
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All accesses",
+			Message: "Failed to get accesses of an user",
 			Data:    nil,
 			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
+		// Return success
 		Success: true,
-		Message: "Get All accesses",
+		Message: "Get accesses of an user",
 		Data:    accesses,
 		Count:   len(accesses),
 	})
@@ -61,12 +64,15 @@ func GetAccessesByUserID(c *fiber.Ctx) error {
 
 // GetAccessByID
 func GetAccessByID(c *fiber.Ctx) error {
+	db := database.DBConn // Db Conn
+
+	// Params
 	id := c.Params("id")
-	db := database.DBConn
 
 	access := new(models.Access)
 
 	if err := db.Joins("User").Joins("Deck").First(&access, id).Error; err != nil {
+		// Return error
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
@@ -76,6 +82,7 @@ func GetAccessByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(models.ResponseHTTP{
+		// Return success
 		Success: true,
 		Message: "Success get access by ID.",
 		Data:    *access,
@@ -83,12 +90,13 @@ func GetAccessByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetAccessByUserAndDeckID
-func GetAccessByUserAndDeckID(c *fiber.Ctx) error {
+// GetAccessByUserIDAndDeckID
+func GetAccessByUserIDAndDeckID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	userID := c.Params("userID")
 	deckID := c.Params("deckID")
-
-	db := database.DBConn
 
 	access := new(models.Access)
 
@@ -103,7 +111,7 @@ func GetAccessByUserAndDeckID(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success get access by ID.",
+		Message: "Success get access by UserID & DeckID.",
 		Data:    *access,
 		Count:   1,
 	})
@@ -113,7 +121,7 @@ func GetAccessByUserAndDeckID(c *fiber.Ctx) error {
 
 // CreateNewAccess
 func CreateNewAccess(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	access := new(models.Access)
 
@@ -126,7 +134,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 		})
 	}
 
-	var cards []models.Card
+	var cards []models.Card // Cards array
 
 	if err := db.Joins("Deck").Where("cards.deck_id = ?", access.DeckID).Find(&cards).Error; err != nil {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
@@ -170,7 +178,9 @@ func CreateNewAccess(c *fiber.Ctx) error {
 
 // UpdateAccessByID
 func UpdateAccessByID(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("id")
 
 	access := new(models.Access)

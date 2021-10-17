@@ -13,7 +13,7 @@ import (
 
 // GetAllRevisions
 func GetAllRevisions(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	var revisions []models.Revision
 
@@ -21,14 +21,14 @@ func GetAllRevisions(c *fiber.Ctx) error {
 
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All revisions",
+			Message: "Failed to get all revisions",
 			Data:    nil,
 			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get All revisions",
+		Message: "Get all revisions",
 		Data:    revisions,
 		Count:   len(revisions),
 	})
@@ -37,8 +37,10 @@ func GetAllRevisions(c *fiber.Ctx) error {
 
 // GetRevisionByID
 func GetRevisionByID(c *fiber.Ctx) error {
+	db := database.DBConn // Db Conn
+
+	// Params
 	id := c.Params("id")
-	db := database.DBConn
 
 	revision := new(models.Revision)
 
@@ -61,8 +63,10 @@ func GetRevisionByID(c *fiber.Ctx) error {
 
 // GetRevisionByUserID
 func GetRevisionByUserID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("userID")
-	db := database.DBConn
 
 	revision := new(models.Revision)
 
@@ -77,31 +81,7 @@ func GetRevisionByUserID(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success get revision by ID.",
-		Data:    *revision,
-		Count:   1,
-	})
-}
-
-// GetRevisionByCardID
-func GetRevisionByCardID(c *fiber.Ctx) error {
-	id := c.Params("userID")
-	db := database.DBConn
-
-	revision := new(models.Revision)
-
-	if err := db.Joins("User").Joins("Card").Where("revisions.card_id = ?", id).First(&revision).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	return c.JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success get revision by ID.",
+		Message: "Success get revision by UserID.",
 		Data:    *revision,
 		Count:   1,
 	})
@@ -111,7 +91,7 @@ func GetRevisionByCardID(c *fiber.Ctx) error {
 
 // CreateNewRevision
 func CreateNewRevision(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // Db Conn
 
 	revision := new(models.Revision)
 

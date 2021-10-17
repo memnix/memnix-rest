@@ -12,7 +12,7 @@ import (
 
 // GetAllAnswers
 func GetAllAnswers(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	var answers []models.Answer
 
@@ -20,7 +20,7 @@ func GetAllAnswers(c *fiber.Ctx) error {
 
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All answers",
+			Message: "Failed to get All answers",
 			Data:    nil,
 			Count:   0,
 		})
@@ -36,8 +36,10 @@ func GetAllAnswers(c *fiber.Ctx) error {
 
 // GetAnswerByID
 func GetAnswerByID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("id")
-	db := database.DBConn
 
 	answer := new(models.Answer)
 
@@ -60,8 +62,9 @@ func GetAnswerByID(c *fiber.Ctx) error {
 
 // GetAnswersByCardID
 func GetAnswersByCardID(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
+	// Params
 	cardID := c.Params("cardID")
 
 	var answers []models.Answer
@@ -70,14 +73,14 @@ func GetAnswersByCardID(c *fiber.Ctx) error {
 
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get all answers",
+			Message: "Failed to get answers by cardID",
 			Data:    nil,
 			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get all answers",
+		Message: "Get answers by cardID",
 		Data:    answers,
 		Count:   len(answers),
 	})
@@ -87,7 +90,7 @@ func GetAnswersByCardID(c *fiber.Ctx) error {
 
 // CreateNewAnswer
 func CreateNewAnswer(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	answer := new(models.Answer)
 
@@ -104,7 +107,7 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success register a answer",
+		Message: "Success register an answer",
 		Data:    *answer,
 		Count:   1,
 	})

@@ -12,7 +12,7 @@ import (
 
 // GetAllUsers
 func GetAllUsers(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	var users []models.User
 
@@ -20,14 +20,14 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All users",
+			Message: "Failed to get all users",
 			Data:    nil,
 			Count:   0,
 		})
 	}
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get All users",
+		Message: "Get all users",
 		Data:    users,
 		Count:   len(users),
 	})
@@ -36,8 +36,10 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 // GetUserByID
 func GetUserByID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("id")
-	db := database.DBConn
 
 	user := new(models.User)
 
@@ -60,8 +62,10 @@ func GetUserByID(c *fiber.Ctx) error {
 
 // GetUserByDiscordID
 func GetUserByDiscordID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("discordID")
-	db := database.DBConn
 
 	user := new(models.User)
 
@@ -76,7 +80,7 @@ func GetUserByDiscordID(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success get user by ID.",
+		Message: "Success get user by discordID.",
 		Data:    *user,
 		Count:   1,
 	})
@@ -86,7 +90,7 @@ func GetUserByDiscordID(c *fiber.Ctx) error {
 
 // CreateNewUser
 func CreateNewUser(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	user := new(models.User)
 
@@ -113,7 +117,9 @@ func CreateNewUser(c *fiber.Ctx) error {
 
 // UpdateUserByID
 func UpdateUserByID(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("id")
 
 	user := new(models.User)
@@ -138,7 +144,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success update user by Id.",
+		Message: "Success update user by ID",
 		Data:    *user,
 		Count:   1,
 	})

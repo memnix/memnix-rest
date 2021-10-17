@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"math/rand"
-	"memnixrest/core"
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,71 +12,18 @@ import (
 
 // GET
 
-// GetNextCard
-func GetNextCard(c *fiber.Ctx) error {
-	userIDTemp := c.Params("userID")
-	deckIDTemp := c.Params("deckID")
-
-	userID, _ := strconv.Atoi(userIDTemp)
-	deckID, _ := strconv.Atoi(deckIDTemp)
-
-	res := core.FetchNextCard(c, uint(userID), uint(deckID))
-
-	if !res.Success {
-		return c.JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Next card not found",
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	return c.JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success get card by ID.",
-		Data:    res.Data,
-		Count:   1,
-	})
-
-}
-
-// GetTodayNextCard
-func GetTodayNextCard(c *fiber.Ctx) error {
-	userIDTemp := c.Params("userID")
-	deckIDTemp := c.Params("deckID")
-
-	userID, _ := strconv.Atoi(userIDTemp)
-	deckID, _ := strconv.Atoi(deckIDTemp)
-
-	res := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
-	if !res.Success {
-		return c.JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "No more card for today!",
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	return c.JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success get card Today's card.",
-		Data:    res.Data,
-		Count:   1,
-	})
-}
-
-// GetRandomDebugCard
+// DEBUG: GetRandomDebugCard
 func GetRandomDebugCard(c *fiber.Ctx) error {
-	rand.Seed(time.Now().UnixNano())
-	db := database.DBConn
+	rand.Seed(time.Now().UnixNano()) // Random seed
+
+	db := database.DBConn // DB Conn
 
 	var cards []models.Card
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
 
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All cards",
+			Message: "Failed to get a random card",
 			Data:    nil,
 			Count:   0,
 		})
@@ -88,7 +33,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get All cards",
+		Message: "Get a random card",
 		Data:    cards[rdm],
 		Count:   len(cards),
 	})
@@ -96,7 +41,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 
 // GetAllCards
 func GetAllCards(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	var cards []models.Card
 
@@ -104,7 +49,7 @@ func GetAllCards(c *fiber.Ctx) error {
 
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Get All cards",
+			Message: "Failed to get all cards",
 			Data:    nil,
 			Count:   0,
 		})
@@ -120,8 +65,10 @@ func GetAllCards(c *fiber.Ctx) error {
 
 // GetCardByID
 func GetCardByID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("id")
-	db := database.DBConn
 
 	card := new(models.Card)
 
@@ -144,8 +91,10 @@ func GetCardByID(c *fiber.Ctx) error {
 
 // GetCardsFromDeck
 func GetCardsFromDeck(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
 	id := c.Params("deckID")
-	db := database.DBConn
 
 	var cards []models.Card
 
@@ -160,7 +109,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 	return c.JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success get cards by ID.",
+		Message: "Success get cards from deck.",
 		Data:    cards,
 		Count:   len(cards),
 	})
@@ -170,7 +119,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 // CreateNewCard
 func CreateNewCard(c *fiber.Ctx) error {
-	db := database.DBConn
+	db := database.DBConn // DB Conn
 
 	card := new(models.Card)
 
