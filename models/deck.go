@@ -8,5 +8,5 @@ import (
 type Deck struct {
 	gorm.Model
 	DeckName string `json:"deck_name" example:"First Deck"`
-	Private  bool   `json:"private" example:"true"`
+	Status   uint   `json:"status" example:"0"` // 0: Draft - 1: Private - 3: Published
 }
