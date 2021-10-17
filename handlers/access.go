@@ -4,7 +4,6 @@ import (
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -132,36 +131,6 @@ func CreateNewAccess(c *fiber.Ctx) error {
 			Data:    nil,
 			Count:   0,
 		})
-	}
-
-	var cards []models.Card // Cards array
-
-	if err := db.Joins("Deck").Where("cards.deck_id = ?", access.DeckID).Find(&cards).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	for x := 0; x < len(cards); x++ {
-		mem := new(models.Mem)
-
-		if err := db.Where("mems.user_id = ? AND mems.card_id = ?", access.UserID, cards[x].ID).First(&mem).Error; err != nil {
-			mem.CardID = cards[x].ID
-			mem.UserID = access.UserID
-			mem.DeckID = access.DeckID
-			mem.Efactor = 2.5
-			mem.Interval = 0
-			mem.Total = 0
-			mem.NextDate = time.Now()
-			mem.Quality = 0
-			mem.Repetition = 0
-
-			db.Preload("User").Preload("Card").Create(mem)
-		}
-
 	}
 
 	db.Preload("User").Preload("Deck").Create(access)

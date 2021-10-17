@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"memnixrest/core"
 	"memnixrest/database"
 	"memnixrest/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -89,12 +91,17 @@ func CreateNewDeck(c *fiber.Ctx) error {
 
 // SubToDeck
 func SubToDeck(c *fiber.Ctx) error {
-	id := c.Params("deckID")
+	deckID := c.Params("deckID")
+	userID := c.Params("userID")
+
+	userID_temp, _ := strconv.Atoi(userID)
+	deckID_temp, _ := strconv.Atoi(deckID)
+
 	db := database.DBConn
 
 	var cards []models.Card
 
-	if err := db.Joins("Deck").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
+	if err := db.Joins("Deck").Where("cards.deck_id = ?", deckID).Find(&cards).Error; err != nil {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
@@ -103,22 +110,22 @@ func SubToDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	for x := 0; x < len(cards); x++ {
-		mem := new(models.Mem)
+	if err := core.GenerateAccess(c, uint(userID_temp), uint(deckID_temp)); !err.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Couldn't generate access !",
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
-		if err := c.BodyParser(&mem); err != nil {
-			return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-				Success: false,
-				Message: err.Error(),
-				Data:    nil,
-				Count:   0,
-			})
-		}
-
-		mem.CardID = cards[x].ID
-
-		db.Preload("User").Preload("Card").Create(mem)
-
+	if err := core.GenerateMem(c, uint(userID_temp), uint(deckID_temp)); !err.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Couldn't generate mems !",
+			Data:    nil,
+			Count:   0,
+		})
 	}
 
 	return c.JSON(models.ResponseHTTP{
