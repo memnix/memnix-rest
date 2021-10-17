@@ -44,8 +44,10 @@ func New() *fiber.App {
 
 	// Decks
 	// Get
-	v1.Get("/decks", handlers.GetAllDecks)        // Get all decks
-	v1.Get("/decks/id/:id", handlers.GetDeckByID) // Get deck by ID
+	v1.Get("/decks", handlers.GetAllDecks)                 // Get all decks
+	v1.Get("/decks/public", handlers.GetAllPublicDecks)    // Get all public decks
+	v1.Get("/decks/user/:userID", handlers.GetAllSubDecks) // Get all decks the user is sub to
+	v1.Get("/decks/id/:id", handlers.GetDeckByID)          // Get deck by ID
 	// Post
 	v1.Post("/decks/new", handlers.CreateNewDeck)                            // Create a new deck
 	v1.Post("/decks/:deckID/user/:userID/subscribe", handlers.SubToDeck)     // Subscribe to a deck

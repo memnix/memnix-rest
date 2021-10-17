@@ -62,6 +62,53 @@ func GetDeckByID(c *fiber.Ctx) error {
 	})
 }
 
+// GetAllSubDecks
+func GetAllSubDecks(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
+	id := c.Params("userID")
+
+	var decks []models.Deck
+
+	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND accesses.user_id = ? AND accesses.permission > 0", id).Find(&decks).Error; err != nil {
+		return c.JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Failed to get all sub decks",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+	return c.JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all sub decks",
+		Data:    decks,
+		Count:   len(decks),
+	})
+}
+
+// GetAllPublicDecks
+func GetAllPublicDecks(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	var decks []models.Deck
+
+	if err := db.Where("decks.status = 3").Find(&decks).Error; err != nil {
+		return c.JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Failed to get all public decks",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+	return c.JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all public decks",
+		Data:    decks,
+		Count:   len(decks),
+	})
+}
+
 // POST
 
 // CreateNewDeck
