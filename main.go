@@ -23,7 +23,6 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Mem{})
 	database.DBConn.AutoMigrate(&models.Answer{})
 
-
 	// Create the app
 	app := routes.New()
 	// Listen to port 1812
