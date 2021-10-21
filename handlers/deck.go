@@ -93,7 +93,7 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 
 	var decks []models.Deck
 
-	if err := db.Where("decks.status = 3").Find(&decks).Error; err != nil {
+	if err := db.Where("decks.status = 2").Find(&decks).Error; err != nil {
 		return c.JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all public decks",

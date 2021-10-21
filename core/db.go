@@ -86,6 +86,8 @@ func GenerateAccess(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP 
 		access.Permission = 1
 		db.Preload("User").Preload("Deck").Create(access)
 	} else {
+		access.DeckID = deckID
+		access.UserID = userID
 		access.Permission = 1
 		db.Preload("User").Preload("Deck").Save(access)
 	}
