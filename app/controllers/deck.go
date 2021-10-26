@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"memnixrest/app/models"
 	"memnixrest/app/database"
+	"memnixrest/app/models"
 	"memnixrest/pkg/core"
 	"net/http"
 	"strconv"
@@ -12,7 +12,13 @@ import (
 
 // GET
 
-// GetAllDecks
+// GetAllDecks method to get all decks
+// @Description Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !
+// @Summary get all decks
+// @Tags Deck
+// @Produce json
+// @Success 200 {object} models.Deck
+// @Router /v1/decks [get]
 func GetAllDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -36,7 +42,14 @@ func GetAllDecks(c *fiber.Ctx) error {
 
 }
 
-// GetDeckByID
+// GetDeckByID method to get a deck
+// @Description Get a deck by tech ID
+// @Summary get a deck
+// @Tags Deck
+// @Produce json
+// @Param id path int true "Deck ID"
+// @Success 200 {model} models.Deck
+// @Router /v1/decks/{id} [get]
 func GetDeckByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -62,7 +75,14 @@ func GetDeckByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllSubDecks
+// GetAllSubDecks method to get a deck
+// @Description Get decks a user is sub to
+// @Summary get a list of deck
+// @Tags Deck
+// @Produce json
+// @Param userID path int true "user ID"
+// @Success 200 {array} models.Deck
+// @Router /v1/decks/user/{userID} [get]
 func GetAllSubDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -87,7 +107,13 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllPublicDecks
+// GetAllPublicDecks method to get a deck
+// @Description Get all public deck
+// @Summary get a list of deck
+// @Tags Deck
+// @Produce json
+// @Success 200 {model} models.Deck
+// @Router /v1/decks/public [get]
 func GetAllPublicDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 

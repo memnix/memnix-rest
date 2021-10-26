@@ -31,6 +31,61 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/cards/": {
+            "get": {
+                "description": "Get every cards. Shouldn't really be used",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "get all cards",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Card"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cards/deck/{deckID}": {
+            "get": {
+                "description": "Get every cards from a deck",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "get a list of card",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deck ID",
+                        "name": "deckID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Card"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/cards/id/{id}": {
             "get": {
                 "description": "Get a card by tech id",
@@ -54,10 +109,108 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/decks": {
+            "get": {
+                "description": "Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get all decks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Deck"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/decks/public": {
+            "get": {
+                "description": "Get all public deck",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get a list of deck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "model"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/decks/user/{userID}": {
+            "get": {
+                "description": "Get decks a user is sub to",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get a list of deck",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Card"
+                                "$ref": "#/definitions/models.Deck"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/decks/{id}": {
+            "get": {
+                "description": "Get a deck by tech ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get a deck",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deck ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "model"
                         }
                     }
                 }
@@ -95,9 +248,34 @@ var doc = `{
                     "type": "string",
                     "example": "int/string"
                 },
+                "deck": {
+                    "$ref": "#/definitions/models.Deck"
+                },
                 "deck_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.Deck": {
+            "type": "object",
+            "properties": {
+                "deck_banner": {
+                    "type": "string",
+                    "example": "A banner url"
+                },
+                "deck_description": {
+                    "type": "string",
+                    "example": "A simple demo deck"
+                },
+                "deck_name": {
+                    "type": "string",
+                    "example": "First Deck"
+                },
+                "deck_status": {
+                    "description": "0: Draft - 1: Private - 2: Published",
+                    "type": "integer",
+                    "example": 0
                 }
             }
         }

@@ -6,7 +6,7 @@ import (
 
 // Deck structure
 type Deck struct {
-	gorm.Model
+	gorm.Model  `swaggerignore:"true"`
 	DeckName    string `json:"deck_name" example:"First Deck"`
 	Description string `json:"deck_description" example:"A simple demo deck"`
 	Banner      string `json:"deck_banner" example:"A banner url"`

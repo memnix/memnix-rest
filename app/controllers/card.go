@@ -39,7 +39,13 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllCards
+// GetAllCards method
+// @Description Get every cards. Shouldn't really be used
+// @Summary get all cards
+// @Tags Card
+// @Produce json
+// @Success 200 {array} models.Card
+// @Router /v1/cards/ [get]
 func GetAllCards(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -69,7 +75,7 @@ func GetAllCards(c *fiber.Ctx) error {
 // @Tags Card
 // @Produce json
 // @Param id path int true "Card ID"
-// @Success 200 {array} models.Card
+// @Success 200 {object} models.Card
 // @Router /v1/cards/id/{id} [get]
 func GetCardByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -96,7 +102,14 @@ func GetCardByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetCardsFromDeck
+// GetCardsFromDeck method to get cards from deck
+// @Description Get every cards from a deck
+// @Summary get a list of card
+// @Tags Card
+// @Produce json
+// @Param deckID path int true "Deck ID"
+// @Success 200 {array} models.Card
+// @Router /v1/cards/deck/{deckID} [get]
 func GetCardsFromDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
