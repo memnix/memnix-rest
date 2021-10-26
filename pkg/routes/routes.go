@@ -3,13 +3,16 @@ package routes
 import (
 	"memnixrest/app/controllers"
 
+	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
+	_ "memnixrest/docs"
 )
 
-// New
 func New() *fiber.App {
 	// Create new app
 	app := fiber.New()
+
+	app.Get("/swagger/*", swagger.Handler) // default
 
 	// Api group
 	api := app.Group("/api")

@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"math/rand"
-	"memnixrest/app/models"
 	"memnixrest/app/database"
+	"memnixrest/app/models"
 	"net/http"
 	"time"
 
@@ -63,7 +63,14 @@ func GetAllCards(c *fiber.Ctx) error {
 
 }
 
-// GetCardByID
+// GetCardByID method to get a card by id
+// @Description Get a card by tech id
+// @Summary get a card
+// @Tags Card
+// @Produce json
+// @Param id path int true "Card ID"
+// @Success 200 {array} models.Card
+// @Router /v1/cards/id/{id} [get]
 func GetCardByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 

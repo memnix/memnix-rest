@@ -1,0 +1,91 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample swagger for Fiber",
+        "title": "Memnix",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "fiber@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:1813",
+    "basePath": "/api",
+    "paths": {
+        "/v1/cards/id/{id}": {
+            "get": {
+                "description": "Get a card by tech id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "get a card",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Card ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Card"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Card": {
+            "type": "object",
+            "properties": {
+                "card_answer": {
+                    "type": "string",
+                    "example": "42"
+                },
+                "card_explication": {
+                    "type": "string",
+                    "example": "The number 42 is the answer to life has written in a very famous book"
+                },
+                "card_format": {
+                    "type": "string",
+                    "example": "Date / Name / Country"
+                },
+                "card_image": {
+                    "type": "string"
+                },
+                "card_question": {
+                    "type": "string",
+                    "example": "What's the answer to life ?"
+                },
+                "card_tips": {
+                    "type": "string",
+                    "example": "The answer is from a book"
+                },
+                "card_type": {
+                    "type": "string",
+                    "example": "int/string"
+                },
+                "deck_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        }
+    }
+}
