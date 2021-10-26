@@ -38,7 +38,7 @@ func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 func UpdateMem(c *fiber.Ctx, r *models.Revision, mem *models.Mem) {
 	db := database.DBConn
 
-	if r.Result {
+	if r.Result == 1 {
 		if mem.Repetition == 0 {
 			mem.Interval = 1
 		} else if mem.Repetition == 1 {
