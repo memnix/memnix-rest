@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"memnixrest/controllers"
+	"memnixrest/app/controllers"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -34,71 +34,71 @@ func New() *fiber.App {
 
 	// Users
 	// Get
-	v1.Get("/users", handlers.GetAllUsers)                          // Get all users
-	v1.Get("/users/id/:id", handlers.GetUserByID)                   // Get user by ID
-	v1.Get("users/discord/:discordID", handlers.GetUserByDiscordID) // Get user by discordID
+	v1.Get("/users", controllers.GetAllUsers)                          // Get all users
+	v1.Get("/users/id/:id", controllers.GetUserByID)                   // Get user by ID
+	v1.Get("users/discord/:discordID", controllers.GetUserByDiscordID) // Get user by discordID
 	// Post
-	v1.Post("/users/new", handlers.CreateNewUser) // Create a new user
+	v1.Post("/users/new", controllers.CreateNewUser) // Create a new user
 	// Put
-	v1.Put("/users/id/:id", handlers.UpdateUserByID) // Update an user using his ID
+	v1.Put("/users/id/:id", controllers.UpdateUserByID) // Update an user using his ID
 
 	// Decks
 	// Get
-	v1.Get("/decks", handlers.GetAllDecks)                 // Get all decks
-	v1.Get("/decks/public", handlers.GetAllPublicDecks)    // Get all public decks
-	v1.Get("/decks/user/:userID", handlers.GetAllSubDecks) // Get all decks the user is sub to
-	v1.Get("/decks/id/:id", handlers.GetDeckByID)          // Get deck by ID
+	v1.Get("/decks", controllers.GetAllDecks)                 // Get all decks
+	v1.Get("/decks/public", controllers.GetAllPublicDecks)    // Get all public decks
+	v1.Get("/decks/user/:userID", controllers.GetAllSubDecks) // Get all decks the user is sub to
+	v1.Get("/decks/id/:id", controllers.GetDeckByID)          // Get deck by ID
 	// Post
-	v1.Post("/decks/new", handlers.CreateNewDeck)                            // Create a new deck
-	v1.Post("/decks/:deckID/user/:userID/subscribe", handlers.SubToDeck)     // Subscribe to a deck
-	v1.Post("/decks/:deckID/user/:userID/unsubscribe", handlers.UnSubToDeck) // Unsubscribe to a deck
+	v1.Post("/decks/new", controllers.CreateNewDeck)                            // Create a new deck
+	v1.Post("/decks/:deckID/user/:userID/subscribe", controllers.SubToDeck)     // Subscribe to a deck
+	v1.Post("/decks/:deckID/user/:userID/unsubscribe", controllers.UnSubToDeck) // Unsubscribe to a deck
 
 	// Cards
 	// Get
-	v1.Get("/cards", handlers.GetAllCards)                   // Get all cards
-	v1.Get("/cards/id/:id", handlers.GetCardByID)            // Get card by ID
-	v1.Get("/cards/deck/:deckID", handlers.GetCardsFromDeck) // Get card by deckID
+	v1.Get("/cards", controllers.GetAllCards)                   // Get all cards
+	v1.Get("/cards/id/:id", controllers.GetCardByID)            // Get card by ID
+	v1.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
 	// Post
-	v1.Post("/cards/new", handlers.CreateNewCard)    // Create a new deck
-	debug.Get("/cards", handlers.GetRandomDebugCard) // DEBUG: Get random card
+	v1.Post("/cards/new", controllers.CreateNewCard)    // Create a new deck
+	debug.Get("/cards", controllers.GetRandomDebugCard) // DEBUG: Get random card
 
 	// Mem
 	// Get
-	v1.Get("/mems/user/:userID/deck/:deckID/next", handlers.GetNextMem)       // Get next mem by userID & deckID
-	v1.Get("/mems/user/:userID/deck/:deckID/today", handlers.GetTodayNextMem) // Get today's next mem by userID & deckID
-	v1.Get("/mems/id/:id", handlers.GetMemByID)                               // Get mem by ID
-	v1.Get("/mems/user/:userID/card/:cardID", handlers.GetMemByCardAndUser)   // Get mem by userID & cardID
+	v1.Get("/mems/user/:userID/deck/:deckID/next", controllers.GetNextMem)       // Get next mem by userID & deckID
+	v1.Get("/mems/user/:userID/deck/:deckID/today", controllers.GetTodayNextMem) // Get today's next mem by userID & deckID
+	v1.Get("/mems/id/:id", controllers.GetMemByID)                               // Get mem by ID
+	v1.Get("/mems/user/:userID/card/:cardID", controllers.GetMemByCardAndUser)   // Get mem by userID & cardID
 	// Post
-	v1.Post("/mems/new", handlers.CreateNewMem) // Create a new mem
+	v1.Post("/mems/new", controllers.CreateNewMem) // Create a new mem
 	// Put
-	v1.Put("/mem/id/:id", handlers.UpdateMemByID) // Update mem by ID
+	v1.Put("/mem/id/:id", controllers.UpdateMemByID) // Update mem by ID
 
 	// Revision
 	// Get
-	v1.Get("/revisions", handlers.GetAllRevisions)                  // Get all revisions
-	v1.Get("/revisions/id/:id", handlers.GetRevisionByID)           // Get revision by ID
-	v1.Get("/revisions/user/:userID", handlers.GetRevisionByUserID) // Get revision by userID
+	v1.Get("/revisions", controllers.GetAllRevisions)                  // Get all revisions
+	v1.Get("/revisions/id/:id", controllers.GetRevisionByID)           // Get revision by ID
+	v1.Get("/revisions/user/:userID", controllers.GetRevisionByUserID) // Get revision by userID
 	// Post
-	v1.Post("/revisions/new", handlers.CreateNewRevision) // Create a new revision
+	v1.Post("/revisions/new", controllers.CreateNewRevision) // Create a new revision
 
 	// Access
 	// Get
-	v1.Get("/accesses", handlers.GetAllAccesses)                                       // Get all accesses
-	v1.Get("/accesses/id/:id", handlers.GetAccessByID)                                 // Get access by ID
-	v1.Get("/accesses/user/:userID/deck/:deckID", handlers.GetAccessByUserIDAndDeckID) // Get access by userID & deckID
-	v1.Get("/accesses/user/:userID", handlers.GetAccessesByUserID)                     // Get accesses by userID
+	v1.Get("/accesses", controllers.GetAllAccesses)                                       // Get all accesses
+	v1.Get("/accesses/id/:id", controllers.GetAccessByID)                                 // Get access by ID
+	v1.Get("/accesses/user/:userID/deck/:deckID", controllers.GetAccessByUserIDAndDeckID) // Get access by userID & deckID
+	v1.Get("/accesses/user/:userID", controllers.GetAccessesByUserID)                     // Get accesses by userID
 	// Post
-	v1.Post("/accesses/new", handlers.CreateNewAccess) // Create a new access
+	v1.Post("/accesses/new", controllers.CreateNewAccess) // Create a new access
 	// Put
-	v1.Put("/accesses/id/:id", handlers.UpdateAccessByID) // Update an access using his ID
+	v1.Put("/accesses/id/:id", controllers.UpdateAccessByID) // Update an access using his ID
 
 	// Answer
 	// Get
-	v1.Get("/answers", handlers.GetAllAnswers)                   // Get all answers
-	v1.Get("/answers/id/:id", handlers.GetAnswerByID)            // Get answer by ID
-	v1.Get("/answers/card/:cardID", handlers.GetAnswersByCardID) // Get answer by CardID
+	v1.Get("/answers", controllers.GetAllAnswers)                   // Get all answers
+	v1.Get("/answers/id/:id", controllers.GetAnswerByID)            // Get answer by ID
+	v1.Get("/answers/card/:cardID", controllers.GetAnswersByCardID) // Get answer by CardID
 	// Post
-	v1.Post("/answers/new", handlers.CreateNewAnswer) // Create a new answer
+	v1.Post("/answers/new", controllers.CreateNewAnswer) // Create a new answer
 
 	// History
 	// TODO
