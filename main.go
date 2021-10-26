@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"memnixrest/app/models"
-	"memnixrest/database"
+	"memnixrest/app/database"
 	"memnixrest/pkg/routes"
 )
 
