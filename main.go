@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
+	"memnixrest/app/models"
 	"memnixrest/database"
-	"memnixrest/models"
-	"memnixrest/routes"
+	"memnixrest/pkg/routes"
 )
 
 func main() {
