@@ -18,14 +18,14 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 	if res := db.Find(&users); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all users",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all users",
 		Data:    users,
@@ -52,7 +52,7 @@ func GetUserByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get user by ID.",
 		Data:    *user,
@@ -78,7 +78,7 @@ func GetUserByDiscordID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get user by discordID.",
 		Data:    *user,
@@ -109,7 +109,7 @@ func CreateNewUser(c *fiber.Ctx) error {
 		db.Save(user)
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register an user",
 		Data:    *user,
@@ -146,7 +146,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update user by ID",
 		Data:    *user,

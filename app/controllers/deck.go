@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"memnixrest/database"
 	"memnixrest/app/models"
+	"memnixrest/database"
 	"memnixrest/pkg/core"
 	"net/http"
 	"strconv"
@@ -20,14 +20,14 @@ func GetAllDecks(c *fiber.Ctx) error {
 
 	if res := db.Find(&decks); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all decks",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all decks",
 		Data:    decks,
@@ -54,7 +54,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get deck by ID.",
 		Data:    *deck,
@@ -72,14 +72,14 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	var decks []models.Deck
 
 	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND accesses.user_id = ? AND accesses.permission > 0", id).Find(&decks).Error; err != nil {
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all sub decks",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all sub decks",
 		Data:    decks,
@@ -94,14 +94,14 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 	var decks []models.Deck
 
 	if err := db.Where("decks.status = 2").Find(&decks).Error; err != nil {
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all public decks",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all public decks",
 		Data:    decks,
@@ -128,7 +128,7 @@ func CreateNewDeck(c *fiber.Ctx) error {
 
 	db.Create(deck)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a deck",
 		Data:    *deck,
@@ -146,7 +146,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", userID, deckID).Find(&access).Error; err != nil {
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "This user isn't sub to the deck",
 			Data:    nil,
@@ -157,7 +157,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success unsub to the deck",
 		Data:    nil,
@@ -204,7 +204,7 @@ func SubToDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success subscribing to deck",
 		Data:    nil,

@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"memnixrest/database"
 	"memnixrest/app/models"
+	"memnixrest/database"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,14 +18,14 @@ func GetAllAnswers(c *fiber.Ctx) error {
 
 	if res := db.Joins("Card").Find(&answers); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get All answers",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All answers",
 		Data:    answers,
@@ -52,7 +52,7 @@ func GetAnswerByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get answer by ID.",
 		Data:    *answer,
@@ -71,14 +71,14 @@ func GetAnswersByCardID(c *fiber.Ctx) error {
 
 	if res := db.Joins("Card").Where("answers.card_id = ?", cardID).Find(&answers); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get answers by cardID",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get answers by cardID",
 		Data:    answers,
@@ -105,7 +105,7 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 
 	db.Preload("Card").Create(answer)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register an answer",
 		Data:    *answer,

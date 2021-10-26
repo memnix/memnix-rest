@@ -21,7 +21,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 	var cards []models.Card
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get a random card",
 			Data:    nil,
@@ -31,7 +31,7 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 
 	rdm := rand.Intn(len(cards)-0) + 0
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get a random card",
 		Data:    cards[rdm],
@@ -47,14 +47,14 @@ func GetAllCards(c *fiber.Ctx) error {
 
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all cards",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All cards",
 		Data:    cards,
@@ -81,7 +81,7 @@ func GetCardByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    *card,
@@ -107,7 +107,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get cards from deck.",
 		Data:    cards,
@@ -134,7 +134,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	db.Preload("Deck").Create(card)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a card",
 		Data:    *card,

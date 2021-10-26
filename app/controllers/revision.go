@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"memnixrest/pkg/core"
-	"memnixrest/database"
 	"memnixrest/app/models"
+	"memnixrest/database"
+	"memnixrest/pkg/core"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,14 +19,14 @@ func GetAllRevisions(c *fiber.Ctx) error {
 
 	if res := db.Joins("User").Joins("Card").Find(&revisions); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all revisions",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all revisions",
 		Data:    revisions,
@@ -53,7 +53,7 @@ func GetRevisionByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get revision by ID.",
 		Data:    *revision,
@@ -79,7 +79,7 @@ func GetRevisionByUserID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get revision by UserID.",
 		Data:    *revision,
@@ -109,7 +109,7 @@ func CreateNewRevision(c *fiber.Ctx) error {
 	mem := core.GetMemByCardAndUser(c, revision.UserID, revision.CardID)
 	core.UpdateMem(c, revision, &mem)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a revision",
 		Data:    *revision,

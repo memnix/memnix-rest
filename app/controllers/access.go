@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"memnixrest/database"
 	"memnixrest/app/models"
+	"memnixrest/database"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +18,7 @@ func GetAllAccesses(c *fiber.Ctx) error {
 
 	if res := db.Joins("User").Joins("Deck").Find(&accesses); res.Error != nil {
 		// Return error
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all accesses",
 			Data:    nil,
@@ -26,7 +26,7 @@ func GetAllAccesses(c *fiber.Ctx) error {
 		})
 	}
 	// Return success
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all accesses",
 		Data:    accesses,
@@ -45,14 +45,14 @@ func GetAccessesByUserID(c *fiber.Ctx) error {
 
 	if res := db.Joins("User").Joins("Deck").Where("accesses.user_id = ?", userID).Find(&accesses); res.Error != nil {
 		// Return error
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get accesses of an user",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		// Return success
 		Success: true,
 		Message: "Get accesses of an user",
@@ -72,7 +72,7 @@ func GetAccessByID(c *fiber.Ctx) error {
 
 	if err := db.Joins("User").Joins("Deck").First(&access, id).Error; err != nil {
 		// Return error
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -80,7 +80,7 @@ func GetAccessByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		// Return success
 		Success: true,
 		Message: "Success get access by ID.",
@@ -108,7 +108,7 @@ func GetAccessByUserIDAndDeckID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get access by UserID & DeckID.",
 		Data:    *access,
@@ -135,7 +135,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 
 	db.Preload("User").Preload("Deck").Create(access)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register an access",
 		Data:    *access,
@@ -172,7 +172,7 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update access by Id.",
 		Data:    *access,

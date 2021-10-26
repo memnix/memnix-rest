@@ -20,14 +20,14 @@ func GetAllMem(c *fiber.Ctx) error {
 
 	if res := db.Find(&mems); res.Error != nil {
 
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Get All mems",
 			Data:    nil,
 			Count:   0,
 		})
 	}
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get All mems",
 		Data:    mems,
@@ -52,7 +52,7 @@ func GetMemByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get mem by ID.",
 		Data:    *mem,
@@ -78,7 +78,7 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get mem by UserID & CardID.",
 		Data:    *mem,
@@ -97,7 +97,7 @@ func GetNextMem(c *fiber.Ctx) error {
 	res := core.FetchNextCard(c, uint(userID), uint(deckID))
 
 	if !res.Success {
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Next card not found",
 			Data:    nil,
@@ -105,7 +105,7 @@ func GetNextMem(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    res.Data,
@@ -124,7 +124,7 @@ func GetTodayNextMem(c *fiber.Ctx) error {
 
 	res := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
 	if !res.Success {
-		return c.JSON(models.ResponseHTTP{
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "No more card for today!",
 			Data:    nil,
@@ -132,7 +132,7 @@ func GetTodayNextMem(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success get card Today's card.",
 		Data:    res.Data,
@@ -159,7 +159,7 @@ func CreateNewMem(c *fiber.Ctx) error {
 
 	db.Preload("User").Preload("Card").Create(mem)
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a new mem",
 		Data:    *mem,
@@ -196,7 +196,7 @@ func UpdateMemByID(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update mem by Id.",
 		Data:    *mem,
