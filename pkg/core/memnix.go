@@ -1,7 +1,7 @@
 package core
 
 import (
-	"memnixrest/database"
+	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"time"
 
