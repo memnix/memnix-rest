@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"math/rand"
+	"memnixrest/app/models"
 	"memnixrest/database"
-	"memnixrest/models"
 	"net/http"
 	"time"
 

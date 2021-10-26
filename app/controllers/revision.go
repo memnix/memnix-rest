@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"memnixrest/core"
+	"memnixrest/pkg/core"
 	"memnixrest/database"
-	"memnixrest/models"
+	"memnixrest/app/models"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"

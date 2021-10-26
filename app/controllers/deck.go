@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"memnixrest/core"
 	"memnixrest/database"
-	"memnixrest/models"
+	"memnixrest/app/models"
+	"memnixrest/pkg/core"
 	"net/http"
 	"strconv"
 

@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"memnixrest/app/models"
 	"memnixrest/database"
-	"memnixrest/models"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
