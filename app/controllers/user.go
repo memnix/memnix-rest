@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"memnixrest/app/models"
-	"memnixrest/database"
+	"memnixrest/app/database"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
