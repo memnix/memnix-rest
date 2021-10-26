@@ -3,7 +3,7 @@ package controllers
 import (
 	"math/rand"
 	"memnixrest/app/models"
-	"memnixrest/database"
+	"memnixrest/app/database"
 	"net/http"
 	"time"
 
