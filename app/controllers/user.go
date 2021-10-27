@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"memnixrest/app/models"
 	"memnixrest/app/database"
+	"memnixrest/app/models"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +10,13 @@ import (
 
 // GET
 
-// GetAllUsers
+// GetAllUsers method to get all users
+// @Description Get all users.  Shouldn't really be used
+// @Summary get a list of user
+// @Tags User
+// @Produce json
+// @Success 200 {object} models.User
+// @Router /v1/users [get]
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -34,7 +40,14 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 }
 
-// GetUserByID
+// GetUserByID method to get an user
+// @Description Get an user by ID.
+// @Summary get an user
+// @Tags User
+// @Produce json
+// @Param id path int true "ID"
+// @Success 200 {object} models.User
+// @Router /v1/users/id/{id} [get]
 func GetUserByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 

@@ -33,11 +33,6 @@ var doc = `{
     "paths": {
         "/v1/cards/": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Get every cards. Shouldn't really be used",
                 "produces": [
                     "application/json"
@@ -220,6 +215,55 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/v1/users": {
+            "get": {
+                "description": "Get all users.  Shouldn't really be used",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "get a list of user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/id/{id}": {
+            "get": {
+                "description": "Get an user by ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "get an user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -281,6 +325,37 @@ var doc = `{
                 },
                 "deck_status": {
                     "description": "0: Draft - 1: Private - 2: Published",
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "user_avatar": {
+                    "type": "string",
+                    "example": "avatar url"
+                },
+                "user_bio": {
+                    "type": "string",
+                    "example": "A simple demo bio"
+                },
+                "user_discord": {
+                    "description": "This is unique",
+                    "type": "string",
+                    "example": "282233191916634113"
+                },
+                "user_name": {
+                    "description": "This should be unique",
+                    "type": "string",
+                    "example": "Yume"
+                },
+                "user_permissions": {
+                    "description": "0: User; 1: Mod; 2: Admin",
                     "type": "integer",
                     "example": 0
                 }

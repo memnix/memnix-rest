@@ -47,6 +47,29 @@ definitions:
         example: 0
         type: integer
     type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      user_avatar:
+        example: avatar url
+        type: string
+      user_bio:
+        example: A simple demo bio
+        type: string
+      user_discord:
+        description: This is unique
+        example: "282233191916634113"
+        type: string
+      user_name:
+        description: This should be unique
+        example: Yume
+        type: string
+      user_permissions:
+        description: '0: User; 1: Mod; 2: Admin'
+        example: 0
+        type: integer
+    type: object
 host: localhost:1813
 info:
   contact:
@@ -72,8 +95,6 @@ paths:
             items:
               $ref: '#/definitions/models.Card'
             type: array
-      security:
-      - ApiKeyAuth: []
       summary: get all cards
       tags:
       - Card
@@ -184,4 +205,36 @@ paths:
       summary: get a list of deck
       tags:
       - Deck
+  /v1/users:
+    get:
+      description: Get all users.  Shouldn't really be used
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: get a list of user
+      tags:
+      - User
+  /v1/users/id/{id}:
+    get:
+      description: Get an user by ID.
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: get an user
+      tags:
+      - User
 swagger: "2.0"
