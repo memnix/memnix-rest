@@ -37,34 +37,10 @@ func New() *fiber.App {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
-	// Users
-	// Get
-	v1.Get("/users", controllers.GetAllUsers)                          // Get all users
-	v1.Get("/users/id/:id", controllers.GetUserByID)                   // Get user by ID
-	v1.Get("users/discord/:discordID", controllers.GetUserByDiscordID) // Get user by discordID
-	// Post
-	v1.Post("/users/new", controllers.CreateNewUser) // Create a new user
-	// Put
-	v1.Put("/users/id/:id", controllers.UpdateUserByID) // Update an user using his ID
-
-	// Decks
-	// Get
-	v1.Get("/decks", controllers.GetAllDecks)                 // Get all decks
-	v1.Get("/decks/public", controllers.GetAllPublicDecks)    // Get all public decks
-	v1.Get("/decks/user/:userID", controllers.GetAllSubDecks) // Get all decks the user is sub to
-	v1.Get("/decks/id/:id", controllers.GetDeckByID)          // Get deck by ID
-	// Post
-	v1.Post("/decks/new", controllers.CreateNewDeck)                            // Create a new deck
-	v1.Post("/decks/:deckID/user/:userID/subscribe", controllers.SubToDeck)     // Subscribe to a deck
-	v1.Post("/decks/:deckID/user/:userID/unsubscribe", controllers.UnSubToDeck) // Unsubscribe to a deck
-
-	// Cards
-	// Get
-	v1.Get("/cards", controllers.GetAllCards)                   // Get all cards
-	v1.Get("/cards/id/:id", controllers.GetCardByID)            // Get card by ID
-	v1.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
-	// Post
-	v1.Post("/cards/new", controllers.CreateNewCard) // Create a new deck
+	// Register routes
+	registerUserRoutes(v1) // /v1/users/
+	registerDeckRoutes(v1) // /v1/decks/
+	registerCardRoutes(v1) // /v1/cards/
 
 	// Mem
 	// Get
