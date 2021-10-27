@@ -7,3 +7,8 @@ type ResponseHTTP struct {
 	Message string      `json:"message"`
 	Count   int         `json:"count"`
 }
+
+type ResponseCard struct {
+	Card    Card
+	Answers []string
+}

@@ -3,6 +3,7 @@ package core
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
+
 	//"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,7 +26,6 @@ func GetUser(userID uint) models.User {
 func FetchNextTodayCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 	user := GetUser(userID)
 	return FetchNextTodayMemByUserAndDeck(c, &user, deckID)
-
 }
 
 // FetchNextCard
