@@ -120,7 +120,6 @@ func GenerateMem(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 		if err := db.Where("mems.user_id = ? AND mems.card_id = ?", userID, cards[x].ID).First(&mem).Error; err != nil {
 			mem.CardID = cards[x].ID
 			mem.UserID = userID
-			mem.DeckID = deckID
 			mem.Efactor = 2.5
 			mem.Interval = 0
 			mem.Total = 0

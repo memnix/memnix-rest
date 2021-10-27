@@ -76,13 +76,6 @@ func New() *fiber.App {
 	// Put
 	v1.Put("/mem/id/:id", controllers.UpdateMemByID) // Update mem by ID
 
-	// Revision
-	// Get
-	v1.Get("/revisions", controllers.GetAllRevisions)                  // Get all revisions
-	v1.Get("/revisions/id/:id", controllers.GetRevisionByID)           // Get revision by ID
-	v1.Get("/revisions/user/:userID", controllers.GetRevisionByUserID) // Get revision by userID
-	// Post
-	v1.Post("/revisions/new", controllers.CreateNewRevision) // Create a new revision
 
 	// Access
 	// Get

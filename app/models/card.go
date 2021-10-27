@@ -13,7 +13,7 @@ type Card struct {
 	Deck        Deck
 	Tips        string `json:"card_tips" example:"The answer is from a book"`
 	Explication string `json:"card_explication" example:"The number 42 is the answer to life has written in a very famous book"`
-	Type        string `json:"card_type" example:"int/string"`
-	Format      string `json:"card_format" example:"Date / Name / Country"`
-	Image       string `json:"card_image"`
+	Type        uint   `json:"card_type" example:"0"` // 0: int - 1: string
+	Format      string `json:"card_format" example:"Date / Name / Country"` 
+	Image       string `json:"card_image"` // Should be an url
 }

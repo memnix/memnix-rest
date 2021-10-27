@@ -3,7 +3,7 @@ package core
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
-	"time"
+	//"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -34,8 +34,9 @@ func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 	return FetchNextMemByUserAndDeck(c, &user, deckID)
 }
 
+/*
 // UpdateMem
-func UpdateMem(c *fiber.Ctx, r *models.Revision, mem *models.Mem) {
+func UpdateMem(c *fiber.Ctx, r *models.Mem, mem *models.Mem) {
 	db := database.DBConn
 
 	if r.Result == 1 {
@@ -71,4 +72,4 @@ func UpdateMem(c *fiber.Ctx, r *models.Revision, mem *models.Mem) {
 	mem.Total++
 
 	db.Save(mem)
-}
+}*/
