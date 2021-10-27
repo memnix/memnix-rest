@@ -75,7 +75,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	cookie := fiber.Cookie{
-		Name:     "jwt",
+		Name:     "memnix-jwt",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: true,
@@ -89,7 +89,7 @@ func Login(c *fiber.Ctx) error {
 }
 
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
+	cookie := c.Cookies("memnix-jwt")
 	db := database.DBConn // DB Conn
 
 	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -112,9 +112,37 @@ func User(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+func CheckAuth(c *fiber.Ctx) models.ResponseAuth {
+	cookie := c.Cookies("memnix-jwt")
+	db := database.DBConn // DB Conn
+	response := new(models.ResponseAuth)
+	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(SecretKey), nil
+	})
+
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		response.Message = "Unauthentified"
+		response.Success = false
+		return *response
+	}
+
+	claims := token.Claims.(*jwt.StandardClaims)
+
+	var user models.User
+
+	db.Where("id = ?", claims.Issuer).First(&user)
+
+	response.User = user
+	response.Success = true
+	response.Message = "Authentified"
+
+	return *response
+}
+
 func Logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
-		Name:     "jwt",
+		Name:     "memnix-jwt",
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: true,

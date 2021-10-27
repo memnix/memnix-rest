@@ -12,3 +12,9 @@ type ResponseCard struct {
 	Card    Card
 	Answers []string
 }
+
+type ResponseAuth struct {
+	Success bool
+	User    User
+	Message string
+}
