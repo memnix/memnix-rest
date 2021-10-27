@@ -29,7 +29,6 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Access{})
 	database.DBConn.AutoMigrate(&models.Card{})
 	database.DBConn.AutoMigrate(&models.Deck{})
-	database.DBConn.AutoMigrate(&models.Revision{})
 	database.DBConn.AutoMigrate(&models.User{})
 	database.DBConn.AutoMigrate(&models.Mem{})
 	database.DBConn.AutoMigrate(&models.Answer{})
