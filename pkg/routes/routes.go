@@ -18,6 +18,11 @@ func New() *fiber.App {
 	// Api group
 	api := app.Group("/api")
 
+	api.Get("/", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
+	})
+
+	// Auth
 	api.Post("/register", controllers.Register)
 	api.Post("/login", controllers.Login)
 	api.Get("/user", controllers.User)
@@ -26,15 +31,6 @@ func New() *fiber.App {
 	// v1 group "/api/v1"
 	v1 := api.Group("/v1", func(c *fiber.Ctx) error {
 		return c.Next()
-	})
-
-	// debug group "/api/debug"
-	debug := api.Group("/debug", func(c *fiber.Ctx) error {
-		return c.Next()
-	})
-
-	api.Get("/", func(c *fiber.Ctx) error {
-		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
 	v1.Get("/", func(c *fiber.Ctx) error {
@@ -68,8 +64,7 @@ func New() *fiber.App {
 	v1.Get("/cards/id/:id", controllers.GetCardByID)            // Get card by ID
 	v1.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
 	// Post
-	v1.Post("/cards/new", controllers.CreateNewCard)    // Create a new deck
-	debug.Get("/cards", controllers.GetRandomDebugCard) // DEBUG: Get random card
+	v1.Post("/cards/new", controllers.CreateNewCard) // Create a new deck
 
 	// Mem
 	// Get

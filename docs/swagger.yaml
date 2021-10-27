@@ -13,6 +13,7 @@ definitions:
         example: Date / Name / Country
         type: string
       card_image:
+        description: Should be an url
         type: string
       card_question:
         example: What's the answer to life ?
@@ -21,8 +22,9 @@ definitions:
         example: The answer is from a book
         type: string
       card_type:
-        example: int/string
-        type: string
+        description: '0: int - 1: string'
+        example: 0
+        type: integer
       deck:
         $ref: '#/definitions/models.Deck'
       deck_id:
@@ -70,6 +72,8 @@ paths:
             items:
               $ref: '#/definitions/models.Card'
             type: array
+      security:
+      - ApiKeyAuth: []
       summary: get all cards
       tags:
       - Card

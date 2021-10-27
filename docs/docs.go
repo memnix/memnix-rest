@@ -33,6 +33,11 @@ var doc = `{
     "paths": {
         "/v1/cards/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get every cards. Shouldn't really be used",
                 "produces": [
                     "application/json"
@@ -234,6 +239,7 @@ var doc = `{
                     "example": "Date / Name / Country"
                 },
                 "card_image": {
+                    "description": "Should be an url",
                     "type": "string"
                 },
                 "card_question": {
@@ -245,8 +251,9 @@ var doc = `{
                     "example": "The answer is from a book"
                 },
                 "card_type": {
-                    "type": "string",
-                    "example": "int/string"
+                    "description": "0: int - 1: string",
+                    "type": "integer",
+                    "example": 0
                 },
                 "deck": {
                     "$ref": "#/definitions/models.Deck"
