@@ -3,9 +3,10 @@ package routes
 import (
 	"memnixrest/app/controllers"
 
+	_ "memnixrest/docs"
+
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
-	_ "memnixrest/docs"
 )
 
 func New() *fiber.App {
@@ -16,6 +17,11 @@ func New() *fiber.App {
 
 	// Api group
 	api := app.Group("/api")
+
+	api.Post("/register", controllers.Register)
+	api.Post("/login", controllers.Login)
+	api.Get("/user", controllers.User)
+	api.Post("/logout", controllers.Logout)
 
 	// v1 group "/api/v1"
 	v1 := api.Group("/v1", func(c *fiber.Ctx) error {
@@ -75,7 +81,6 @@ func New() *fiber.App {
 	v1.Post("/mems/new", controllers.CreateNewMem) // Create a new mem
 	// Put
 	v1.Put("/mem/id/:id", controllers.UpdateMemByID) // Update mem by ID
-
 
 	// Access
 	// Get
