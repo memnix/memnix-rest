@@ -112,32 +112,47 @@ func User(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func CheckAuth(c *fiber.Ctx) models.ResponseAuth {
+func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 	cookie := c.Cookies("memnix-jwt")
 	db := database.DBConn // DB Conn
-	response := new(models.ResponseAuth)
 	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(SecretKey), nil
 	})
 
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
-		response.Message = "Unauthentified"
-		response.Success = false
-		return *response
+
+		return models.ResponseAuth{
+			Message: "Unauthentified",
+			Success: false,
+		}
 	}
 
 	claims := token.Claims.(*jwt.StandardClaims)
 
 	var user models.User
 
-	db.Where("id = ?", claims.Issuer).First(&user)
+	if res := db.Where("id = ?", claims.Issuer).First(&user); res.Error != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return models.ResponseAuth{
+			Success: false,
+			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
+		}
+	}
 
-	response.User = user
-	response.Success = true
-	response.Message = "Authentified"
+	if user.Permissions < p {
+		c.Status(fiber.StatusUnauthorized)
+		return models.ResponseAuth{
+			Success: false,
+			Message: "You don't have the right permissions to perform this request.",
+		}
+	}
 
-	return *response
+	return models.ResponseAuth{
+		Success: true,
+		Message: "Authentified",
+		User:    user,
+	}
 }
 
 func Logout(c *fiber.Ctx) error {

@@ -1,43 +1,12 @@
 package controllers
 
 import (
-	"math/rand"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"net/http"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
-
-// GET
-
-// DEBUG: GetRandomDebugCard
-func GetRandomDebugCard(c *fiber.Ctx) error {
-	rand.Seed(time.Now().UnixNano()) // Random seed
-
-	db := database.DBConn // DB Conn
-
-	var cards []models.Card
-	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get a random card",
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	rdm := rand.Intn(len(cards)-0) + 0
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Get a random card",
-		Data:    cards[rdm],
-		Count:   len(cards),
-	})
-}
 
 // GetAllCards method
 // @Description Get every cards. Shouldn't really be used
@@ -48,6 +17,16 @@ func GetRandomDebugCard(c *fiber.Ctx) error {
 // @Router /v1/cards/ [get]
 func GetAllCards(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	var cards []models.Card
 
@@ -79,6 +58,16 @@ func GetAllCards(c *fiber.Ctx) error {
 // @Router /v1/cards/id/{id} [get]
 func GetCardByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	// Params
 	id := c.Params("id")
