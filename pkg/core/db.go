@@ -122,7 +122,6 @@ func GenerateMem(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
 			mem.UserID = userID
 			mem.Efactor = 2.5
 			mem.Interval = 0
-			mem.Total = 0
 			//mem.NextDate = time.Now()
 			mem.Quality = 0
 			mem.Repetition = 0

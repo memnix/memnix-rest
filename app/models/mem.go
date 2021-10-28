@@ -15,5 +15,4 @@ type Mem struct {
 	Repetition uint    `json:"repetition" example:"0" `
 	Efactor    float32 `json:"e_factor" example:"2.5"`
 	Interval   uint    `json:"interval" example:"0"`
-	Total      uint    `json:"total" example:"0"`
 }
