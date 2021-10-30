@@ -11,6 +11,65 @@ import (
 	"gorm.io/gorm"
 )
 
+func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+	var cards []models.Card
+
+	if err := db.Joins("Deck").Where("cards.deck_id = ?", deck.ID).Find(&cards).Error; err != nil {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		}
+	}
+
+	for _, s := range cards {
+		_ = GenerateMemDate(c, user, &s)
+	} // TODO: Handle errors
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Success generated mem_date",
+		Data:    nil,
+		Count:   0,
+	}
+
+}
+
+func GenerateMemDate(c *fiber.Ctx, user *models.User, card *models.Card) models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+
+	memDate := new(models.MemDate)
+
+	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", user.ID, card.ID).First(&memDate).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+
+			memDate = &models.MemDate{
+				UserID:   user.ID,
+				CardID:   card.ID,
+				NextDate: time.Now(),
+			}
+
+			db.Preload("User").Preload("Card").Create(memDate)
+		} else {
+			return models.ResponseHTTP{
+				Success: false,
+				Message: err.Error(),
+				Data:    nil,
+				Count:   0,
+			}
+		}
+	}
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Success generate MemDate",
+		Data:    *memDate,
+		Count:   1,
+	}
+}
+
 // FetchAnswers
 func FetchAnswers(c *fiber.Ctx, card *models.Card) []models.Answer {
 	var answers []models.Answer
