@@ -16,7 +16,7 @@ type UserLogs struct {
 type UserLogType int64
 
 const (
-	UserLogin UserLogType = iota
+	UserLogin UserLogType = iota + 1
 	UserLogout
 	UserRegister
 	UserEdit
@@ -24,3 +24,24 @@ const (
 	UserSubscribe
 	UserUnsubscribe
 )
+
+func (s UserLogType) String() string {
+	switch s {
+	case UserLogin:
+		return "User Login"
+	case UserLogout:
+		return "User Logout"
+	case UserRegister:
+		return "User Register"
+	case UserEdit:
+		return "User Edit"
+	case UserDeleted:
+		return "User Deleted"
+	case UserSubscribe:
+		return "User Subscribe"
+	case UserUnsubscribe:
+		return "User Unsubscribe"
+	default:
+		return "Unknown"
+	}
+}

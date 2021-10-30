@@ -26,3 +26,16 @@ const (
 	PermMod
 	PermAdmin
 )
+
+func (s Permission) String() string {
+    switch s {
+    case PermUser:
+        return "PermUser"
+    case PermMod:
+        return "PermMod"
+    case PermAdmin:
+        return "PermAdmin"
+    default:
+        return "Unknown"
+    }
+}

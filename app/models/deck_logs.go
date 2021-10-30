@@ -16,7 +16,20 @@ type DeckLogs struct {
 type DeckLogType int64
 
 const (
-	DeckCreated DeckLogType = iota
+	DeckCreated DeckLogType = iota + 1
 	DeckDeleted
 	DeckEdited
 )
+
+func (s DeckLogType) String() string {
+	switch s {
+	case DeckCreated:
+		return "Deck Created"
+	case DeckDeleted:
+		return "Deck Deleted"
+	case DeckEdited:
+		return "Deck Edited"
+	default:
+		return "Unknown"
+	}
+}
