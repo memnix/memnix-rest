@@ -40,3 +40,6 @@ func CreateDeckLog(deck *models.Deck, logType models.DeckLogType, message string
 		Count:   1,
 	}
 }
+
+// TODO: Get last log by type
+// TODO: Fully implement logs
