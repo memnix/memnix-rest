@@ -81,7 +81,7 @@ func FetchNextMemByUserAndDeck(c *fiber.Ctx, user *models.User, deck_id uint) mo
 func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn
 
-	if deck.Status != models.DeckPublic || user.Permissions != models.PermAdmin {
+	if deck.Status != models.DeckPublic && user.Permissions != models.PermAdmin {
 		return models.ResponseHTTP{
 			Success: false,
 			Message: "You don't have the permissions to subscribe to this deck!",

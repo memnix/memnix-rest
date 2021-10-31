@@ -48,6 +48,7 @@ func GenerateMemDate(c *fiber.Ctx, user *models.User, card *models.Card) models.
 			memDate = &models.MemDate{
 				UserID:   user.ID,
 				CardID:   card.ID,
+				DeckID:   card.DeckID,
 				NextDate: time.Now(),
 			}
 
