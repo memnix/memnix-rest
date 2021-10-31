@@ -13,7 +13,28 @@ type Card struct {
 	Deck        Deck
 	Tips        string `json:"card_tips" example:"The answer is from a book"`
 	Explication string `json:"card_explication" example:"The number 42 is the answer to life has written in a very famous book"`
-	Type        uint   `json:"card_type" example:"0"` // 0: int - 1: string - 2: MCQ //TODO: Add Enum
+	Type        uint   `json:"card_type" example:"0"`
 	Format      string `json:"card_format" example:"Date / Name / Country"`
 	Image       string `json:"card_image"` // Should be an url
+}
+
+type CardType int64
+
+const (
+	CardString CardType = iota
+	CardInt
+	CardMCQ
+)
+
+func (s CardType) String() string {
+	switch s {
+	case CardString:
+		return "Card String"
+	case CardInt:
+		return "Card Int"
+	case CardMCQ:
+		return "Card MCQ"
+	default:
+		return "Unknown"
+	}
 }
