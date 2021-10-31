@@ -33,6 +33,8 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Mem{})
 	database.DBConn.AutoMigrate(&models.Answer{})
 	database.DBConn.AutoMigrate(&models.MemDate{})
+	database.DBConn.AutoMigrate(&models.DeckLogs{})
+	database.DBConn.AutoMigrate(&models.UserLogs{})
 
 	// Create the app
 	app := routes.New()
