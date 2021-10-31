@@ -16,6 +16,6 @@ func registerDeckRoutes(r fiber.Router) {
 
 	// Post
 	r.Post("/decks/new", controllers.CreateNewDeck)                            // Create a new deck
-	r.Post("/decks/:deckID/user/:userID/subscribe", controllers.SubToDeck)     // Subscribe to a deck
-	r.Post("/decks/:deckID/user/:userID/unsubscribe", controllers.UnSubToDeck) // Unsubscribe to a deck
+	r.Post("/decks/:deckID/subscribe", controllers.SubToDeck)     // Subscribe to a deck
+	r.Post("/decks/:deckID/unsubscribe", controllers.UnSubToDeck) // Unsubscribe to a deck
 }

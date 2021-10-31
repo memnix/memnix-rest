@@ -4,8 +4,8 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
+	"memnixrest/pkg/queries"
 	"net/http"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -193,18 +193,23 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 // SubToDeck
 func SubToDeck(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
 	deckID := c.Params("deckID")
-	userID := c.Params("userID")
+	deck := new(models.Deck)
 
-	userID_temp, _ := strconv.Atoi(userID)
-	deckID_temp, _ := strconv.Atoi(deckID)
+	// Check auth
+	auth := CheckAuth(c, models.PermUser)
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
-	db := database.DBConn
-
-	var cards []models.Card
-
-	if err := db.Joins("Deck").Where("cards.deck_id = ?", deckID).Find(&cards).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+	if err := db.First(&deck, deckID).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
 			Data:    nil,
@@ -212,19 +217,19 @@ func SubToDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := core.GenerateAccess(c, uint(userID_temp), uint(deckID_temp)); !err.Success {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+	if err := core.GenerateAccess(c, &auth.User, deck); !err.Success {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Couldn't generate access !",
+			Message: err.Message,
 			Data:    nil,
 			Count:   0,
 		})
 	}
 
-	if err := core.GenerateMem(c, uint(userID_temp), uint(deckID_temp)); !err.Success {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+	if err := queries.PopulateMemDate(c, &auth.User, deck); !err.Success {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Couldn't generate mems !",
+			Message: err.Message,
 			Data:    nil,
 			Count:   0,
 		})

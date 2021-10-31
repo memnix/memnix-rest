@@ -1,11 +1,13 @@
 package core
 
 import (
+	"errors"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 // GetMemByID
@@ -76,20 +78,42 @@ func FetchNextMemByUserAndDeck(c *fiber.Ctx, user *models.User, deck_id uint) mo
 }
 
 // GenerateAccess
-func GenerateAccess(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
+func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn
 
+	if deck.Status != models.DeckPublic || user.Permissions != models.PermAdmin {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permissions to subscribe to this deck!",
+			Data:    nil,
+			Count:   0,
+		}
+	}
+
 	access := new(models.Access)
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", userID, deckID).Find(&access).Error; err != nil {
-		access.DeckID = deckID
-		access.UserID = userID
-		access.Permission = 1
-		db.Preload("User").Preload("Deck").Create(access)
+
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			access.DeckID = deck.ID
+			access.UserID = user.ID
+			access.Permission = 1
+			db.Preload("User").Preload("Deck").Create(access)
+		}
+
 	} else {
-		access.DeckID = deckID
-		access.UserID = userID
-		access.Permission = 1
-		db.Preload("User").Preload("Deck").Save(access)
+		if access.Permission >= 1 {
+			return models.ResponseHTTP{
+				Success: false,
+				Message: "You are already subscribed to this deck",
+				Data:    nil,
+				Count:   0,
+			}
+		} else {
+			access.DeckID = deck.ID
+			access.UserID = user.ID
+			access.Permission = 1
+			db.Preload("User").Preload("Deck").Save(access)
+		}
 	}
 
 	return models.ResponseHTTP{
