@@ -54,7 +54,7 @@ func GetNextCard(c *fiber.Ctx) error {
 		})
 	}
 
-	if res = queries.FetchNextTodayCard(c, &auth.User); !res.Success {
+	if res = queries.FetchNextCard(c, &auth.User); !res.Success {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: res.Message,
