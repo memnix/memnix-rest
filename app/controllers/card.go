@@ -9,6 +9,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// GetTodayCard method
+// @Description Get next today card
+// @Summary get a card
+// @Tags Card
+// @Produce json
+// @Success 200 {object} models.Card
+// @Router /v1/cards/today [get]
 func GetTodayCard(c *fiber.Ctx) error {
 	//db := database.DBConn // DB Conn
 
@@ -40,6 +47,13 @@ func GetTodayCard(c *fiber.Ctx) error {
 	})
 }
 
+// GetNextCard method
+// @Description Get next card
+// @Summary get a card
+// @Tags Card
+// @Produce json
+// @Success 200 {object} models.Card
+// @Router /v1/cards/next [get]
 func GetNextCard(c *fiber.Ctx) error {
 	//db := database.DBConn // DB Conn
 
