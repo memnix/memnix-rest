@@ -38,6 +38,37 @@ func GetTodayCard(c *fiber.Ctx) error {
 		Data:    res.Data,
 		Count:   1,
 	})
+}
+
+func GetNextCard(c *fiber.Ctx) error {
+	//db := database.DBConn // DB Conn
+
+	res := *new(models.ResponseHTTP)
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res = queries.FetchNextTodayCard(c, &auth.User); !res.Success {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: res.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get todays card",
+		Data:    res.Data,
+		Count:   1,
+	})
 
 }
 

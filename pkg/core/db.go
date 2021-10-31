@@ -101,7 +101,7 @@ func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 		}
 
 	} else {
-		if access.Permission >= 1 {
+		if access.Permission >= models.AccessStudent {
 			return models.ResponseHTTP{
 				Success: false,
 				Message: "You are already subscribed to this deck",
