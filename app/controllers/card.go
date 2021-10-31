@@ -5,6 +5,7 @@ import (
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -225,6 +226,70 @@ func CreateNewCard(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success register a card",
 		Data:    *card,
+		Count:   1,
+	})
+}
+
+// CreateNewCard
+func PostResponse(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	response := new(models.CardResponse)
+	card := new(models.Card)
+
+	if err := c.BodyParser(&response); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if err := db.Joins("Deck").First(&card, response.CardID).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	access := queries.CheckAccess(c, &auth.User, card)
+
+	if access.Permission < models.AccessStudent {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to answer this deck!",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	validation := new(models.CardResponseValidation)
+
+	if strings.EqualFold(response.Response, card.Answer) {
+		validation.Validate = true
+		validation.Message = "Correct answer"
+	} else {
+		validation.Validate = false
+		validation.Message = "Incorrect answer"
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success post response",
+		Data:    *validation,
 		Count:   1,
 	})
 }

@@ -17,4 +17,5 @@ func registerCardRoutes(r fiber.Router) {
 
 	// Post
 	r.Post("/cards/new", controllers.CreateNewCard) // Create a new deck
+	r.Post("/cards/response", controllers.PostResponse)
 }

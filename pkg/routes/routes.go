@@ -72,8 +72,5 @@ func New() *fiber.App {
 	// Post
 	v1.Post("/answers/new", controllers.CreateNewAnswer) // Create a new answer
 
-	// History
-	// TODO
-
 	return app
 }

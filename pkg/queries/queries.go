@@ -11,6 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
+func CheckAccess(c *fiber.Ctx, user *models.User, card *models.Card) models.Access {
+	db := database.DBConn // DB Conn
+
+	access := new(models.Access)
+
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, card.DeckID).First(&access).Error; err != nil {
+		access.Permission = 0
+		return *access
+	}
+
+	return *access
+}
+
 func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	var cards []models.Card

@@ -8,6 +8,17 @@ type ResponseHTTP struct {
 	Count   int         `json:"count"`
 }
 
+type CardResponse struct {
+	CardID   uint `json:"card_id" example:"1"`
+	Card     Card
+	Response string `json:"response" example:"42"`
+}
+
+type CardResponseValidation struct {
+	Validate bool   `json:"validate" example:"true"`
+	Message  string `json:"message" example:"Correct answer"`
+}
+
 type ResponseCard struct {
 	Card    Card
 	Answers []string
@@ -28,14 +39,14 @@ const (
 )
 
 func (s Permission) String() string {
-    switch s {
-    case PermUser:
-        return "PermUser"
-    case PermMod:
-        return "PermMod"
-    case PermAdmin:
-        return "PermAdmin"
-    default:
-        return "Unknown"
-    }
+	switch s {
+	case PermUser:
+		return "PermUser"
+	case PermMod:
+		return "PermMod"
+	case PermAdmin:
+		return "PermAdmin"
+	default:
+		return "Unknown"
+	}
 }
