@@ -10,31 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// GetMemByID
-func GetMemByID(c *fiber.Ctx, id uint) models.Mem {
-	db := database.DBConn
-	mem := new(models.Mem)
-
-	if err := db.Joins("User").Joins("Card").First(&mem, id).Error; err != nil {
-		return *mem
-	}
-	return *mem
-}
-
-// GetMemByCardAndUser
-func GetMemByCardAndUser(c *fiber.Ctx, userID uint, cardID uint) models.Mem {
-
-	db := database.DBConn
-
-	mem := new(models.Mem)
-
-	if err := db.Joins("User").Joins("Card").Where("mems.user_id = ? AND mems.card_id = ?", userID, cardID).First(&mem).Error; err != nil {
-		return *mem
-		// TODO: Handle errors
-	}
-	return *mem
-}
-
 // FetchNextTodayMemByUserAndDeck
 func FetchNextTodayMemByUserAndDeck(c *fiber.Ctx, user *models.User, deck_id uint) models.ResponseHTTP {
 	db := database.DBConn
