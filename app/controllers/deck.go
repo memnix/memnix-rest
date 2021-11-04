@@ -3,7 +3,6 @@ package controllers
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
-	"memnixrest/pkg/core"
 	"memnixrest/pkg/queries"
 	"net/http"
 
@@ -217,7 +216,7 @@ func SubToDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := core.GenerateAccess(c, &auth.User, deck); !err.Success {
+	if err := queries.GenerateAccess(c, &auth.User, deck); !err.Success {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Message,
