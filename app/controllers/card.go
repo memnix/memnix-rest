@@ -230,7 +230,13 @@ func CreateNewCard(c *fiber.Ctx) error {
 	})
 }
 
-// CreateNewCard
+// PostResponse method
+// @Description Post a response and check it
+// @Summary post a response
+// @Tags Card
+// @Produce json
+// @Success 200 {array} models.Card
+// @Router /v1/cards/response [post]
 func PostResponse(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -278,7 +284,7 @@ func PostResponse(c *fiber.Ctx) error {
 
 	validation := new(models.CardResponseValidation)
 
-	if strings.EqualFold(response.Response, card.Answer) {
+	if strings.EqualFold(strings.TrimSpace(response.Response), strings.TrimSpace(card.Answer)) {
 		validation.Validate = true
 		validation.Message = "Correct answer"
 	} else {
