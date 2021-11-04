@@ -11,11 +11,11 @@ type Card struct {
 	Answer      string `json:"card_answer" example:"42"`
 	DeckID      uint   `json:"deck_id" example:"1"`
 	Deck        Deck
-	Tips        string `json:"card_tips" example:"The answer is from a book"`
-	Explication string `json:"card_explication" example:"The number 42 is the answer to life has written in a very famous book"`
-	Type        uint   `json:"card_type" example:"0"`
-	Format      string `json:"card_format" example:"Date / Name / Country"`
-	Image       string `json:"card_image"` // Should be an url
+	Tips        string   `json:"card_tips" example:"The answer is from a book"`
+	Explication string   `json:"card_explication" example:"The number 42 is the answer to life has written in a very famous book"`
+	Type        CardType `json:"card_type" example:"0" gorm:"type:Int"`
+	Format      string   `json:"card_format" example:"Date / Name / Country"`
+	Image       string   `json:"card_image"` // Should be an url
 }
 
 type CardType int64
@@ -26,7 +26,7 @@ const (
 	CardMCQ
 )
 
-func (s CardType) String() string {
+func (s CardType) ToString() string {
 	switch s {
 	case CardString:
 		return "Card String"

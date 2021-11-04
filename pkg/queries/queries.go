@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/core"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,6 +23,41 @@ func CheckAccess(c *fiber.Ctx, user *models.User, card *models.Card) models.Acce
 	}
 
 	return *access
+}
+
+func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models.CardResponseValidation) models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+
+	memDate := new(models.MemDate)
+
+	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
+		&user.ID, card.ID).First(&memDate).Error; err != nil {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "MemDate Not Found",
+			Data:    nil,
+		}
+	}
+
+	ex_mem := FetchMem(c, memDate, &user)
+	if ex_mem.Efactor == 0 {
+		ex_mem = models.Mem{
+			UserID:     user.ID,
+			CardID:     card.ID,
+			Quality:    0,
+			Repetition: 0,
+			Efactor:    2.5,
+			Interval:   0,
+		}
+	}
+
+	core.UpdateMem(c, &ex_mem, validation)
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Success Post Mem",
+		Data:    nil,
+	}
 }
 
 func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
@@ -100,7 +136,7 @@ func FetchMem(c *fiber.Ctx, memDate *models.MemDate, user *models.User) models.M
 	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
-	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", memDate.CardID, user.ID).Order("id asc").First(&mem).Error; err != nil {
+	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", memDate.CardID, user.ID).Order("id desc").First(&mem).Error; err != nil {
 		mem.Efactor = 0
 	}
 	return *mem

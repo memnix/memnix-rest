@@ -15,5 +15,5 @@ type MemDate struct {
 	Card       Card
 	DeckID     uint `json:"deck_id" example:"1"`
 	Deck       Deck
-	NextDate   time.Time `json:"next_date" example:"06/01/2003" gorm:"autoCreateTime"`
+	NextDate   time.Time `json:"next_date" example:"06/01/2003"`// gorm:"autoCreateTime"`
 }
