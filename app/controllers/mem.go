@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"memnixrest/app/models"
 	"memnixrest/app/database"
-	"memnixrest/pkg/core"
+	"memnixrest/app/models"
 	"net/http"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -82,60 +80,6 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 		Success: true,
 		Message: "Success get mem by UserID & CardID.",
 		Data:    *mem,
-		Count:   1,
-	})
-}
-
-// GetNextMem
-func GetNextMem(c *fiber.Ctx) error {
-	userIDTemp := c.Params("userID")
-	deckIDTemp := c.Params("deckID")
-
-	userID, _ := strconv.Atoi(userIDTemp)
-	deckID, _ := strconv.Atoi(deckIDTemp)
-
-	res := core.FetchNextCard(c, uint(userID), uint(deckID))
-
-	if !res.Success {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Next card not found",
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success get card by ID.",
-		Data:    res.Data,
-		Count:   1,
-	})
-
-}
-
-// GetTodayNextMem
-func GetTodayNextMem(c *fiber.Ctx) error {
-	userIDTemp := c.Params("userID")
-	deckIDTemp := c.Params("deckID")
-
-	userID, _ := strconv.Atoi(userIDTemp)
-	deckID, _ := strconv.Atoi(deckIDTemp)
-
-	res := core.FetchNextTodayCard(c, uint(userID), uint(deckID))
-	if !res.Success {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "No more card for today!",
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success get card Today's card.",
-		Data:    res.Data,
 		Count:   1,
 	})
 }

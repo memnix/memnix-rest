@@ -10,31 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// GetUser
-func GetUser(userID uint) models.User {
-	db := database.DBConn
-
-	user := new(models.User)
-
-	if err := db.First(&user, userID).Error; err != nil {
-		return *user
-	}
-
-	return *user
-}
-
-// FetchNextTodayCard
-func FetchNextTodayCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
-	user := GetUser(userID)
-	return FetchNextTodayMemByUserAndDeck(c, &user, deckID)
-}
-
-// FetchNextCard
-func FetchNextCard(c *fiber.Ctx, userID uint, deckID uint) models.ResponseHTTP {
-	user := GetUser(userID)
-	return FetchNextMemByUserAndDeck(c, &user, deckID)
-}
-
 // UpdateMem
 func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
 	db := database.DBConn

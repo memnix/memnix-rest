@@ -44,10 +44,8 @@ func New() *fiber.App {
 
 	// Mem
 	// Get
-	v1.Get("/mems/user/:userID/deck/:deckID/next", controllers.GetNextMem)       // Get next mem by userID & deckID
-	v1.Get("/mems/user/:userID/deck/:deckID/today", controllers.GetTodayNextMem) // Get today's next mem by userID & deckID
-	v1.Get("/mems/id/:id", controllers.GetMemByID)                               // Get mem by ID
-	v1.Get("/mems/user/:userID/card/:cardID", controllers.GetMemByCardAndUser)   // Get mem by userID & cardID
+	v1.Get("/mems/id/:id", controllers.GetMemByID)                             // Get mem by ID
+	v1.Get("/mems/user/:userID/card/:cardID", controllers.GetMemByCardAndUser) // Get mem by userID & cardID
 	// Post
 	v1.Post("/mems/new", controllers.CreateNewMem) // Create a new mem
 	// Put
