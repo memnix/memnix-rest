@@ -38,7 +38,7 @@ const (
 	PermAdmin
 )
 
-func (s Permission) String() string {
+func (s Permission) ToString() string {
 	switch s {
 	case PermUser:
 		return "PermUser"

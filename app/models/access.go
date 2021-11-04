@@ -23,7 +23,7 @@ const (
 	AccessOwner
 )
 
-func (s AccessPermission) String() string {
+func (s AccessPermission) ToString() string {
 	switch s {
 	case AccessStudent:
 		return "Access Student"

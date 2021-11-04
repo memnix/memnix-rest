@@ -25,7 +25,7 @@ const (
 	UserUnsubscribe
 )
 
-func (s UserLogType) String() string {
+func (s UserLogType) ToString() string {
 	switch s {
 	case UserLogin:
 		return "User Login"

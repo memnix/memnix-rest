@@ -21,7 +21,7 @@ const (
 	DeckEdited
 )
 
-func (s DeckLogType) String() string {
+func (s DeckLogType) ToString() string {
 	switch s {
 	case DeckCreated:
 		return "Deck Created"

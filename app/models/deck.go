@@ -21,7 +21,7 @@ const (
 	DeckPublic
 )
 
-func (s DeckStatus) String() string {
+func (s DeckStatus) ToString() string {
 	switch s {
 	case DeckDraft:
 		return "Deck Draft"
