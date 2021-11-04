@@ -115,6 +115,69 @@ var doc = `{
                 }
             }
         },
+        "/v1/cards/next": {
+            "get": {
+                "description": "Get next card",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "get a card",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cards/response": {
+            "post": {
+                "description": "Post a response and check it",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "post a response",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Card"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cards/today": {
+            "get": {
+                "description": "Get next today card",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "get a card",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/decks": {
             "get": {
                 "description": "Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !",
@@ -295,7 +358,6 @@ var doc = `{
                     "example": "The answer is from a book"
                 },
                 "card_type": {
-                    "description": "0: int - 1: string",
                     "type": "integer",
                     "example": 0
                 },
@@ -324,7 +386,7 @@ var doc = `{
                     "example": "First Deck"
                 },
                 "deck_status": {
-                    "description": "0: Draft - 1: Private - 2: Published",
+                    "description": "1: Draft - 2: Private - 3: Published",
                     "type": "integer",
                     "example": 0
                 }

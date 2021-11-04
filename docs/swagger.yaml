@@ -22,7 +22,6 @@ definitions:
         example: The answer is from a book
         type: string
       card_type:
-        description: '0: int - 1: string'
         example: 0
         type: integer
       deck:
@@ -43,7 +42,7 @@ definitions:
         example: First Deck
         type: string
       deck_status:
-        description: '0: Draft - 1: Private - 2: Published'
+        description: '1: Draft - 2: Private - 3: Published'
         example: 0
         type: integer
     type: object
@@ -128,6 +127,47 @@ paths:
         name: id
         required: true
         type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Card'
+      summary: get a card
+      tags:
+      - Card
+  /v1/cards/next:
+    get:
+      description: Get next card
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Card'
+      summary: get a card
+      tags:
+      - Card
+  /v1/cards/response:
+    post:
+      description: Post a response and check it
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Card'
+            type: array
+      summary: post a response
+      tags:
+      - Card
+  /v1/cards/today:
+    get:
+      description: Get next today card
       produces:
       - application/json
       responses:
