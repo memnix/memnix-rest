@@ -70,7 +70,7 @@ func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 		mem.UserID, mem.CardID).First(&memDate).Error; err != nil {
 	}
 
-	memDate.NextDate = time.Now() //time.Now().AddDate(0, 0, int(mem.Interval))
+	memDate.NextDate = time.Now().AddDate(0, 0, int(mem.Interval))
 
 	db.Save(memDate)
 
