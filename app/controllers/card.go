@@ -294,6 +294,8 @@ func PostResponse(c *fiber.Ctx) error {
 
 	_ = queries.PostMem(c, auth.User, *card, *validation)
 
+	validation.Answer = card.Answer
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success post response",

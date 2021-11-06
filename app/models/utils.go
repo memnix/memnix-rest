@@ -17,6 +17,7 @@ type CardResponse struct {
 type CardResponseValidation struct {
 	Validate bool   `json:"validate" example:"true"`
 	Message  string `json:"message" example:"Correct answer"`
+	Answer   string `json:"correct_answer" example:"42"`
 }
 
 type ResponseCard struct {
