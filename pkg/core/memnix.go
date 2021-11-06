@@ -5,8 +5,6 @@ import (
 	"memnixrest/app/models"
 	"time"
 
-	//"time"
-
 	"github.com/gofiber/fiber/v2"
 )
 
