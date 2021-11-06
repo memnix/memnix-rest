@@ -31,6 +31,8 @@ func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 		} else if r.Repetition == 1 {
 			mem.Interval = 2
 		} else if r.Repetition == 2 {
+			mem.Interval = 2
+		} else if r.Repetition == 3 {
 			mem.Interval = 3
 		} else {
 			mem.Interval = uint((float32(r.Interval) * r.Efactor)) + 1
