@@ -5,6 +5,8 @@ import (
 
 	_ "memnixrest/docs"
 
+	"github.com/gofiber/fiber/v2/middleware/cors"
+
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,6 +14,12 @@ import (
 func New() *fiber.App {
 	// Create new app
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost, *",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true,
+	}))
 
 	app.Get("/swagger/*", swagger.Handler) // default
 
