@@ -10,6 +10,8 @@ import (
 
 // UpdateMem
 func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
+	//TODO: Rewrite functions
+
 	db := database.DBConn
 
 	mem := new(models.Mem)
