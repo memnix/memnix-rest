@@ -115,6 +115,37 @@ var doc = `{
                 }
             }
         },
+        "/v1/cards/new": {
+            "post": {
+                "description": "Create a new card",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "create a card",
+                "parameters": [
+                    {
+                        "description": "Card to create",
+                        "name": "card",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/cards/next": {
             "get": {
                 "description": "Get next card",

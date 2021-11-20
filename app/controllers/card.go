@@ -205,11 +205,28 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 // POST
 
-// CreateNewCard
+// CreateNewCard method
+// @Description Create a new card
+// @Summary create a card
+// @Tags Card
+// @Produce json
+// @Accept json
+// @Param card body models.Card true "Card to create"
+// @Success 200
+// @Router /v1/cards/new [post]
 func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-
 	card := new(models.Card)
+
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	if err := c.BodyParser(&card); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
@@ -235,7 +252,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 // @Summary post a response
 // @Tags Card
 // @Produce json
-// @Success 200 {array} models.Card
+// @Success 200
+// @Accept json
 // @Router /v1/cards/response [post]
 func PostResponse(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
