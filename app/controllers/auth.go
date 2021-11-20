@@ -63,7 +63,7 @@ func Login(c *fiber.Ctx) error {
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		Issuer:    strconv.Itoa(int(user.ID)),
-		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //1 day
+		ExpiresAt: time.Now().Add(time.Hour * 168).Unix(), //7 day
 	})
 
 	token, err := claims.SignedString([]byte(SecretKey))
@@ -77,7 +77,7 @@ func Login(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:     "memnix-jwt",
 		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
+		Expires:  time.Now().Add(time.Hour * 168),
 		HTTPOnly: true,
 	}
 	c.Cookie(&cookie)
