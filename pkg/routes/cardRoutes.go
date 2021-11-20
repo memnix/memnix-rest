@@ -8,14 +8,16 @@ import (
 
 func registerCardRoutes(r fiber.Router) {
 	// Get
+	r.Get("/cards/today", controllers.GetTodayCard) // Get Today card
+	r.Get("/cards/next", controllers.GetNextCard)   // Get Next card
+	// Post
+	r.Post("/cards/response", controllers.PostResponse) // Post a response
+
+	// ADMIN ONLY
 	r.Get("/cards", controllers.GetAllCards)                   // Get all cards
 	r.Get("/cards/id/:id", controllers.GetCardByID)            // Get card by ID
 	r.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
 
-	r.Get("/cards/today", controllers.GetTodayCard) // Get Today card
-	r.Get("/cards/next", controllers.GetNextCard)   // Get Next card
+	r.Post("/cards/new", controllers.CreateNewCard) // Create a new deck
 
-	// Post
-	r.Post("/cards/new", controllers.CreateNewCard)     // Create a new deck
-	r.Post("/cards/response", controllers.PostResponse) // Post a response
 }

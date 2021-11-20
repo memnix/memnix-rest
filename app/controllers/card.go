@@ -97,7 +97,7 @@ func GetNextCard(c *fiber.Ctx) error {
 func GetAllCards(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
 			Success: false,
@@ -183,6 +183,16 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 	// Params
 	id := c.Params("deckID")
+
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	var cards []models.Card
 
