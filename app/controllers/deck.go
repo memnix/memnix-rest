@@ -21,6 +21,16 @@ import (
 func GetAllDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
 	var decks []models.Deck
 
 	if res := db.Find(&decks); res.Error != nil {
@@ -54,6 +64,16 @@ func GetDeckByID(c *fiber.Ctx) error {
 
 	// Params
 	id := c.Params("id")
+
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	deck := new(models.Deck)
 
@@ -140,6 +160,16 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 func CreateNewDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
 	deck := new(models.Deck)
 
 	if err := c.BodyParser(&deck); err != nil {
@@ -164,6 +194,16 @@ func CreateNewDeck(c *fiber.Ctx) error {
 // UnsubToDeck
 func UnSubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	// Params
 	deckID := c.Params("deckID")
