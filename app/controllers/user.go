@@ -20,6 +20,16 @@ import (
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
 	var users []models.User
 
 	if res := db.Find(&users); res.Error != nil {
@@ -51,6 +61,15 @@ func GetAllUsers(c *fiber.Ctx) error {
 func GetUserByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 	// Params
 	id := c.Params("id")
 
@@ -73,63 +92,6 @@ func GetUserByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetUserByDiscordID
-func GetUserByDiscordID(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
-
-	// Params
-	id := c.Params("discordID")
-
-	user := new(models.User)
-
-	if err := db.Where("users.discord_id = ?", id).First(&user).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success get user by discordID.",
-		Data:    *user,
-		Count:   1,
-	})
-}
-
-// POST
-
-// CreateNewUser
-func CreateNewUser(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
-
-	user := new(models.User)
-
-	if err := c.BodyParser(&user); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
-	}
-
-	if err := db.Where("users.discord_id = ?", user.DiscordID).First(&user).Error; err != nil {
-		db.Create(user)
-	} else {
-		db.Save(user)
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Success register an user",
-		Data:    *user,
-		Count:   1,
-	})
-}
-
 // PUT
 
 // UpdateUserByID
@@ -138,6 +100,16 @@ func UpdateUserByID(c *fiber.Ctx) error {
 
 	// Params
 	id := c.Params("id")
+
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	user := new(models.User)
 
