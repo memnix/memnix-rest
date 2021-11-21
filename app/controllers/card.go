@@ -80,11 +80,50 @@ func GetNextCard(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get todays card",
+		Message: "Get next card",
 		Data:    res.Data,
 		Count:   1,
 	})
+}
 
+// GetNextCard method
+// @Description Get next card by deckID
+// @Summary get a card
+// @Tags Card
+// @Produce json
+// @Success 200 {object} models.Card
+// @Router /v1/cards/{deckID}/next [get]
+func GetNextCardByDeck(c *fiber.Ctx) error {
+	//db := database.DBConn // DB Conn
+
+	deckID := c.Params("deckID")
+
+	res := *new(models.ResponseHTTP)
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res = queries.FetchNextCardByDeck(c, &auth.User, deckID); !res.Success {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: res.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get next card by deck",
+		Data:    res.Data,
+		Count:   1,
+	})
 }
 
 // GetAllCards method

@@ -216,7 +216,7 @@ func FetchNextCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 		&user.ID).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
 		return models.ResponseHTTP{
 			Success: false,
-			Message: "Next today card not found",
+			Message: "Next card not found",
 			Data:    nil,
 		}
 	}
@@ -231,7 +231,41 @@ func FetchNextCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 
 	return models.ResponseHTTP{
 		Success: true,
-		Message: "Get Next Today Card",
+		Message: "Get Next Card",
+		Data: models.ResponseCard{
+			Card:    memDate.Card,
+			Answers: answersList,
+		},
+	}
+}
+
+func FetchNextCardByDeck(c *fiber.Ctx, user *models.User, deckID string) models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+
+	memDate := new(models.MemDate)
+	var answersList []string
+
+	// Get next card
+	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.deck_id = ?",
+		&user.ID, deckID).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "Next card by deck not found",
+			Data:    nil,
+		}
+	}
+
+	mem := FetchMem(c, memDate, user)
+	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 {
+		answersList = GenerateAnswers(c, memDate)
+		if len(answersList) == 4 {
+			memDate.Card.Type = 2 // MCQ
+		}
+	}
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Get Next Card By Deck",
 		Data: models.ResponseCard{
 			Card:    memDate.Card,
 			Answers: answersList,
