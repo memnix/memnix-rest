@@ -110,7 +110,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 
 	var decks []models.Deck
 
-	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND accesses.user_id = ? AND accesses.permission > 0", id).Find(&decks).Error; err != nil {
+	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND accesses.user_id = ? AND accesses.permission >= ?", id, models.AccessStudent).Find(&decks).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all sub decks",

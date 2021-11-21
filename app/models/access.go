@@ -17,7 +17,8 @@ type Access struct {
 type AccessPermission int64
 
 const (
-	AccessStudent AccessPermission = iota + 1
+	AccessNone AccessPermission = iota
+	AccessStudent
 	AccessContributor
 	AccessEditor
 	AccessOwner
