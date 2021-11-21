@@ -101,16 +101,23 @@ func GetDeckByID(c *fiber.Ctx) error {
 // @Produce json
 // @Param userID path int true "user ID"
 // @Success 200 {array} models.Deck
-// @Router /v1/decks/user/{userID} [get]
+// @Router /v1/decks/sub [get]
 func GetAllSubDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	// Params
-	id := c.Params("userID")
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	var decks []models.Deck
 
-	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND accesses.user_id = ? AND accesses.permission >= ?", id, models.AccessStudent).Find(&decks).Error; err != nil {
+	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&decks).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all sub decks",
@@ -126,15 +133,64 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllPublicDecks method to get a deck
+// GetAllAvailableDecks method to get a list of deck
+// @Description Get all public deck that you are not sub to
+// @Summary get a list of deck
+// @Tags Deck
+// @Produce json
+// @Success 200 {array} models.Deck
+// @Router /v1/decks/available [get]
+func GetAllAvailableDecks(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	var decks []models.Deck
+
+	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND decks.status = ? AND accesses.user_id = ? AND accesses.permission < ?", models.DeckPublic, auth.User.ID, models.AccessStudent).Find(&decks).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Failed to get all sub decks",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all sub decks",
+		Data:    decks,
+		Count:   len(decks),
+	})
+}
+
+// GetAllPublicDecks method to get a list of deck
 // @Description Get all public deck
 // @Summary get a list of deck
 // @Tags Deck
 // @Produce json
-// @Success 200 {model} models.Deck
+// @Success 200 {array} models.Deck
 // @Router /v1/decks/public [get]
 func GetAllPublicDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
 
 	var decks []models.Deck
 
@@ -155,6 +211,8 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 }
 
 // POST
+
+//TODO: Swagger
 
 // CreateNewDeck
 func CreateNewDeck(c *fiber.Ctx) error {
@@ -207,10 +265,9 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	// Params
 	deckID := c.Params("deckID")
-	userID := c.Params("userID")
 
 	access := new(models.Access)
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", userID, deckID).Find(&access).Error; err != nil {
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", auth.User.ID, deckID).Find(&access).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "This user isn't sub to the deck",
