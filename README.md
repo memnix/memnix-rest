@@ -17,4 +17,4 @@ DB_DB = "mydb"
 DB_HOST="localhost"
 ```
 
-## Version 0.1.0-alpha4.2
+## Version 0.1.0-alpha5.1
