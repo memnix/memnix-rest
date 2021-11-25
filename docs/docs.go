@@ -169,6 +169,9 @@ var doc = `{
         "/v1/cards/response": {
             "post": {
                 "description": "Post a response and check it",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -178,13 +181,7 @@ var doc = `{
                 "summary": "post a response",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Card"
-                            }
-                        }
+                        "description": ""
                     }
                 }
             }
@@ -192,6 +189,26 @@ var doc = `{
         "/v1/cards/today": {
             "get": {
                 "description": "Get next today card",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "get a card",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cards/{deckID}/next": {
+            "get": {
+                "description": "Get next card by deckID",
                 "produces": [
                     "application/json"
                 ],
@@ -229,6 +246,29 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/available": {
+            "get": {
+                "description": "Get all public deck that you are not sub to",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get a list of deck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Deck"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/decks/public": {
             "get": {
                 "description": "Get all public deck",
@@ -243,13 +283,16 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "model"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Deck"
+                            }
                         }
                     }
                 }
             }
         },
-        "/v1/decks/user/{userID}": {
+        "/v1/decks/sub": {
             "get": {
                 "description": "Get decks a user is sub to",
                 "produces": [
@@ -436,11 +479,6 @@ var doc = `{
                 "user_bio": {
                     "type": "string",
                     "example": "A simple demo bio"
-                },
-                "user_discord": {
-                    "description": "This is unique",
-                    "type": "string",
-                    "example": "282233191916634113"
                 },
                 "user_name": {
                     "description": "This should be unique",
