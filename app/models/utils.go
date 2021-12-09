@@ -30,24 +30,3 @@ type ResponseAuth struct {
 	User    User
 	Message string
 }
-
-type Permission int64
-
-const (
-	PermUser Permission = iota
-	PermMod
-	PermAdmin
-)
-
-func (s Permission) ToString() string {
-	switch s {
-	case PermUser:
-		return "PermUser"
-	case PermMod:
-		return "PermMod"
-	case PermAdmin:
-		return "PermAdmin"
-	default:
-		return "Unknown"
-	}
-}

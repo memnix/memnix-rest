@@ -99,7 +99,6 @@ func GetDeckByID(c *fiber.Ctx) error {
 // @Summary get a list of deck
 // @Tags Deck
 // @Produce json
-// @Param userID path int true "user ID"
 // @Success 200 {array} models.Deck
 // @Router /v1/decks/sub [get]
 func GetAllSubDecks(c *fiber.Ctx) error {
