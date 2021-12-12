@@ -94,7 +94,7 @@ func GetAllRatingsByDeck(c *fiber.Ctx) error {
 // @Summary get an average rating
 // @Tags Rating
 // @Produce json
-// @Success 200 {object} models.Rating
+// @Success 200 {object} integer
 // @Router /v1/ratings/deck/{deckID}/average [get]
 func GetAverageRatingByDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -129,3 +129,50 @@ func GetAverageRatingByDeck(c *fiber.Ctx) error {
 		Count:   1,
 	})
 }
+
+// GetRatingByDeckAndUser method
+// @Description Get a rating by user & deck
+// @Summary get a rating
+// @Tags Rating
+// @Produce json
+// @Success 200 {object} models.Rating
+// @Router /v1/ratings/deck/{deckID}/user/{userID} [get]
+func GetRatingByDeckAndUser(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	deckID := c.Params("deckID")
+	userID := c.Params("userID")
+
+	rating := new(models.Rating)
+
+	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", deckID, userID).First(&rating); res.Error != nil {
+
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Failed to get a rating",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get a rating",
+		Data:    rating,
+		Count:   1,
+	})
+}
+
+
+// POST
+
+
