@@ -47,7 +47,6 @@ func GetAllUsers(c *fiber.Ctx) error {
 		Data:    users,
 		Count:   len(users),
 	})
-
 }
 
 // GetUserByID method to get an user
