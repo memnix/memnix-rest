@@ -37,7 +37,7 @@ func GenerateRating(c *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
 	db := database.DBConn
 	deck := new(models.Deck)
 
-	if err := db.Preload("Rating").First(&deck, rating.DeckID).Error; err != nil {
+	if err := db.First(&deck, rating.DeckID).Error; err != nil {
 		return models.ResponseHTTP{
 			Success: false,
 			Message: "Can't find deck matching the ID provided",
