@@ -12,6 +12,59 @@ import (
 	"gorm.io/gorm"
 )
 
+func GenerateRating(c *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
+	db := database.DBConn
+	deck := new(models.Deck)
+
+	if err := db.First(&deck, rating.DeckID).Error; err != nil {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "Can't find deck matching the ID provided",
+			Data:    nil,
+			Count:   0,
+		}
+	}
+
+	access := new(models.Access)
+
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", rating.UserID, rating.DeckID).First(&access).Error; err != nil {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permissions to rate this deck",
+			Data:    nil,
+			Count:   0,
+		}
+	}
+
+	if access.Permission < models.AccessStudent {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "You are not subscribed to this deck",
+			Data:    nil,
+			Count:   0,
+		}
+	}
+
+	oldRating := new(models.Rating)
+
+	if err := db.Joins("User").Joins("Deck").Where("ratings.user_id = ? AND ratings.deck_id = ?", rating.UserID, rating.DeckID).First(&oldRating).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			db.Preload("User").Preload("Deck").Create(rating)
+			oldRating = rating
+		}
+	} else {
+		oldRating.Value = rating.Value
+		db.Preload("User").Preload("Deck").Save(oldRating)
+	}
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Success rate the deck",
+		Data:    *oldRating,
+		Count:   1,
+	}
+}
+
 // GenerateAccess
 func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn

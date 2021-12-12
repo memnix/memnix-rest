@@ -3,6 +3,7 @@ package controllers
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/queries"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -172,7 +173,56 @@ func GetRatingByDeckAndUser(c *fiber.Ctx) error {
 	})
 }
 
-
 // POST
 
+// RateDeck method
+// @Description Rate a deck
+// @Summary rate a deck
+// @Tags Rating
+// @Produce json
+// @Accept json
+// @Param rating body models.Rating true "Rating to create or update"
+// @Success 200
+// @Router /v1/rating/new [post]
+func RateDeck(c *fiber.Ctx) error {
 
+	rating := new(models.Rating)
+
+	// Check auth
+	auth := CheckAuth(c, models.PermUser)
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if err := c.BodyParser(&rating); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	rating.UserID = auth.User.ID
+
+	if err := queries.GenerateRating(c, rating); !err.Success {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success rating the deck",
+		Data:    rating,
+		Count:   1,
+	})
+}
