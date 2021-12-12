@@ -330,6 +330,37 @@
                 }
             }
         },
+        "/v1/rating/new": {
+            "post": {
+                "description": "Rate a deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rating"
+                ],
+                "summary": "rate a deck",
+                "parameters": [
+                    {
+                        "description": "Rating to create or update",
+                        "name": "rating",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/ratings": {
             "get": {
                 "description": "Get all ratings. Admin Only",
@@ -398,14 +429,14 @@
         },
         "/v1/ratings/deck/{deckID}/user/{userID}": {
             "get": {
-                "description": "Get all ratings from a deckID.",
+                "description": "Get a rating by user \u0026 deck",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Rating"
                 ],
-                "summary": "get a list of ratings",
+                "summary": "get a rating",
                 "responses": {
                     "200": {
                         "description": "OK",

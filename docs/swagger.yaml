@@ -299,6 +299,26 @@ paths:
       summary: get a list of deck
       tags:
       - Deck
+  /v1/rating/new:
+    post:
+      consumes:
+      - application/json
+      description: Rate a deck
+      parameters:
+      - description: Rating to create or update
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/models.Rating'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: rate a deck
+      tags:
+      - Rating
   /v1/ratings:
     get:
       description: Get all ratings. Admin Only
@@ -344,7 +364,7 @@ paths:
       - Rating
   /v1/ratings/deck/{deckID}/user/{userID}:
     get:
-      description: Get all ratings from a deckID.
+      description: Get a rating by user & deck
       produces:
       - application/json
       responses:
@@ -352,7 +372,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Rating'
-      summary: get a list of ratings
+      summary: get a rating
       tags:
       - Rating
   /v1/users:
