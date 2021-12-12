@@ -46,6 +46,22 @@ definitions:
         example: 0
         type: integer
     type: object
+  models.Rating:
+    properties:
+      deck:
+        $ref: '#/definitions/models.Deck'
+      deck_id:
+        example: 1
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        example: 1
+        type: integer
+      value:
+        example: 3
+        type: integer
+    type: object
   models.User:
     properties:
       email:
@@ -271,12 +287,6 @@ paths:
   /v1/decks/sub:
     get:
       description: Get decks a user is sub to
-      parameters:
-      - description: user ID
-        in: path
-        name: userID
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -289,6 +299,62 @@ paths:
       summary: get a list of deck
       tags:
       - Deck
+  /v1/ratings:
+    get:
+      description: Get all ratings. Admin Only
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Rating'
+            type: array
+      summary: get a list of ratings
+      tags:
+      - Rating
+  /v1/ratings/deck/{deckID}:
+    get:
+      description: Get all ratings from a deckID. Admin Only
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Rating'
+            type: array
+      summary: get a list of ratings
+      tags:
+      - Rating
+  /v1/ratings/deck/{deckID}/average:
+    get:
+      description: Get average rating from a deckID.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: get an average rating
+      tags:
+      - Rating
+  /v1/ratings/deck/{deckID}/user/{userID}:
+    get:
+      description: Get all ratings from a deckID.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Rating'
+      summary: get a list of ratings
+      tags:
+      - Rating
   /v1/users:
     get:
       description: Get all users.  Shouldn't really be used

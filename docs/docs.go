@@ -302,15 +302,6 @@ var doc = `{
                     "Deck"
                 ],
                 "summary": "get a list of deck",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "user ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -348,6 +339,92 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "type": "model"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ratings": {
+            "get": {
+                "description": "Get all ratings. Admin Only",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rating"
+                ],
+                "summary": "get a list of ratings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Rating"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ratings/deck/{deckID}": {
+            "get": {
+                "description": "Get all ratings from a deckID. Admin Only",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rating"
+                ],
+                "summary": "get a list of ratings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Rating"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ratings/deck/{deckID}/average": {
+            "get": {
+                "description": "Get average rating from a deckID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rating"
+                ],
+                "summary": "get an average rating",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ratings/deck/{deckID}/user/{userID}": {
+            "get": {
+                "description": "Get all ratings from a deckID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rating"
+                ],
+                "summary": "get a list of ratings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
                         }
                     }
                 }
@@ -463,6 +540,29 @@ var doc = `{
                     "description": "1: Draft - 2: Private - 3: Published",
                     "type": "integer",
                     "example": 0
+                }
+            }
+        },
+        "models.Rating": {
+            "type": "object",
+            "properties": {
+                "deck": {
+                    "$ref": "#/definitions/models.Deck"
+                },
+                "deck_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "value": {
+                    "type": "integer",
+                    "example": 3
                 }
             }
         },
