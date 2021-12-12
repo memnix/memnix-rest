@@ -113,7 +113,7 @@ func GetRatingsByDeck(c *fiber.Ctx) error {
 	deckID := c.Params("deckID")
 	var ratings []models.Rating
 
-	if res := db.Joins("User").Where("ratings.deck_id = ? AND ratings.user_id", deckID, auth.User.ID).First(&ratings); res.Error != nil {
+	if res := db.Joins("User").Where("ratings.deck_id = ? AND ratings.user_id = ?", deckID, auth.User.ID).First(&ratings); res.Error != nil {
 
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
@@ -153,7 +153,7 @@ func GetAverageRatingByDeck(c *fiber.Ctx) error {
 	deckID := c.Params("deckID")
 	var averageValue float32
 
-	if res := db.Table("ratings").Joins("User").Select("AVG(value)").Where("ratings.deck_id = ? ", deckID).Find(&averageValue); res.Error != nil {
+	if res := db.Table("ratings").Select("AVG(value)").Where("ratings.deck_id = ? ", deckID).Find(&averageValue); res.Error != nil {
 
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
