@@ -90,6 +90,46 @@ func GetAllRatingsByDeck(c *fiber.Ctx) error {
 	})
 }
 
+// GetAllRatings method
+// @Description Get ratings from a deckID.
+// @Summary get a rating
+// @Tags Rating
+// @Produce json
+// @Success 200 {object} models.Rating
+// @Router /v1/ratings/deck/{deckID}/user [get]
+func GetRatingsByDeck(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	deckID := c.Params("deckID")
+	var ratings []models.Rating
+
+	if res := db.Joins("User").Where("ratings.deck_id = ? AND ratings.user_id", deckID, auth.User.ID).First(&ratings); res.Error != nil {
+
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Failed to get a rating",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get a rating",
+		Data:    ratings,
+		Count:   len(ratings),
+	})
+}
+
 // GetAverageRatingByDeck method
 // @Description Get average rating from a deckID.
 // @Summary get an average rating
