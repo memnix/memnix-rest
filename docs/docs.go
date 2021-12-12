@@ -441,6 +441,26 @@ var doc = `{
                 }
             }
         },
+        "/v1/ratings/deck/{deckID}/user": {
+            "get": {
+                "description": "Get ratings from a deckID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rating"
+                ],
+                "summary": "get a rating",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/ratings/deck/{deckID}/user/{userID}": {
             "get": {
                 "description": "Get a rating by user \u0026 deck",

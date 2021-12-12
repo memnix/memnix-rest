@@ -362,6 +362,19 @@ paths:
       summary: get an average rating
       tags:
       - Rating
+  /v1/ratings/deck/{deckID}/user:
+    get:
+      description: Get ratings from a deckID.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Rating'
+      summary: get a rating
+      tags:
+      - Rating
   /v1/ratings/deck/{deckID}/user/{userID}:
     get:
       description: Get a rating by user & deck
