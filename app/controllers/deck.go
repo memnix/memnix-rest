@@ -143,6 +143,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
 	// Params
+
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
@@ -155,17 +156,18 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 
 	var decks []models.Deck
 
-	if err := db.Joins("JOIN accesses ON accesses.deck_id = decks.id AND decks.status = ? AND accesses.user_id = ? AND accesses.permission < ?", models.DeckPublic, auth.User.ID, models.AccessStudent).Find(&decks).Error; err != nil {
+	if err := db.Joins("left join accesses ON decks.id = accesses.deck_id AND accesses.user_id = ?", auth.User.ID).Where("decks.status = ? AND ((accesses.deck_id IS NULL) OR (accesses.permission < ?))", models.DeckPublic, models.AccessStudent).Find(&decks).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "Failed to get all sub decks",
+			Message: "Failed to get all public decks: " + err.Error(),
 			Data:    nil,
 			Count:   0,
 		})
 	}
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Get all sub decks",
+		Message: "Get all available decks",
 		Data:    decks,
 		Count:   len(decks),
 	})
