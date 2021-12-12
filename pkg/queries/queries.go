@@ -12,11 +12,32 @@ import (
 	"gorm.io/gorm"
 )
 
+func DeleteRating(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+	db := database.DBConn
+
+	rating := new(models.Rating)
+
+	if err := db.Where("ratings.user_id = ? AND ratings.deck_id = ?", user.ID, deck.ID).Delete(&rating).Error; err != nil {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		}
+	}
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Rating deleted",
+		Data:    *rating,
+		Count:   1,
+	}
+}
+
 func GenerateRating(c *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
 	db := database.DBConn
 	deck := new(models.Deck)
 
-	if err := db.First(&deck, rating.DeckID).Error; err != nil {
+	if err := db.Preload("Rating").First(&deck, rating.DeckID).Error; err != nil {
 		return models.ResponseHTTP{
 			Success: false,
 			Message: "Can't find deck matching the ID provided",
