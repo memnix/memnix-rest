@@ -16,7 +16,8 @@ type DeckLogs struct {
 type DeckLogType int64
 
 const (
-	DeckCreated DeckLogType = iota + 1
+	DeckUndefined DeckLogType = iota
+	DeckCreated
 	DeckDeleted
 	DeckEdited
 )

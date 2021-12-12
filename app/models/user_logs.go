@@ -16,7 +16,8 @@ type UserLogs struct {
 type UserLogType int64
 
 const (
-	UserLogin UserLogType = iota + 1
+	UserUndefined UserLogType = iota
+	UserLogin
 	UserLogout
 	UserRegister
 	UserEdit
