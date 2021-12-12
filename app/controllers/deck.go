@@ -278,6 +278,8 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
+	_ = queries.DeleteRating(c, &auth.User, &access.Deck)
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success unsub to the deck",
