@@ -33,7 +33,7 @@ func GetAllRatings(c *fiber.Ctx) error {
 
 	var ratings []models.Rating
 
-	if res := db.Joins("User").Find(&ratings); res.Error != nil {
+	if res := db.Joins("User").Joins("Deck").Find(&ratings); res.Error != nil {
 
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
@@ -73,7 +73,7 @@ func GetAllRatingsByDeck(c *fiber.Ctx) error {
 	deckID := c.Params("deckID")
 	var ratings []models.Rating
 
-	if res := db.Joins("User").Where("ratings.deck_id = ? ", deckID).Find(&ratings); res.Error != nil {
+	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? ", deckID).Find(&ratings); res.Error != nil {
 
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
@@ -113,7 +113,7 @@ func GetRatingsByDeck(c *fiber.Ctx) error {
 	deckID := c.Params("deckID")
 	var ratings []models.Rating
 
-	if res := db.Joins("User").Where("ratings.deck_id = ? AND ratings.user_id = ?", deckID, auth.User.ID).First(&ratings); res.Error != nil {
+	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", deckID, auth.User.ID).First(&ratings); res.Error != nil {
 
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
