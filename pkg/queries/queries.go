@@ -286,8 +286,10 @@ func FetchNextCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 	var answersList []string
 
 	// Get next card
-	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ?",
-		&user.ID).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
+	if err := db.Joins(
+		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
+		user.ID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND accesses.permission >= ?",
+		&user.ID, models.AccessStudent).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
 		return models.ResponseHTTP{
 			Success: false,
 			Message: "Next card not found",
