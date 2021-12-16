@@ -18,9 +18,10 @@ import (
 // @Success 200 {object} models.Card
 // @Router /v1/cards/today [get]
 func GetTodayCard(c *fiber.Ctx) error {
-	//db := database.DBConn // DB Conn
-
+	db := database.DBConn // DB Conn
 	res := *new(models.ResponseHTTP)
+
+	/*
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
@@ -29,9 +30,20 @@ func GetTodayCard(c *fiber.Ctx) error {
 			Data:    nil,
 			Count:   0,
 		})
+	} */
+
+	user := new(models.User)
+
+	if err := db.First(&user, 1).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
 	}
 
-	if res = queries.FetchNextTodayCard(c, &auth.User); !res.Success {
+	if res = queries.FetchNextTodayCard(c, user); !res.Success {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: res.Message,

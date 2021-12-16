@@ -357,16 +357,17 @@ func FetchNextTodayCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 	// Get next card with date condition
 	t := time.Now()
 
-	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ?",
+	if err := db.Joins(
+		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
+		user.ID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ?",
 		&user.ID, t.AddDate(0, 0, 1).Add(
-			time.Duration(-t.Hour())*time.Hour)).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
+			time.Duration(-t.Hour())*time.Hour), models.AccessStudent).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
 		return models.ResponseHTTP{
 			Success: false,
 			Message: "Next today card not found",
 			Data:    nil,
 		}
 	}
-
 	mem := FetchMem(c, memDate, user)
 	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 {
 		answersList = GenerateAnswers(c, memDate)
