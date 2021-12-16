@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.17
 
 RUN mkdir -p /go/src/memnix-rest
 WORKDIR /go/src/memnix-rest
