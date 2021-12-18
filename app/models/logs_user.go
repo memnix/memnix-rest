@@ -42,6 +42,7 @@ func (s UserLogType) ToString() string {
 		return "User Subscribe"
 	case UserUnsubscribe:
 		return "User Unsubscribe"
+
 	default:
 		return "Unknown"
 	}

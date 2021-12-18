@@ -282,6 +282,9 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	_ = queries.DeleteRating(c, &auth.User, &access.Deck)
 
+	_ = queries.CreateUserLog(&auth.User, models.UserUnsubscribe, auth.User.Username+" unsubscribed to "+ deckID)
+
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success unsub to the deck",
@@ -333,6 +336,8 @@ func SubToDeck(c *fiber.Ctx) error {
 			Count:   0,
 		})
 	}
+
+	_ = queries.CreateUserLog(&auth.User, models.UserSubscribe, auth.User.Username+" subscribed to "+deck.DeckName)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

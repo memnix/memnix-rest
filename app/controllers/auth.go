@@ -3,6 +3,7 @@ package controllers
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/queries"
 	"strconv"
 	"time"
 
@@ -29,6 +30,8 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	db.Create(&user)
+
+	_ = queries.CreateUserLog(&user, models.UserRegister, "Register: "+user.Username)
 
 	return c.JSON(user)
 }
@@ -83,6 +86,8 @@ func Login(c *fiber.Ctx) error {
 		Secure:   true,
 	}
 	c.Cookie(&cookie)
+
+	_ = queries.CreateUserLog(&user, models.UserLogin, "Login: "+user.Username)
 
 	return c.JSON(fiber.Map{
 		"message": "Login Succeeded",
