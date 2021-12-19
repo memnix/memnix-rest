@@ -4,6 +4,7 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -165,6 +166,16 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 }
 
 func Logout(c *fiber.Ctx) error {
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
 	cookie := fiber.Cookie{
 		Name:     "memnix-jwt",
 		Value:    "",
@@ -174,6 +185,9 @@ func Logout(c *fiber.Ctx) error {
 		Secure:   true,
 	}
 	c.Cookie(&cookie)
+
+	log := queries.CreateLog(models.LogUserLogin, "Logout: "+auth.User.Username)
+	_ = queries.CreateUserLog(auth.User, *log)
 
 	return c.JSON(fiber.Map{
 		"message": "successfully logged out !",
