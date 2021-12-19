@@ -5,10 +5,10 @@ import (
 	"memnixrest/app/models"
 )
 
-func CreateLog(logType models.LogType, message string) models.Logs {
+func CreateLog(logType models.LogType, message string) *models.Logs {
 	db := database.DBConn // DB Conn
 
-	log := models.Logs{
+	log := &models.Logs{
 		LogType: logType,
 		Message: message,
 	}
@@ -21,7 +21,7 @@ func CreateLog(logType models.LogType, message string) models.Logs {
 func CreateUserLog(user models.User, log models.Logs) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
-	userLog := models.UserLogs{
+	userLog := &models.UserLogs{
 		UserID: user.ID,
 		LogID:  log.ID,
 	}
@@ -38,7 +38,7 @@ func CreateUserLog(user models.User, log models.Logs) models.ResponseHTTP {
 func CreateDeckLog(deck models.Deck, log models.Logs) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
-	deckLog := models.DeckLogs{
+	deckLog := &models.DeckLogs{
 		DeckID: deck.ID,
 		LogID:  log.ID,
 	}
