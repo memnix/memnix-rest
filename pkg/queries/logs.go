@@ -30,7 +30,7 @@ func CreateUserLog(user models.User, log models.Logs) models.ResponseHTTP {
 	return models.ResponseHTTP{
 		Success: true,
 		Message: "Created a new user log entry",
-		Data:    userLog,
+		Data:    *userLog,
 		Count:   1,
 	}
 }
@@ -47,7 +47,7 @@ func CreateDeckLog(deck models.Deck, log models.Logs) models.ResponseHTTP {
 	return models.ResponseHTTP{
 		Success: true,
 		Message: "Created a deck user log entry",
-		Data:    deckLog,
+		Data:    *deckLog,
 		Count:   1,
 	}
 }
