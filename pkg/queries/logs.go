@@ -5,13 +5,25 @@ import (
 	"memnixrest/app/models"
 )
 
-func CreateUserLog(user *models.User, logType models.UserLogType, message string) models.ResponseHTTP {
+func CreateLog(logType models.LogType, message string) models.Logs {
 	db := database.DBConn // DB Conn
 
-	userLog := &models.UserLogs{
-		UserID:  user.ID,
+	log := models.Logs{
 		LogType: logType,
 		Message: message,
+	}
+
+	db.Create(log)
+	return log
+
+}
+
+func CreateUserLog(user models.User, log models.Logs) models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+
+	userLog := models.UserLogs{
+		UserID: user.ID,
+		LogID:  log.ID,
 	}
 
 	db.Preload("User").Preload("Card").Create(userLog)
@@ -23,13 +35,12 @@ func CreateUserLog(user *models.User, logType models.UserLogType, message string
 	}
 }
 
-func CreateDeckLog(deck *models.Deck, logType models.DeckLogType, message string) models.ResponseHTTP {
+func CreateDeckLog(deck models.Deck, log models.Logs) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
-	deckLog := &models.DeckLogs{
-		DeckID:  deck.ID,
-		LogType: logType,
-		Message: message,
+	deckLog := models.DeckLogs{
+		DeckID: deck.ID,
+		LogID:  log.ID,
 	}
 
 	db.Preload("User").Preload("Card").Create(deckLog)
@@ -40,6 +51,3 @@ func CreateDeckLog(deck *models.Deck, logType models.DeckLogType, message string
 		Count:   1,
 	}
 }
-
-// TODO: Get last log by type
-// TODO: Fully implement logs
