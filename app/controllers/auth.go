@@ -166,7 +166,7 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 }
 
 func Logout(c *fiber.Ctx) error {
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
 			Success: false,

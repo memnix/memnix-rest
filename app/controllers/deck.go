@@ -219,7 +219,7 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 func CreateNewDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
 			Success: false,
@@ -235,6 +235,17 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	deck.Status = models.DeckPrivate
+
+	if err := queries.GenerateCreatorAccess(c, &auth.User, deck); !err.Success {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Message,
 			Data:    nil,
 			Count:   0,
 		})

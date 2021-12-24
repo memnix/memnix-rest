@@ -86,6 +86,37 @@ func GenerateRating(c *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
 	}
 }
 
+// GenerateAdminAccess
+func GenerateCreatorAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+	db := database.DBConn
+
+	access := new(models.Access)
+
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			access.DeckID = deck.ID
+			access.UserID = user.ID
+			access.Permission = models.AccessOwner
+			db.Create(access)
+		}
+
+	} else {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "You are already subscribed to this deck. You can't become an owner...",
+			Data:    nil,
+			Count:   0,
+		}
+	}
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Success register a creator access !",
+		Data:    *access,
+		Count:   1,
+	}
+}
+
 // GenerateAccess
 func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn
@@ -105,7 +136,7 @@ func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			access.DeckID = deck.ID
 			access.UserID = user.ID
-			access.Permission = 1
+			access.Permission = models.AccessStudent
 			db.Preload("User").Preload("Deck").Create(access)
 		}
 
@@ -120,7 +151,7 @@ func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 		} else {
 			access.DeckID = deck.ID
 			access.UserID = user.ID
-			access.Permission = 1
+			access.Permission = models.AccessStudent
 			db.Preload("User").Preload("Deck").Save(access)
 		}
 	}
@@ -139,7 +170,7 @@ func CheckAccess(c *fiber.Ctx, user *models.User, card *models.Card) models.Acce
 	access := new(models.Access)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, card.DeckID).First(&access).Error; err != nil {
-		access.Permission = 0
+		access.Permission = models.AccessNone
 		return *access
 	}
 
