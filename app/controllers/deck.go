@@ -450,6 +450,10 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 		})
 	}
 
+	log := queries.CreateLog(models.LogDeckEdited, auth.User.Username+" edited "+deck.DeckName)
+	_ = queries.CreateUserLog(auth.User, *log)
+	_ = queries.CreateDeckLog(*deck, *log)
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update deck by ID",
