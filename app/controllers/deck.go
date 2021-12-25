@@ -213,9 +213,15 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 
 // POST
 
-//TODO: Swagger
-
-// CreateNewDeck
+// CreateNewDeck method
+// @Description Create a new deck
+// @Summary create a deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Accept json
+// @Param deck body models.Deck true "Deck to create"
+// @Router /v1/decks/new [post]
 func CreateNewDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -274,7 +280,14 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	})
 }
 
-// UnsubToDeck
+// UnSubToDeck method
+// @Description Unsubscribe to a deck
+// @Summary unsub deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Accept json
+// @Router /v1/decks/{deckID}/unsubscribe [post]
 func UnSubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -318,7 +331,14 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	})
 }
 
-// SubToDeck
+// SubToDeck method
+// @Description Subscribe to a deck
+// @Summary sub deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Accept json
+// @Router /v1/decks/{deckID}/subscribe [post]
 func SubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	deckID := c.Params("deckID")

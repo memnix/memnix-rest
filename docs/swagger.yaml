@@ -235,6 +235,32 @@ paths:
       summary: get all decks
       tags:
       - Deck
+  /v1/decks/{deckID}/subscribe:
+    post:
+      consumes:
+      - application/json
+      description: Subscribe to a deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: sub deck
+      tags:
+      - Deck
+  /v1/decks/{deckID}/unsubscribe:
+    post:
+      consumes:
+      - application/json
+      description: Unsubscribe to a deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: unsub deck
+      tags:
+      - Deck
   /v1/decks/{id}:
     get:
       description: Get a deck by tech ID
@@ -267,6 +293,26 @@ paths:
               $ref: '#/definitions/models.Deck'
             type: array
       summary: get a list of deck
+      tags:
+      - Deck
+  /v1/decks/new:
+    post:
+      consumes:
+      - application/json
+      description: Create a new deck
+      parameters:
+      - description: Deck to create
+        in: body
+        name: deck
+        required: true
+        schema:
+          $ref: '#/definitions/models.Deck'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: create a deck
       tags:
       - Deck
   /v1/decks/public:

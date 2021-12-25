@@ -269,6 +269,37 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/new": {
+            "post": {
+                "description": "Create a new deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "create a deck",
+                "parameters": [
+                    {
+                        "description": "Deck to create",
+                        "name": "deck",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Deck"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/decks/public": {
             "get": {
                 "description": "Get all public deck",
@@ -311,6 +342,46 @@ var doc = `{
                                 "$ref": "#/definitions/models.Deck"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/v1/decks/{deckID}/subscribe": {
+            "post": {
+                "description": "Subscribe to a deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "sub deck",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/decks/{deckID}/unsubscribe": {
+            "post": {
+                "description": "Unsubscribe to a deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "unsub deck",
+                "responses": {
+                    "200": {
+                        "description": ""
                     }
                 }
             }
