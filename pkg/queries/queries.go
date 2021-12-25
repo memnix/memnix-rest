@@ -237,8 +237,8 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 	}
 
 	for _, s := range cards {
-		_ = GenerateMemDate(c, user, &s)
-	} // TODO: Handle errors
+		go GenerateMemDate(c, user, &s)
+	}
 
 	return models.ResponseHTTP{
 		Success: true,
