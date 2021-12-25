@@ -5,6 +5,7 @@ import (
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
 	"net/http"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -129,6 +130,41 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 		Message: "Get all sub decks",
 		Data:    decks,
 		Count:   len(decks),
+	})
+}
+
+func GetAllSubUsers(c *fiber.Ctx) error {
+
+	// Params
+	deckID := c.Params("id")
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	var users []models.User
+	id, _ := strconv.ParseUint(deckID, 10, 32)
+
+	if users = queries.GetSubUsers(c, uint(id)); (len(users) == 0 || users == nil ){
+		return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Couldn't get sub users",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all sub users",
+		Data:    users,
+		Count:   len(users),
 	})
 }
 

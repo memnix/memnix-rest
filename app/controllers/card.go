@@ -310,6 +310,19 @@ func CreateNewCard(c *fiber.Ctx) error {
 	_ = queries.CreateDeckLog(card.DeckID, *log)
 	_ = queries.CreateCardLog(card.ID, *log)
 
+	var users []models.User
+
+	if users = queries.GetSubUsers(c, card.DeckID); len(users) > 0 {
+		ch := make(chan models.ResponseHTTP)
+
+		for _, s := range users {
+			go func(c *fiber.Ctx, user models.User, card *models.Card) {
+				res := queries.GenerateMemDate(c, &user, card)
+				ch <- res
+			}(c, s, card)
+		}
+	}
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success register a card",

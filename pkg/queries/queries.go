@@ -264,6 +264,18 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 		Data:    nil,
 		Count:   0,
 	}
+}
+
+func GetSubUsers(c *fiber.Ctx, deckID uint) []models.User {
+	db := database.DBConn // DB Conn
+
+	var users []models.User
+
+	if err := db.Joins("left join accesses ON user.id = accesses.user_id AND accesses.deck_id = ?", deckID).Where("accesses.permission > ?", models.AccessNone).Find(&users).Error; err != nil {
+		return nil
+	}
+
+	return users
 
 }
 
