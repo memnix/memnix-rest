@@ -33,7 +33,7 @@ func Register(c *fiber.Ctx) error {
 	db.Create(&user)
 
 	log := queries.CreateLog(models.LogUserRegister, "Register: "+user.Username)
-	_ = queries.CreateUserLog(user, *log)
+	_ = queries.CreateUserLog(user.ID, *log)
 
 	return c.JSON(user)
 }
@@ -90,7 +90,7 @@ func Login(c *fiber.Ctx) error {
 	c.Cookie(&cookie)
 
 	log := queries.CreateLog(models.LogUserLogin, "Login: "+user.Username)
-	_ = queries.CreateUserLog(user, *log)
+	_ = queries.CreateUserLog(user.ID, *log)
 
 	return c.JSON(fiber.Map{
 		"message": "Login Succeeded",
@@ -187,7 +187,7 @@ func Logout(c *fiber.Ctx) error {
 	c.Cookie(&cookie)
 
 	log := queries.CreateLog(models.LogUserLogin, "Logout: "+auth.User.Username)
-	_ = queries.CreateUserLog(auth.User, *log)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
 
 	return c.JSON(fiber.Map{
 		"message": "successfully logged out !",

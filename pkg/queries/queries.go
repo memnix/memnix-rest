@@ -117,8 +117,8 @@ func GenerateCreatorAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) m
 	}
 
 	log := CreateLog(models.LogSubscribe, user.Username+" subscribed to "+deck.DeckName)
-	_ = CreateUserLog(*user, *log)
-	_ = CreateDeckLog(*deck, *log)
+	_ = CreateUserLog(user.ID, *log)
+	_ = CreateDeckLog(deck.ID, *log)
 
 	return models.ResponseHTTP{
 		Success: true,
@@ -175,12 +175,12 @@ func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 	}
 }
 
-func CheckAccess(c *fiber.Ctx, user *models.User, deck *models.Deck, perm models.AccessPermission) models.ResponseHTTP {
+func CheckAccess(c *fiber.Ctx, userID uint, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	access := new(models.Access)
 
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deck.ID).First(&access).Error; err != nil {
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", userID, deckID).First(&access).Error; err != nil {
 		access.Permission = models.AccessNone
 	}
 

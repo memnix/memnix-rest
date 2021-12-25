@@ -269,8 +269,8 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogDeckCreated, auth.User.Username+" created "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User, *log)
-	_ = queries.CreateDeckLog(*deck, *log)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(deck.ID, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -320,8 +320,8 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	_ = queries.DeleteRating(c, &auth.User, &access.Deck)
 
 	log := queries.CreateLog(models.LogUnsubscribe, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
-	_ = queries.CreateUserLog(auth.User, *log)
-	_ = queries.CreateDeckLog(access.Deck, *log)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(access.Deck.ID, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -383,8 +383,8 @@ func SubToDeck(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogSubscribe, auth.User.Username+" subscribed to "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User, *log)
-	_ = queries.CreateDeckLog(*deck, *log)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(deck.ID, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -432,7 +432,7 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 		})
 	}
 
-	if res := queries.CheckAccess(c, &auth.User, deck, models.AccessOwner); !res.Success {
+	if res := queries.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "You don't have the permission to edit this deck!",
@@ -451,8 +451,8 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogDeckEdited, auth.User.Username+" edited "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User, *log)
-	_ = queries.CreateDeckLog(*deck, *log)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(deck.ID, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

@@ -18,36 +18,53 @@ func CreateLog(logType models.LogType, message string) *models.Logs {
 
 }
 
-func CreateUserLog(user models.User, log models.Logs) models.ResponseHTTP {
+func CreateUserLog(userID uint, log models.Logs) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	userLog := &models.UserLogs{
-		UserID: user.ID,
+		UserID: userID,
 		LogID:  log.ID,
 	}
 
-	db.Preload("User").Preload("Card").Create(userLog)
+	db.Create(userLog)
 	return models.ResponseHTTP{
 		Success: true,
-		Message: "Created a new user log entry",
+		Message: "Created an user log entry",
 		Data:    *userLog,
 		Count:   1,
 	}
 }
 
-func CreateDeckLog(deck models.Deck, log models.Logs) models.ResponseHTTP {
+func CreateDeckLog(deckID uint, log models.Logs) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	deckLog := &models.DeckLogs{
-		DeckID: deck.ID,
+		DeckID: deckID,
 		LogID:  log.ID,
 	}
 
-	db.Preload("User").Preload("Card").Create(deckLog)
+	db.Create(deckLog)
 	return models.ResponseHTTP{
 		Success: true,
-		Message: "Created a deck user log entry",
+		Message: "Created a deck log entry",
 		Data:    *deckLog,
+		Count:   1,
+	}
+}
+
+func CreateCardLog(cardID uint, log models.Logs) models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+
+	cardLog := &models.CardLogs{
+		CardID: cardID,
+		LogID:  log.ID,
+	}
+
+	db.Create(cardLog)
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Created a card log entry",
+		Data:    *cardLog,
 		Count:   1,
 	}
 }
