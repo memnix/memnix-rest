@@ -332,6 +332,37 @@
                 }
             }
         },
+        "/v1/decks/{deckID}/edit": {
+            "put": {
+                "description": "Edit a deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "edit a deck",
+                "parameters": [
+                    {
+                        "description": "Deck to edit",
+                        "name": "deck",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Deck"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/decks/{deckID}/subscribe": {
             "post": {
                 "description": "Subscribe to a deck",

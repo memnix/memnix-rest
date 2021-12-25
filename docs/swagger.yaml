@@ -235,6 +235,26 @@ paths:
       summary: get all decks
       tags:
       - Deck
+  /v1/decks/{deckID}/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit a deck
+      parameters:
+      - description: Deck to edit
+        in: body
+        name: deck
+        required: true
+        schema:
+          $ref: '#/definitions/models.Deck'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: edit a deck
+      tags:
+      - Deck
   /v1/decks/{deckID}/subscribe:
     post:
       consumes:
