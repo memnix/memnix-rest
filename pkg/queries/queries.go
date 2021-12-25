@@ -101,13 +101,24 @@ func GenerateCreatorAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) m
 		}
 
 	} else {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "You are already subscribed to this deck. You can't become an owner...",
-			Data:    nil,
-			Count:   0,
+		if access.Permission >= models.AccessStudent {
+			return models.ResponseHTTP{
+				Success: false,
+				Message: "You are already subscribed to this deck. You can't become an owner...",
+				Data:    nil,
+				Count:   0,
+			}
+		} else {
+			access.DeckID = deck.ID
+			access.UserID = user.ID
+			access.Permission = models.AccessOwner
+			db.Preload("User").Preload("Deck").Save(access)
 		}
 	}
+
+	log := CreateLog(models.LogSubscribe, user.Username+" subscribed to "+deck.DeckName)
+	_ = CreateUserLog(*user, *log)
+	_ = CreateDeckLog(*deck, *log)
 
 	return models.ResponseHTTP{
 		Success: true,

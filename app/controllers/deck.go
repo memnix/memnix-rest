@@ -240,7 +240,18 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(deck.DeckName) <= 5 {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Your deck's name should be at least 5 char long.",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
 	deck.Status = models.DeckPrivate
+
+	db.Create(deck)
 
 	if err := queries.GenerateCreatorAccess(c, &auth.User, deck); !err.Success {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
@@ -251,7 +262,9 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Create(deck)
+	log := queries.CreateLog(models.LogDeckCreated, auth.User.Username+" created "+deck.DeckName)
+	_ = queries.CreateUserLog(auth.User, *log)
+	_ = queries.CreateDeckLog(*deck, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -293,7 +306,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	_ = queries.DeleteRating(c, &auth.User, &access.Deck)
 
-	log := queries.CreateLog(models.LogUserLogin, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
+	log := queries.CreateLog(models.LogUnsubscribe, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
 	_ = queries.CreateUserLog(auth.User, *log)
 	_ = queries.CreateDeckLog(access.Deck, *log)
 
