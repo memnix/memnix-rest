@@ -266,7 +266,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	card := new(models.Card)
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
 			Success: false,
@@ -285,7 +285,30 @@ func CreateNewCard(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Preload("Deck").Create(card)
+	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to edit this deck!",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if len(card.Question) < 1 || len(card.Answer) < 1 {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You must provide a question and an answer.",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	db.Create(card)
+
+	log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(card.DeckID, *log)
+	_ = queries.CreateCardLog(card.ID, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -337,7 +360,7 @@ func PostResponse(c *fiber.Ctx) error {
 		})
 	}
 
-	res := queries.CheckAccess(c, &auth.User, &card.Deck, models.AccessStudent)
+	res := queries.CheckAccess(c, auth.User.ID, card.Deck.ID, models.AccessStudent)
 
 	if !res.Success {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
