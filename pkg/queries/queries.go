@@ -175,17 +175,30 @@ func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 	}
 }
 
-func CheckAccess(c *fiber.Ctx, user *models.User, card *models.Card) models.Access {
+func CheckAccess(c *fiber.Ctx, user *models.User, deck *models.Deck, perm models.AccessPermission) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	access := new(models.Access)
 
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, card.DeckID).First(&access).Error; err != nil {
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deck.ID).First(&access).Error; err != nil {
 		access.Permission = models.AccessNone
-		return *access
 	}
 
-	return *access
+	if access.Permission < perm {
+		return models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to access this deck!",
+			Data:    *access,
+			Count:   1,
+		}
+	}
+
+	return models.ResponseHTTP{
+		Success: true,
+		Message: "Success checking access permissions",
+		Data:    *access,
+		Count:   1,
+	}
 }
 
 func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models.CardResponseValidation) models.ResponseHTTP {

@@ -337,9 +337,9 @@ func PostResponse(c *fiber.Ctx) error {
 		})
 	}
 
-	access := queries.CheckAccess(c, &auth.User, card)
+	res := queries.CheckAccess(c, &auth.User, &card.Deck, models.AccessStudent)
 
-	if access.Permission < models.AccessStudent {
+	if !res.Success {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "You don't have the permission to answer this deck!",

@@ -302,7 +302,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	}
 
 	// Params
-	deckID := c.Params("deckID")
+	deckID := c.Params("id")
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", auth.User.ID, deckID).Find(&access).Error; err != nil {
@@ -341,7 +341,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 // @Router /v1/decks/{deckID}/subscribe [post]
 func SubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-	deckID := c.Params("deckID")
+	deckID := c.Params("id")
 	deck := new(models.Deck)
 
 	// Check auth
@@ -392,4 +392,95 @@ func SubToDeck(c *fiber.Ctx) error {
 		Data:    nil,
 		Count:   0,
 	})
+}
+
+// PUT
+
+// UpdateDeckByID method
+// @Description Edit a deck
+// @Summary edit a deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Accept json
+// @Param deck body models.Deck true "Deck to edit"
+// @Router /v1/decks/{deckID}/edit [put]
+func UpdateDeckByID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
+	id := c.Params("id")
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	deck := new(models.Deck)
+
+	if err := db.First(&deck, id).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res := queries.CheckAccess(c, &auth.User, deck, models.AccessOwner); !res.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to edit this deck!",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if err := UpdateDeck(c, deck); err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Couldn't update the deck",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success update deck by ID",
+		Data:    *deck,
+		Count:   1,
+	})
+}
+
+// UpdateDeck
+func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
+	db := database.DBConn
+
+	if err := c.BodyParser(&d); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if len(d.DeckName) <= 5 {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Your deck's name should be at least 5 char long.",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	db.Save(d)
+
+	return nil
 }
