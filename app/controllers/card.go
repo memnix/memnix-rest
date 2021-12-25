@@ -288,7 +288,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "You don't have the permission to edit this deck!",
+			Message: "You don't have the permission to add a card to this deck !",
 			Data:    nil,
 			Count:   0,
 		})
