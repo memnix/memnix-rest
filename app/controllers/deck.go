@@ -133,6 +133,13 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	})
 }
 
+// GetAllSubUsers method to get a list of users
+// @Description Get all the sub users to a deck
+// @Summary get a list of users
+// @Tags Deck
+// @Produce json
+// @Success 200 {array} models.User
+// @Router /v1/decks/{deckID}/users [get]
 func GetAllSubUsers(c *fiber.Ctx) error {
 
 	// Params
@@ -151,7 +158,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 	var users []models.User
 	id, _ := strconv.ParseUint(deckID, 10, 32)
 
-	if users = queries.GetSubUsers(c, uint(id)); (len(users) == 0 || users == nil ){
+	if users = queries.GetSubUsers(c, uint(id)); len(users) == 0 || users == nil {
 		return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Couldn't get sub users",
