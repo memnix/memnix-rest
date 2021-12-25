@@ -271,7 +271,7 @@ func GetSubUsers(c *fiber.Ctx, deckID uint) []models.User {
 
 	var users []models.User
 
-	if err := db.Joins("left join accesses ON user.id = accesses.user_id AND accesses.deck_id = ?", deckID).Where("accesses.permission > ?", models.AccessNone).Find(&users).Error; err != nil {
+	if err := db.Joins("left join accesses ON users.id = accesses.user_id AND accesses.deck_id = ?", deckID).Where("accesses.permission > ?", models.AccessNone).Find(&users).Error; err != nil {
 		return nil
 	}
 
