@@ -281,6 +281,21 @@ paths:
       summary: unsub deck
       tags:
       - Deck
+  /v1/decks/{deckID}/users:
+    get:
+      description: Get all the sub users to a deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+      summary: get a list of users
+      tags:
+      - Deck
   /v1/decks/{id}:
     get:
       description: Get a deck by tech ID

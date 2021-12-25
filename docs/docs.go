@@ -417,6 +417,29 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/{deckID}/users": {
+            "get": {
+                "description": "Get all the sub users to a deck",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get a list of users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/decks/{id}": {
             "get": {
                 "description": "Get a deck by tech ID",
