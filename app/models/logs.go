@@ -25,6 +25,7 @@ const (
 	LogDeckCreated
 	LogDeckDeleted
 	LogDeckEdited
+	LogDeckRated
 	LogCardCreated
 	LogCardDeleted
 	LogCardEdited

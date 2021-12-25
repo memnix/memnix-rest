@@ -5,6 +5,7 @@ import (
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
 	"net/http"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -258,6 +259,12 @@ func RateDeck(c *fiber.Ctx) error {
 			Count:   0,
 		})
 	}
+
+	log := queries.CreateLog(
+		models.LogDeckRated, auth.User.Username+" rated "+strconv.FormatUint(
+			uint64(rating.DeckID), 10)+" as "+strconv.FormatUint(uint64(rating.Value), 10))
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(rating.DeckID, *log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
