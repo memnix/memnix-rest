@@ -236,8 +236,13 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 		}
 	}
 
+	ch := make(chan models.ResponseHTTP)
+
 	for _, s := range cards {
-		go GenerateMemDate(c, user, &s)
+		go func(c *fiber.Ctx, user *models.User, card models.Card) {
+			res := GenerateMemDate(c, user, &card)
+			ch <- res
+		}(c, user, s)
 	}
 
 	return models.ResponseHTTP{
