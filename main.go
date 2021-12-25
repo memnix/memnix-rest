@@ -34,6 +34,7 @@ func main() {
 	database.DBConn.AutoMigrate(&models.Answer{})
 	database.DBConn.AutoMigrate(&models.MemDate{})
 	database.DBConn.AutoMigrate(&models.DeckLogs{})
+	database.DBConn.AutoMigrate(&models.CardLogs{})
 	database.DBConn.AutoMigrate(&models.UserLogs{})
 	database.DBConn.AutoMigrate(&models.Logs{})
 	database.DBConn.AutoMigrate(&models.Rating{})
