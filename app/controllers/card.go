@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
@@ -353,9 +352,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		Cards []models.Card `json:"cards"`
 	}
 
-	data := &Data{}
-
-	fmt.Println("Order", data)
+	data := new(Data)
 
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
@@ -375,30 +372,53 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		})
 	}
 
+	ch := make(chan models.ResponseHTTP)
+
 	for _, card := range data.Cards {
+		go func(c *fiber.Ctx, card models.Card, deckID uint) {
 
-		print("Card: " + card.Question)
+			print("Card: " + card.Question)
 
-		if len(card.Question) > 1 && len(card.Answer) > 1 {
+			var res models.ResponseHTTP
 
-			card.DeckID = uint(deckID)
-			db.Create(card)
+			if len(card.Question) < 1 || len(card.Answer) < 1 {
+				res = models.ResponseHTTP{
+					Success: false,
+					Message: "You must provide a question and an answer.",
+					Data:    nil,
+					Count:   0,
+				}
+			} else {
+				card.DeckID = deckID
+				db.Create(card)
 
-			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-			_ = queries.CreateUserLog(auth.User.ID, *log)
-			_ = queries.CreateDeckLog(uint(deckID), *log)
-			_ = queries.CreateCardLog(card.ID, *log)
+				log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+				_ = queries.CreateUserLog(auth.User.ID, *log)
+				_ = queries.CreateDeckLog(deckID, *log)
+				_ = queries.CreateCardLog(card.ID, *log)
 
-			var users []models.User
-			if users = queries.GetSubUsers(c, uint(deckID)); len(users) > 0 {
+				res = models.ResponseHTTP{
+					Success: true,
+					Message: "Success creating card",
+					Data:    nil,
+					Count:   0,
+				}
 
-				for _, s := range users {
-					go func(c *fiber.Ctx, user models.User, card models.Card) {
-						_ = queries.GenerateMemDate(c, &user, &card)
-					}(c, s, card)
+				var users []models.User
+
+				if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
+					ch2 := make(chan models.ResponseHTTP)
+
+					for _, s := range users {
+						go func(c *fiber.Ctx, user models.User, card models.Card) {
+							res2 := queries.GenerateMemDate(c, &user, &card)
+							ch2 <- res2
+						}(c, s, card)
+					}
 				}
 			}
-		}
+			ch <- res
+		}(c, card, uint(deckID))
 	}
 	//TODO: handle errors in chan
 
