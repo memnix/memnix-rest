@@ -363,6 +363,8 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		})
 	}
 
+	print(data.Cards)
+
 	if res := queries.CheckAccess(c, auth.User.ID, uint(deckID), models.AccessEditor); !res.Success {
 		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
 			Success: false,
