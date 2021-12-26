@@ -333,6 +333,15 @@ func CreateNewCard(c *fiber.Ctx) error {
 	})
 }
 
+// CreateNewCardBulk method
+// @Description Create cards
+// @Summary create cards
+// @Tags Card
+// @Produce json
+// @Accept json
+// @Param card body models.Card true "Cards to create"
+// @Success 200
+// @Router /v1/cards/deck/{deckID}/bulk [post]
 func CreateNewCardBulk(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 

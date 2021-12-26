@@ -72,6 +72,37 @@
                 }
             }
         },
+        "/v1/cards/deck/{deckID}/bulk": {
+            "post": {
+                "description": "Create cards",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "create cards",
+                "parameters": [
+                    {
+                        "description": "Cards to create",
+                        "name": "card",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/cards/id/{id}": {
             "get": {
                 "description": "Get a card by tech id",

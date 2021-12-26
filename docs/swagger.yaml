@@ -143,6 +143,26 @@ paths:
       summary: get a list of card
       tags:
       - Card
+  /v1/cards/deck/{deckID}/bulk:
+    post:
+      consumes:
+      - application/json
+      description: Create cards
+      parameters:
+      - description: Cards to create
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/models.Card'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: create cards
+      tags:
+      - Card
   /v1/cards/id/{id}:
     get:
       description: Get a card by tech id
