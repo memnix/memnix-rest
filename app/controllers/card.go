@@ -375,7 +375,9 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 	ch := make(chan models.ResponseHTTP)
 
 	for _, card := range data.Cards {
-		go func(c *fiber.Ctx, card *models.Card, deckID uint) {
+		go func(c *fiber.Ctx, card models.Card, deckID uint) {
+
+			print("Card: " + card.Question)
 
 			var res models.ResponseHTTP
 
@@ -407,14 +409,14 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 				if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
 
 					for _, s := range users {
-						go func(c *fiber.Ctx, user models.User, card *models.Card) {
-							_ = queries.GenerateMemDate(c, &user, card)
+						go func(c *fiber.Ctx, user models.User, card models.Card) {
+							_ = queries.GenerateMemDate(c, &user, &card)
 						}(c, s, card)
 					}
 				}
 			}
 			ch <- res
-		}(c, &card, uint(deckID))
+		}(c, card, uint(deckID))
 	}
 	//TODO: handle errors in chan
 
