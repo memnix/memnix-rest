@@ -294,7 +294,7 @@ func GenerateMemDate(c *fiber.Ctx, user *models.User, card *models.Card) models.
 				NextDate: time.Now(),
 			}
 
-			db.Preload("User").Preload("Card").Create(memDate)
+			db.Create(memDate)
 		} else {
 			return models.ResponseHTTP{
 				Success: false,

@@ -389,13 +389,14 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 					Count:   0,
 				}
 			} else {
-				card.DeckID = deckID
-				db.Create(card)
+				ca := &card
+				ca.DeckID = deckID
+				db.Create(ca)
 
-				log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+				log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
 				_ = queries.CreateUserLog(auth.User.ID, *log)
 				_ = queries.CreateDeckLog(deckID, *log)
-				_ = queries.CreateCardLog(card.ID, *log)
+				_ = queries.CreateCardLog(ca.ID, *log)
 
 				res = models.ResponseHTTP{
 					Success: true,
