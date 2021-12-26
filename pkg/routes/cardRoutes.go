@@ -20,6 +20,7 @@ func registerCardRoutes(r fiber.Router) {
 	r.Get("/cards/id/:id", controllers.GetCardByID)            // Get card by ID
 	r.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
 
-	r.Post("/cards/new", controllers.CreateNewCard) // Create a new deck
+	r.Post("/cards/new", controllers.CreateNewCard)                   // Create a new card
+	r.Post("/cards/deck/:deckID/bulk", controllers.CreateNewCardBulk) // Create a list of cards
 
 }

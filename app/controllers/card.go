@@ -5,6 +5,7 @@ import (
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -264,6 +265,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Router /v1/cards/new [post]
 func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
+
 	card := new(models.Card)
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
@@ -328,6 +330,94 @@ func CreateNewCard(c *fiber.Ctx) error {
 		Message: "Success register a card",
 		Data:    *card,
 		Count:   1,
+	})
+}
+
+func CreateNewCardBulk(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+	var cards []models.Card
+
+	deckID, _ := strconv.ParseUint(c.Params("deckID"), 10, 32)
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if err := c.BodyParser(&cards); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res := queries.CheckAccess(c, auth.User.ID, uint(deckID), models.AccessEditor); !res.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to add a card to this deck !",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	ch := make(chan models.ResponseHTTP)
+
+	for _, card := range cards {
+		go func(c *fiber.Ctx, card *models.Card, deckID uint) {
+
+			var res models.ResponseHTTP
+
+			if len(card.Question) < 1 || len(card.Answer) < 1 {
+				res = models.ResponseHTTP{
+					Success: false,
+					Message: "You must provide a question and an answer.",
+					Data:    nil,
+					Count:   0,
+				}
+			} else {
+				card.DeckID = deckID
+				db.Create(card)
+
+				log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+				_ = queries.CreateUserLog(auth.User.ID, *log)
+				_ = queries.CreateDeckLog(deckID, *log)
+				_ = queries.CreateCardLog(card.ID, *log)
+
+				res = models.ResponseHTTP{
+					Success: true,
+					Message: "Success creating card",
+					Data:    nil,
+					Count:   0,
+				}
+
+				var users []models.User
+
+				if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
+
+					for _, s := range users {
+						go func(c *fiber.Ctx, user models.User, card *models.Card) {
+							_ = queries.GenerateMemDate(c, &user, card)
+						}(c, s, card)
+					}
+				}
+			}
+			ch <- res
+		}(c, &card, uint(deckID))
+	}
+	//TODO: handle errors in chan
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success bulk creation",
+		Data:    cards,
+		Count:   len(cards),
 	})
 }
 
