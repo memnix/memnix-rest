@@ -335,7 +335,6 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 func CreateNewCardBulk(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-	var cards []models.Card
 
 	deckID, _ := strconv.ParseUint(c.Params("deckID"), 10, 32)
 
@@ -349,7 +348,13 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := c.BodyParser(&cards); err != nil {
+	type Data struct {
+		Cards []models.Card `json:"cards"`
+	}
+
+	data := new(Data)
+
+	if err := c.BodyParser(&data); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
@@ -369,7 +374,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 
 	ch := make(chan models.ResponseHTTP)
 
-	for _, card := range cards {
+	for _, card := range data.Cards {
 		go func(c *fiber.Ctx, card *models.Card, deckID uint) {
 
 			var res models.ResponseHTTP
@@ -416,8 +421,8 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success bulk creation",
-		Data:    cards,
-		Count:   len(cards),
+		Data:    data.Cards,
+		Count:   len(data.Cards),
 	})
 }
 
