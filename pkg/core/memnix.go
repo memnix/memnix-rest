@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
 // UpdateMem
 func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
 	//TODO: Rewrite functions

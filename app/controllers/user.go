@@ -3,6 +3,7 @@ package controllers
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/queries"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -46,6 +47,18 @@ func GetAllUsers(c *fiber.Ctx) error {
 		Message: "Get all users",
 		Data:    users,
 		Count:   len(users),
+	})
+}
+
+func SecretMigrate(c *fiber.Ctx) error {
+
+	queries.MigrateDb(c)
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Migrate",
+		Data:    nil,
+		Count:   0,
 	})
 }
 
