@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
 // UpdateMem
 func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
 	//TODO: Rewrite functions
@@ -21,7 +22,7 @@ func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 
 	var memType int
 
-	if r.Efactor <= 1.4 || r.Quality <= 1 || r.Repetition < 2 {
+	if r.Efactor <= 2 || r.Repetition < 2 || (r.Efactor <= 2.3 && r.Repetition < 4) {
 		memType = 2
 	}
 
@@ -35,33 +36,37 @@ func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 		} else if r.Repetition == 3 {
 			mem.Interval = 3
 		} else {
-			mem.Interval = uint((float32(r.Interval) * r.Efactor)) + 1
+			mem.Interval = uint((float32(r.Interval) * r.Efactor * 0.75)) + 1
 		}
 		mem.Repetition = r.Repetition + 1
 		if memType == 2 {
-			mem.Quality = 4
+			r.Quality = 3
 		} else {
-			mem.Quality = 5
+			r.Quality = 4
+			if r.Repetition > 3 {
+				r.Quality = 5
+			}
 		}
 	} else {
 		mem.Repetition = 0
 		mem.Interval = 0
 		if memType == 2 {
-			mem.Quality = 1
+			r.Quality = 1
 			if r.Repetition <= 1 {
-				mem.Quality = 0
+				r.Quality = 0
 			}
 		} else {
-			mem.Quality = 3
+			r.Quality = 2
 		}
 	}
 
-	mem.Efactor = r.Efactor + (0.1 - (5.0-float32(mem.Quality))*(0.08+(5-float32(mem.Quality)))*0.02)
+	mem.Efactor = r.Efactor + (0.1 - (5.0-float32(r.Quality))*(0.08+(5-float32(r.Quality)))*0.02)
 
 	if mem.Efactor < 1.3 {
 		mem.Efactor = 1.3
 	}
 
+	db.Save(r)
 	db.Create(mem)
 
 	memDate := new(models.MemDate)

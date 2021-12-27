@@ -201,6 +201,35 @@ func CheckAccess(c *fiber.Ctx, userID uint, deckID uint, perm models.AccessPermi
 	}
 }
 
+func MigrateDb(c *fiber.Ctx) {
+	db := database.DBConn
+
+	var memDates []models.MemDate
+	var users []models.User
+
+	db.Find(&users)
+
+	ch := make(chan models.Mem)
+
+	for _, user := range users {
+		db.Joins("Card").Where("mem_dates.user_id = ?", &user.ID).Find(&memDates)
+		for _, memDate := range memDates {
+			go func(c *fiber.Ctx, user *models.User, memDate models.MemDate) {
+				var mems []models.Mem
+				db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", memDate.CardID, user.ID).Order("id asc").Find(&mems)
+				for i, mem := range mems {
+					if i != len(mems)-1 {
+						mem.Quality = mems[i+1].Quality
+						db.Save(&mem)
+					}
+					ch <- mem
+				}
+			}(c, &user, memDate)
+		}
+	}
+
+}
+
 func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models.CardResponseValidation) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
