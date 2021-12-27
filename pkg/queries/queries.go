@@ -472,7 +472,8 @@ func FetchNextTodayCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 		}
 	}
 	mem := FetchMem(c, memDate, user)
-	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 || memDate.Card.Type == 2 {
+
+	if mem.Efactor <= 2 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 4) || memDate.Card.Type == 2 {
 		answersList = GenerateAnswers(c, memDate)
 		if len(answersList) == 4 {
 			memDate.Card.Type = 2 // MCQ

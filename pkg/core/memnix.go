@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-
 // UpdateMem
 func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
 	//TODO: Rewrite functions
@@ -59,7 +58,6 @@ func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 			r.Quality = 2
 		}
 	}
-
 	mem.Efactor = r.Efactor + (0.1 - (5.0-float32(r.Quality))*(0.08+(5-float32(r.Quality)))*0.02)
 
 	if mem.Efactor < 1.3 {
