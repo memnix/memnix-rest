@@ -531,3 +531,59 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
 
 	return nil
 }
+
+// DeleteDeckById method
+// @Description Delete a deck
+// @Summary delete a deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Router /v1/decks/{deckID} [delete]
+func DeleteDeckById(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+	id := c.Params("id")
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	deck := new(models.Deck)
+
+	if err := db.First(&deck, id).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res := queries.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to delete this deck!",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	db.Delete(deck)
+
+	log := queries.CreateLog(models.LogDeckDeleted, auth.User.Username+" deleted "+deck.DeckName)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateDeckLog(deck.ID, *log)
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success update deck by ID",
+		Data:    *deck,
+		Count:   1,
+	})
+
+}

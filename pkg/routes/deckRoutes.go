@@ -24,4 +24,6 @@ func registerDeckRoutes(r fiber.Router) {
 	// Put
 	r.Put("/decks/:id/edit", controllers.UpdateDeckByID) // Update a deck by ID
 
+	r.Delete("/decks/:id", controllers.DeleteDeckById) // Delete a deck by ID
+
 }
