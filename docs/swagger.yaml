@@ -255,6 +255,17 @@ paths:
       summary: get all decks
       tags:
       - Deck
+  /v1/decks/{deckID}:
+    delete:
+      description: Delete a deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: delete a deck
+      tags:
+      - Deck
   /v1/decks/{deckID}/edit:
     put:
       consumes:

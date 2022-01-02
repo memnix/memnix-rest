@@ -377,6 +377,23 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/{deckID}": {
+            "delete": {
+                "description": "Delete a deck",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "delete a deck",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/decks/{deckID}/edit": {
             "put": {
                 "description": "Edit a deck",
