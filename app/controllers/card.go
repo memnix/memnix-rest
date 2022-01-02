@@ -514,3 +514,154 @@ func PostResponse(c *fiber.Ctx) error {
 		Count:   1,
 	})
 }
+
+// PUT
+
+// UpdateCardByID method
+// @Description Edit a card
+// @Summary edit a card
+// @Tags Card
+// @Produce json
+// @Success 200
+// @Accept json
+// @Param card body models.Card true "card to edit"
+// @Router /v1/cards/{cardID}/edit [put]
+func UpdateCardByID(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
+	id := c.Params("id")
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	card := new(models.Card)
+
+	if err := db.First(&card, id).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to edit this card!",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if err := UpdateCard(c, card); err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Couldn't update the card",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	log := queries.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateCardLog(card.ID, *log)
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success update card by ID",
+		Data:    *card,
+		Count:   1,
+	})
+}
+
+// UpdateDeck
+func UpdateCard(c *fiber.Ctx, card *models.Card) error {
+	db := database.DBConn
+
+	if err := c.BodyParser(&card); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if len(card.Question) < 1 || len(card.Answer) < 1 {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You must provide a question and an answer",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	db.Save(card)
+
+	return nil
+}
+
+// DeleteCardById method
+// @Description Delete a card
+// @Summary delete a card
+// @Tags Card
+// @Produce json
+// @Success 200
+// @Router /v1/cards/{cardID} [delete]
+func DeleteCardById(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+	id := c.Params("id")
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	card := new(models.Card)
+
+	if err := db.First(&card, id).Error; err != nil {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
+		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You don't have the permission to delete this card!",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	db.Delete(card)
+
+	log := queries.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
+	_ = queries.CreateUserLog(auth.User.ID, *log)
+	_ = queries.CreateCardLog(card.ID, *log)
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success delete card by ID",
+		Data:    *card,
+		Count:   1,
+	})
+
+}

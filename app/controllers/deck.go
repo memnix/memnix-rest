@@ -581,7 +581,7 @@ func DeleteDeckById(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
-		Message: "Success update deck by ID",
+		Message: "Success delete deck by ID",
 		Data:    *deck,
 		Count:   1,
 	})
