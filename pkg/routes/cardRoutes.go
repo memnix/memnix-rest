@@ -23,4 +23,7 @@ func registerCardRoutes(r fiber.Router) {
 	r.Post("/cards/new", controllers.CreateNewCard)                   // Create a new card
 	r.Post("/cards/deck/:deckID/bulk", controllers.CreateNewCardBulk) // Create a list of cards
 
+	r.Put("/cards/:id/edit", controllers.UpdateCardByID) // Update a card by ID
+
+	r.Delete("/cards/:id", controllers.DeleteCardById) // Delete a card by ID
 }
