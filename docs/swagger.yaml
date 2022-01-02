@@ -109,6 +109,37 @@ paths:
       summary: get all cards
       tags:
       - Card
+  /v1/cards/{cardID}:
+    delete:
+      description: Delete a card
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: delete a card
+      tags:
+      - Card
+  /v1/cards/{cardID}/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit a card
+      parameters:
+      - description: card to edit
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/models.Card'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: edit a card
+      tags:
+      - Card
   /v1/cards/{deckID}/next:
     get:
       description: Get next card by deckID

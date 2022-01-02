@@ -237,6 +237,54 @@ var doc = `{
                 }
             }
         },
+        "/v1/cards/{cardID}": {
+            "delete": {
+                "description": "Delete a card",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "delete a card",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/cards/{cardID}/edit": {
+            "put": {
+                "description": "Edit a card",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "edit a card",
+                "parameters": [
+                    {
+                        "description": "card to edit",
+                        "name": "card",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/cards/{deckID}/next": {
             "get": {
                 "description": "Get next card by deckID",
