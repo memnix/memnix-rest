@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -317,20 +316,10 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	if users = queries.GetSubUsers(c, card.DeckID); len(users) > 0 {
 
-		var wg sync.WaitGroup
-
-		ch := make(chan models.ResponseHTTP)
-
 		for _, s := range users {
-			wg.Add(1)
-			go func(c *fiber.Ctx, user models.User, card *models.Card) {
-				res := queries.GenerateMemDate(c, &user, card)
-				ch <- res
-				wg.Done()
-			}(c, s, card)
-		}
+			_ = queries.GenerateMemDate(c, &s, card)
 
-		wg.Wait()
+		}
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
