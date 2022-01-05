@@ -6,6 +6,7 @@ import (
 	"memnixrest/pkg/queries"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -26,7 +27,7 @@ func Register(c *fiber.Ctx) error {
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	user := models.User{
 		Username: data["username"],
-		Email:    data["email"],
+		Email:    strings.ToLower(data["email"]),
 		Password: password,
 	}
 
@@ -48,7 +49,7 @@ func Login(c *fiber.Ctx) error {
 
 	var user models.User
 
-	db.Where("email = ?", data["email"]).First(&user)
+	db.Where("email = ?", strings.ToLower(data["email"])).First(&user)
 
 	// handle error
 	if user.ID == 0 { //default Id when return nil
