@@ -2,10 +2,13 @@ package queries
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
+	"runtime"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -84,6 +87,58 @@ func GenerateRating(c *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
 		Data:    *oldRating,
 		Count:   1,
 	}
+}
+
+func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
+	db := database.DBConn
+
+	deckResponse := new(models.ResponseDeck)
+
+	deckResponse.Deck = access.Deck
+	deckResponse.DeckID = access.DeckID
+	deckResponse.Permission = access.Permission
+
+	if res := GetDeckOwner(c, access.Deck); res.ID != 0 {
+		deckResponse.Owner = res.User
+		deckResponse.OwnerId = res.UserID
+	}
+
+	rating := new(models.Rating)
+
+	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", access.DeckID, access.UserID).First(&rating); res.Error != nil {
+		deckResponse.PersonnalRating = 0
+	} else {
+		deckResponse.PersonnalRating = rating.Value
+	}
+
+	var averageValue float32
+
+	if err := db.Table("ratings").Select("AVG(value)").Where("ratings.deck_id = ? ", access.DeckID).Find(&averageValue).Error; err != nil {
+		deckResponse.AverageRating = 0
+	} else {
+		deckResponse.AverageRating = averageValue
+	}
+
+	var count int64
+	if err := db.Table("cards").Where("cards.deck_id = ?", access.DeckID).Count(&count).Error; err != nil {
+		deckResponse.CardCount = 0
+	} else {
+		deckResponse.CardCount = count
+	}
+
+	return *deckResponse
+}
+
+func GetDeckOwner(c *fiber.Ctx, deck models.Deck) *models.Access {
+	db := database.DBConn
+
+	access := new(models.Access)
+
+	if err := db.Joins("User").Joins("Deck").Where("accesses.deck_id =? AND accesses.permission >= ?", deck.ID, models.AccessOwner).Find(&access).Error; err != nil {
+		return access
+	}
+
+	return access
 }
 
 // GenerateAdminAccess
@@ -277,15 +332,25 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 			Count:   0,
 		}
 	}
+	fmt.Println("initial goroutine :", runtime.NumGoroutine())
+
+	var wg sync.WaitGroup
 
 	ch := make(chan models.ResponseHTTP)
 
 	for _, s := range cards {
+		wg.Add(1)
 		go func(c *fiber.Ctx, user *models.User, card models.Card) {
 			res := GenerateMemDate(c, user, &card)
 			ch <- res
+			defer wg.Done()
 		}(c, user, s)
 	}
+
+	wg.Wait()
+	close(ch)
+
+	fmt.Println("final goroutine :", runtime.NumGoroutine())
 
 	return models.ResponseHTTP{
 		Success: true,

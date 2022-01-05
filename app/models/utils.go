@@ -30,3 +30,14 @@ type ResponseAuth struct {
 	User    User
 	Message string
 }
+
+type ResponseDeck struct {
+	DeckID          uint `json:"deck_id" example:"1"`
+	Deck            Deck
+	Permission      AccessPermission `json:"permission" example:"1"`
+	CardCount       int64            `json:"card_count" example:"42"`
+	AverageRating   float32          `json:"average_rating" example:"3.4"`
+	PersonnalRating uint             `json:"personnal_rating" example:"3.4"`
+	OwnerId         uint             `json:"owner_id" example:"6"`
+	Owner           User
+}

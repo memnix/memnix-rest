@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -315,6 +316,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 	var users []models.User
 
 	if users = queries.GetSubUsers(c, card.DeckID); len(users) > 0 {
+
+		var wg sync.WaitGroup
+
 		ch := make(chan models.ResponseHTTP)
 
 		for _, s := range users {
@@ -323,6 +327,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 				ch <- res
 			}(c, s, card)
 		}
+
+		wg.Wait()
+		close(ch)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -382,8 +389,10 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 	}
 
 	ch := make(chan models.ResponseHTTP)
+	var wg sync.WaitGroup
 
 	for _, card := range data.Cards {
+		wg.Add(1)
 		go func(c *fiber.Ctx, card models.Card, deckID uint) {
 
 			print("Card: " + card.Question)
@@ -417,18 +426,18 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 				var users []models.User
 
 				if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
-					ch2 := make(chan models.ResponseHTTP)
 
 					for _, s := range users {
-						go func(c *fiber.Ctx, user models.User, card models.Card) {
-							res2 := queries.GenerateMemDate(c, &user, &card)
-							ch2 <- res2
-						}(c, s, card)
+						_ = queries.GenerateMemDate(c, &s, &card)
 					}
 				}
 			}
+			wg.Done()
 			ch <- res
 		}(c, card, uint(deckID))
+
+		wg.Wait()
+		close(ch)
 	}
 	//TODO: handle errors in chan
 
