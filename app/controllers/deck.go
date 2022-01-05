@@ -105,7 +105,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 func GetAllSubDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	/*auth := CheckAuth(c, models.PermUser) // Check auth
+	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
 			Success: false,
@@ -114,12 +114,12 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 			Count:   0,
 		})
 	}
-	*/
+
 	var responseDeck []models.ResponseDeck
 
 	var accesses []models.Access // Accesses array
 
-	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", 6, models.AccessStudent).Find(&accesses).Error; err != nil {
+	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all sub decks",
