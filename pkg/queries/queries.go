@@ -2,13 +2,10 @@ package queries
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
-	"runtime"
-	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -332,24 +329,12 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 			Count:   0,
 		}
 	}
-	fmt.Println("initial goroutine :", runtime.NumGoroutine())
-
-	var wg sync.WaitGroup
-
-	ch := make(chan models.ResponseHTTP)
 
 	for _, s := range cards {
-		wg.Add(1)
-		go func(c *fiber.Ctx, user *models.User, card models.Card) {
-			res := GenerateMemDate(c, user, &card)
-			ch <- res
-			wg.Done()
-		}(c, user, s)
+
+		_ = GenerateMemDate(c, user, &s)
+
 	}
-
-	wg.Wait()
-
-	fmt.Println("final goroutine :", runtime.NumGoroutine())
 
 	return models.ResponseHTTP{
 		Success: true,
