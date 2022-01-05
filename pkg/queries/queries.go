@@ -343,12 +343,11 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 		go func(c *fiber.Ctx, user *models.User, card models.Card) {
 			res := GenerateMemDate(c, user, &card)
 			ch <- res
-			defer wg.Done()
+			wg.Done()
 		}(c, user, s)
 	}
 
 	wg.Wait()
-	defer close(ch)
 
 	fmt.Println("final goroutine :", runtime.NumGoroutine())
 
