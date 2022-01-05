@@ -30,4 +30,3 @@ type ResponseAuth struct {
 	User    User
 	Message string
 }
-
