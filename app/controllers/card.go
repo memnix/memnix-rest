@@ -379,7 +379,6 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 	}
 
 	for _, card := range data.Cards {
-		deckID := card.DeckID
 		if len(card.Question) < 1 || len(card.Answer) < 1 {
 			_ = models.ResponseHTTP{
 				Success: false,
@@ -389,12 +388,12 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 			}
 		} else {
 			ca := &card
-			ca.DeckID = deckID
+			ca.DeckID = uint(deckID)
 			db.Create(ca)
 
 			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
 			_ = queries.CreateUserLog(auth.User.ID, *log)
-			_ = queries.CreateDeckLog(deckID, *log)
+			_ = queries.CreateDeckLog(uint(deckID), *log)
 			_ = queries.CreateCardLog(ca.ID, *log)
 
 			_ = models.ResponseHTTP{
@@ -406,7 +405,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 
 			var users []models.User
 
-			if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
+			if users = queries.GetSubUsers(c, uint(deckID)); len(users) > 0 {
 
 				for _, s := range users {
 					_ = queries.GenerateMemDate(c, &s, &card)
