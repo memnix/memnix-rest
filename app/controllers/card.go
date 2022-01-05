@@ -437,7 +437,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		}(c, card, uint(deckID))
 
 		wg.Wait()
-		close(ch)
+		defer close(ch)
 	}
 	//TODO: handle errors in chan
 
