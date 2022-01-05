@@ -389,57 +389,43 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		})
 	}
 
-	ch := make(chan models.ResponseHTTP)
-	var wg sync.WaitGroup
-
 	for _, card := range data.Cards {
-		wg.Add(1)
-		go func(c *fiber.Ctx, card models.Card, deckID uint) {
+		deckID := card.DeckID
+		if len(card.Question) < 1 || len(card.Answer) < 1 {
+			_ = models.ResponseHTTP{
+				Success: false,
+				Message: "You must provide a question and an answer.",
+				Data:    nil,
+				Count:   0,
+			}
+		} else {
+			ca := &card
+			ca.DeckID = deckID
+			db.Create(ca)
 
-			print("Card: " + card.Question)
+			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
+			_ = queries.CreateUserLog(auth.User.ID, *log)
+			_ = queries.CreateDeckLog(deckID, *log)
+			_ = queries.CreateCardLog(ca.ID, *log)
 
-			var res models.ResponseHTTP
+			_ = models.ResponseHTTP{
+				Success: true,
+				Message: "Success creating card",
+				Data:    nil,
+				Count:   0,
+			}
 
-			if len(card.Question) < 1 || len(card.Answer) < 1 {
-				res = models.ResponseHTTP{
-					Success: false,
-					Message: "You must provide a question and an answer.",
-					Data:    nil,
-					Count:   0,
-				}
-			} else {
-				ca := &card
-				ca.DeckID = deckID
-				db.Create(ca)
+			var users []models.User
 
-				log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
-				_ = queries.CreateUserLog(auth.User.ID, *log)
-				_ = queries.CreateDeckLog(deckID, *log)
-				_ = queries.CreateCardLog(ca.ID, *log)
+			if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
 
-				res = models.ResponseHTTP{
-					Success: true,
-					Message: "Success creating card",
-					Data:    nil,
-					Count:   0,
-				}
-
-				var users []models.User
-
-				if users = queries.GetSubUsers(c, deckID); len(users) > 0 {
-
-					for _, s := range users {
-						_ = queries.GenerateMemDate(c, &s, &card)
-					}
+				for _, s := range users {
+					_ = queries.GenerateMemDate(c, &s, &card)
 				}
 			}
-			wg.Done()
-			ch <- res
-		}(c, card, uint(deckID))
+		}
 
-		wg.Wait()
 	}
-	//TODO: handle errors in chan
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
