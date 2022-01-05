@@ -9,12 +9,12 @@ import (
 func registerDeckRoutes(r fiber.Router) {
 
 	// Get
-	r.Get("/decks", controllers.GetAllDecks)              // Get all decks
-	r.Get("/decks/public", controllers.GetAllPublicDecks) // Get all public decks
-	r.Get("/decks/available", controllers.GetAllAvailableDecks)
-	r.Get("/decks/sub", controllers.GetAllSubDecks)       // Get all decks the user is sub to
-	r.Get("/decks/:id", controllers.GetDeckByID)          // Get deck by ID
-	r.Get("/decks/:id/users", controllers.GetAllSubUsers) // Get all sub users
+	r.Get("/decks", controllers.GetAllDecks)                    // Get all decks
+	r.Get("/decks/public", controllers.GetAllPublicDecks)       // Get all public decks
+	r.Get("/decks/available", controllers.GetAllAvailableDecks) // Get all available decks
+	r.Get("/decks/sub", controllers.GetAllSubAccesses)          // Get all decks the user is sub to
+	r.Get("/decks/:id", controllers.GetDeckByID)                // Get deck by ID
+	r.Get("/decks/:id/users", controllers.GetAllSubUsers)       // Get all sub users
 
 	// Post
 	r.Post("/decks/new", controllers.CreateNewDeck)           // Create a new deck

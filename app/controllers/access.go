@@ -116,6 +116,44 @@ func GetAccessByUserIDAndDeckID(c *fiber.Ctx) error {
 	})
 }
 
+// GetAllSubAccesses method to get an access
+// @Description Get decks a user is sub to
+// @Summary get a list of deck
+// @Tags Deck
+// @Produce json
+// @Success 200 {array} models.Access
+// @Router /v1/decks/sub [get]
+func GetAllSubAccesses(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: auth.Message,
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	var accesses []models.Access // Accesses array
+
+	if err := db.Joins("Deck").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "Failed to get all sub decks",
+			Data:    nil,
+			Count:   0,
+		})
+	}
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all sub decks",
+		Data:    accesses,
+		Count:   len(accesses),
+	})
+}
+
 // POST
 
 // CreateNewAccess
