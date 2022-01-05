@@ -187,7 +187,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 // @Summary get a list of deck
 // @Tags Deck
 // @Produce json
-// @Success 200 {array} models.Deck
+// @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/available [get]
 func GetAllAvailableDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -204,9 +204,11 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 		})
 	}
 
-	var decks []models.Deck
+	var responseDeck []models.ResponseDeck
 
-	if err := db.Joins("left join accesses ON decks.id = accesses.deck_id AND accesses.user_id = ?", auth.User.ID).Where("decks.status = ? AND ((accesses.deck_id IS NULL) OR (accesses.permission < ?))", models.DeckPublic, models.AccessStudent).Find(&decks).Error; err != nil {
+	var accesses []models.Access // Accesses array
+
+	if err := db.Joins("join decks on accesses.deck_id = decks.id").Joins("Deck").Joins("User").Where("decks.status = ? AND accesses.user_id = ? AND((accesses.deck_id IS NULL) OR (accesses.permission < ?))", models.DeckPublic, auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "Failed to get all public decks: " + err.Error(),
@@ -215,11 +217,15 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 		})
 	}
 
+	for _, s := range accesses {
+		responseDeck = append(responseDeck, queries.FillResponseDeck(c, &s))
+	}
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all available decks",
-		Data:    decks,
-		Count:   len(decks),
+		Data:    responseDeck,
+		Count:   len(responseDeck),
 	})
 }
 
