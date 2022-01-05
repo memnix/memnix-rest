@@ -348,7 +348,7 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 	}
 
 	wg.Wait()
-	close(ch)
+	defer close(ch)
 
 	fmt.Println("final goroutine :", runtime.NumGoroutine())
 

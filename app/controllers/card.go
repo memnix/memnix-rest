@@ -322,14 +322,15 @@ func CreateNewCard(c *fiber.Ctx) error {
 		ch := make(chan models.ResponseHTTP)
 
 		for _, s := range users {
+			wg.Add(1)
 			go func(c *fiber.Ctx, user models.User, card *models.Card) {
 				res := queries.GenerateMemDate(c, &user, card)
 				ch <- res
+				wg.Done()
 			}(c, s, card)
 		}
 
 		wg.Wait()
-		close(ch)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -437,7 +438,6 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 		}(c, card, uint(deckID))
 
 		wg.Wait()
-		defer close(ch)
 	}
 	//TODO: handle errors in chan
 
