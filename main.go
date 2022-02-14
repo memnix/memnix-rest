@@ -25,19 +25,18 @@ func main() {
 		log.Panic("Can't connect database:", err.Error())
 	}
 
+	var migrates []interface{}
+	_ = append(migrates, models.Access{}, models.Card{}, models.Deck{},
+		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{}, models.DeckLogs{},
+		models.CardLogs{}, models.UserLogs{}, models.Logs{}, models.Rating{})
+
 	// AutoMigrate models
-	database.DBConn.AutoMigrate(&models.Access{})
-	database.DBConn.AutoMigrate(&models.Card{})
-	database.DBConn.AutoMigrate(&models.Deck{})
-	database.DBConn.AutoMigrate(&models.User{})
-	database.DBConn.AutoMigrate(&models.Mem{})
-	database.DBConn.AutoMigrate(&models.Answer{})
-	database.DBConn.AutoMigrate(&models.MemDate{})
-	database.DBConn.AutoMigrate(&models.DeckLogs{})
-	database.DBConn.AutoMigrate(&models.CardLogs{})
-	database.DBConn.AutoMigrate(&models.UserLogs{})
-	database.DBConn.AutoMigrate(&models.Logs{})
-	database.DBConn.AutoMigrate(&models.Rating{})
+	for i := 0; i < len(migrates); i++ {
+		err := database.DBConn.AutoMigrate(&migrates[i])
+		if err != nil {
+			return
+		}
+	}
 
 	// Create the app
 	app := routes.New()
