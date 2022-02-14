@@ -10,7 +10,7 @@ import (
 
 // GET
 
-// GetAllAnswers
+// GetAllAnswers function
 func GetAllAnswers(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -34,7 +34,7 @@ func GetAllAnswers(c *fiber.Ctx) error {
 
 }
 
-// GetAnswerByID
+// GetAnswerByID function
 func GetAnswerByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -60,7 +60,7 @@ func GetAnswerByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetAnswersByCardID
+// GetAnswersByCardID function
 func GetAnswersByCardID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -88,7 +88,7 @@ func GetAnswersByCardID(c *fiber.Ctx) error {
 
 // POST
 
-// CreateNewAnswer
+// CreateNewAnswer function
 func CreateNewAnswer(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 

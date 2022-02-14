@@ -8,8 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// UpdateMem
-func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
+// UpdateMem function
+func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
 	//TODO: Rewrite functions
 
 	db := database.DBConn
@@ -35,7 +35,7 @@ func UpdateMem(c *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 		} else if r.Repetition == 3 {
 			mem.Interval = 3
 		} else {
-			mem.Interval = uint((float32(r.Interval) * r.Efactor * 0.75)) + 1
+			mem.Interval = uint(float32(r.Interval)*r.Efactor*0.75) + 1
 		}
 		mem.Repetition = r.Repetition + 1
 		if memType == 2 {

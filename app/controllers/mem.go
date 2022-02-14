@@ -10,7 +10,7 @@ import (
 
 // GET
 
-// GetAllMem
+// GetAllMem function
 func GetAllMem(c *fiber.Ctx) error {
 	db := database.DBConn
 
@@ -34,7 +34,7 @@ func GetAllMem(c *fiber.Ctx) error {
 
 }
 
-// GetMemByID
+// GetMemByID function
 func GetMemByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DBConn
@@ -58,7 +58,7 @@ func GetMemByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetMemByCardAndUser
+// GetMemByCardAndUser function
 func GetMemByCardAndUser(c *fiber.Ctx) error {
 	userID := c.Params("userID")
 	cardID := c.Params("cardID")
@@ -86,7 +86,7 @@ func GetMemByCardAndUser(c *fiber.Ctx) error {
 
 // POST
 
-// CreateNewMem
+// CreateNewMem function
 func CreateNewMem(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -113,7 +113,7 @@ func CreateNewMem(c *fiber.Ctx) error {
 
 // PUT
 
-// UpdateMemByID
+// UpdateMemByID function
 func UpdateMemByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -148,7 +148,7 @@ func UpdateMemByID(c *fiber.Ctx) error {
 	})
 }
 
-// UpdateMem
+// UpdateMem function
 func UpdateMem(c *fiber.Ctx, m *models.Mem) error {
 	db := database.DBConn // DB Conn
 

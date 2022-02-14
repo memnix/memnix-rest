@@ -14,7 +14,7 @@ import (
 
 // GetAllRatings method to get all ratings
 // @Description Get all ratings. Admin Only
-// @Summary get a list of ratings
+// @Summary gets a list of ratings
 // @Tags Rating
 // @Produce json
 // @Success 200 {array} models.Rating
@@ -51,9 +51,9 @@ func GetAllRatings(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllRatings method to get all ratings
+// GetAllRatingsByDeck method to get all ratings
 // @Description Get all ratings from a deckID. Admin Only
-// @Summary get a list of ratings
+// @Summary gets a list of ratings
 // @Tags Rating
 // @Produce json
 // @Success 200 {array} models.Rating
@@ -91,7 +91,7 @@ func GetAllRatingsByDeck(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllRatings method
+// GetRatingsByDeck method
 // @Description Get ratings from a deckID.
 // @Summary get a rating
 // @Tags Rating
@@ -174,7 +174,7 @@ func GetAverageRatingByDeck(c *fiber.Ctx) error {
 
 // GetRatingByDeckAndUser method
 // @Description Get a rating by user & deck
-// @Summary get a rating
+// @Summary gets a rating
 // @Tags Rating
 // @Produce json
 // @Success 200 {object} models.Rating
@@ -218,7 +218,7 @@ func GetRatingByDeckAndUser(c *fiber.Ctx) error {
 
 // RateDeck method
 // @Description Rate a deck
-// @Summary rate a deck
+// @Summary rates a deck
 // @Tags Rating
 // @Produce json
 // @Accept json

@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func DeleteRating(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+func DeleteRating(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn
 
 	rating := new(models.Rating)
@@ -33,7 +33,7 @@ func DeleteRating(c *fiber.Ctx, user *models.User, deck *models.Deck) models.Res
 	}
 }
 
-func GenerateRating(c *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
+func GenerateRating(_ *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
 	db := database.DBConn
 	deck := new(models.Deck)
 
@@ -126,7 +126,7 @@ func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
 	return *deckResponse
 }
 
-func GetDeckOwner(c *fiber.Ctx, deck models.Deck) *models.Access {
+func GetDeckOwner(_ *fiber.Ctx, deck models.Deck) *models.Access {
 	db := database.DBConn
 
 	access := new(models.Access)
@@ -138,8 +138,8 @@ func GetDeckOwner(c *fiber.Ctx, deck models.Deck) *models.Access {
 	return access
 }
 
-// GenerateAdminAccess
-func GenerateCreatorAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+// GenerateCreatorAccess function
+func GenerateCreatorAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn
 
 	access := new(models.Access)
@@ -180,8 +180,8 @@ func GenerateCreatorAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) m
 	}
 }
 
-// GenerateAccess
-func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+// GenerateAccess function
+func GenerateAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
 	db := database.DBConn
 
 	if deck.Status != models.DeckPublic && user.Permissions != models.PermAdmin {
@@ -227,7 +227,7 @@ func GenerateAccess(c *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 	}
 }
 
-func CheckAccess(c *fiber.Ctx, userID uint, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
+func CheckAccess(_ *fiber.Ctx, userID uint, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	access := new(models.Access)
@@ -296,9 +296,9 @@ func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models
 		}
 	}
 
-	ex_mem := FetchMem(c, memDate, &user)
-	if ex_mem.Efactor == 0 {
-		ex_mem = models.Mem{
+	exMem := FetchMem(c, memDate, &user)
+	if exMem.Efactor == 0 {
+		exMem = models.Mem{
 			UserID:     user.ID,
 			CardID:     card.ID,
 			Quality:    0,
@@ -308,7 +308,7 @@ func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models
 		}
 	}
 
-	core.UpdateMem(c, &ex_mem, validation)
+	core.UpdateMem(c, &exMem, validation)
 
 	return models.ResponseHTTP{
 		Success: true,
@@ -344,7 +344,7 @@ func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.
 	}
 }
 
-func GetSubUsers(c *fiber.Ctx, deckID uint) []models.User {
+func GetSubUsers(_ *fiber.Ctx, deckID uint) []models.User {
 	db := database.DBConn // DB Conn
 
 	var users []models.User
@@ -357,7 +357,7 @@ func GetSubUsers(c *fiber.Ctx, deckID uint) []models.User {
 
 }
 
-func GenerateMemDate(c *fiber.Ctx, user *models.User, card *models.Card) models.ResponseHTTP {
+func GenerateMemDate(_ *fiber.Ctx, user *models.User, card *models.Card) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	memDate := new(models.MemDate)
@@ -391,8 +391,8 @@ func GenerateMemDate(c *fiber.Ctx, user *models.User, card *models.Card) models.
 	}
 }
 
-// FetchAnswers
-func FetchAnswers(c *fiber.Ctx, card *models.Card) []models.Answer {
+// FetchAnswers function
+func FetchAnswers(_ *fiber.Ctx, card *models.Card) []models.Answer {
 	var answers []models.Answer
 	db := database.DBConn // DB Conn
 
@@ -403,7 +403,7 @@ func FetchAnswers(c *fiber.Ctx, card *models.Card) []models.Answer {
 	return answers
 }
 
-func FetchMem(c *fiber.Ctx, memDate *models.MemDate, user *models.User) models.Mem {
+func FetchMem(_ *fiber.Ctx, memDate *models.MemDate, user *models.User) models.Mem {
 	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
@@ -499,7 +499,7 @@ func FetchNextCardByDeck(c *fiber.Ctx, user *models.User, deckID string) models.
 	}
 }
 
-// FetchNextTodayCard
+// FetchNextTodayCard function
 func FetchNextTodayCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	memDate := new(models.MemDate)
