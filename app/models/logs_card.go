@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Mem structure
+// CardLogs structure
 type CardLogs struct {
 	gorm.Model
 	CardID uint `json:"card_id" example:"1"`

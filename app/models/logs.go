@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Mem structure
+// Logs structure
 type Logs struct {
 	gorm.Model
 	LogType LogType `json:"log_type" example:"1"`

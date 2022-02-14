@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Mem structure
+// MemDate structure
 type MemDate struct {
 	gorm.Model
 	UserID   uint `json:"user_id" example:"1"`

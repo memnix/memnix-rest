@@ -10,7 +10,7 @@ import (
 
 // GET
 
-// GetAllAccesses
+// GetAllAccesses function
 func GetAllAccesses(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -34,7 +34,7 @@ func GetAllAccesses(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllAccesses
+// GetAccessesByUserID function
 func GetAccessesByUserID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -61,7 +61,7 @@ func GetAccessesByUserID(c *fiber.Ctx) error {
 	})
 }
 
-// GetAccessByID
+// GetAccessByID function
 func GetAccessByID(c *fiber.Ctx) error {
 	db := database.DBConn // Db Conn
 
@@ -89,7 +89,7 @@ func GetAccessByID(c *fiber.Ctx) error {
 	})
 }
 
-// GetAccessByUserIDAndDeckID
+// GetAccessByUserIDAndDeckID function
 func GetAccessByUserIDAndDeckID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -118,7 +118,7 @@ func GetAccessByUserIDAndDeckID(c *fiber.Ctx) error {
 
 // POST
 
-// CreateNewAccess
+// CreateNewAccess function
 func CreateNewAccess(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -145,7 +145,7 @@ func CreateNewAccess(c *fiber.Ctx) error {
 
 // PUT
 
-// UpdateAccessByID
+// UpdateAccessByID function
 func UpdateAccessByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -180,7 +180,7 @@ func UpdateAccessByID(c *fiber.Ctx) error {
 	})
 }
 
-// UpdateAccess
+// UpdateAccess function
 func UpdateAccess(c *fiber.Ctx, a *models.Access) error {
 	db := database.DBConn
 

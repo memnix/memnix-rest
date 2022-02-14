@@ -12,7 +12,7 @@ import (
 
 // GetAllUsers method to get all users
 // @Description Get all users.  Shouldn't really be used
-// @Summary get a list of user
+// @Summary gets a list of user
 // @Tags User
 // @Produce json
 // @Success 200 {object} models.User
@@ -49,9 +49,9 @@ func GetAllUsers(c *fiber.Ctx) error {
 	})
 }
 
-// GetUserByID method to get an user
-// @Description Get an user by ID.
-// @Summary get an user
+// GetUserByID method to get a user
+// @Description Get a user by ID.
+// @Summary gets a user
 // @Tags User
 // @Produce json
 // @Param id path int true "ID"
@@ -93,7 +93,7 @@ func GetUserByID(c *fiber.Ctx) error {
 
 // PUT
 
-// UpdateUserByID
+// UpdateUserByID function
 func UpdateUserByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -138,7 +138,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 	})
 }
 
-// UpdateUser
+// UpdateUser function
 func UpdateUser(c *fiber.Ctx, u *models.User) error {
 	db := database.DBConn
 

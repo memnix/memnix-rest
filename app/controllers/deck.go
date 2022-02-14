@@ -14,7 +14,7 @@ import (
 
 // GetAllDecks method to get all decks
 // @Description Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !
-// @Summary get all decks
+// @Summary gets all decks
 // @Tags Deck
 // @Produce json
 // @Success 200 {object} models.Deck
@@ -142,7 +142,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 
 // GetAllSubUsers method to get a list of users
 // @Description Get all the sub users to a deck
-// @Summary get a list of users
+// @Summary gets a list of users
 // @Tags Deck
 // @Produce json
 // @Success 200 {array} models.User
@@ -231,7 +231,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 
 // GetAllPublicDecks method to get a list of deck
 // @Description Get all public deck
-// @Summary get a list of deck
+// @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
 // @Success 200 {array} models.Deck
@@ -271,7 +271,7 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 
 // CreateNewDeck method
 // @Description Create a new deck
-// @Summary create a deck
+// @Summary creates a deck
 // @Tags Deck
 // @Produce json
 // @Success 200
@@ -454,7 +454,7 @@ func SubToDeck(c *fiber.Ctx) error {
 
 // UpdateDeckByID method
 // @Description Edit a deck
-// @Summary edit a deck
+// @Summary edits a deck
 // @Tags Deck
 // @Produce json
 // @Success 200
@@ -518,7 +518,7 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	})
 }
 
-// UpdateDeck
+// UpdateDeck function
 func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
 	db := database.DBConn
 

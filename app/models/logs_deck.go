@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Mem structure
+// DeckLogs structure
 type DeckLogs struct {
 	gorm.Model
 	DeckID uint `json:"deck_id" example:"1"`

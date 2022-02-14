@@ -13,7 +13,7 @@ import (
 
 // GetTodayCard method
 // @Description Get next today card
-// @Summary get a card
+// @Summary gets a card
 // @Tags Card
 // @Produce json
 // @Success 200 {object} models.Card
@@ -50,7 +50,7 @@ func GetTodayCard(c *fiber.Ctx) error {
 
 // GetNextCard method
 // @Description Get next card
-// @Summary get a card
+// @Summary gets a card
 // @Tags Card
 // @Produce json
 // @Success 200 {object} models.Card
@@ -86,7 +86,7 @@ func GetNextCard(c *fiber.Ctx) error {
 	})
 }
 
-// GetNextCard method
+// GetNextCardByDeck method
 // @Description Get next card by deckID
 // @Summary get a card
 // @Tags Card
@@ -127,8 +127,8 @@ func GetNextCardByDeck(c *fiber.Ctx) error {
 }
 
 // GetAllCards method
-// @Description Get every cards. Shouldn't really be used
-// @Summary get all cards
+// @Description Get every card. Shouldn't really be used
+// @Summary gets all cards
 // @Tags Card
 // @Produce json
 // @Success 200 {array} models.Card
@@ -168,7 +168,7 @@ func GetAllCards(c *fiber.Ctx) error {
 
 // GetCardByID method to get a card by id
 // @Description Get a card by tech id
-// @Summary get a card
+// @Summary gets a card
 // @Tags Card
 // @Produce json
 // @Param id path int true "Card ID"
@@ -210,8 +210,8 @@ func GetCardByID(c *fiber.Ctx) error {
 }
 
 // GetCardsFromDeck method to get cards from deck
-// @Description Get every cards from a deck
-// @Summary get a list of card
+// @Description Get every card from a deck
+// @Summary gets a list of card
 // @Tags Card
 // @Produce json
 // @Param deckID path int true "Deck ID"
@@ -256,7 +256,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 // CreateNewCard method
 // @Description Create a new card
-// @Summary create a card
+// @Summary creates a card
 // @Tags Card
 // @Produce json
 // @Accept json
@@ -425,7 +425,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 
 // PostResponse method
 // @Description Post a response and check it
-// @Summary post a response
+// @Summary posts a response
 // @Tags Card
 // @Produce json
 // @Success 200
@@ -503,7 +503,7 @@ func PostResponse(c *fiber.Ctx) error {
 
 // UpdateCardByID method
 // @Description Edit a card
-// @Summary edit a card
+// @Summary edits a card
 // @Tags Card
 // @Produce json
 // @Success 200
@@ -567,7 +567,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	})
 }
 
-// UpdateDeck
+// UpdateCard function
 func UpdateCard(c *fiber.Ctx, card *models.Card) error {
 	db := database.DBConn
 
@@ -596,7 +596,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) error {
 
 // DeleteCardById method
 // @Description Delete a card
-// @Summary delete a card
+// @Summary deletes a card
 // @Tags Card
 // @Produce json
 // @Success 200
