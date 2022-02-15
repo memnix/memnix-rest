@@ -34,7 +34,7 @@ func main() {
 	for i := 0; i < len(migrates); i++ {
 		err := database.DBConn.AutoMigrate(&migrates[i])
 		if err != nil {
-			return
+			log.Panic("Can't auto migrate models:", err.Error())
 		}
 	}
 
