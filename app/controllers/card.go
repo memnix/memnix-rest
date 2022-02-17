@@ -590,10 +590,10 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) error {
 		})
 	}
 
-	if len(card.Question) < 1 || len(card.Answer) < 1 {
+	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "You must provide a question and an answer",
+			Message: "You must provide a question and an answer (at least 5char).",
 			Data:    nil,
 			Count:   0,
 		})
