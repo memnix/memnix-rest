@@ -296,10 +296,10 @@ func CreateNewCard(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(card.Question) < 1 || len(card.Answer) < 1 {
+	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
-			Message: "You must provide a question and an answer.",
+			Message: "You must provide a question and an answer (at least 5char).",
 			Data:    nil,
 			Count:   0,
 		})
@@ -315,7 +315,6 @@ func CreateNewCard(c *fiber.Ctx) error {
 	var users []models.User
 
 	if users = queries.GetSubUsers(c, card.DeckID); len(users) > 0 {
-
 		for _, s := range users {
 			_ = queries.GenerateMemDate(c, &s, card)
 
@@ -571,10 +570,21 @@ func UpdateCardByID(c *fiber.Ctx) error {
 func UpdateCard(c *fiber.Ctx, card *models.Card) error {
 	db := database.DBConn
 
+	deckId := card.DeckID
+
 	if err := c.BodyParser(&card); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if deckId != card.DeckID {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "You shouldn't change the deck of your card ! Don't try to break Memnix.",
 			Data:    nil,
 			Count:   0,
 		})
