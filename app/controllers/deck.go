@@ -522,7 +522,7 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
 	db := database.DBConn
 
-	deck_status := d.Status
+	deckStatus := d.Status
 
 	if err := c.BodyParser(&d); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
@@ -533,7 +533,7 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
 		})
 	}
 
-	if d.Status != deck_status {
+	if d.Status != deckStatus {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: "This is not allowed ! You shouldn't try to update the deck status.",
