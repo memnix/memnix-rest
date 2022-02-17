@@ -187,7 +187,7 @@ func Logout(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 
-	log := queries.CreateLog(models.LogUserLogin, "Logout: "+auth.User.Username)
+	log := queries.CreateLog(models.LogUserLogout, "Logout: "+auth.User.Username)
 	_ = queries.CreateUserLog(auth.User.ID, *log)
 
 	return c.JSON(fiber.Map{
