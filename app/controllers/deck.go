@@ -59,12 +59,12 @@ func GetAllDecks(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "Deck ID"
 // @Success 200 {model} models.Deck
-// @Router /v1/decks/{id} [get]
+// @Router /v1/decks/{deckID} [get]
 func GetDeckByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
 	// Params
-	id := c.Params("id")
+	id := c.Params("deckID")
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
@@ -150,7 +150,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 func GetAllSubUsers(c *fiber.Ctx) error {
 
 	// Params
-	deckID := c.Params("id")
+	deckID := c.Params("deckID")
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
@@ -397,7 +397,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 // @Router /v1/decks/{deckID}/subscribe [post]
 func SubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-	deckID := c.Params("id")
+	deckID := c.Params("deckID")
 	deck := new(models.Deck)
 
 	// Check auth
@@ -465,7 +465,7 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
 	// Params
-	id := c.Params("id")
+	id := c.Params("deckID")
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
@@ -522,10 +522,21 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
 	db := database.DBConn
 
+	deck_status := d.Status
+
 	if err := c.BodyParser(&d); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
 			Success: false,
 			Message: err.Error(),
+			Data:    nil,
+			Count:   0,
+		})
+	}
+
+	if d.Status != deck_status {
+		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
+			Success: false,
+			Message: "This is not allowed ! You shouldn't try to update the deck status.",
 			Data:    nil,
 			Count:   0,
 		})
@@ -554,7 +565,7 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
 // @Router /v1/decks/{deckID} [delete]
 func DeleteDeckById(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-	id := c.Params("id")
+	id := c.Params("deckID")
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
