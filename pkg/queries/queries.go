@@ -6,31 +6,28 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
+	"memnixrest/pkg/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
-func DeleteRating(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+func DeleteRating(_ *fiber.Ctx, user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
 
 	rating := new(models.Rating)
 
+	res := new(models.ResponseHTTP)
+
 	if err := db.Where("ratings.user_id = ? AND ratings.deck_id = ?", user.ID, deck.ID).Delete(&rating).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		}
+		res.GenerateError(err.Error())
+		return res
 	}
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Rating deleted",
-		Data:    *rating,
-		Count:   1,
-	}
+
+	res.GenerateSuccess("Rating deleted", *rating, 1)
+	return res
+
 }
 
 func GenerateRating(_ *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
@@ -51,7 +48,7 @@ func GenerateRating(_ *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", rating.UserID, rating.DeckID).First(&access).Error; err != nil {
 		return models.ResponseHTTP{
 			Success: false,
-			Message: "You don't have the permissions to rate this deck",
+			Message: utils.ErrorForbidden,
 			Data:    nil,
 			Count:   0,
 		}
@@ -103,9 +100,9 @@ func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
 	rating := new(models.Rating)
 
 	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", access.DeckID, access.UserID).First(&rating); res.Error != nil {
-		deckResponse.PersonnalRating = 0
+		deckResponse.PersonalRating = 0
 	} else {
-		deckResponse.PersonnalRating = rating.Value
+		deckResponse.PersonalRating = rating.Value
 	}
 
 	var averageValue float32
@@ -169,8 +166,8 @@ func GenerateCreatorAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) m
 	}
 
 	log := CreateLog(models.LogSubscribe, user.Username+" subscribed to "+deck.DeckName)
-	_ = CreateUserLog(user.ID, *log)
-	_ = CreateDeckLog(deck.ID, *log)
+	_ = CreateUserLog(user.ID, log)
+	_ = CreateDeckLog(deck.ID, log)
 
 	return models.ResponseHTTP{
 		Success: true,
@@ -227,7 +224,7 @@ func GenerateAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 	}
 }
 
-func CheckAccess(_ *fiber.Ctx, userID uint, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
+func CheckAccess(_ *fiber.Ctx, userID, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	access := new(models.Access)

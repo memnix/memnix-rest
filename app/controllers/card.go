@@ -229,9 +229,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 	db.Create(card)
 
 	log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(card.DeckID, *log)
-	_ = queries.CreateCardLog(card.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(card.DeckID, log)
+	_ = queries.CreateCardLog(card.ID, log)
 
 	var users []models.User
 
@@ -291,14 +291,13 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 				Count:   0,
 			}
 		} else {
-			ca := &card
-			ca.DeckID = uint(deckID)
-			db.Create(ca)
+			card.DeckID = uint(deckID)
+			db.Create(card)
 
-			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
-			_ = queries.CreateUserLog(auth.User.ID, *log)
-			_ = queries.CreateDeckLog(uint(deckID), *log)
-			_ = queries.CreateCardLog(ca.ID, *log)
+			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+			_ = queries.CreateUserLog(auth.User.ID, log)
+			_ = queries.CreateDeckLog(uint(deckID), log)
+			_ = queries.CreateCardLog(card.ID, log)
 
 			_ = models.ResponseHTTP{
 				Success: true,
@@ -364,7 +363,7 @@ func PostResponse(c *fiber.Ctx) error {
 	validation := new(models.CardResponseValidation)
 
 	if strings.EqualFold(
-		strings.Replace(response.Response, " ", "", -1), strings.Replace(card.Answer, " ", "", -1)) {
+		strings.ReplaceAll(response.Response, " ", ""), strings.ReplaceAll(card.Answer, " ", "")) {
 		validation.Validate = true
 		validation.Message = "Correct answer"
 	} else {
@@ -421,8 +420,8 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateCardLog(card.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -490,8 +489,8 @@ func DeleteCardById(c *fiber.Ctx) error {
 	db.Delete(card)
 
 	log := queries.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateCardLog(card.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

@@ -194,8 +194,8 @@ func RateDeck(c *fiber.Ctx) error {
 	log := queries.CreateLog(
 		models.LogDeckRated, auth.User.Username+" rated "+strconv.FormatUint(
 			uint64(rating.DeckID), 10)+" as "+strconv.FormatUint(uint64(rating.Value), 10))
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(rating.DeckID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(rating.DeckID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
