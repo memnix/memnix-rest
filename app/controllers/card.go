@@ -291,14 +291,13 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 				Count:   0,
 			}
 		} else {
-			ca := &card
-			ca.DeckID = uint(deckID)
-			db.Create(ca)
+			card.DeckID = uint(deckID)
+			db.Create(card)
 
-			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
+			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
 			_ = queries.CreateUserLog(auth.User.ID, log)
 			_ = queries.CreateDeckLog(uint(deckID), log)
-			_ = queries.CreateCardLog(ca.ID, log)
+			_ = queries.CreateCardLog(card.ID, log)
 
 			_ = models.ResponseHTTP{
 				Success: true,
