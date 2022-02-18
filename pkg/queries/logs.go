@@ -18,8 +18,10 @@ func CreateLog(logType models.LogType, message string) *models.Logs {
 
 }
 
-func CreateUserLog(userID uint, log models.Logs) models.ResponseHTTP {
+func CreateUserLog(userID uint, log *models.Logs) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
+
+	res := new(models.ResponseHTTP)
 
 	userLog := &models.UserLogs{
 		UserID: userID,
@@ -27,16 +29,15 @@ func CreateUserLog(userID uint, log models.Logs) models.ResponseHTTP {
 	}
 
 	db.Create(userLog)
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Created an user log entry",
-		Data:    *userLog,
-		Count:   1,
-	}
+
+	res.GenerateSuccess("Created a user log entry", *userLog, 1)
+	return res
 }
 
-func CreateDeckLog(deckID uint, log models.Logs) models.ResponseHTTP {
+func CreateDeckLog(deckID uint, log *models.Logs) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
+
+	res := new(models.ResponseHTTP)
 
 	deckLog := &models.DeckLogs{
 		DeckID: deckID,
@@ -44,16 +45,15 @@ func CreateDeckLog(deckID uint, log models.Logs) models.ResponseHTTP {
 	}
 
 	db.Create(deckLog)
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Created a deck log entry",
-		Data:    *deckLog,
-		Count:   1,
-	}
+
+	res.GenerateSuccess("Created a deck log entry", *deckLog, 1)
+	return res
 }
 
-func CreateCardLog(cardID uint, log models.Logs) models.ResponseHTTP {
+func CreateCardLog(cardID uint, log *models.Logs) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
+
+	res := new(models.ResponseHTTP)
 
 	cardLog := &models.CardLogs{
 		CardID: cardID,
@@ -61,10 +61,6 @@ func CreateCardLog(cardID uint, log models.Logs) models.ResponseHTTP {
 	}
 
 	db.Create(cardLog)
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Created a card log entry",
-		Data:    *cardLog,
-		Count:   1,
-	}
+	res.GenerateSuccess("Created a card log entry", *cardLog, 1)
+	return res
 }

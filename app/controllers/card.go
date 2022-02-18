@@ -229,9 +229,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 	db.Create(card)
 
 	log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(card.DeckID, *log)
-	_ = queries.CreateCardLog(card.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(card.DeckID, log)
+	_ = queries.CreateCardLog(card.ID, log)
 
 	var users []models.User
 
@@ -296,9 +296,9 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 			db.Create(ca)
 
 			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+ca.Question)
-			_ = queries.CreateUserLog(auth.User.ID, *log)
-			_ = queries.CreateDeckLog(uint(deckID), *log)
-			_ = queries.CreateCardLog(ca.ID, *log)
+			_ = queries.CreateUserLog(auth.User.ID, log)
+			_ = queries.CreateDeckLog(uint(deckID), log)
+			_ = queries.CreateCardLog(ca.ID, log)
 
 			_ = models.ResponseHTTP{
 				Success: true,
@@ -421,8 +421,8 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateCardLog(card.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -490,8 +490,8 @@ func DeleteCardById(c *fiber.Ctx) error {
 	db.Delete(card)
 
 	log := queries.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateCardLog(card.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

@@ -246,8 +246,8 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogDeckCreated, auth.User.Username+" created "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(deck.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -291,8 +291,8 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	_ = queries.DeleteRating(c, &auth.User, &access.Deck)
 
 	log := queries.CreateLog(models.LogUnsubscribe, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(access.Deck.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(access.Deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -335,8 +335,8 @@ func SubToDeck(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogSubscribe, auth.User.Username+" subscribed to "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(deck.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -385,8 +385,8 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	}
 
 	log := queries.CreateLog(models.LogDeckEdited, auth.User.Username+" edited "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(deck.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -456,8 +456,8 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	db.Delete(deck)
 
 	log := queries.CreateLog(models.LogDeckDeleted, auth.User.Username+" deleted "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, *log)
-	_ = queries.CreateDeckLog(deck.ID, *log)
+	_ = queries.CreateUserLog(auth.User.ID, log)
+	_ = queries.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

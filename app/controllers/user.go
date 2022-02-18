@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	bytes "bytes"
+	"bytes"
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
