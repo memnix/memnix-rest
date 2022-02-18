@@ -28,7 +28,7 @@ func main() {
 	var migrates []interface{}
 	_ = append(migrates, models.Access{}, models.Card{}, models.Deck{},
 		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{}, models.DeckLogs{},
-		models.CardLogs{}, models.UserLogs{}, models.Logs{}, models.Rating{})
+		models.CardLogs{}, models.UserLogs{}, models.Logs{})
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {

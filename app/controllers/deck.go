@@ -288,8 +288,6 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
-	_ = queries.DeleteRating(c, &auth.User, &access.Deck)
-
 	log := queries.CreateLog(models.LogUnsubscribe, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
 	_ = queries.CreateUserLog(auth.User.ID, log)
 	_ = queries.CreateDeckLog(access.Deck.ID, log)
