@@ -120,7 +120,7 @@ func UpdateUser(c *fiber.Ctx, u *models.User) *models.ResponseHTTP {
 		return res
 	}
 
-	if u.Email != email || bytes.Compare(u.Password, password) != 0 || u.Permissions != permissions {
+	if u.Email != email || !bytes.Equal(u.Password, password) || u.Permissions != permissions {
 		res.GenerateError(utils.ErrorBreak)
 		return res
 	}
