@@ -274,10 +274,10 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	}
 
 	// Params
-	deckID := c.Params("id")
+	deckID := c.Params("deckID")
 
 	access := new(models.Access)
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", auth.User.ID, deckID).Find(&access).Error; err != nil {
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", auth.User.ID, deckID).Find(&access).Error; err != nil {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
