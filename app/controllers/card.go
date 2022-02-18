@@ -484,21 +484,11 @@ func DeleteCardById(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := db.First(&card, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusServiceUnavailable, err.Error())
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "You don't have the permission to delete this card!",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusForbidden, "You don't have the permission to delete this card!")
 	}
 
 	db.Delete(card)
