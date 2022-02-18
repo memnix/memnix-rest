@@ -416,7 +416,7 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) *models.ResponseHTTP {
 	}
 
 	if len(d.DeckName) <= 5 {
-		res.GenerateError(utils.ErrorQALen)
+		res.GenerateError(utils.ErrorDeckName)
 		return res
 	}
 
