@@ -281,6 +281,10 @@ func UnSubToDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
+	if access.Permission == 0 {
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
+	}
+
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
