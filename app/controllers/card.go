@@ -363,7 +363,7 @@ func PostResponse(c *fiber.Ctx) error {
 	validation := new(models.CardResponseValidation)
 
 	if strings.EqualFold(
-		strings.Replace(response.Response, " ", "", -1), strings.Replace(card.Answer, " ", "", -1)) {
+		strings.ReplaceAll(response.Response, " ", ""), strings.ReplaceAll(card.Answer, " ", "")) {
 		validation.Validate = true
 		validation.Message = "Correct answer"
 	} else {
