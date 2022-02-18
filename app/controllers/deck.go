@@ -4,6 +4,7 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
+	"memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
 
@@ -30,14 +31,9 @@ func GetAllDecks(c *fiber.Ctx) error {
 	var decks []models.Deck
 
 	if res := db.Find(&decks); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get all decks",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get all decks",
@@ -69,12 +65,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -105,12 +96,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	var accesses []models.Access // Accesses array
 
 	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get all sub decks",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	for _, s := range accesses {
@@ -146,12 +132,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 	id, _ := strconv.ParseUint(deckID, 10, 32)
 
 	if users = queries.GetSubUsers(c, uint(id)); len(users) == 0 || users == nil {
-		return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Couldn't get sub users",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -184,12 +165,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	var accesses []models.Access // Accesses array
 
 	if err := db.Joins("join decks on accesses.deck_id = decks.id").Joins("Deck").Joins("User").Where("decks.status = ? AND accesses.user_id = ? AND((accesses.deck_id IS NULL) OR (accesses.permission < ?))", models.DeckPublic, auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get all public decks: " + err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	for _, s := range accesses {
@@ -222,12 +198,7 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 	var decks []models.Deck
 
 	if err := db.Where("decks.status = ?", models.DeckPublic).Find(&decks).Error; err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get all public decks",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -259,34 +230,19 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	if err := c.BodyParser(&deck); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+
 	}
 
 	if len(deck.DeckName) <= 5 {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Your deck's name should be at least 5 char long.",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
 	}
 
 	deck.Status = models.DeckPrivate
-
 	db.Create(deck)
 
 	if err := queries.GenerateCreatorAccess(c, &auth.User, deck); !err.Success {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
 	log := queries.CreateLog(models.LogDeckCreated, auth.User.Username+" created "+deck.DeckName)
@@ -322,12 +278,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", auth.User.ID, deckID).Find(&access).Error; err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "This user isn't sub to the deck",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
 	access.Permission = 0
@@ -367,30 +318,16 @@ func SubToDeck(c *fiber.Ctx) error {
 	}
 
 	if err := db.First(&deck, deckID).Error; err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+
 	}
 
 	if err := queries.GenerateAccess(c, &auth.User, deck); !err.Success {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
 	if err := queries.PopulateMemDate(c, &auth.User, deck); !err.Success {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
 	log := queries.CreateLog(models.LogSubscribe, auth.User.Username+" subscribed to "+deck.DeckName)
@@ -430,30 +367,17 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "You don't have the permission to edit this deck!",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+
 	}
 
-	if err := UpdateDeck(c, deck); err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Couldn't update the deck",
-			Data:    nil,
-			Count:   0,
-		})
+	if err := UpdateDeck(c, deck); !err.Success {
+		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
 	log := queries.CreateLog(models.LogDeckEdited, auth.User.Username+" edited "+deck.DeckName)
@@ -469,41 +393,33 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 }
 
 // UpdateDeck function
-func UpdateDeck(c *fiber.Ctx, d *models.Deck) error {
+func UpdateDeck(c *fiber.Ctx, d *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
 
 	deckStatus := d.Status
 
+	res := new(models.ResponseHTTP)
+
 	if err := c.BodyParser(&d); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		res.GenerateError(err.Error())
+		return res
+
 	}
 
 	if d.Status != deckStatus {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "This is not allowed ! You shouldn't try to update the deck status.",
-			Data:    nil,
-			Count:   0,
-		})
+		res.GenerateError(utils.ErrorBreak)
+		return res
 	}
 
 	if len(d.DeckName) <= 5 {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Your deck's name should be at least 5 char long.",
-			Data:    nil,
-			Count:   0,
-		})
+		res.GenerateError(utils.ErrorQALen)
+		return res
 	}
 
 	db.Save(d)
 
-	return nil
+	res.GenerateSuccess("Success update deck", nil, 0)
+	return res
 }
 
 // DeleteDeckById method
@@ -525,21 +441,12 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		return c.Status(http.StatusServiceUnavailable).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "You don't have the permission to delete this deck!",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	db.Delete(deck)

@@ -4,6 +4,7 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
+	"memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -115,7 +116,7 @@ func GetAllCards(c *fiber.Ctx) error {
 	var cards []models.Card
 
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, "Failed to get all cards")
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -218,11 +219,11 @@ func CreateNewCard(c *fiber.Ctx) error {
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, "You don't have the permission to add a card to this deck !")
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
-		return queries.RequestError(c, http.StatusBadRequest, "You must provide a question and an answer (at least 5char).")
+		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
 	db.Create(card)
@@ -262,7 +263,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 
 	deckID, _ := strconv.ParseUint(c.Params("deckID"), 10, 32)
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
+	auth := CheckAuth(c, models.PermMod) // Check auth
 	if !auth.Success {
 		return queries.AuthError(c, auth)
 	}
@@ -274,23 +275,18 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 	data := new(Data)
 
 	if err := c.BodyParser(&data); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, uint(deckID), models.AccessOwner); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, "You don't have the permission to add a card to this deck !")
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	for _, card := range data.Cards {
-		if len(card.Question) < 1 || len(card.Answer) < 1 {
+		if len(card.Question) <= 5 || len(card.Answer) <= 5 {
 			_ = models.ResponseHTTP{
 				Success: false,
-				Message: "You must provide a question and an answer.",
+				Message: utils.ErrorQALen,
 				Data:    nil,
 				Count:   0,
 			}
@@ -362,7 +358,7 @@ func PostResponse(c *fiber.Ctx) error {
 	res := queries.CheckAccess(c, auth.User.ID, card.Deck.ID, models.AccessStudent)
 
 	if !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, "You don't have the permission to play this card !")
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	validation := new(models.CardResponseValidation)
@@ -413,11 +409,11 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := db.First(&card, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusServiceUnavailable, err.Error())
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, "You don't have the permission to edit this card!")
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if err := UpdateCard(c, card); !err.Success {
@@ -450,12 +446,12 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 	}
 
 	if deckId != card.DeckID {
-		res.GenerateError("You shouldn't change the deck of your card ! Don't try to break Memnix.")
+		res.GenerateError(utils.ErrorBreak)
 		return res
 	}
 
 	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
-		res.GenerateError("You must provide a question and an answer (at least 5char).")
+		res.GenerateError(utils.ErrorQALen)
 		return res
 	}
 
@@ -488,7 +484,7 @@ func DeleteCardById(c *fiber.Ctx) error {
 	}
 
 	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, "You don't have the permission to delete this card!")
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	db.Delete(card)

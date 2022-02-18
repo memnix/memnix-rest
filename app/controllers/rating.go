@@ -4,6 +4,7 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
+	"memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
 
@@ -30,13 +31,7 @@ func GetAllRatings(c *fiber.Ctx) error {
 	var ratings []models.Rating
 
 	if res := db.Joins("User").Joins("Deck").Find(&ratings); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get all ratings",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -65,13 +60,7 @@ func GetAllRatingsByDeck(c *fiber.Ctx) error {
 	var ratings []models.Rating
 
 	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? ", deckID).Find(&ratings); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get all ratings",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -100,13 +89,7 @@ func GetRatingsByDeck(c *fiber.Ctx) error {
 	var ratings []models.Rating
 
 	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", deckID, auth.User.ID).First(&ratings); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get a rating",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, res.Error.Error())
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -128,25 +111,14 @@ func GetAverageRatingByDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	deckID := c.Params("deckID")
 	var averageValue float32
 
 	if res := db.Table("ratings").Select("AVG(value)").Where("ratings.deck_id = ? ", deckID).Find(&averageValue); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get average rating",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, res.Error.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -178,13 +150,7 @@ func GetRatingByDeckAndUser(c *fiber.Ctx) error {
 	rating := new(models.Rating)
 
 	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", deckID, userID).First(&rating); res.Error != nil {
-
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: "Failed to get a rating",
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, res.Error.Error())
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -216,23 +182,13 @@ func RateDeck(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&rating); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	rating.UserID = auth.User.ID
 
 	if err := queries.GenerateRating(c, rating); !err.Success {
-		return c.Status(http.StatusInternalServerError).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: err.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
 	log := queries.CreateLog(
