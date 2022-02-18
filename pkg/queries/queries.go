@@ -224,7 +224,7 @@ func GenerateAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.R
 	}
 }
 
-func CheckAccess(_ *fiber.Ctx, userID uint, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
+func CheckAccess(_ *fiber.Ctx, userID, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	access := new(models.Access)
