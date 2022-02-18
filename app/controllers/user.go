@@ -3,6 +3,7 @@ package controllers
 import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/queries"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,12 +23,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	var users []models.User
@@ -62,13 +58,9 @@ func GetUserByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
+
 	// Params
 	id := c.Params("id")
 
@@ -102,12 +94,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	user := new(models.User)

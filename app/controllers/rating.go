@@ -24,12 +24,7 @@ func GetAllRatings(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	var ratings []models.Rating
@@ -63,12 +58,7 @@ func GetAllRatingsByDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	deckID := c.Params("deckID")
@@ -103,12 +93,7 @@ func GetRatingsByDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	deckID := c.Params("deckID")
@@ -184,12 +169,7 @@ func GetRatingByDeckAndUser(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	deckID := c.Params("deckID")
@@ -232,12 +212,7 @@ func RateDeck(c *fiber.Ctx) error {
 	// Check auth
 	auth := CheckAuth(c, models.PermUser)
 	if !auth.Success {
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+		return queries.AuthError(c, auth)
 	}
 
 	if err := c.BodyParser(&rating); err != nil {

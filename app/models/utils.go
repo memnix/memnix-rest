@@ -8,6 +8,33 @@ type ResponseHTTP struct {
 	Count   int         `json:"count"`
 }
 
+func (res *ResponseHTTP) Generator(success bool, message string, data interface{}, count int) {
+	*res = ResponseHTTP{
+		Success: success,
+		Data:    data,
+		Message: message,
+		Count:   count,
+	}
+}
+
+func (res *ResponseHTTP) GenerateError(message string) {
+	*res = ResponseHTTP{
+		Success: false,
+		Data:    nil,
+		Message: message,
+		Count:   0,
+	}
+}
+
+func (res *ResponseHTTP) GenerateSuccess(message string, data interface{}, count int) {
+	*res = ResponseHTTP{
+		Success: true,
+		Data:    data,
+		Message: message,
+		Count:   count,
+	}
+}
+
 type CardResponse struct {
 	CardID   uint `json:"card_id" example:"1"`
 	Card     Card

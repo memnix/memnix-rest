@@ -134,7 +134,7 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 		c.Status(fiber.StatusUnauthorized)
 
 		return models.ResponseAuth{
-			Message: "Unauthentified",
+			Message: "Unauthenticated",
 			Success: false,
 		}
 	}
@@ -161,7 +161,7 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 
 	return models.ResponseAuth{
 		Success: true,
-		Message: "Authentified",
+		Message: "Authenticated",
 		User:    user,
 	}
 }
