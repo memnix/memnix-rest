@@ -46,10 +46,9 @@ func New() *fiber.App {
 	})
 
 	// Register routes
-	registerUserRoutes(v1)   // /v1/users/
-	registerDeckRoutes(v1)   // /v1/decks/
-	registerCardRoutes(v1)   // /v1/cards/
-	registerRatingRoutes(v1) // /v1/ratings/
+	registerUserRoutes(v1) // /v1/users/
+	registerDeckRoutes(v1) // /v1/decks/
+	registerCardRoutes(v1) // /v1/cards/
 
 	return app
 }
