@@ -17,7 +17,7 @@ import (
 // @contact.email fiber@swagger.io
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host https://api-memnix.yumenetwork.net/
+// @host https://api-memnix.yumenetwork.net
 // @BasePath /api
 func main() {
 	// Try to connect to the database
