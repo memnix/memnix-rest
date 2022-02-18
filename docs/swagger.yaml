@@ -43,23 +43,26 @@ definitions:
         type: string
       deck_status:
         description: '1: Draft - 2: Private - 3: Published'
-        example: 0
+        example: 2
         type: integer
     type: object
-  models.Rating:
+  models.ResponseDeck:
     properties:
+      card_count:
+        example: 42
+        type: integer
       deck:
         $ref: '#/definitions/models.Deck'
       deck_id:
         example: 1
         type: integer
-      user:
+      owner:
         $ref: '#/definitions/models.User'
-      user_id:
-        example: 1
+      owner_id:
+        example: 6
         type: integer
-      value:
-        example: 3
+      permission:
+        example: 1
         type: integer
     type: object
   models.User:
@@ -96,7 +99,7 @@ info:
 paths:
   /v1/cards/:
     get:
-      description: Get every cards. Shouldn't really be used
+      description: Get every card. Shouldn't really be used
       produces:
       - application/json
       responses:
@@ -106,7 +109,7 @@ paths:
             items:
               $ref: '#/definitions/models.Card'
             type: array
-      summary: get all cards
+      summary: gets all cards
       tags:
       - Card
   /v1/cards/{cardID}:
@@ -117,7 +120,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: delete a card
+      summary: deletes a card
       tags:
       - Card
   /v1/cards/{cardID}/edit:
@@ -137,7 +140,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: edit a card
+      summary: edits a card
       tags:
       - Card
   /v1/cards/{deckID}/next:
@@ -155,7 +158,7 @@ paths:
       - Card
   /v1/cards/deck/{deckID}:
     get:
-      description: Get every cards from a deck
+      description: Get every card from a deck
       parameters:
       - description: Deck ID
         in: path
@@ -171,7 +174,7 @@ paths:
             items:
               $ref: '#/definitions/models.Card'
             type: array
-      summary: get a list of card
+      summary: gets a list of card
       tags:
       - Card
   /v1/cards/deck/{deckID}/bulk:
@@ -210,7 +213,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Card'
-      summary: get a card
+      summary: gets a card
       tags:
       - Card
   /v1/cards/new:
@@ -230,7 +233,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: create a card
+      summary: creates a card
       tags:
       - Card
   /v1/cards/next:
@@ -243,7 +246,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Card'
-      summary: get a card
+      summary: gets a card
       tags:
       - Card
   /v1/cards/response:
@@ -256,7 +259,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: post a response
+      summary: posts a response
       tags:
       - Card
   /v1/cards/today:
@@ -269,7 +272,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Card'
-      summary: get a card
+      summary: gets a card
       tags:
       - Card
   /v1/decks:
@@ -283,7 +286,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Deck'
-      summary: get all decks
+      summary: gets all decks
       tags:
       - Deck
   /v1/decks/{deckID}:
@@ -295,6 +298,24 @@ paths:
         "200":
           description: ""
       summary: delete a deck
+      tags:
+      - Deck
+    get:
+      description: Get a deck by tech ID
+      parameters:
+      - description: Deck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: model
+      summary: get a deck
       tags:
       - Deck
   /v1/decks/{deckID}/edit:
@@ -314,7 +335,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: edit a deck
+      summary: edits a deck
       tags:
       - Deck
   /v1/decks/{deckID}/subscribe:
@@ -355,26 +376,7 @@ paths:
             items:
               $ref: '#/definitions/models.User'
             type: array
-      summary: get a list of users
-      tags:
-      - Deck
-  /v1/decks/{id}:
-    get:
-      description: Get a deck by tech ID
-      parameters:
-      - description: Deck ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: model
-      summary: get a deck
+      summary: gets a list of users
       tags:
       - Deck
   /v1/decks/available:
@@ -387,7 +389,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Deck'
+              $ref: '#/definitions/models.ResponseDeck'
             type: array
       summary: get a list of deck
       tags:
@@ -409,7 +411,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: create a deck
+      summary: creates a deck
       tags:
       - Deck
   /v1/decks/public:
@@ -424,7 +426,7 @@ paths:
             items:
               $ref: '#/definitions/models.Deck'
             type: array
-      summary: get a list of deck
+      summary: gets a list of deck
       tags:
       - Deck
   /v1/decks/sub:
@@ -437,100 +439,11 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Deck'
+              $ref: '#/definitions/models.ResponseDeck'
             type: array
       summary: get a list of deck
       tags:
       - Deck
-  /v1/rating/new:
-    post:
-      consumes:
-      - application/json
-      description: Rate a deck
-      parameters:
-      - description: Rating to create or update
-        in: body
-        name: rating
-        required: true
-        schema:
-          $ref: '#/definitions/models.Rating'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: rate a deck
-      tags:
-      - Rating
-  /v1/ratings:
-    get:
-      description: Get all ratings. Admin Only
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Rating'
-            type: array
-      summary: get a list of ratings
-      tags:
-      - Rating
-  /v1/ratings/deck/{deckID}:
-    get:
-      description: Get all ratings from a deckID. Admin Only
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Rating'
-            type: array
-      summary: get a list of ratings
-      tags:
-      - Rating
-  /v1/ratings/deck/{deckID}/average:
-    get:
-      description: Get average rating from a deckID.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: integer
-      summary: get an average rating
-      tags:
-      - Rating
-  /v1/ratings/deck/{deckID}/user:
-    get:
-      description: Get ratings from a deckID.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Rating'
-      summary: get a rating
-      tags:
-      - Rating
-  /v1/ratings/deck/{deckID}/user/{userID}:
-    get:
-      description: Get a rating by user & deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Rating'
-      summary: get a rating
-      tags:
-      - Rating
   /v1/users:
     get:
       description: Get all users.  Shouldn't really be used
@@ -541,12 +454,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-      summary: get a list of user
+      summary: gets a list of user
       tags:
       - User
   /v1/users/id/{id}:
     get:
-      description: Get an user by ID.
+      description: Get a user by ID.
       parameters:
       - description: ID
         in: path
@@ -560,7 +473,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-      summary: get an user
+      summary: gets a user
       tags:
       - User
 swagger: "2.0"

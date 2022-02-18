@@ -33,14 +33,14 @@ var doc = `{
     "paths": {
         "/v1/cards/": {
             "get": {
-                "description": "Get every cards. Shouldn't really be used",
+                "description": "Get every card. Shouldn't really be used",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Card"
                 ],
-                "summary": "get all cards",
+                "summary": "gets all cards",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -56,14 +56,14 @@ var doc = `{
         },
         "/v1/cards/deck/{deckID}": {
             "get": {
-                "description": "Get every cards from a deck",
+                "description": "Get every card from a deck",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Card"
                 ],
-                "summary": "get a list of card",
+                "summary": "gets a list of card",
                 "parameters": [
                     {
                         "type": "integer",
@@ -126,7 +126,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "get a card",
+                "summary": "gets a card",
                 "parameters": [
                     {
                         "type": "integer",
@@ -158,7 +158,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "create a card",
+                "summary": "creates a card",
                 "parameters": [
                     {
                         "description": "Card to create",
@@ -186,7 +186,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "get a card",
+                "summary": "gets a card",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -209,7 +209,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "post a response",
+                "summary": "posts a response",
                 "responses": {
                     "200": {
                         "description": ""
@@ -226,7 +226,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "get a card",
+                "summary": "gets a card",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -246,7 +246,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "delete a card",
+                "summary": "deletes a card",
                 "responses": {
                     "200": {
                         "description": ""
@@ -266,7 +266,7 @@ var doc = `{
                 "tags": [
                     "Card"
                 ],
-                "summary": "edit a card",
+                "summary": "edits a card",
                 "parameters": [
                     {
                         "description": "card to edit",
@@ -314,7 +314,7 @@ var doc = `{
                 "tags": [
                     "Deck"
                 ],
-                "summary": "get all decks",
+                "summary": "gets all decks",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -341,7 +341,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Deck"
+                                "$ref": "#/definitions/models.ResponseDeck"
                             }
                         }
                     }
@@ -360,7 +360,7 @@ var doc = `{
                 "tags": [
                     "Deck"
                 ],
-                "summary": "create a deck",
+                "summary": "creates a deck",
                 "parameters": [
                     {
                         "description": "Deck to create",
@@ -388,7 +388,7 @@ var doc = `{
                 "tags": [
                     "Deck"
                 ],
-                "summary": "get a list of deck",
+                "summary": "gets a list of deck",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -418,7 +418,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Deck"
+                                "$ref": "#/definitions/models.ResponseDeck"
                             }
                         }
                     }
@@ -426,6 +426,33 @@ var doc = `{
             }
         },
         "/v1/decks/{deckID}": {
+            "get": {
+                "description": "Get a deck by tech ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "get a deck",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deck ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "model"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete a deck",
                 "produces": [
@@ -454,7 +481,7 @@ var doc = `{
                 "tags": [
                     "Deck"
                 ],
-                "summary": "edit a deck",
+                "summary": "edits a deck",
                 "parameters": [
                     {
                         "description": "Deck to edit",
@@ -522,7 +549,7 @@ var doc = `{
                 "tags": [
                     "Deck"
                 ],
-                "summary": "get a list of users",
+                "summary": "gets a list of users",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -531,172 +558,6 @@ var doc = `{
                             "items": {
                                 "$ref": "#/definitions/models.User"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/decks/{id}": {
-            "get": {
-                "description": "Get a deck by tech ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Deck"
-                ],
-                "summary": "get a deck",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Deck ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "model"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/rating/new": {
-            "post": {
-                "description": "Rate a deck",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Rating"
-                ],
-                "summary": "rate a deck",
-                "parameters": [
-                    {
-                        "description": "Rating to create or update",
-                        "name": "rating",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Rating"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/v1/ratings": {
-            "get": {
-                "description": "Get all ratings. Admin Only",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Rating"
-                ],
-                "summary": "get a list of ratings",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Rating"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/ratings/deck/{deckID}": {
-            "get": {
-                "description": "Get all ratings from a deckID. Admin Only",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Rating"
-                ],
-                "summary": "get a list of ratings",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Rating"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/ratings/deck/{deckID}/average": {
-            "get": {
-                "description": "Get average rating from a deckID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Rating"
-                ],
-                "summary": "get an average rating",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/ratings/deck/{deckID}/user": {
-            "get": {
-                "description": "Get ratings from a deckID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Rating"
-                ],
-                "summary": "get a rating",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Rating"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/ratings/deck/{deckID}/user/{userID}": {
-            "get": {
-                "description": "Get a rating by user \u0026 deck",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Rating"
-                ],
-                "summary": "get a rating",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Rating"
                         }
                     }
                 }
@@ -711,7 +572,7 @@ var doc = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "get a list of user",
+                "summary": "gets a list of user",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -724,14 +585,14 @@ var doc = `{
         },
         "/v1/users/id/{id}": {
             "get": {
-                "description": "Get an user by ID.",
+                "description": "Get a user by ID.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "User"
                 ],
-                "summary": "get an user",
+                "summary": "gets a user",
                 "parameters": [
                     {
                         "type": "integer",
@@ -811,13 +672,17 @@ var doc = `{
                 "deck_status": {
                     "description": "1: Draft - 2: Private - 3: Published",
                     "type": "integer",
-                    "example": 0
+                    "example": 2
                 }
             }
         },
-        "models.Rating": {
+        "models.ResponseDeck": {
             "type": "object",
             "properties": {
+                "card_count": {
+                    "type": "integer",
+                    "example": 42
+                },
                 "deck": {
                     "$ref": "#/definitions/models.Deck"
                 },
@@ -825,16 +690,16 @@ var doc = `{
                     "type": "integer",
                     "example": 1
                 },
-                "user": {
+                "owner": {
                     "$ref": "#/definitions/models.User"
                 },
-                "user_id": {
+                "owner_id": {
+                    "type": "integer",
+                    "example": 6
+                },
+                "permission": {
                     "type": "integer",
                     "example": 1
-                },
-                "value": {
-                    "type": "integer",
-                    "example": 3
                 }
             }
         },
@@ -918,5 +783,5 @@ func (s *s) ReadDoc() string {
 }
 
 func init() {
-	swag.Register(swag.Name, &s{})
+	swag.Register("swagger", &s{})
 }
