@@ -6,82 +6,11 @@ import (
 	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
-	"memnixrest/pkg/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
-
-func DeleteRating(_ *fiber.Ctx, user *models.User, deck *models.Deck) *models.ResponseHTTP {
-	db := database.DBConn
-
-	rating := new(models.Rating)
-
-	res := new(models.ResponseHTTP)
-
-	if err := db.Where("ratings.user_id = ? AND ratings.deck_id = ?", user.ID, deck.ID).Delete(&rating).Error; err != nil {
-		res.GenerateError(err.Error())
-		return res
-	}
-
-	res.GenerateSuccess("Rating deleted", *rating, 1)
-	return res
-
-}
-
-func GenerateRating(_ *fiber.Ctx, rating *models.Rating) models.ResponseHTTP {
-	db := database.DBConn
-	deck := new(models.Deck)
-
-	if err := db.First(&deck, rating.DeckID).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "Can't find deck matching the ID provided",
-			Data:    nil,
-			Count:   0,
-		}
-	}
-
-	access := new(models.Access)
-
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", rating.UserID, rating.DeckID).First(&access).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: utils.ErrorForbidden,
-			Data:    nil,
-			Count:   0,
-		}
-	}
-
-	if access.Permission < models.AccessStudent {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "You are not subscribed to this deck",
-			Data:    nil,
-			Count:   0,
-		}
-	}
-
-	oldRating := new(models.Rating)
-
-	if err := db.Joins("User").Joins("Deck").Where("ratings.user_id = ? AND ratings.deck_id = ?", rating.UserID, rating.DeckID).First(&oldRating).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			db.Preload("User").Preload("Deck").Create(rating)
-			oldRating = rating
-		}
-	} else {
-		oldRating.Value = rating.Value
-		db.Preload("User").Preload("Deck").Save(oldRating)
-	}
-
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success rate the deck",
-		Data:    *oldRating,
-		Count:   1,
-	}
-}
 
 func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
 	db := database.DBConn
@@ -95,22 +24,6 @@ func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
 	if res := GetDeckOwner(c, access.Deck); res.ID != 0 {
 		deckResponse.Owner = res.User
 		deckResponse.OwnerId = res.UserID
-	}
-
-	rating := new(models.Rating)
-
-	if res := db.Joins("User").Joins("Deck").Where("ratings.deck_id = ? AND ratings.user_id = ?", access.DeckID, access.UserID).First(&rating); res.Error != nil {
-		deckResponse.PersonalRating = 0
-	} else {
-		deckResponse.PersonalRating = rating.Value
-	}
-
-	var averageValue float32
-
-	if err := db.Table("ratings").Select("AVG(value)").Where("ratings.deck_id = ? ", access.DeckID).Find(&averageValue).Error; err != nil {
-		deckResponse.AverageRating = 0
-	} else {
-		deckResponse.AverageRating = averageValue
 	}
 
 	var count int64

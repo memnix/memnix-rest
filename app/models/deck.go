@@ -10,7 +10,7 @@ type Deck struct {
 	DeckName    string     `json:"deck_name" example:"First Deck"`
 	Description string     `json:"deck_description" example:"A simple demo deck"`
 	Banner      string     `json:"deck_banner" example:"A banner url"`
-	Status      DeckStatus `json:"deck_status" example:"0"` // 1: Draft - 2: Private - 3: Published
+	Status      DeckStatus `json:"deck_status" example:"2"` // 1: Draft - 2: Private - 3: Published
 }
 
 type DeckStatus int64
