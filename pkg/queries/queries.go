@@ -12,6 +12,29 @@ import (
 	"gorm.io/gorm"
 )
 
+func FillAvailableDeck(c *fiber.Ctx, deck *models.Deck) models.RespAvailableDeck {
+	db := database.DBConn
+
+	deckResponse := new(models.RespAvailableDeck)
+
+	deckResponse.Deck = *deck
+	deckResponse.DeckID = deck.ID
+
+	if res := GetDeckOwner(c, *deck); res.ID != 0 {
+		deckResponse.Owner = res.User
+		deckResponse.OwnerId = res.UserID
+	}
+
+	var count int64
+	if err := db.Table("cards").Where("cards.deck_id = ?", deck.ID).Count(&count).Error; err != nil {
+		deckResponse.CardCount = 0
+	} else {
+		deckResponse.CardCount = count
+	}
+
+	return *deckResponse
+}
+
 func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
 	db := database.DBConn
 

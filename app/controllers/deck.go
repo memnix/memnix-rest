@@ -160,16 +160,16 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 		return queries.AuthError(c, auth)
 	}
 
-	var responseDeck []models.ResponseDeck
+	var responseDeck []models.RespAvailableDeck
+	var decks []models.Deck
 
-	var accesses []models.Access // Accesses array
-
-	if err := db.Joins("join decks on accesses.deck_id = decks.id").Joins("Deck").Joins("User").Where("decks.status = ? AND accesses.user_id = ? AND((accesses.deck_id IS NULL) OR (accesses.permission < ?))", models.DeckPublic, auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
+	if err := db.Raw("SELECT DISTINCT public.decks.* FROM public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id INNER JOIN public.users ON public.users.id = public.accesses.user_id WHERE public.decks.status = 3 AND " +
+		"(( public.accesses.permission < 1 ) OR (NOT EXISTS (select public.decks.* from public.decks WHERE  public.decks.status = 3 AND public.accesses.user_id = 6) AND public.accesses.permission < 1))").Scan(&decks).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	for _, s := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(c, &s))
+	for _, s := range decks {
+		responseDeck = append(responseDeck, queries.FillAvailableDeck(c, &s))
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

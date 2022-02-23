@@ -66,3 +66,11 @@ type ResponseDeck struct {
 	OwnerId    uint             `json:"owner_id" example:"6"`
 	Owner      User
 }
+
+type RespAvailableDeck struct {
+	DeckID    uint `json:"deck_id" example:"1"`
+	Deck      Deck
+	CardCount int64 `json:"card_count" example:"42"`
+	OwnerId   uint  `json:"owner_id" example:"6"`
+	Owner     User
+}
