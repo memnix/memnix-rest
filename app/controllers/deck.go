@@ -164,7 +164,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	var decks []models.Deck
 
 	if err := db.Raw("SELECT DISTINCT public.decks.* FROM public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id INNER JOIN public.users ON public.users.id = public.accesses.user_id WHERE public.decks.status = 3 AND "+
-		"(( public.accesses.permission < 1 ) OR (NOT EXISTS (select public.decks.* from public.decks WHERE  public.decks.status = 3 AND public.accesses.user_id = ?) AND public.accesses.permission < 1))", auth.User.ID).Scan(&decks).Error; err != nil {
+		"(( public.accesses.permission < 1 ) OR (NOT EXISTS (select public.decks.* from public.decks WHERE  public.decks.status = 3 AND public.accesses.user_id = ?)))", auth.User.ID).Scan(&decks).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
