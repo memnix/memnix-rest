@@ -153,8 +153,6 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 func GetAllAvailableDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	// Params
-
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return queries2.AuthError(c, auth)
