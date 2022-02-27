@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"memnixrest/app/database"
 	"memnixrest/app/models"
-	"memnixrest/pkg/queries"
+	queries2 "memnixrest/app/queries"
+	"memnixrest/pkg/database"
 	"memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
@@ -25,13 +25,13 @@ func GetAllDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var decks []models.Deck
 
 	if res := db.Find(&decks); res.Error != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -59,13 +59,13 @@ func GetDeckByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -88,7 +88,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var responseDeck []models.ResponseDeck
@@ -96,11 +96,11 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	var accesses []models.Access // Accesses array
 
 	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	for _, s := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(c, &s))
+		responseDeck = append(responseDeck, queries2.FillResponseDeck(c, &s))
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -125,14 +125,14 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var users []models.User
 	id, _ := strconv.ParseUint(deckID, 10, 32)
 
-	if users = queries.GetSubUsers(c, uint(id)); len(users) == 0 || users == nil {
-		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+	if users = queries2.GetSubUsers(c, uint(id)); len(users) == 0 || users == nil {
+		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -157,7 +157,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var responseDeck []models.RespAvailableDeck
@@ -165,11 +165,11 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 
 	if err := db.Raw("SELECT DISTINCT public.decks.* FROM public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id INNER JOIN public.users ON public.users.id = public.accesses.user_id WHERE public.decks.status = 3 AND "+
 		"(( public.accesses.permission < 1 ) OR (NOT EXISTS (select public.decks.* from public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id WHERE public.decks.status = 3 AND public.accesses.user_id = ?)))", auth.User.ID).Scan(&decks).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	for _, s := range decks {
-		responseDeck = append(responseDeck, queries.FillAvailableDeck(c, &s))
+		responseDeck = append(responseDeck, queries2.FillAvailableDeck(c, &s))
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -192,13 +192,13 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var decks []models.Deck
 
 	if err := db.Where("decks.status = ?", models.DeckPublic).Find(&decks).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -224,30 +224,30 @@ func CreateNewDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	deck := new(models.Deck)
 
 	if err := c.BodyParser(&deck); err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 
 	}
 
 	if len(deck.DeckName) <= 5 {
-		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
+		return queries2.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
 	}
 
 	deck.Status = models.DeckPrivate
 	db.Create(deck)
 
-	if err := queries.GenerateCreatorAccess(c, &auth.User, deck); !err.Success {
-		return queries.RequestError(c, http.StatusBadRequest, err.Message)
+	if err := queries2.GenerateCreatorAccess(c, &auth.User, deck); !err.Success {
+		return queries2.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := queries.CreateLog(models.LogDeckCreated, auth.User.Username+" created "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(deck.ID, log)
+	log := queries2.CreateLog(models.LogDeckCreated, auth.User.Username+" created "+deck.DeckName)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -270,7 +270,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	// Params
@@ -278,19 +278,19 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", auth.User.ID, deckID).Find(&access).Error; err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
+		return queries2.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
 	if access.Permission == 0 {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
 	}
 
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
-	log := queries.CreateLog(models.LogUnsubscribe, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(access.Deck.ID, log)
+	log := queries2.CreateLog(models.LogUnsubscribe, auth.User.Username+" unsubscribed to "+access.Deck.DeckName)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateDeckLog(access.Deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -316,25 +316,25 @@ func SubToDeck(c *fiber.Ctx) error {
 	// Check auth
 	auth := CheckAuth(c, models.PermUser)
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	if err := db.First(&deck, deckID).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 
 	}
 
-	if err := queries.GenerateAccess(c, &auth.User, deck); !err.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
+	if err := queries2.GenerateAccess(c, &auth.User, deck); !err.Success {
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	if err := queries.PopulateMemDate(c, &auth.User, deck); !err.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
+	if err := queries2.PopulateMemDate(c, &auth.User, deck); !err.Success {
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	log := queries.CreateLog(models.LogSubscribe, auth.User.Username+" subscribed to "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(deck.ID, log)
+	log := queries2.CreateLog(models.LogSubscribe, auth.User.Username+" subscribed to "+deck.DeckName)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -363,28 +363,28 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 
 	}
 
-	if res := queries.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	if res := queries2.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 
 	}
 
 	if err := UpdateDeck(c, deck); !err.Success {
-		return queries.RequestError(c, http.StatusBadRequest, err.Message)
+		return queries2.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := queries.CreateLog(models.LogDeckEdited, auth.User.Username+" edited "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(deck.ID, log)
+	log := queries2.CreateLog(models.LogDeckEdited, auth.User.Username+" edited "+deck.DeckName)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -437,25 +437,25 @@ func DeleteDeckById(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 
 	}
 
-	if res := queries.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	if res := queries2.CheckAccess(c, auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	db.Delete(deck)
 
-	log := queries.CreateLog(models.LogDeckDeleted, auth.User.Username+" deleted "+deck.DeckName)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(deck.ID, log)
+	log := queries2.CreateLog(models.LogDeckDeleted, auth.User.Username+" deleted "+deck.DeckName)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateDeckLog(deck.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

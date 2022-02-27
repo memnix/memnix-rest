@@ -3,9 +3,9 @@ package queries
 import (
 	"errors"
 	"math/rand"
-	"memnixrest/app/database"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
+	"memnixrest/pkg/database"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +17,7 @@ func FillAvailableDeck(c *fiber.Ctx, deck *models.Deck) models.RespAvailableDeck
 
 	deckResponse := new(models.RespAvailableDeck)
 
+	var count int64
 	deckResponse.Deck = *deck
 	deckResponse.DeckID = deck.ID
 
@@ -25,7 +26,6 @@ func FillAvailableDeck(c *fiber.Ctx, deck *models.Deck) models.RespAvailableDeck
 		deckResponse.OwnerId = res.UserID
 	}
 
-	var count int64
 	if err := db.Table("cards").Where("cards.deck_id = ?", deck.ID).Count(&count).Error; err != nil {
 		deckResponse.CardCount = 0
 	} else {

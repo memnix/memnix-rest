@@ -1,8 +1,8 @@
 package core
 
 import (
-	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/database"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

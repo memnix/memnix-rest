@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/database"
 	"memnixrest/pkg/routes"
 
 	_ "github.com/arsmn/fiber-swagger/v2"

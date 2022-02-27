@@ -1,8 +1,8 @@
 package queries
 
 import (
-	"memnixrest/app/database"
 	"memnixrest/app/models"
+	"memnixrest/pkg/database"
 )
 
 func CreateLog(logType models.LogType, message string) *models.Logs {

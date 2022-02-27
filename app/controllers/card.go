@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"memnixrest/app/database"
 	"memnixrest/app/models"
-	"memnixrest/pkg/queries"
+	queries2 "memnixrest/app/queries"
+	"memnixrest/pkg/database"
 	"memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
@@ -24,11 +24,11 @@ func GetTodayCard(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
-	if res = queries.FetchNextTodayCard(c, &auth.User); !res.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+	if res = queries2.FetchNextTodayCard(c, &auth.User); !res.Success {
+		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -52,11 +52,11 @@ func GetNextCard(c *fiber.Ctx) error {
 	res := *new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
-	if res = queries.FetchNextCard(c, &auth.User); !res.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+	if res = queries2.FetchNextCard(c, &auth.User); !res.Success {
+		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -82,11 +82,11 @@ func GetNextCardByDeck(c *fiber.Ctx) error {
 	res := *new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
-	if res = queries.FetchNextCardByDeck(c, &auth.User, deckID); !res.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+	if res = queries2.FetchNextCardByDeck(c, &auth.User, deckID); !res.Success {
+		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 
 	}
 
@@ -110,13 +110,13 @@ func GetAllCards(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var cards []models.Card
 
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -140,7 +140,7 @@ func GetCardByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 	// Params
 	id := c.Params("id")
@@ -148,7 +148,7 @@ func GetCardByID(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := db.Joins("Deck").First(&card, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 
 	}
 
@@ -176,13 +176,13 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	var cards []models.Card
 
 	if err := db.Joins("Deck").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -211,33 +211,33 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	if err := c.BodyParser(&card); err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
-	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	if res := queries2.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
-		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
+		return queries2.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
 	db.Create(card)
 
-	log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(card.DeckID, log)
-	_ = queries.CreateCardLog(card.ID, log)
+	log := queries2.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateDeckLog(card.DeckID, log)
+	_ = queries2.CreateCardLog(card.ID, log)
 
 	var users []models.User
 
-	if users = queries.GetSubUsers(c, card.DeckID); len(users) > 0 {
+	if users = queries2.GetSubUsers(c, card.DeckID); len(users) > 0 {
 		for _, s := range users {
-			_ = queries.GenerateMemDate(c, &s, card)
+			_ = queries2.GenerateMemDate(c, &s, card)
 		}
 	}
 
@@ -265,7 +265,7 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermMod) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	type Data struct {
@@ -275,11 +275,11 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 	data := new(Data)
 
 	if err := c.BodyParser(&data); err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
-	if res := queries.CheckAccess(c, auth.User.ID, uint(deckID), models.AccessOwner); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	if res := queries2.CheckAccess(c, auth.User.ID, uint(deckID), models.AccessOwner); !res.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	for _, card := range data.Cards {
@@ -294,10 +294,10 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 			card.DeckID = uint(deckID)
 			db.Create(card)
 
-			log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-			_ = queries.CreateUserLog(auth.User.ID, log)
-			_ = queries.CreateDeckLog(uint(deckID), log)
-			_ = queries.CreateCardLog(card.ID, log)
+			log := queries2.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
+			_ = queries2.CreateUserLog(auth.User.ID, log)
+			_ = queries2.CreateDeckLog(uint(deckID), log)
+			_ = queries2.CreateCardLog(card.ID, log)
 
 			_ = models.ResponseHTTP{
 				Success: true,
@@ -308,10 +308,10 @@ func CreateNewCardBulk(c *fiber.Ctx) error {
 
 			var users []models.User
 
-			if users = queries.GetSubUsers(c, uint(deckID)); len(users) > 0 {
+			if users = queries2.GetSubUsers(c, uint(deckID)); len(users) > 0 {
 
 				for _, s := range users {
-					_ = queries.GenerateMemDate(c, &s, &card)
+					_ = queries2.GenerateMemDate(c, &s, &card)
 				}
 			}
 		}
@@ -339,25 +339,25 @@ func PostResponse(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	response := new(models.CardResponse)
 	card := new(models.Card)
 
 	if err := c.BodyParser(&response); err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 
 	}
 
 	if err := db.Joins("Deck").First(&card, response.CardID).Error; err != nil {
-		return queries.RequestError(c, http.StatusServiceUnavailable, err.Error())
+		return queries2.RequestError(c, http.StatusServiceUnavailable, err.Error())
 	}
 
-	res := queries.CheckAccess(c, auth.User.ID, card.Deck.ID, models.AccessStudent)
+	res := queries2.CheckAccess(c, auth.User.ID, card.Deck.ID, models.AccessStudent)
 
 	if !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	validation := new(models.CardResponseValidation)
@@ -371,7 +371,7 @@ func PostResponse(c *fiber.Ctx) error {
 		validation.Message = "Incorrect answer"
 	}
 
-	_ = queries.PostMem(c, auth.User, *card, *validation)
+	_ = queries2.PostMem(c, auth.User, *card, *validation)
 
 	validation.Answer = card.Answer
 
@@ -402,26 +402,26 @@ func UpdateCardByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	card := new(models.Card)
 
 	if err := db.First(&card, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	if res := queries2.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if err := UpdateCard(c, card); !err.Success {
-		return queries.RequestError(c, http.StatusBadRequest, err.Message)
+		return queries2.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := queries.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateCardLog(card.ID, log)
+	log := queries2.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -473,24 +473,24 @@ func DeleteCardById(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries2.AuthError(c, auth)
 	}
 
 	card := new(models.Card)
 
 	if err := db.First(&card, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusServiceUnavailable, err.Error())
+		return queries2.RequestError(c, http.StatusServiceUnavailable, err.Error())
 	}
 
-	if res := queries.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	if res := queries2.CheckAccess(c, auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	db.Delete(card)
 
-	log := queries.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateCardLog(card.ID, log)
+	log := queries2.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
+	_ = queries2.CreateUserLog(auth.User.ID, log)
+	_ = queries2.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"bytes"
-	"memnixrest/app/database"
 	"memnixrest/app/models"
-	"memnixrest/pkg/queries"
+	"memnixrest/app/queries"
+	"memnixrest/pkg/database"
 	"memnixrest/pkg/utils"
 	"net/http"
 

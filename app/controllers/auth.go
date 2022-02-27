@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"memnixrest/app/database"
 	"memnixrest/app/models"
-	"memnixrest/pkg/queries"
+	"memnixrest/app/queries"
+	"memnixrest/pkg/database"
 	"net/http"
 	"os"
 	"strconv"
