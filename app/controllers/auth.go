@@ -5,6 +5,7 @@ import (
 	"memnixrest/app/models"
 	"memnixrest/pkg/queries"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const SecretKey = "secret"
+var SecretKey = os.Getenv("SECRET")
 
 func Register(c *fiber.Ctx) error {
 	var data map[string]string
