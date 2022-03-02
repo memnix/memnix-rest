@@ -4,6 +4,7 @@ import (
 	"memnixrest/app/models"
 	"memnixrest/app/queries"
 	"memnixrest/pkg/database"
+	"memnixrest/pkg/utils"
 	"net/http"
 	"os"
 	"strconv"
@@ -32,7 +33,9 @@ func Register(c *fiber.Ctx) error {
 		Password: password,
 	}
 
-	db.Create(&user)
+	if err := db.Create(&user).Error; err != nil {
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorAlreadyUsedEmail)
+	}
 
 	log := queries.CreateLog(models.LogUserRegister, "Register: "+user.Username)
 	_ = queries.CreateUserLog(user.ID, log)

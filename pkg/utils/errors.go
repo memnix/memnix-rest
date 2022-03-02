@@ -6,3 +6,4 @@ const ErrorQALen = "You must provide a question and an answer when submitting a 
 const ErrorRequestFailed = "We were unable to process your request. If you think this is a bug, please contact us so we can fix it."
 const ErrorDeckName = "A deck name should be at least 5 char long."
 const ErrorNotSub = "You are not sub to this deck !"
+const ErrorAlreadyUsedEmail = "There is already an account using this email."
