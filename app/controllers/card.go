@@ -50,13 +50,11 @@ func GetTodayCard(c *fiber.Ctx) error {
 // @Router /v1/cards/{deckID}/training [get]
 func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-	/*
-		auth := CheckAuth(c, models.PermUser) // Check auth
-		if !auth.Success {
-			return queries2.AuthError(c, auth)
-		} */
 
-	auth := AuthDebugMode(c)
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries2.AuthError(c, auth)
+	}
 
 	var res []models.ResponseCard
 
