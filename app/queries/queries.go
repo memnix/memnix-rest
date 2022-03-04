@@ -200,7 +200,7 @@ func FetchMem(cardID, userID uint) models.Mem {
 
 func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 
-	mem := FetchMem(memDate.Card.ID, userID)
+	mem := FetchMem(memDate.CardID, userID)
 
 	var answersList []string
 	if mem.IsMCQ() || memDate.Card.Type == models.CardMCQ {
@@ -222,17 +222,17 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 
 	var memDates []models.MemDate
 
-	if err := db.Joins("Deck").Where("mem_dates.deck_id = ? AND mem_dates.user_id = ?", deckID, userID).Find(&memDates).Error; err != nil {
+	if err := db.Joins("Deck").Joins("Card").Where("mem_dates.deck_id = ? AND mem_dates.user_id = ?", deckID, userID).Find(&memDates).Error; err != nil {
 		res.GenerateError(err.Error())
 		return res
 	}
 	responseCard := new(models.ResponseCard)
 	var answersList []string
 
-	for _, memDate := range memDates {
+	for i := range memDates {
 
-		answersList = GenerateMCQ(&memDate, userID)
-		responseCard.Generate(memDate.Card, answersList)
+		answersList = GenerateMCQ(&memDates[i], userID)
+		responseCard.Generate(memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
 	}
