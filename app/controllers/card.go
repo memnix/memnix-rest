@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"math/rand"
 	"memnixrest/app/models"
 	queries2 "memnixrest/app/queries"
 	"memnixrest/pkg/database"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -88,6 +90,9 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 			Card:    card,
 			Answers: answersList})
 	}
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(res), func(i, j int) { res[i], res[j] = res[j], res[i] })
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
