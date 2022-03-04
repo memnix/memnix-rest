@@ -198,19 +198,21 @@ func FetchMem(cardID, userID uint) models.Mem {
 	return *mem
 }
 
-func GenerateMCQ(memDate *models.MemDate, userID uint, answersList *[]string) {
+func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 
 	mem := FetchMem(memDate.Card.ID, userID)
 
+	var answersList []string
 	if mem.IsMCQ() || memDate.Card.Type == models.CardMCQ {
 
-		if list := memDate.Card.GetMCQAnswers(); len(list) == 4 {
-			answersList = &list
+		answersList = memDate.Card.GetMCQAnswers()
+		if len(answersList) == 4 {
 			memDate.Card.Type = 2 // MCQ
-		} else {
-			answersList = nil
 		}
+		return answersList
 	}
+
+	return answersList
 }
 
 func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
@@ -229,7 +231,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 
 	for i := range memDates {
 
-		GenerateMCQ(&memDates[i], userID, &answersList)
+		answersList = GenerateMCQ(&memDates[i], userID)
 		responseCard.Generate(memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
@@ -253,8 +255,8 @@ func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 		res.GenerateError("Next card not found")
 		return res
 	}
+	answersList = GenerateMCQ(memDate, userID)
 
-	GenerateMCQ(memDate, userID, &answersList)
 	responseCard.Generate(memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
@@ -280,7 +282,7 @@ func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
 
 	}
 
-	GenerateMCQ(memDate, userID, &answersList)
+	answersList = GenerateMCQ(memDate, userID)
 	responseCard.Generate(memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
