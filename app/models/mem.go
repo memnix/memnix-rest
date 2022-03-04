@@ -16,3 +16,31 @@ type Mem struct {
 	Efactor    float32 `json:"e_factor" example:"2.5"`
 	Interval   uint    `json:"interval" example:"0"`
 }
+
+func (m *Mem) ComputeEfactor(oldEfactor float32, quality uint) {
+	eFactor := oldEfactor + (0.1 - (5.0-float32(quality))*(0.08+(5-float32(quality)))*0.02)
+
+	if eFactor < 1.3 {
+		m.Efactor = 1.3
+	} else {
+		m.Efactor = eFactor
+	}
+}
+
+func (m *Mem) ComputeTrainingEfactor(oldEfactor float32, quality uint) {
+	eFactor := oldEfactor + (0.1 - (5.0-float32(quality))*(0.08+(5-float32(quality)))*0.02)
+	computedEfactor := (oldEfactor + eFactor) / 2
+	if computedEfactor < 1.3 {
+		m.Efactor = 1.3
+	} else {
+		m.Efactor = computedEfactor
+	}
+}
+
+func (m *Mem) GetMemType() CardType {
+	if m.Efactor <= 2 || m.Repetition < 2 || (m.Efactor <= 2.3 && m.Repetition < 4) {
+		return CardMCQ
+	}
+
+	return m.Card.Type
+}

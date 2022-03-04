@@ -22,9 +22,9 @@ func ComputeInterval(r *models.Mem) uint {
 	}
 }
 
-func ComputeQualitySuccess(memType int, repetition uint) uint {
+func ComputeQualitySuccess(memType models.CardType, repetition uint) uint {
 
-	if memType == 2 {
+	if memType == models.CardMCQ {
 		return 3
 	} else {
 		if repetition > 3 {
@@ -34,8 +34,8 @@ func ComputeQualitySuccess(memType int, repetition uint) uint {
 	}
 }
 
-func ComputeQualityFailed(memType int, repetition uint) uint {
-	if memType == 2 {
+func ComputeQualityFailed(memType models.CardType, repetition uint) uint {
+	if memType == models.CardMCQ {
 		if repetition <= 3 {
 			return 0
 		}
@@ -46,15 +46,6 @@ func ComputeQualityFailed(memType int, repetition uint) uint {
 	}
 	return 2
 
-}
-
-func ComputeEfactor(r *models.Mem) float32 {
-	eFactor := r.Efactor + (0.1 - (5.0-float32(r.Quality))*(0.08+(5-float32(r.Quality)))*0.02)
-
-	if eFactor < 1.3 {
-		return 1.3
-	}
-	return eFactor
 }
 
 func UpdateMemDate(mem *models.Mem) {
@@ -75,7 +66,6 @@ func UpdateMemDate(mem *models.Mem) {
 
 // UpdateMem function
 func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValidation, training bool) {
-	//TODO: Rewrite functions
 
 	db := database.DBConn
 
@@ -83,24 +73,28 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValid
 
 	mem.UserID, mem.CardID = r.UserID, r.CardID
 
-	var memType int
-
-	if r.Efactor <= 2 || r.Repetition < 2 || (r.Efactor <= 2.3 && r.Repetition < 4) {
-		memType = 2
-	}
+	memType := r.GetMemType()
 
 	if validation.Validate {
-		mem.Interval = ComputeInterval(r)
+		if !training {
+			mem.Interval = ComputeInterval(r)
+		}
 		mem.Repetition = r.Repetition + 1
 		r.Quality = ComputeQualitySuccess(memType, r.Repetition)
 
 	} else {
 		mem.Repetition = 0
-		mem.Interval = 0
+		if !training {
+			mem.Interval = 0
+		}
 		r.Quality = ComputeQualityFailed(memType, r.Repetition)
 	}
 
-	mem.Efactor = ComputeEfactor(r)
+	if training {
+		mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
+	} else {
+		mem.ComputeEfactor(r.Efactor, r.Quality)
+	}
 
 	db.Save(r)
 	db.Create(mem)
@@ -108,5 +102,4 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValid
 	if !training {
 		UpdateMemDate(mem)
 	}
-
 }
