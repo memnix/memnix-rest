@@ -212,7 +212,11 @@ func PostMem(c *fiber.Ctx, user models.User, card *models.Card, validation *mode
 		}
 	}
 
-	core.UpdateMem(c, &exMem, validation, training)
+	if training {
+		core.UpdateMemTraining(&exMem, validation)
+	} else {
+		core.UpdateMem(c, &exMem, validation)
+	}
 
 	return models.ResponseHTTP{
 		Success: true,

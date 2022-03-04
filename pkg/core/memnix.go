@@ -50,8 +50,31 @@ func UpdateMemDate(mem *models.Mem) {
 
 }
 
+func UpdateMemTraining(r *models.Mem, validation *models.CardResponseValidation) {
+	db := database.DBConn
+
+	mem := new(models.Mem)
+
+	mem.UserID, mem.CardID = r.UserID, r.CardID
+
+	memType := r.GetMemType()
+
+	if validation.Validate {
+		r.Quality = ComputeQualitySuccess(memType, r.Repetition)
+	} else {
+		r.Quality = ComputeQualityFailed(memType, r.Repetition)
+	}
+
+	mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
+	mem.Interval = r.Interval
+	mem.Repetition = r.Repetition
+
+	db.Save(r)
+	db.Create(mem)
+}
+
 // UpdateMem function
-func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValidation, training bool) {
+func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValidation) {
 
 	db := database.DBConn
 
@@ -62,32 +85,22 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValid
 	memType := r.GetMemType()
 
 	if validation.Validate {
-		if !training {
-			mem.ComputeInterval(r.Interval, r.Efactor, r.Repetition)
-			mem.Repetition = r.Repetition + 1
-		}
+		mem.ComputeInterval(r.Interval, r.Efactor, r.Repetition)
+		mem.Repetition = r.Repetition + 1
 		r.Quality = ComputeQualitySuccess(memType, r.Repetition)
 
 	} else {
-		if !training {
-			mem.Repetition = 0
-			mem.Interval = 0
-		}
+		mem.Repetition = 0
+		mem.Interval = 0
+
 		r.Quality = ComputeQualityFailed(memType, r.Repetition)
 	}
 
-	if training {
-		mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
-		mem.Interval = r.Interval
-		mem.Repetition = r.Repetition
-	} else {
-		mem.ComputeEfactor(r.Efactor, r.Quality)
-	}
+	mem.ComputeEfactor(r.Efactor, r.Quality)
 
 	db.Save(r)
 	db.Create(mem)
 
-	if !training {
-		UpdateMemDate(mem)
-	}
+	UpdateMemDate(mem)
+
 }
