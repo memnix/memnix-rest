@@ -135,7 +135,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
-	switch _ := result.Data.(type) {
+	switch result.Data.(type) {
 	default:
 		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	case []models.User:

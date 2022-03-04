@@ -169,7 +169,7 @@ func GetSubUsers(deckID uint) *models.ResponseHTTP {
 	return res
 }
 
-func GenerateMemDate(userID uint, cardID uint, deckID uint) *models.ResponseHTTP {
+func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(models.ResponseHTTP)
 
@@ -188,7 +188,7 @@ func GenerateMemDate(userID uint, cardID uint, deckID uint) *models.ResponseHTTP
 	return res
 }
 
-func FetchMem(cardID uint, userID uint) models.Mem {
+func FetchMem(cardID, userID uint) models.Mem {
 	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
@@ -212,7 +212,7 @@ func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 	return answersList
 }
 
-func FetchTrainingCards(userID uint, deckID uint) *models.ResponseHTTP {
+func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	db := database.DBConn // DB Conn
 	var result []models.ResponseCard
@@ -223,10 +223,10 @@ func FetchTrainingCards(userID uint, deckID uint) *models.ResponseHTTP {
 		res.GenerateError(err.Error())
 		return res
 	}
+	responseCard := new(models.ResponseCard)
+	var answersList []string
 
 	for _, memDate := range memDates {
-		var answersList []string
-		responseCard := new(models.ResponseCard)
 
 		answersList = GenerateMCQ(&memDate, userID)
 		responseCard.Generate(memDate.Card, answersList)
@@ -242,29 +242,41 @@ func FetchTrainingCards(userID uint, deckID uint) *models.ResponseHTTP {
 
 }
 
-func FetchNextCard(userID uint, deckID uint, today bool) *models.ResponseHTTP {
+func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	responseCard := new(models.ResponseCard)
 	memDate := new(models.MemDate)
 	var answersList []string
 
-	if today {
-		if result := memDate.GetNextToday(userID); !result.Success {
+	if result := memDate.GetNextToday(userID); !result.Success {
+		res.GenerateError("Next card not found")
+		return res
+	}
+
+	answersList = GenerateMCQ(memDate, userID)
+	responseCard.Generate(memDate.Card, answersList)
+
+	res.GenerateSuccess("Success getting next card", responseCard, 1)
+	return res
+}
+
+func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
+	res := new(models.ResponseHTTP)
+	responseCard := new(models.ResponseCard)
+	memDate := new(models.MemDate)
+	var answersList []string
+
+	if deckID != 0 {
+		if result := memDate.GetNextByDeck(userID, deckID); !result.Success {
 			res.GenerateError("Next card not found")
 			return res
 		}
 	} else {
-		if deckID != 0 {
-			if result := memDate.GetNextByDeck(userID, deckID); !result.Success {
-				res.GenerateError("Next card not found")
-				return res
-			}
-		} else {
-			if result := memDate.GetNext(userID); !result.Success {
-				res.GenerateError("Next card not found")
-				return res
-			}
+		if result := memDate.GetNext(userID); !result.Success {
+			res.GenerateError("Next card not found")
+			return res
 		}
+
 	}
 
 	answersList = GenerateMCQ(memDate, userID)

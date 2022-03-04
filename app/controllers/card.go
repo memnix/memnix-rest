@@ -26,7 +26,7 @@ func GetTodayCard(c *fiber.Ctx) error {
 		return queries2.AuthError(c, auth)
 	}
 
-	if res = queries2.FetchNextCard(auth.User.ID, 0, true); !res.Success {
+	if res = queries2.FetchNextTodayCard(auth.User.ID); !res.Success {
 		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
@@ -88,7 +88,7 @@ func GetNextCard(c *fiber.Ctx) error {
 		return queries2.AuthError(c, auth)
 	}
 
-	if res = queries2.FetchNextCard(auth.User.ID, 0, false); !res.Success {
+	if res = queries2.FetchNextCard(auth.User.ID, 0); !res.Success {
 		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
@@ -117,7 +117,7 @@ func GetNextCardByDeck(c *fiber.Ctx) error {
 		return queries2.AuthError(c, auth)
 	}
 
-	if res = queries2.FetchNextCard(auth.User.ID, uint(deckIDInt), false); !res.Success {
+	if res = queries2.FetchNextCard(auth.User.ID, uint(deckIDInt)); !res.Success {
 		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 
 	}
@@ -271,7 +271,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
-	switch _ := result.Data.(type) {
+	switch result.Data.(type) {
 	default:
 		return queries2.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	case []models.User:
