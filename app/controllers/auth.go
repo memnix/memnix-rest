@@ -127,6 +127,25 @@ func User(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
+	db := database.DBConn // DB Conn
+	var user models.User
+
+	if res := db.Where("id = ?", 6).First(&user); res.Error != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return models.ResponseAuth{
+			Success: false,
+			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
+		}
+	}
+
+	return models.ResponseAuth{
+		Success: true,
+		Message: "Authenticated",
+		User:    user,
+	}
+}
+
 func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 	cookie := c.Cookies("memnix-jwt")
 	db := database.DBConn // DB Conn

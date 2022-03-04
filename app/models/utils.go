@@ -39,6 +39,7 @@ type CardResponse struct {
 	CardID   uint `json:"card_id" example:"1"`
 	Card     Card
 	Response string `json:"response" example:"42"`
+	Training bool   `json:"training" example:"false"`
 }
 
 type CardResponseValidation struct {

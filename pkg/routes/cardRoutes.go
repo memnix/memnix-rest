@@ -8,9 +8,10 @@ import (
 
 func registerCardRoutes(r fiber.Router) {
 	// Get
-	r.Get("/cards/today", controllers.GetTodayCard)             // Get Today card
-	r.Get("/cards/next", controllers.GetNextCard)               // Get Next card
-	r.Get("/cards/:deckID/next", controllers.GetNextCardByDeck) // Get Next card by deck
+	r.Get("/cards/today", controllers.GetTodayCard)                      // Get Today card
+	r.Get("/cards/next", controllers.GetNextCard)                        // Get Next card
+	r.Get("/cards/:deckID/next", controllers.GetNextCardByDeck)          // Get Next card by deck
+	r.Get("/cards/:deckID/training", controllers.GetTrainingCardsByDeck) // Get Next card by deck
 
 	// Post
 	r.Post("/cards/response", controllers.PostResponse) // Post a response

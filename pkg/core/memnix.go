@@ -8,23 +8,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ComputeInterval function
-func ComputeInterval(r *models.Mem) uint {
-	switch r.Repetition {
-	case 0:
-		return 1
-	case 1, 2:
-		return 2
-	case 3:
-		return 3
-	default:
-		return uint(float32(r.Interval)*r.Efactor*0.75) + 1
-	}
-}
+func ComputeQualitySuccess(memType models.CardType, repetition uint) uint {
 
-func ComputeQualitySuccess(memType int, repetition uint) uint {
-
-	if memType == 2 {
+	if memType == models.CardMCQ {
 		return 3
 	} else {
 		if repetition > 3 {
@@ -34,8 +20,8 @@ func ComputeQualitySuccess(memType int, repetition uint) uint {
 	}
 }
 
-func ComputeQualityFailed(memType int, repetition uint) uint {
-	if memType == 2 {
+func ComputeQualityFailed(memType models.CardType, repetition uint) uint {
+	if memType == models.CardMCQ {
 		if repetition <= 3 {
 			return 0
 		}
@@ -46,15 +32,6 @@ func ComputeQualityFailed(memType int, repetition uint) uint {
 	}
 	return 2
 
-}
-
-func ComputeEfactor(r *models.Mem) float32 {
-	eFactor := r.Efactor + (0.1 - (5.0-float32(r.Quality))*(0.08+(5-float32(r.Quality)))*0.02)
-
-	if eFactor < 1.3 {
-		return 1.3
-	}
-	return eFactor
 }
 
 func UpdateMemDate(mem *models.Mem) {
@@ -73,9 +50,31 @@ func UpdateMemDate(mem *models.Mem) {
 
 }
 
+func UpdateMemTraining(r *models.Mem, validation *models.CardResponseValidation) {
+	db := database.DBConn
+
+	mem := new(models.Mem)
+
+	mem.UserID, mem.CardID = r.UserID, r.CardID
+
+	memType := r.GetMemType()
+
+	if validation.Validate {
+		r.Quality = ComputeQualitySuccess(memType, r.Repetition)
+	} else {
+		r.Quality = ComputeQualityFailed(memType, r.Repetition)
+	}
+
+	mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
+	mem.Interval = r.Interval
+	mem.Repetition = r.Repetition
+
+	db.Save(r)
+	db.Create(mem)
+}
+
 // UpdateMem function
-func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
-	//TODO: Rewrite functions
+func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValidation) {
 
 	db := database.DBConn
 
@@ -83,24 +82,21 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 
 	mem.UserID, mem.CardID = r.UserID, r.CardID
 
-	var memType int
-
-	if r.Efactor <= 2 || r.Repetition < 2 || (r.Efactor <= 2.3 && r.Repetition < 4) {
-		memType = 2
-	}
+	memType := r.GetMemType()
 
 	if validation.Validate {
-		mem.Interval = ComputeInterval(r)
+		mem.ComputeInterval(r.Interval, r.Efactor, r.Repetition)
 		mem.Repetition = r.Repetition + 1
 		r.Quality = ComputeQualitySuccess(memType, r.Repetition)
 
 	} else {
 		mem.Repetition = 0
 		mem.Interval = 0
+
 		r.Quality = ComputeQualityFailed(memType, r.Repetition)
 	}
 
-	mem.Efactor = ComputeEfactor(r)
+	mem.ComputeEfactor(r.Efactor, r.Quality)
 
 	db.Save(r)
 	db.Create(mem)
