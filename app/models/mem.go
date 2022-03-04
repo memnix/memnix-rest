@@ -28,7 +28,7 @@ const (
 	MemQualityPerfect
 )
 
-func (mem *Mem) FillDefaultValues(userID uint, cardID uint) {
+func (mem *Mem) FillDefaultValues(userID, cardID uint) {
 	mem.UserID = userID
 	mem.CardID = cardID
 	mem.Quality = MemQualityBlackout

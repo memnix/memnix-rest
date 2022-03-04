@@ -23,7 +23,7 @@ func (m *MemDate) ComputeNextDate(interval int) {
 	m.NextDate = time.Now().AddDate(0, 0, interval)
 }
 
-func (m *MemDate) Generate(userID uint, cardID uint, deckID uint) {
+func (m *MemDate) Generate(userID, cardID uint, deckID uint) {
 	m.UserID = userID
 	m.CardID = cardID
 	m.DeckID = deckID
@@ -68,7 +68,7 @@ func (m *MemDate) GetNext(userID uint) *ResponseHTTP {
 	return res
 }
 
-func (m *MemDate) GetNextByDeck(userID uint, deckID uint) *ResponseHTTP {
+func (m *MemDate) GetNextByDeck(userID, deckID uint) *ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(ResponseHTTP)
 
