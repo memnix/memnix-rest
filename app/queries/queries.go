@@ -186,7 +186,7 @@ func CheckAccess(_ *fiber.Ctx, userID, deckID uint, perm models.AccessPermission
 	}
 }
 
-func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models.CardResponseValidation) models.ResponseHTTP {
+func PostMem(c *fiber.Ctx, user models.User, card *models.Card, validation *models.CardResponseValidation, training bool) models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	memDate := new(models.MemDate)
@@ -212,7 +212,7 @@ func PostMem(c *fiber.Ctx, user models.User, card models.Card, validation models
 		}
 	}
 
-	core.UpdateMem(c, &exMem, validation)
+	core.UpdateMem(c, &exMem, validation, training)
 
 	return models.ResponseHTTP{
 		Success: true,

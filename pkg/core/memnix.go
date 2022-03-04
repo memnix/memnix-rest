@@ -74,7 +74,7 @@ func UpdateMemDate(mem *models.Mem) {
 }
 
 // UpdateMem function
-func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation models.CardResponseValidation) {
+func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValidation, training bool) {
 	//TODO: Rewrite functions
 
 	db := database.DBConn
@@ -105,6 +105,8 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation models.CardResponseValida
 	db.Save(r)
 	db.Create(mem)
 
-	UpdateMemDate(mem)
+	if !training {
+		UpdateMemDate(mem)
+	}
 
 }

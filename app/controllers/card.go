@@ -371,7 +371,7 @@ func PostResponse(c *fiber.Ctx) error {
 		validation.Message = "Incorrect answer"
 	}
 
-	_ = queries2.PostMem(c, auth.User, *card, *validation)
+	_ = queries2.PostMem(c, auth.User, card, validation, response.Training)
 
 	validation.Answer = card.Answer
 
