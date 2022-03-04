@@ -227,10 +227,10 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	responseCard := new(models.ResponseCard)
 	var answersList []string
 
-	for _, memDate := range memDates {
+	for i := range memDates {
 
-		GenerateMCQ(&memDate, userID, &answersList)
-		responseCard.Generate(memDate.Card, answersList)
+		GenerateMCQ(&memDates[i], userID, &answersList)
+		responseCard.Generate(memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
 	}
