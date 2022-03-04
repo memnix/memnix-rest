@@ -35,3 +35,9 @@ func (s AccessPermission) ToString() string {
 		return "Unknown"
 	}
 }
+
+func (access *Access) Fill(userID, deckID uint, permission AccessPermission) {
+	access.UserID = userID
+	access.DeckID = deckID
+	access.Permission = permission
+}

@@ -86,37 +86,6 @@ var doc = `{
                 }
             }
         },
-        "/v1/cards/deck/{deckID}/bulk": {
-            "post": {
-                "description": "Create cards",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Card"
-                ],
-                "summary": "create cards",
-                "parameters": [
-                    {
-                        "description": "Cards to create",
-                        "name": "card",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Card"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/v1/cards/id/{id}": {
             "get": {
                 "description": "Get a card by tech id",
@@ -300,6 +269,29 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Card"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cards/{deckID}/training": {
+            "get": {
+                "description": "Get training cards",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "gets a list of cards",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Card"
+                            }
                         }
                     }
                 }
@@ -744,7 +736,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:1813",
+	Host:        "https://api-memnix.yumenetwork.net",
 	BasePath:    "/api",
 	Schemes:     []string{},
 	Title:       "Memnix",
