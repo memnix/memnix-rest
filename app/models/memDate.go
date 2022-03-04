@@ -23,7 +23,7 @@ func (m *MemDate) ComputeNextDate(interval int) {
 	m.NextDate = time.Now().AddDate(0, 0, interval)
 }
 
-func (m *MemDate) Generate(userID, cardID uint, deckID uint) {
+func (m *MemDate) Generate(userID, cardID, deckID uint) {
 	m.UserID = userID
 	m.CardID = cardID
 	m.DeckID = deckID
