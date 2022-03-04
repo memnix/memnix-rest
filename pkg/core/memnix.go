@@ -27,9 +27,9 @@ func UpdateMemTraining(r *models.Mem, validation bool) {
 	mem.UserID, mem.CardID = r.UserID, r.CardID
 
 	if validation {
-		mem.ComputeQualitySuccess()
+		r.ComputeQualitySuccess()
 	} else {
-		mem.ComputeQualityFail()
+		r.ComputeQualityFail()
 	}
 
 	mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
@@ -51,12 +51,12 @@ func UpdateMem(r *models.Mem, validation bool) {
 	if validation {
 		mem.ComputeInterval(r.Interval, r.Efactor, r.Repetition)
 		mem.Repetition = r.Repetition + 1
-		mem.ComputeQualitySuccess()
+		r.ComputeQualitySuccess()
 
 	} else {
 		mem.Repetition = 0
 		mem.Interval = 0
-		mem.ComputeQualityFail()
+		r.ComputeQualityFail()
 	}
 
 	mem.ComputeEfactor(r.Efactor, r.Quality)
