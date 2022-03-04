@@ -78,6 +78,8 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValid
 
 	if training {
 		mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
+		mem.Interval = r.Interval
+		mem.Repetition = r.Repetition
 	} else {
 		mem.ComputeEfactor(r.Efactor, r.Quality)
 	}
