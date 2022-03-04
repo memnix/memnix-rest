@@ -53,6 +53,11 @@ type ResponseCard struct {
 	Answers []string
 }
 
+func (responseCard *ResponseCard) Generate(card Card, answers []string) {
+	responseCard.Answers = answers
+	responseCard.Card = card
+}
+
 type ResponseAuth struct {
 	Success bool
 	User    User
@@ -66,12 +71,4 @@ type ResponseDeck struct {
 	CardCount  int64            `json:"card_count" example:"42"`
 	OwnerId    uint             `json:"owner_id" example:"6"`
 	Owner      User
-}
-
-type RespAvailableDeck struct {
-	DeckID    uint `json:"deck_id" example:"1"`
-	Deck      Deck
-	CardCount int64 `json:"card_count" example:"42"`
-	OwnerId   uint  `json:"owner_id" example:"6"`
-	Owner     User
 }
