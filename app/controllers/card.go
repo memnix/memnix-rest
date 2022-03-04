@@ -68,8 +68,8 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Get today's card",
-		Data:    res,
-		Count:   1,
+		Data:    res.Data,
+		Count:   res.Count,
 	})
 }
 
