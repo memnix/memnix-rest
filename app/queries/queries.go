@@ -2,447 +2,274 @@ package queries
 
 import (
 	"errors"
+	"gorm.io/gorm"
 	"math/rand"
 	"memnixrest/app/models"
 	"memnixrest/pkg/core"
 	"memnixrest/pkg/database"
+	"memnixrest/pkg/utils"
 	"time"
-
-	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
-func FillAvailableDeck(c *fiber.Ctx, deck *models.Deck) models.RespAvailableDeck {
+func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) models.ResponseDeck {
 	db := database.DBConn
 
-	deckResponse := new(models.RespAvailableDeck)
+	deckResponse := new(models.ResponseDeck)
 
-	var count int64
 	deckResponse.Deck = *deck
 	deckResponse.DeckID = deck.ID
+	deckResponse.Permission = permission
 
-	if res := GetDeckOwner(c, *deck); res.ID != 0 {
-		deckResponse.Owner = res.User
-		deckResponse.OwnerId = res.UserID
+	if owner := deck.GetOwner(); owner.ID != 0 {
+		deckResponse.Owner = owner
+		deckResponse.OwnerId = owner.ID
 	}
 
+	var count int64
 	if err := db.Table("cards").Where("cards.deck_id = ?", deck.ID).Count(&count).Error; err != nil {
 		deckResponse.CardCount = 0
 	} else {
 		deckResponse.CardCount = count
 	}
-
 	return *deckResponse
-}
-
-func FillResponseDeck(c *fiber.Ctx, access *models.Access) models.ResponseDeck {
-	db := database.DBConn
-
-	deckResponse := new(models.ResponseDeck)
-
-	deckResponse.Deck = access.Deck
-	deckResponse.DeckID = access.DeckID
-	deckResponse.Permission = access.Permission
-
-	if res := GetDeckOwner(c, access.Deck); res.ID != 0 {
-		deckResponse.Owner = res.User
-		deckResponse.OwnerId = res.UserID
-	}
-
-	var count int64
-	if err := db.Table("cards").Where("cards.deck_id = ?", access.DeckID).Count(&count).Error; err != nil {
-		deckResponse.CardCount = 0
-	} else {
-		deckResponse.CardCount = count
-	}
-
-	return *deckResponse
-}
-
-func GetDeckOwner(_ *fiber.Ctx, deck models.Deck) *models.Access {
-	db := database.DBConn
-
-	access := new(models.Access)
-
-	if err := db.Joins("User").Joins("Deck").Where("accesses.deck_id =? AND accesses.permission >= ?", deck.ID, models.AccessOwner).Find(&access).Error; err != nil {
-		return access
-	}
-
-	return access
 }
 
 // GenerateCreatorAccess function
-func GenerateCreatorAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
 
 	access := new(models.Access)
+	res := new(models.ResponseHTTP)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.DeckID = deck.ID
-			access.UserID = user.ID
-			access.Permission = models.AccessOwner
+			access.Fill(user.ID, deck.ID, models.AccessOwner)
 			db.Create(access)
 		}
-
 	} else {
-		if access.Permission >= models.AccessStudent {
-			return models.ResponseHTTP{
-				Success: false,
-				Message: "You are already subscribed to this deck. You can't become an owner...",
-				Data:    nil,
-				Count:   0,
-			}
-		} else {
-			access.DeckID = deck.ID
-			access.UserID = user.ID
-			access.Permission = models.AccessOwner
-			db.Preload("User").Preload("Deck").Save(access)
-		}
+		res.GenerateError(utils.ErrorForbidden)
+		return res
 	}
 
 	log := CreateLog(models.LogSubscribe, user.Username+" subscribed to "+deck.DeckName)
 	_ = CreateUserLog(user.ID, log)
 	_ = CreateDeckLog(deck.ID, log)
 
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success register a creator access !",
-		Data:    *access,
-		Count:   1,
-	}
+	res.GenerateSuccess("Success register a creator access !", *access, 1)
+	return res
 }
 
 // GenerateAccess function
-func GenerateAccess(_ *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
+	res := new(models.ResponseHTTP)
 
 	if deck.Status != models.DeckPublic && user.Permissions != models.PermAdmin {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "You don't have the permissions to subscribe to this deck!",
-			Data:    nil,
-			Count:   0,
-		}
+		res.GenerateError(utils.ErrorForbidden)
+		return res
 	}
 
 	access := new(models.Access)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.DeckID = deck.ID
-			access.UserID = user.ID
-			access.Permission = models.AccessStudent
+			access.Fill(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Create(access)
 		}
 
 	} else {
 		if access.Permission >= models.AccessStudent {
-			return models.ResponseHTTP{
-				Success: false,
-				Message: "You are already subscribed to this deck",
-				Data:    nil,
-				Count:   0,
-			}
+			res.GenerateError(utils.ErrorAlreadySub)
+			return res
+
 		} else {
-			access.DeckID = deck.ID
-			access.UserID = user.ID
-			access.Permission = models.AccessStudent
+			access.Fill(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Save(access)
 		}
 	}
 
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success register an access",
-		Data:    *access,
-		Count:   1,
-	}
+	res.GenerateSuccess("Success register an access", *access, 1)
+	return res
 }
 
-func CheckAccess(_ *fiber.Ctx, userID, deckID uint, perm models.AccessPermission) models.ResponseHTTP {
+func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
 	access := new(models.Access)
+	res := new(models.ResponseHTTP)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", userID, deckID).First(&access).Error; err != nil {
 		access.Permission = models.AccessNone
 	}
 
 	if access.Permission < perm {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "You don't have the permission to access this deck!",
-			Data:    *access,
-			Count:   1,
-		}
+		res.GenerateError(utils.ErrorForbidden)
+		return res
 	}
 
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success checking access permissions",
-		Data:    *access,
-		Count:   1,
-	}
+	res.GenerateSuccess("Success checking access permissions", *access, 1)
+	return res
 }
 
-func PostMem(c *fiber.Ctx, user models.User, card *models.Card, validation *models.CardResponseValidation, training bool) models.ResponseHTTP {
+func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
+	res := new(models.ResponseHTTP)
 
 	memDate := new(models.MemDate)
 
 	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
-		&user.ID, card.ID).First(&memDate).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "MemDate Not Found",
-			Data:    nil,
-		}
+		user.ID, card.ID).First(&memDate).Error; err != nil {
+		res.GenerateError(utils.ErrorRequestFailed) // MemDate not found
+		// TODO: Create a default MemDate
+		return res
 	}
 
-	exMem := FetchMem(c, memDate, &user)
+	exMem := FetchMem(memDate.CardID, user.ID)
 	if exMem.Efactor == 0 {
-		exMem = models.Mem{
-			UserID:     user.ID,
-			CardID:     card.ID,
-			Quality:    0,
-			Repetition: 0,
-			Efactor:    2.5,
-			Interval:   0,
-		}
+		exMem.FillDefaultValues(user.ID, card.ID)
 	}
 
 	if training {
-		core.UpdateMemTraining(&exMem, validation)
+		core.UpdateMemTraining(&exMem, validation.Validate)
 	} else {
-		core.UpdateMem(c, &exMem, validation)
+		core.UpdateMem(&exMem, validation.Validate)
 	}
-
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success Post Mem",
-		Data:    nil,
-	}
+	res.GenerateSuccess("Success Post Mem", nil, 0)
+	return res
 }
 
-func PopulateMemDate(c *fiber.Ctx, user *models.User, deck *models.Deck) models.ResponseHTTP {
+func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	var cards []models.Card
+	res := new(models.ResponseHTTP)
 
 	if err := db.Joins("Deck").Where("cards.deck_id = ?", deck.ID).Find(&cards).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: err.Error(),
-			Data:    nil,
-			Count:   0,
-		}
+		res.GenerateError(err.Error()) // MemDate not found
+		return res
 	}
 
 	for _, s := range cards {
-
-		_ = GenerateMemDate(c, user, &s)
-
+		_ = GenerateMemDate(user.ID, s.ID, s.DeckID)
 	}
-
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success generated mem_date",
-		Data:    nil,
-		Count:   0,
-	}
+	res.GenerateSuccess("Success generated mem_date", nil, 0)
+	return res
 }
 
-func GetSubUsers(_ *fiber.Ctx, deckID uint) []models.User {
-	db := database.DBConn // DB Conn
+func GetSubUsers(deckID uint) *models.ResponseHTTP {
+	res := new(models.ResponseHTTP)
 
+	db := database.DBConn // DB Conn
 	var users []models.User
 
 	if err := db.Joins("left join accesses ON users.id = accesses.user_id AND accesses.deck_id = ?", deckID).Where("accesses.permission > ?", models.AccessNone).Find(&users).Error; err != nil {
-		return nil
+		res.GenerateError(err.Error())
+		return res
 	}
-
-	return users
-
+	res.GenerateSuccess("Success getting sub users", users, len(users))
+	return res
 }
 
-func GenerateMemDate(_ *fiber.Ctx, user *models.User, card *models.Card) models.ResponseHTTP {
+func GenerateMemDate(userID uint, cardID uint, deckID uint) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
+	res := new(models.ResponseHTTP)
 
 	memDate := new(models.MemDate)
 
-	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", user.ID, card.ID).First(&memDate).Error; err != nil {
+	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", userID, cardID).First(&memDate).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-
-			memDate = &models.MemDate{
-				UserID:   user.ID,
-				CardID:   card.ID,
-				DeckID:   card.DeckID,
-				NextDate: time.Now(),
-			}
-
+			memDate.Generate(userID, cardID, deckID)
 			db.Create(memDate)
 		} else {
-			return models.ResponseHTTP{
-				Success: false,
-				Message: err.Error(),
-				Data:    nil,
-				Count:   0,
-			}
+			res.GenerateError(err.Error())
+			return res
 		}
 	}
-
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Success generate MemDate",
-		Data:    *memDate,
-		Count:   1,
-	}
+	res.GenerateSuccess("Success generate MemDate", memDate, 1)
+	return res
 }
 
-// FetchAnswers function
-func FetchAnswers(_ *fiber.Ctx, card *models.Card) []models.Answer {
-	var answers []models.Answer
-	db := database.DBConn // DB Conn
-
-	if err := db.Joins("Card").Where("answers.card_id = ?", card.ID).Limit(3).Order("random()").Find(&answers).Error; err != nil {
-		return nil
-	}
-
-	return answers
-}
-
-func FetchMem(_ *fiber.Ctx, memDate *models.MemDate, user *models.User) models.Mem {
+func FetchMem(cardID uint, userID uint) models.Mem {
 	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
-	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", memDate.CardID, user.ID).Order("id desc").First(&mem).Error; err != nil {
+	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", cardID, userID).Order("id desc").First(&mem).Error; err != nil {
 		mem.Efactor = 0
 	}
 	return *mem
 }
 
-func GenerateAnswers(c *fiber.Ctx, card *models.Card) []string {
+func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 	var answersList []string
 
-	res := FetchAnswers(c, card)
+	mem := FetchMem(memDate.Card.ID, userID)
 
-	if len(res) >= 3 {
-		answersList = append(answersList, res[0].Answer, res[1].Answer, res[2].Answer, card.Answer)
-
-		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
+	if mem.IsMCQ() || memDate.Card.Type == models.CardMCQ {
+		answersList = memDate.Card.GetMCQAnswers()
+		if len(answersList) == 4 {
+			memDate.Card.Type = 2 // MCQ
+		}
 	}
-
 	return answersList
+}
+
+func FetchTrainingCards(userID uint, deckID uint) *models.ResponseHTTP {
+	res := new(models.ResponseHTTP)
+	db := database.DBConn // DB Conn
+	var result []models.ResponseCard
+
+	var memDates []models.MemDate
+
+	if err := db.Joins("Deck").Where("mem_dates.deck_id = ? AND mem_dates.user_id = ?", deckID, userID).Find(&memDates).Error; err != nil {
+		res.GenerateError(err.Error())
+		return res
+	}
+
+	for _, memDate := range memDates {
+		var answersList []string
+		responseCard := new(models.ResponseCard)
+
+		answersList = GenerateMCQ(&memDate, userID)
+		responseCard.Generate(memDate.Card, answersList)
+
+		result = append(result, *responseCard)
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(result), func(i, j int) { result[i], result[j] = result[j], result[i] })
+
+	res.GenerateSuccess("Success getting next card", result, len(result))
+	return res
 
 }
 
-func FetchNextCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-
+func FetchNextCard(userID uint, deckID uint, today bool) *models.ResponseHTTP {
+	res := new(models.ResponseHTTP)
+	responseCard := new(models.ResponseCard)
 	memDate := new(models.MemDate)
 	var answersList []string
 
-	// Get next card
-	if err := db.Joins(
-		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
-		user.ID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND accesses.permission >= ?",
-		&user.ID, models.AccessStudent).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "Next card not found",
-			Data:    nil,
+	if today {
+		if result := memDate.GetNextToday(userID); !result.Success {
+			res.GenerateError("Next card not found")
+			return res
+		}
+	} else {
+		if deckID != 0 {
+			if result := memDate.GetNextByDeck(userID, deckID); !result.Success {
+				res.GenerateError("Next card not found")
+				return res
+			}
+		} else {
+			if result := memDate.GetNext(userID); !result.Success {
+				res.GenerateError("Next card not found")
+				return res
+			}
 		}
 	}
 
-	mem := FetchMem(c, memDate, user)
-	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 {
-		answersList = GenerateAnswers(c, &memDate.Card)
-		if len(answersList) == 4 {
-			memDate.Card.Type = 2 // MCQ
-		}
-	}
+	answersList = GenerateMCQ(memDate, userID)
+	responseCard.Generate(memDate.Card, answersList)
 
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Get Next Card",
-		Data: models.ResponseCard{
-			Card:    memDate.Card,
-			Answers: answersList,
-		},
-	}
-}
-
-func FetchNextCardByDeck(c *fiber.Ctx, user *models.User, deckID string) models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-
-	memDate := new(models.MemDate)
-	var answersList []string
-
-	// Get next card
-	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.deck_id = ?",
-		&user.ID, deckID).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "Next card by deck not found",
-			Data:    nil,
-		}
-	}
-
-	mem := FetchMem(c, memDate, user)
-	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 || memDate.Card.Type == 2 {
-		answersList = GenerateAnswers(c, &memDate.Card)
-		if len(answersList) == 4 {
-			memDate.Card.Type = 2 // MCQ
-		}
-	}
-
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Get Next Card By Deck",
-		Data: models.ResponseCard{
-			Card:    memDate.Card,
-			Answers: answersList,
-		},
-	}
-}
-
-// FetchNextTodayCard function
-func FetchNextTodayCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	memDate := new(models.MemDate)
-
-	var answersList []string
-
-	// Get next card with date condition
-	t := time.Now()
-
-	if err := db.Joins(
-		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
-		user.ID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ?",
-		&user.ID, t.AddDate(0, 0, 1).Add(
-			time.Duration(-t.Hour())*time.Hour), models.AccessStudent).Limit(1).Order("next_date asc").Find(&memDate).Error; err != nil {
-		return models.ResponseHTTP{
-			Success: false,
-			Message: "Next today card not found",
-			Data:    nil,
-		}
-	}
-	mem := FetchMem(c, memDate, user)
-
-	if mem.Efactor <= 2 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 4) || memDate.Card.Type == 2 {
-		answersList = GenerateAnswers(c, &memDate.Card)
-		if len(answersList) == 4 {
-			memDate.Card.Type = 2 // MCQ
-		}
-	}
-
-	return models.ResponseHTTP{
-		Success: true,
-		Message: "Get Next Today Card",
-		Data: models.ResponseCard{
-			Card:    memDate.Card,
-			Answers: answersList,
-		},
-	}
+	res.GenerateSuccess("Success getting next card", responseCard, 1)
+	return res
 }

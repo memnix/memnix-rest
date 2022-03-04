@@ -2,6 +2,7 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"memnixrest/pkg/database"
 )
 
 // Deck structure
@@ -32,4 +33,16 @@ func (s DeckStatus) ToString() string {
 	default:
 		return "Unknown"
 	}
+}
+
+func (deck *Deck) GetOwner() User {
+	db := database.DBConn
+
+	access := new(Access)
+
+	if err := db.Joins("User").Joins("Deck").Where("accesses.deck_id =? AND accesses.permission >= ?", deck.ID, AccessOwner).Find(&access).Error; err != nil {
+		return access.User
+	}
+
+	return access.User
 }

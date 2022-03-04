@@ -2,6 +2,9 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"math/rand"
+	"memnixrest/pkg/database"
+	"time"
 )
 
 // Card structure
@@ -37,4 +40,22 @@ func (s CardType) ToString() string {
 	default:
 		return "Unknown"
 	}
+}
+
+func (card *Card) GetMCQAnswers() []string {
+	db := database.DBConn // DB Conn
+	var answersList []string
+	var answers []Answer
+
+	if err := db.Joins("Card").Where("answers.card_id = ?", card.ID).Limit(3).Order("random()").Find(&answers).Error; err != nil {
+		return nil
+	}
+
+	if len(answers) >= 3 {
+		answersList = append(answersList, answers[0].Answer, answers[1].Answer, answers[2].Answer, card.Answer)
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
+	}
+
+	return answersList
 }

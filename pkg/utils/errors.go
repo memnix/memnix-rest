@@ -7,3 +7,4 @@ const ErrorRequestFailed = "We were unable to process your request. If you think
 const ErrorDeckName = "A deck name should be at least 5 char long."
 const ErrorNotSub = "You are not sub to this deck !"
 const ErrorAlreadyUsedEmail = "There is already an account using this email."
+const ErrorAlreadySub = "You are already sub to this deck."
