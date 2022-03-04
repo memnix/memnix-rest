@@ -44,3 +44,16 @@ func (m *Mem) GetMemType() CardType {
 
 	return m.Card.Type
 }
+
+func (m *Mem) ComputeInterval(oldInterval uint, eFactor float32, repetition uint) {
+	switch repetition {
+	case 0:
+		m.Interval = 1
+	case 1, 2:
+		m.Interval = 2
+	case 3:
+		m.Interval = 3
+	default:
+		m.Interval = uint(float32(oldInterval)*eFactor*0.75) + 1
+	}
+}

@@ -8,20 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ComputeInterval function
-func ComputeInterval(r *models.Mem) uint {
-	switch r.Repetition {
-	case 0:
-		return 1
-	case 1, 2:
-		return 2
-	case 3:
-		return 3
-	default:
-		return uint(float32(r.Interval)*r.Efactor*0.75) + 1
-	}
-}
-
 func ComputeQualitySuccess(memType models.CardType, repetition uint) uint {
 
 	if memType == models.CardMCQ {
@@ -77,14 +63,14 @@ func UpdateMem(_ *fiber.Ctx, r *models.Mem, validation *models.CardResponseValid
 
 	if validation.Validate {
 		if !training {
-			mem.Interval = ComputeInterval(r)
+			mem.ComputeInterval(r.Interval, r.Efactor, r.Repetition)
+			mem.Repetition = r.Repetition + 1
 		}
-		mem.Repetition = r.Repetition + 1
 		r.Quality = ComputeQualitySuccess(memType, r.Repetition)
 
 	} else {
-		mem.Repetition = 0
 		if !training {
+			mem.Repetition = 0
 			mem.Interval = 0
 		}
 		r.Quality = ComputeQualityFailed(memType, r.Repetition)

@@ -39,6 +39,64 @@ func GetTodayCard(c *fiber.Ctx) error {
 	})
 }
 
+// GetTrainingCardsByDeck method
+// @Description Get training cards
+// @Summary gets a list of cards
+// @Tags Card
+// @Produce json
+// @Success 200 {array} models.Card
+// @Router /v1/cards/{deckID}/training [get]
+func GetTrainingCardsByDeck(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+	/*
+		auth := CheckAuth(c, models.PermUser) // Check auth
+		if !auth.Success {
+			return queries2.AuthError(c, auth)
+		} */
+
+	auth := AuthDebugMode(c)
+
+	var res []models.ResponseCard
+
+	deckID := c.Params("deckID")
+	idUint, _ := strconv.ParseInt(deckID, 10, 32)
+
+	access := queries2.CheckAccess(c, auth.User.ID, uint(idUint), models.AccessStudent)
+	if !access.Success {
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	}
+
+	var cards []models.Card
+
+	if err := db.Joins("Deck").Where("cards.deck_id = ?", deckID).Find(&cards).Error; err != nil {
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	for _, card := range cards {
+		var answersList []string
+		mem := new(models.Mem)
+		if err := db.Where("mems.card_id = ? AND mems.user_id = ?", card.ID, auth.User.ID).Order("id desc").First(&mem).Error; err != nil {
+			mem.Efactor = 0
+		}
+		if mem.Efactor <= 2 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 4) || card.Type == 2 {
+			answersList = queries2.GenerateAnswers(c, &card)
+			if len(answersList) == 4 {
+				card.Type = 2 // MCQ
+			}
+		}
+		res = append(res, models.ResponseCard{
+			Card:    card,
+			Answers: answersList})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get today's card",
+		Data:    res,
+		Count:   1,
+	})
+}
+
 // GetNextCard method
 // @Description Get next card
 // @Summary gets a card
@@ -47,7 +105,6 @@ func GetTodayCard(c *fiber.Ctx) error {
 // @Success 200 {object} models.Card
 // @Router /v1/cards/next [get]
 func GetNextCard(c *fiber.Ctx) error {
-	//db := database.DBConn // DB Conn
 
 	res := *new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
@@ -75,7 +132,6 @@ func GetNextCard(c *fiber.Ctx) error {
 // @Success 200 {object} models.Card
 // @Router /v1/cards/{deckID}/next [get]
 func GetNextCardByDeck(c *fiber.Ctx) error {
-	//db := database.DBConn // DB Conn
 
 	deckID := c.Params("deckID")
 
@@ -355,7 +411,6 @@ func PostResponse(c *fiber.Ctx) error {
 	}
 
 	res := queries2.CheckAccess(c, auth.User.ID, card.Deck.ID, models.AccessStudent)
-
 	if !res.Success {
 		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}

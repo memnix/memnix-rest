@@ -317,13 +317,13 @@ func FetchMem(_ *fiber.Ctx, memDate *models.MemDate, user *models.User) models.M
 	return *mem
 }
 
-func GenerateAnswers(c *fiber.Ctx, memDate *models.MemDate) []string {
+func GenerateAnswers(c *fiber.Ctx, card *models.Card) []string {
 	var answersList []string
 
-	res := FetchAnswers(c, &memDate.Card)
+	res := FetchAnswers(c, card)
 
 	if len(res) >= 3 {
-		answersList = append(answersList, res[0].Answer, res[1].Answer, res[2].Answer, memDate.Card.Answer)
+		answersList = append(answersList, res[0].Answer, res[1].Answer, res[2].Answer, card.Answer)
 
 		rand.Seed(time.Now().UnixNano())
 		rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
@@ -353,7 +353,7 @@ func FetchNextCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 
 	mem := FetchMem(c, memDate, user)
 	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 {
-		answersList = GenerateAnswers(c, memDate)
+		answersList = GenerateAnswers(c, &memDate.Card)
 		if len(answersList) == 4 {
 			memDate.Card.Type = 2 // MCQ
 		}
@@ -387,7 +387,7 @@ func FetchNextCardByDeck(c *fiber.Ctx, user *models.User, deckID string) models.
 
 	mem := FetchMem(c, memDate, user)
 	if mem.Efactor <= 1.4 || mem.Quality <= 1 || mem.Repetition < 2 || memDate.Card.Type == 2 {
-		answersList = GenerateAnswers(c, memDate)
+		answersList = GenerateAnswers(c, &memDate.Card)
 		if len(answersList) == 4 {
 			memDate.Card.Type = 2 // MCQ
 		}
@@ -427,7 +427,7 @@ func FetchNextTodayCard(c *fiber.Ctx, user *models.User) models.ResponseHTTP {
 	mem := FetchMem(c, memDate, user)
 
 	if mem.Efactor <= 2 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 4) || memDate.Card.Type == 2 {
-		answersList = GenerateAnswers(c, memDate)
+		answersList = GenerateAnswers(c, &memDate.Card)
 		if len(answersList) == 4 {
 			memDate.Card.Type = 2 // MCQ
 		}
