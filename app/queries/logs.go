@@ -5,6 +5,7 @@ import (
 	"memnixrest/pkg/database"
 )
 
+// CreateLog and add it to the DB
 func CreateLog(logType models.LogType, message string) *models.Logs {
 	db := database.DBConn // DB Conn
 
@@ -18,6 +19,7 @@ func CreateLog(logType models.LogType, message string) *models.Logs {
 
 }
 
+// CreateUserLog and add it to the DB
 func CreateUserLog(userID uint, log *models.Logs) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
@@ -34,6 +36,7 @@ func CreateUserLog(userID uint, log *models.Logs) *models.ResponseHTTP {
 	return res
 }
 
+// CreateDeckLog and add it to the DB
 func CreateDeckLog(deckID uint, log *models.Logs) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
@@ -50,6 +53,7 @@ func CreateDeckLog(deckID uint, log *models.Logs) *models.ResponseHTTP {
 	return res
 }
 
+// CreateCardLog and add it to the DB
 func CreateCardLog(cardID uint, log *models.Logs) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
