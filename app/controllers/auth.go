@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"memnixrest/app/models"
-	"memnixrest/app/queries"
-	"memnixrest/pkg/database"
-	"memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/app/queries"
+	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
 	"os"
 	"strconv"

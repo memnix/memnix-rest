@@ -1,8 +1,8 @@
 package core
 
 import (
-	"memnixrest/app/models"
-	"memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/pkg/database"
 )
 
 // UpdateMemDate computes NextDate and set it

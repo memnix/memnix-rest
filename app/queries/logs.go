@@ -1,8 +1,8 @@
 package queries
 
 import (
-	"memnixrest/app/models"
-	"memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/pkg/database"
 )
 
 // CreateLog and add it to the DB

@@ -2,7 +2,7 @@ package queries
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"memnixrest/app/models"
+	"github.com/memnix/memnixrest/app/models"
 	"net/http"
 )
 

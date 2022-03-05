@@ -1,4 +1,4 @@
-module memnixrest
+module github.com/memnix/memnixrest
 
 go 1.17
 

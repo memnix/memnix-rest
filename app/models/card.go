@@ -1,9 +1,9 @@
 package models
 
 import (
+	"github.com/memnix/memnixrest/pkg/database"
 	"gorm.io/gorm"
 	"math/rand"
-	"memnixrest/pkg/database"
 	"time"
 )
 

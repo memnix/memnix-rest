@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"memnixrest/app/controllers"
+	"github.com/memnix/memnixrest/app/controllers"
 
-	_ "memnixrest/docs"
+	_ "github.com/memnix/memnixrest/docs"
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
 

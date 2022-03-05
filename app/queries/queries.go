@@ -2,12 +2,12 @@ package queries
 
 import (
 	"errors"
+	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/pkg/core"
+	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"math/rand"
-	"memnixrest/app/models"
-	"memnixrest/pkg/core"
-	"memnixrest/pkg/database"
-	"memnixrest/pkg/utils"
 	"time"
 )
 

@@ -1,8 +1,8 @@
 package models
 
 import (
+	"github.com/memnix/memnixrest/pkg/database"
 	"gorm.io/gorm"
-	"memnixrest/pkg/database"
 )
 
 // Deck structure

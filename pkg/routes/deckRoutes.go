@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"memnixrest/app/controllers"
+	"github.com/memnix/memnixrest/app/controllers"
 
 	"github.com/gofiber/fiber/v2"
 )
