@@ -116,5 +116,5 @@ func (mem *Mem) ComputeQualityFail() {
 // IsMCQ returns if the Mem should be an MCQ or not.
 // It doesn't include Card.Type checks
 func (mem *Mem) IsMCQ() bool {
-	return mem.Efactor <= 1.7 || mem.Quality <= MemQualityErrorMCQ || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 3)
+	return mem.Efactor <= 1.7 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 3)
 }
