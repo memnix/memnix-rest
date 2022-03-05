@@ -89,7 +89,7 @@ info:
   contact:
     email: fiber@swagger.io
     name: API Support
-  description: This is a sample swagger for Fiber
+  description: Memnix API documentation
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -97,6 +97,111 @@ info:
   title: Memnix
   version: "1.0"
 paths:
+  /login:
+    post:
+      description: Login user and return access with fresh token as a cookie
+      parameters:
+      - description: Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Incorrect password
+        "404":
+          description: Error
+        "500":
+          description: Internal error
+      summary: logins user and return access with fresh token as a cookie
+      tags:
+      - Auth
+  /logout:
+    post:
+      description: Logout to de-auth connected user and delete token [USER]
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout
+        "401":
+          description: Forbidden
+        "404":
+          description: Error
+      security:
+      - ApiKeyAuth:
+        - user
+      summary: logouts and de-auth connected user and delete token [USER]
+      tags:
+      - Auth
+  /register:
+    post:
+      description: Register a new user
+      parameters:
+      - description: Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: Username
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: Forbidden
+        "404":
+          description: Error
+      summary: registers a new user
+      tags:
+      - Auth
+  /user:
+    get:
+      description: To get connected user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Forbidden
+        "404":
+          description: Error
+      security:
+      - ApiKeyAuth: []
+      summary: gets connected user
+      tags:
+      - Auth
   /v1/cards/:
     get:
       description: Get every card. Shouldn't really be used
@@ -471,4 +576,9 @@ paths:
       summary: gets a user
       tags:
       - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: cookie
+    name: memnix-jwt
+    type: apiKey
 swagger: "2.0"

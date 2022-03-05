@@ -18,6 +18,18 @@ import (
 
 var SecretKey = os.Getenv("SECRET")
 
+// Register method to create a new user
+// @Description Register a new user
+// @Summary registers a new user
+// @Tags Auth
+// @Produce json
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Param username body string true "Username"
+// @Success 200 {object} models.User
+// @Failure 404 "Error"
+// @Failure 403 "Forbidden"
+// @Router /register [post]
 func Register(c *fiber.Ctx) error {
 	var data map[string]string
 	db := database.DBConn // DB Conn
@@ -43,6 +55,18 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+// Login method to login user and return access with fresh token as a cookie
+// @Description Login user and return access with fresh token as a cookie
+// @Summary logins user and return access with fresh token as a cookie
+// @Tags Auth
+// @Produce json
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Success 200 {object} models.User
+// @Failure 404 "Error"
+// @Failure 400 "Incorrect password"
+// @Failure 500 "Internal error"
+// @Router /login [post]
 func Login(c *fiber.Ctx) error {
 	var data map[string]string
 	db := database.DBConn // DB Conn
@@ -103,6 +127,16 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
+// User method to get connected user
+// @Description To get connected user
+// @Summary  gets connected user
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} models.User
+// @Failure 404 "Error"
+// @Failure 401 "Forbidden"
+// @Security ApiKeyAuth
+// @Router /user [get]
 func User(c *fiber.Ctx) error {
 	cookie := c.Cookies("memnix-jwt")
 	db := database.DBConn // DB Conn
@@ -189,6 +223,16 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 	}
 }
 
+// Logout method to de-auth connected user and delete token
+// @Description Logout to de-auth connected user and delete token
+// @Summary logouts and de-auth connected user and delete token
+// @Tags Auth
+// @Produce json
+// @Success 200 "Logout"
+// @Failure 404 "Error"
+// @Failure 401 "Forbidden"
+// @Security ApiKeyAuth[user]
+// @Router /logout [post]
 func Logout(c *fiber.Ctx) error {
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {

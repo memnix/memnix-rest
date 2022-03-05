@@ -1,6 +1,6 @@
 package models
 
-// ResponseHTTP structure
+// ResponseHTTP structure to format API answers
 type ResponseHTTP struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data"`
@@ -8,7 +8,8 @@ type ResponseHTTP struct {
 	Count   int         `json:"count"`
 }
 
-func (res *ResponseHTTP) Generator(success bool, message string, data interface{}, count int) {
+// Set ResponseHTTP values
+func (res *ResponseHTTP) Set(success bool, message string, data interface{}, count int) {
 	*res = ResponseHTTP{
 		Success: success,
 		Data:    data,
@@ -18,23 +19,14 @@ func (res *ResponseHTTP) Generator(success bool, message string, data interface{
 }
 
 func (res *ResponseHTTP) GenerateError(message string) {
-	*res = ResponseHTTP{
-		Success: false,
-		Data:    nil,
-		Message: message,
-		Count:   0,
-	}
+	res.Set(false, message, nil, 0)
 }
 
 func (res *ResponseHTTP) GenerateSuccess(message string, data interface{}, count int) {
-	*res = ResponseHTTP{
-		Success: true,
-		Data:    data,
-		Message: message,
-		Count:   count,
-	}
+	res.Set(true, message, data, count)
 }
 
+// CardResponse struct
 type CardResponse struct {
 	CardID   uint `json:"card_id" example:"1"`
 	Card     Card
@@ -42,28 +34,33 @@ type CardResponse struct {
 	Training bool   `json:"training" example:"false"`
 }
 
+// CardResponseValidation struct
 type CardResponseValidation struct {
 	Validate bool   `json:"validate" example:"true"`
 	Message  string `json:"message" example:"Correct answer"`
 	Answer   string `json:"correct_answer" example:"42"`
 }
 
+// ResponseCard struct
 type ResponseCard struct {
 	Card    Card
 	Answers []string
 }
 
-func (responseCard *ResponseCard) Generate(card Card, answers []string) {
+// Set ResponseCard values
+func (responseCard *ResponseCard) Set(card Card, answers []string) {
 	responseCard.Answers = answers
 	responseCard.Card = card
 }
 
+// ResponseAuth struct
 type ResponseAuth struct {
 	Success bool
 	User    User
 	Message string
 }
 
+// ResponseDeck struct
 type ResponseDeck struct {
 	DeckID     uint `json:"deck_id" example:"1"`
 	Deck       Deck

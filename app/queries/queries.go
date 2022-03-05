@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+// FillResponseDeck returns a filled models.ResponseDeck
+// This function might become a method of models.ResponseDeck
 func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) models.ResponseDeck {
 	db := database.DBConn
 
@@ -34,16 +36,16 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) mod
 	return *deckResponse
 }
 
-// GenerateCreatorAccess function
+// GenerateCreatorAccess sets an user as a deck creator
 func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
-
+	// TODO: Change models.User & models.Deck to uint
 	access := new(models.Access)
 	res := new(models.ResponseHTTP)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.Fill(user.ID, deck.ID, models.AccessOwner)
+			access.Set(user.ID, deck.ID, models.AccessOwner)
 			db.Create(access)
 		}
 	} else {
@@ -59,7 +61,7 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 	return res
 }
 
-// GenerateAccess function
+// GenerateAccess sets a default student access to a deck for a given user
 func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
 	res := new(models.ResponseHTTP)
@@ -73,7 +75,7 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.Fill(user.ID, deck.ID, models.AccessStudent)
+			access.Set(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Create(access)
 		}
 
@@ -83,7 +85,7 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 			return res
 
 		} else {
-			access.Fill(user.ID, deck.ID, models.AccessStudent)
+			access.Set(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Save(access)
 		}
 	}
@@ -92,6 +94,7 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	return res
 }
 
+// CheckAccess verifies if a given user as the right models.Permission to perform an action on a deck
 func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 
@@ -111,8 +114,10 @@ func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.Resp
 	return res
 }
 
+// PostMem updates MemDate & Mem
 func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
+	//TODO: Replace struct params with ids
 	res := new(models.ResponseHTTP)
 
 	memDate := new(models.MemDate)
@@ -138,6 +143,8 @@ func PostMem(user *models.User, card *models.Card, validation *models.CardRespon
 	return res
 }
 
+// PopulateMemDate with default value for a given user & deck
+// This is used on deck sub
 func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	var cards []models.Card
@@ -155,6 +162,7 @@ func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP 
 	return res
 }
 
+// GetSubUsers returns a list of users sub to a deck
 func GetSubUsers(deckID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 
@@ -169,6 +177,7 @@ func GetSubUsers(deckID uint) *models.ResponseHTTP {
 	return res
 }
 
+// GenerateMemDate with default nextDate
 func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(models.ResponseHTTP)
@@ -177,7 +186,7 @@ func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 
 	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", userID, cardID).First(&memDate).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			memDate.Generate(userID, cardID, deckID)
+			memDate.SetDefaultNextDate(userID, cardID, deckID)
 			db.Create(memDate)
 		} else {
 			res.GenerateError(err.Error())
@@ -232,7 +241,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	for i := range memDates {
 
 		answersList = GenerateMCQ(&memDates[i], userID)
-		responseCard.Generate(memDates[i].Card, answersList)
+		responseCard.Set(memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
 	}
@@ -257,7 +266,7 @@ func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	}
 	answersList = GenerateMCQ(memDate, userID)
 
-	responseCard.Generate(memDate.Card, answersList)
+	responseCard.Set(memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res
@@ -283,7 +292,7 @@ func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
 	}
 
 	answersList = GenerateMCQ(memDate, userID)
-	responseCard.Generate(memDate.Card, answersList)
+	responseCard.Set(memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res

@@ -5,12 +5,14 @@ import (
 	"memnixrest/pkg/database"
 )
 
+// UpdateMemDate computes NextDate and set it
 func UpdateMemDate(mem *models.Mem) {
 	db := database.DBConn
 	memDate := new(models.MemDate)
 
 	_ = db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
 		mem.UserID, mem.CardID).First(&memDate).Error
+	//TODO: Error handling
 
 	memDate.ComputeNextDate(int(mem.Interval))
 
@@ -19,6 +21,7 @@ func UpdateMemDate(mem *models.Mem) {
 	//TODO: Return error
 }
 
+// UpdateMemTraining computes and set mem values
 func UpdateMemTraining(r *models.Mem, validation bool) {
 	db := database.DBConn
 
@@ -39,7 +42,7 @@ func UpdateMemTraining(r *models.Mem, validation bool) {
 	db.Create(mem)
 }
 
-// UpdateMem function
+// UpdateMem computes and set mem values
 func UpdateMem(r *models.Mem, validation bool) {
 
 	db := database.DBConn
