@@ -14,6 +14,7 @@ type Deck struct {
 	Status      DeckStatus `json:"deck_status" example:"2"` // 1: Draft - 2: Private - 3: Published
 }
 
+// DeckStatus enum type
 type DeckStatus int64
 
 const (
@@ -22,6 +23,7 @@ const (
 	DeckPublic
 )
 
+// ToString returns DeckStatus value as a string
 func (s DeckStatus) ToString() string {
 	switch s {
 	case DeckDraft:
@@ -35,6 +37,7 @@ func (s DeckStatus) ToString() string {
 	}
 }
 
+// GetOwner returns the deck Owner
 func (deck *Deck) GetOwner() User {
 	db := database.DBConn
 

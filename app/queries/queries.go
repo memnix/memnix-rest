@@ -43,7 +43,7 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.Fill(user.ID, deck.ID, models.AccessOwner)
+			access.Set(user.ID, deck.ID, models.AccessOwner)
 			db.Create(access)
 		}
 	} else {
@@ -73,7 +73,7 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.Fill(user.ID, deck.ID, models.AccessStudent)
+			access.Set(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Create(access)
 		}
 
@@ -83,7 +83,7 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 			return res
 
 		} else {
-			access.Fill(user.ID, deck.ID, models.AccessStudent)
+			access.Set(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Save(access)
 		}
 	}
@@ -177,7 +177,7 @@ func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 
 	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", userID, cardID).First(&memDate).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			memDate.Generate(userID, cardID, deckID)
+			memDate.SetDefaultNextDate(userID, cardID, deckID)
 			db.Create(memDate)
 		} else {
 			res.GenerateError(err.Error())
@@ -232,7 +232,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	for i := range memDates {
 
 		answersList = GenerateMCQ(&memDates[i], userID)
-		responseCard.Generate(memDates[i].Card, answersList)
+		responseCard.Set(memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
 	}
@@ -257,7 +257,7 @@ func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	}
 	answersList = GenerateMCQ(memDate, userID)
 
-	responseCard.Generate(memDate.Card, answersList)
+	responseCard.Set(memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res
@@ -283,7 +283,7 @@ func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
 	}
 
 	answersList = GenerateMCQ(memDate, userID)
-	responseCard.Generate(memDate.Card, answersList)
+	responseCard.Set(memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res

@@ -11,12 +11,13 @@ type Mem struct {
 	User       User
 	CardID     uint `json:"card_id" example:"1"`
 	Card       Card
-	Quality    MemQuality `json:"quality" example:"0"` // [0: Blackout - 1: Error with choices - 2: Error with hints - 3: Error - 4: Good with hints - 5: Perfect]
+	Quality    MemQuality `json:"quality" example:"0"`
 	Repetition uint       `json:"repetition" example:"0" `
 	Efactor    float32    `json:"e_factor" example:"2.5"`
 	Interval   uint       `json:"interval" example:"0"`
 }
 
+// MemQuality enum type
 type MemQuality int64
 
 const (
@@ -28,6 +29,7 @@ const (
 	MemQualityPerfect
 )
 
+// FillDefaultValues to fill a Mem with default values for given UserID and CardID
 func (mem *Mem) FillDefaultValues(userID, cardID uint) {
 	mem.UserID = userID
 	mem.CardID = cardID
@@ -37,6 +39,7 @@ func (mem *Mem) FillDefaultValues(userID, cardID uint) {
 	mem.Interval = 0
 }
 
+// ComputeEfactor calculates and sets new efactor using oldEfactor and MemQuality
 func (mem *Mem) ComputeEfactor(oldEfactor float32, quality MemQuality) {
 	eFactor := oldEfactor + (0.1 - (5.0-float32(quality))*(0.08+(5-float32(quality)))*0.02)
 
@@ -47,24 +50,30 @@ func (mem *Mem) ComputeEfactor(oldEfactor float32, quality MemQuality) {
 	}
 }
 
+// ComputeTrainingEfactor calculates and sets new efactor using oldEfactor and MemQuality
+// TrainingEfactor is a median between oldEfactor and ComputeEfactor
 func (mem *Mem) ComputeTrainingEfactor(oldEfactor float32, quality MemQuality) {
-	eFactor := oldEfactor + (0.1 - (5.0-float32(quality))*(0.08+(5-float32(quality)))*0.02)
-	computedEfactor := (oldEfactor + eFactor) / 2
-	if computedEfactor < 1.3 {
+	mem.ComputeEfactor(oldEfactor, quality)
+	computedTrainingEfactor := (oldEfactor + mem.Efactor) / 2
+	if computedTrainingEfactor < 1.3 {
 		mem.Efactor = 1.3
 	} else {
-		mem.Efactor = computedEfactor
+		mem.Efactor = computedTrainingEfactor
 	}
 }
 
+// GetCardType returns the current CardType
+// The CardType is CardMCQ if internal conditions are matched.
+// Otherwise, it's Card.Type
 func (mem *Mem) GetCardType() CardType {
-	if mem.Efactor <= 2 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 4) {
+	if mem.IsMCQ() {
 		return CardMCQ
 	}
 
 	return mem.Card.Type
 }
 
+// ComputeInterval calculates and sets the interval between reviews
 func (mem *Mem) ComputeInterval(oldInterval uint, eFactor float32, repetition uint) {
 	switch repetition {
 	case 0:
@@ -78,6 +87,7 @@ func (mem *Mem) ComputeInterval(oldInterval uint, eFactor float32, repetition ui
 	}
 }
 
+// ComputeQualitySuccess sets the answer Quality
 func (mem *Mem) ComputeQualitySuccess() {
 	if mem.GetCardType() == CardMCQ {
 		mem.Quality = MemQualityError
@@ -89,6 +99,7 @@ func (mem *Mem) ComputeQualitySuccess() {
 	}
 }
 
+// ComputeQualityFail sets the answer Quality
 func (mem *Mem) ComputeQualityFail() {
 	if mem.GetCardType() == CardMCQ {
 		if mem.Repetition <= 3 {
@@ -102,6 +113,8 @@ func (mem *Mem) ComputeQualityFail() {
 	mem.Quality = MemQualityErrorHints
 }
 
+// IsMCQ returns if the Mem should be an MCQ or not.
+// It doesn't include Card.Type checks
 func (mem *Mem) IsMCQ() bool {
-	return mem.Efactor <= 1.4 || mem.Quality <= MemQualityErrorMCQ || mem.Repetition < 2
+	return mem.Efactor <= 1.7 || mem.Quality <= MemQualityErrorMCQ || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 3)
 }

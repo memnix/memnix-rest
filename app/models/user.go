@@ -15,6 +15,7 @@ type User struct {
 	Password    []byte     `json:"-" swaggerignore:"true"`
 }
 
+//Permission enum type
 type Permission int64
 
 const (
@@ -23,6 +24,7 @@ const (
 	PermAdmin
 )
 
+// ToString returns Permission value as a string
 func (s Permission) ToString() string {
 	switch s {
 	case PermUser:

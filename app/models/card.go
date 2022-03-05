@@ -21,6 +21,7 @@ type Card struct {
 	Image       string   `json:"card_image"` // Should be an url
 }
 
+// CardType enum type
 type CardType int64
 
 const (
@@ -29,6 +30,7 @@ const (
 	CardMCQ
 )
 
+// ToString returns CardType value as a string
 func (s CardType) ToString() string {
 	switch s {
 	case CardString:
@@ -42,6 +44,7 @@ func (s CardType) ToString() string {
 	}
 }
 
+// GetMCQAnswers returns 3 random incorrect MCQAnswers
 func (card *Card) GetMCQAnswers() []string {
 	db := database.DBConn // DB Conn
 	var answersList []string

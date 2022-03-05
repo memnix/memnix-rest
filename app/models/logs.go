@@ -11,6 +11,7 @@ type Logs struct {
 	Message string  `json:"log_message" example:"Edited Profile Picture"`
 }
 
+// LogType enum type
 type LogType int64
 
 const (

@@ -14,6 +14,7 @@ type Access struct {
 	Permission AccessPermission `json:"permission" example:"0"` // 0: None - 1: Student - 2: Editor - 3: Owner
 }
 
+// AccessPermission enum type
 type AccessPermission int64
 
 const (
@@ -23,6 +24,7 @@ const (
 	AccessOwner
 )
 
+// ToString returns AccessPermission value as a string
 func (s AccessPermission) ToString() string {
 	switch s {
 	case AccessStudent:
@@ -36,8 +38,11 @@ func (s AccessPermission) ToString() string {
 	}
 }
 
-func (access *Access) Fill(userID, deckID uint, permission AccessPermission) {
+// Set Access values
+func (access *Access) Set(userID, deckID uint, permission AccessPermission) {
 	access.UserID = userID
 	access.DeckID = deckID
 	access.Permission = permission
 }
+
+// TODO add setter for AccessPermission

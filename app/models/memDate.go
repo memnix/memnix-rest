@@ -19,17 +19,21 @@ type MemDate struct {
 	NextDate time.Time `json:"next_date" example:"06/01/2003"` // gorm:"autoCreateTime"`
 }
 
+// ComputeNextDate calculates and sets the NextDate
 func (m *MemDate) ComputeNextDate(interval int) {
 	m.NextDate = time.Now().AddDate(0, 0, interval)
 }
 
-func (m *MemDate) Generate(userID, cardID, deckID uint) {
+// SetDefaultNextDate fills MemDate values and sets NextDate as time.Now()
+func (m *MemDate) SetDefaultNextDate(userID, cardID, deckID uint) {
 	m.UserID = userID
 	m.CardID = cardID
 	m.DeckID = deckID
 	m.NextDate = time.Now()
 }
 
+// GetNextToday fills MemDate with the next today card to review for a given user
+// It returns a ResponseHTTP for error handling purpose
 func (m *MemDate) GetNextToday(userID uint) *ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(ResponseHTTP)
@@ -50,6 +54,8 @@ func (m *MemDate) GetNextToday(userID uint) *ResponseHTTP {
 	return res
 }
 
+// GetNext fills MemDate with the next card to review for a given user
+// It returns a ResponseHTTP for error handling purpose
 func (m *MemDate) GetNext(userID uint) *ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(ResponseHTTP)
@@ -68,6 +74,8 @@ func (m *MemDate) GetNext(userID uint) *ResponseHTTP {
 	return res
 }
 
+// GetNextByDeck fills MemDate with the next card to review for a given user and deck
+// It returns a ResponseHTTP for error handling purpose
 func (m *MemDate) GetNextByDeck(userID, deckID uint) *ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(ResponseHTTP)
