@@ -11,7 +11,10 @@ import (
 
 // @title Memnix
 // @version 1.0
-// @description This is a sample swagger for Fiber
+// @description Memnix API documentation
+// @securityDefinitions.apikey ApiKeyAuth
+// @in cookie
+// @name memnix-jwt
 // @termsOfService http://swagger.io/terms/
 // @contact.name API Support
 // @contact.email fiber@swagger.io
