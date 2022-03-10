@@ -1,60 +1,102 @@
 package models
 
 import (
-	"gorm.io/gorm"
+	"encoding/json"
+	"fmt"
+	"github.com/memnix/memnixrest/pkg/database"
+	"time"
 )
 
-// Logs structure
-type Logs struct {
-	gorm.Model
-	LogType LogType `json:"log_type" example:"1"`
-	Message string  `json:"log_message" example:"Edited Profile Picture"`
+type Log struct {
+	Type      LogType   `json:"type"`
+	Message   string    `json:"message"`
+	Event     LogEvent  `json:"event"`
+	CreatedAt time.Time `json:"createdat"`
+	UserID    uint      `json:"userid"`
+	DeckID    uint      `json:"deckid"`
+	CardID    uint      `json:"cardid"`
 }
 
-// LogType enum type
-type LogType int64
+func (l *Log) SendLog() error {
+
+	jsonObject, _ := l.ToJson()
+	key := fmt.Sprintf("%s.%s", l.Type, l.Event)
+
+	if err := database.SendMessageToChannel(database.RabbitMqChan, jsonObject, key); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID uint, DeckID uint, CardID uint) {
+	l.Type = Type
+	l.Message = Message
+	l.Event = Event
+	l.UserID = UserID
+	l.CardID = CardID
+	l.DeckID = DeckID
+	l.CreatedAt = time.Now()
+
+}
+
+func CreateLog(message string, event LogEvent) *Log {
+
+	return &Log{Message: message, Event: event, CreatedAt: time.Now()}
+}
+
+func (l *Log) SetType(Type LogType) *Log {
+	l.Type = Type
+	return l
+}
+
+func (l *Log) AttachIDs(userID uint, deckID uint, cardID uint) *Log {
+	if userID != 0 {
+		l.UserID = userID
+	}
+
+	if cardID != 0 {
+		l.CardID = cardID
+	}
+	if deckID != 0 {
+		l.DeckID = deckID
+	}
+
+	return l
+}
+
+func (l *Log) ToJson() ([]byte, error) {
+	body, err := json.Marshal(l)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+type LogType string
 
 const (
-	LogUndefined LogType = iota
-	LogUserLogin
-	LogUserLogout
-	LogUserRegister
-	LogUserEdit
-	LogUserDeleted
-	LogSubscribe
-	LogUnsubscribe
-	LogDeckCreated
-	LogDeckDeleted
-	LogDeckEdited
-	LogDeckRated
-	LogCardCreated
-	LogCardDeleted
-	LogCardEdited
+	LogTypeInfo    LogType = "info"
+	LogTypeWarning LogType = "warning"
+	LogTypeError   LogType = "error"
 )
 
-// CardLogs structure
-type CardLogs struct {
-	gorm.Model
-	CardID uint `json:"card_id" example:"1"`
-	Card   Card
-	LogID  uint `json:"log_id" example:"1"`
-	Log    Logs
-}
+// LogEvent enum type
+type LogEvent string
 
-// DeckLogs structure
-type DeckLogs struct {
-	gorm.Model
-	DeckID uint `json:"deck_id" example:"1"`
-	Deck   Deck
-	LogID  uint `json:"log_id" example:"1"`
-	Log    Logs
-}
-
-// UserLogs structure
-type UserLogs struct {
-	gorm.Model
-	UserID uint `json:"user_id" example:"1"`
-	User   User
-	LogID  uint `json:"log_id" example:"1"`
-	Log    Logs
-}
+const (
+	LogUndefined    LogEvent = "undefined"
+	LogUserLogin    LogEvent = "user.login"
+	LogUserLogout   LogEvent = "user.logout"
+	LogUserRegister LogEvent = "user.register"
+	LogUserEdit     LogEvent = "user.edit"
+	LogUserDeleted  LogEvent = "user.deleted"
+	LogSubscribe    LogEvent = "user.subscribe"
+	LogUnsubscribe  LogEvent = "user.unsubscribe"
+	LogDeckCreated  LogEvent = "deck.created"
+	LogDeckDeleted  LogEvent = "deck.deleted"
+	LogDeckEdited   LogEvent = "deck.edited"
+	LogCardCreated  LogEvent = "card.created"
+	LogCardDeleted  LogEvent = "card.deleted"
+	LogCardEdited   LogEvent = "card.edited"
+)

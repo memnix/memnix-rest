@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/routes"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 
 	_ "github.com/arsmn/fiber-swagger/v2"
@@ -28,10 +30,25 @@ func main() {
 		log.Panic("Can't connect database:", err.Error())
 	}
 
+	if _, err := database.Rabbit(); err != nil {
+		log.Panic("Can't connect to rabbitMq: ", err)
+	}
+
+	fmt.Println("Connected to RabbitMQ")
+
+	defer func(conn *amqp.Connection) {
+		_ = conn.Close()
+		fmt.Println("Disconnected to RabbitMQ")
+
+	}(database.RabbitMqConn)
+
+	defer func(ch *amqp.Channel) {
+		_ = ch.Close()
+	}(database.RabbitMqChan)
+
 	var migrates []interface{}
 	_ = append(migrates, models.Access{}, models.Card{}, models.Deck{},
-		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{}, models.DeckLogs{},
-		models.CardLogs{}, models.UserLogs{}, models.Logs{})
+		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{})
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {

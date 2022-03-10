@@ -236,6 +236,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Param card body models.Card true "Card to create"
 // @Success 200
 // @Router /v1/cards/new [post]
+//goland:noinspection Annotator
 func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	result := new(models.ResponseHTTP)
@@ -259,11 +260,6 @@ func CreateNewCard(c *fiber.Ctx) error {
 	}
 
 	db.Create(card)
-
-	log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(card.DeckID, log)
-	_ = queries.CreateCardLog(card.ID, log)
 
 	var users []models.User
 
@@ -382,10 +378,6 @@ func UpdateCardByID(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := queries.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateCardLog(card.ID, log)
-
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update card by ID",
@@ -450,10 +442,6 @@ func DeleteCardById(c *fiber.Ctx) error {
 	}
 
 	db.Delete(card)
-
-	log := queries.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateCardLog(card.ID, log)
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

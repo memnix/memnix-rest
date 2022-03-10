@@ -53,10 +53,6 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 		return res
 	}
 
-	log := CreateLog(models.LogSubscribe, user.Username+" subscribed to "+deck.DeckName)
-	_ = CreateUserLog(user.ID, log)
-	_ = CreateDeckLog(deck.ID, log)
-
 	res.GenerateSuccess("Success register a creator access !", *access, 1)
 	return res
 }

@@ -20,6 +20,7 @@ var (
 	host     string
 	db       string
 	port     string
+	rabbitMQ string
 )
 
 func LoadVar() {
@@ -34,6 +35,7 @@ func LoadVar() {
 	host = os.Getenv("DB_HOST")         // Get DB_HOST from env
 	db = os.Getenv("DB_DB")             // Get DB_DB (db name) from env
 	port = os.Getenv("DB_PORT")         // Get DB_PORT from env
+	rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
 
 }
 
