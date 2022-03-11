@@ -26,7 +26,7 @@ func (l *Log) SendLog() error {
 	return err
 }
 
-func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID uint, DeckID uint, CardID uint) {
+func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID, DeckID, CardID uint) {
 	l.Type = Type
 	l.Message = Message
 	l.Event = Event
@@ -47,7 +47,7 @@ func (l *Log) SetType(Type LogType) *Log {
 	return l
 }
 
-func (l *Log) AttachIDs(userID uint, deckID uint, cardID uint) *Log {
+func (l *Log) AttachIDs(userID, deckID, cardID uint) *Log {
 	if userID != 0 {
 		l.UserID = userID
 	}
