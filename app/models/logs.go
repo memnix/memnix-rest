@@ -22,11 +22,8 @@ func (l *Log) SendLog() error {
 	jsonObject, _ := l.ToJson()
 	key := fmt.Sprintf("%s.%s", l.Type, l.Event)
 
-	if err := database.SendMessageToChannel(database.RabbitMqChan, jsonObject, key); err != nil {
-		return err
-	}
-
-	return nil
+	err := database.SendMessageToChannel(database.RabbitMqChan, jsonObject, key)
+	return err
 }
 
 func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID uint, DeckID uint, CardID uint) {
