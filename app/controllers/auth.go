@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
@@ -49,8 +50,8 @@ func Register(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorAlreadyUsedEmail)
 	}
 
-	log := queries.CreateLog(models.LogUserRegister, "Register: "+user.Username)
-	_ = queries.CreateUserLog(user.ID, log)
+	log := models.CreateLog(fmt.Sprintf("Register: %s - %s", user.Username, user.Email), models.LogUserRegister).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	_ = log.SendLog()
 
 	return c.JSON(user)
 }
@@ -118,8 +119,10 @@ func Login(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 
-	log := queries.CreateLog(models.LogUserLogin, "Login: "+user.Username)
-	_ = queries.CreateUserLog(user.ID, log)
+	log := models.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), models.LogUserLogin).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	if err = log.SendLog(); err != nil {
+		fmt.Println(err)
+	}
 
 	return c.JSON(fiber.Map{
 		"message": "Login Succeeded",
@@ -254,8 +257,8 @@ func Logout(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 
-	log := queries.CreateLog(models.LogUserLogout, "Logout: "+auth.User.Username)
-	_ = queries.CreateUserLog(auth.User.ID, log)
+	log := models.CreateLog(fmt.Sprintf("Logout: %s - %s", auth.User.Username, auth.User.Email), models.LogUserLogout).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, 0, 0)
+	_ = log.SendLog()
 
 	return c.JSON(fiber.Map{
 		"message": "successfully logged out !",
