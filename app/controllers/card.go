@@ -278,8 +278,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 		users = result.Data.([]models.User)
 	}
 
-	for _, s := range users {
-		_ = queries.GenerateMemDate(s.ID, card.ID, card.DeckID)
+	for i := range users {
+		_ = queries.GenerateMemDate(users[i].ID, card.ID, card.DeckID)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

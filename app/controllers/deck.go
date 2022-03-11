@@ -100,8 +100,8 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	for _, s := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&s.Deck, s.Permission))
+	for i := range accesses {
+		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission))
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -174,8 +174,8 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	for _, s := range decks {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&s, models.AccessNone))
+	for i := range decks {
+		responseDeck = append(responseDeck, queries.FillResponseDeck(&decks[i], models.AccessNone))
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

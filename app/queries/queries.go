@@ -151,8 +151,8 @@ func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP 
 		return res
 	}
 
-	for _, s := range cards {
-		_ = GenerateMemDate(user.ID, s.ID, s.DeckID)
+	for i := range cards {
+		_ = GenerateMemDate(user.ID, cards[i].ID, cards[i].DeckID)
 	}
 	res.GenerateSuccess("Success generated mem_date", nil, 0)
 	return res
