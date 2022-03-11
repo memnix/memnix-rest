@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
@@ -246,6 +247,9 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	deck.Status = models.DeckPrivate
 	db.Create(deck)
 
+	log := models.CreateLog(fmt.Sprintf("Created: %d - %s", deck.ID, deck.DeckName), models.LogDeckCreated).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	_ = log.SendLog()
+
 	if err := queries.GenerateCreatorAccess(&auth.User, deck); !err.Success {
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
@@ -289,6 +293,9 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
+	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d | Deck - %d", access.UserID, access.DeckID), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.ID, 0)
+	_ = log.SendLog()
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success unsub to the deck",
@@ -328,6 +335,9 @@ func SubToDeck(c *fiber.Ctx) error {
 	if err := queries.PopulateMemDate(&auth.User, deck); !err.Success {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
+
+	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d | Deck - %d", auth.User.ID, deck.ID), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -374,6 +384,9 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	if err := UpdateDeck(c, deck); !err.Success {
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
+
+	log := models.CreateLog(fmt.Sprintf("Updated: %d - %s", deck.ID, deck.DeckName), models.LogDeckEdited).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -441,6 +454,9 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	}
 
 	db.Delete(deck)
+
+	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", deck.ID, deck.DeckName), models.LogDeckDeleted).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

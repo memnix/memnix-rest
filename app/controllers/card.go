@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
@@ -261,6 +262,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	db.Create(card)
 
+	log := models.CreateLog(fmt.Sprintf("Created: %d - %s", card.ID, card.Question), models.LogCardCreated).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+	_ = log.SendLog()
+
 	var users []models.User
 
 	if result = queries.GetSubUsers(card.DeckID); !result.Success {
@@ -378,6 +382,9 @@ func UpdateCardByID(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
+	log := models.CreateLog(fmt.Sprintf("Edited: %d - %s", card.ID, card.Question), models.LogCardEdited).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+	_ = log.SendLog()
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success update card by ID",
@@ -442,6 +449,9 @@ func DeleteCardById(c *fiber.Ctx) error {
 	}
 
 	db.Delete(card)
+
+	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", card.ID, card.Question), models.LogCardDeleted).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
