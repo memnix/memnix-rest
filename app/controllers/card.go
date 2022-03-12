@@ -50,13 +50,10 @@ func GetTodayCard(c *fiber.Ctx) error {
 func GetAllTodayCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 
-	/*
-		auth := CheckAuth(c, models.PermUser) // Check auth
-		if !auth.Success {
-			return queries.AuthError(c, &auth)
-		} */
-
-	auth := AuthDebugMode(c)
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
 
 	if res = queries.FetchTodayCard(auth.User.ID); !res.Success {
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
