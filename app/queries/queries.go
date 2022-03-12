@@ -237,7 +237,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	for i := range memDates {
 
 		answersList = GenerateMCQ(&memDates[i], userID)
-		responseCard.Set(memDates[i].Card, answersList)
+		responseCard.Set(&memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
 	}
@@ -262,7 +262,7 @@ func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	}
 	answersList = GenerateMCQ(memDate, userID)
 
-	responseCard.Set(memDate.Card, answersList)
+	responseCard.Set(&memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res
@@ -288,7 +288,7 @@ func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
 	}
 
 	answersList = GenerateMCQ(memDate, userID)
-	responseCard.Set(memDate.Card, answersList)
+	responseCard.Set(&memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res
