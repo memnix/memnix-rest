@@ -18,7 +18,8 @@ import (
 // @Tags Card
 // @Produce json
 // @Success 200 {object} models.Card
-// @Router /v1/cards/today [get]
+// @Deprecated
+// @Router /v1/cards/today/one [get]
 func GetTodayCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 
@@ -36,6 +37,36 @@ func GetTodayCard(c *fiber.Ctx) error {
 		Message: "Get today's card",
 		Data:    res.Data,
 		Count:   1,
+	})
+}
+
+// GetAllTodayCard method
+// @Description Get all today card
+// @Summary gets a list of card
+// @Tags Card
+// @Produce json
+// @Success 200 {array} models.Card
+// @Router /v1/cards/today [get]
+func GetAllTodayCard(c *fiber.Ctx) error {
+	res := new(models.ResponseHTTP)
+
+	/*
+		auth := CheckAuth(c, models.PermUser) // Check auth
+		if !auth.Success {
+			return queries.AuthError(c, &auth)
+		} */
+
+	auth := AuthDebugMode(c)
+
+	if res = queries.FetchTodayCard(auth.User.ID); !res.Success {
+		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get today's cards",
+		Data:    res.Data,
+		Count:   res.Count,
 	})
 }
 
