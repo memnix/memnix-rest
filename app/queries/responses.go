@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func AuthError(c *fiber.Ctx, auth models.ResponseAuth) error {
+func AuthError(c *fiber.Ctx, auth *models.ResponseAuth) error {
 	return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
 		Success: false,
 		Message: auth.Message,

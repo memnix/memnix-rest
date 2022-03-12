@@ -26,7 +26,7 @@ func GetAllDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var decks []models.Deck
@@ -60,7 +60,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	deck := new(models.Deck)
@@ -89,7 +89,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var responseDeck []models.ResponseDeck
@@ -126,7 +126,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 	result := new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var users []models.User
@@ -163,7 +163,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var responseDeck []models.ResponseDeck
@@ -198,7 +198,7 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var decks []models.Deck
@@ -230,7 +230,7 @@ func CreateNewDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	deck := new(models.Deck)
@@ -275,7 +275,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	// Params
@@ -320,7 +320,7 @@ func SubToDeck(c *fiber.Ctx) error {
 	// Check auth
 	auth := CheckAuth(c, models.PermUser)
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if err := db.First(&deck, deckID).Error; err != nil {
@@ -366,7 +366,7 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	deck := new(models.Deck)
@@ -439,7 +439,7 @@ func DeleteDeckById(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	deck := new(models.Deck)

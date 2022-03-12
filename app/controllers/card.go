@@ -24,7 +24,7 @@ func GetTodayCard(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if res = queries.FetchNextTodayCard(auth.User.ID); !res.Success {
@@ -51,7 +51,7 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	deckID := c.Params("deckID")
@@ -86,7 +86,7 @@ func GetNextCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if res = queries.FetchNextCard(auth.User.ID, 0); !res.Success {
@@ -115,7 +115,7 @@ func GetNextCardByDeck(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if res = queries.FetchNextCard(auth.User.ID, uint(deckIDInt)); !res.Success {
@@ -143,7 +143,7 @@ func GetAllCards(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var cards []models.Card
@@ -173,7 +173,7 @@ func GetCardByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 	// Params
 	id := c.Params("id")
@@ -209,7 +209,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var cards []models.Card
@@ -245,7 +245,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if err := c.BodyParser(&card); err != nil {
@@ -303,7 +303,7 @@ func PostResponse(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	response := new(models.CardResponse)
@@ -365,7 +365,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	card := new(models.Card)
@@ -435,7 +435,7 @@ func DeleteCardById(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	card := new(models.Card)
