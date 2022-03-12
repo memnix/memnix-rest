@@ -25,7 +25,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var users []models.User
@@ -55,7 +55,7 @@ func GetUserByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	// Params
@@ -86,7 +86,7 @@ func UpdateUserByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	user := new(models.User)

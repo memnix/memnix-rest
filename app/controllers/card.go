@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
@@ -23,7 +24,7 @@ func GetTodayCard(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if res = queries.FetchNextTodayCard(auth.User.ID); !res.Success {
@@ -50,7 +51,7 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	deckID := c.Params("deckID")
@@ -85,7 +86,7 @@ func GetNextCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if res = queries.FetchNextCard(auth.User.ID, 0); !res.Success {
@@ -114,7 +115,7 @@ func GetNextCardByDeck(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if res = queries.FetchNextCard(auth.User.ID, uint(deckIDInt)); !res.Success {
@@ -142,7 +143,7 @@ func GetAllCards(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var cards []models.Card
@@ -172,7 +173,7 @@ func GetCardByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 	// Params
 	id := c.Params("id")
@@ -208,7 +209,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	var cards []models.Card
@@ -236,6 +237,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Param card body models.Card true "Card to create"
 // @Success 200
 // @Router /v1/cards/new [post]
+//goland:noinspection Annotator
 func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	result := new(models.ResponseHTTP)
@@ -243,7 +245,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	if err := c.BodyParser(&card); err != nil {
@@ -260,10 +262,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 
 	db.Create(card)
 
-	log := queries.CreateLog(models.LogCardCreated, auth.User.Username+" created "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateDeckLog(card.DeckID, log)
-	_ = queries.CreateCardLog(card.ID, log)
+	log := models.CreateLog(fmt.Sprintf("Created: %d - %s", card.ID, card.Question), models.LogCardCreated).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+	_ = log.SendLog()
 
 	var users []models.User
 
@@ -278,8 +278,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 		users = result.Data.([]models.User)
 	}
 
-	for _, s := range users {
-		_ = queries.GenerateMemDate(s.ID, card.ID, card.DeckID)
+	for i := range users {
+		_ = queries.GenerateMemDate(users[i].ID, card.ID, card.DeckID)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -303,7 +303,7 @@ func PostResponse(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	response := new(models.CardResponse)
@@ -365,7 +365,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	card := new(models.Card)
@@ -382,9 +382,8 @@ func UpdateCardByID(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := queries.CreateLog(models.LogCardEdited, auth.User.Username+" edited "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateCardLog(card.ID, log)
+	log := models.CreateLog(fmt.Sprintf("Edited: %d - %s", card.ID, card.Question), models.LogCardEdited).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -436,7 +435,7 @@ func DeleteCardById(c *fiber.Ctx) error {
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
-		return queries.AuthError(c, auth)
+		return queries.AuthError(c, &auth)
 	}
 
 	card := new(models.Card)
@@ -451,9 +450,8 @@ func DeleteCardById(c *fiber.Ctx) error {
 
 	db.Delete(card)
 
-	log := queries.CreateLog(models.LogCardDeleted, auth.User.Username+" deleted "+card.Question)
-	_ = queries.CreateUserLog(auth.User.ID, log)
-	_ = queries.CreateCardLog(card.ID, log)
+	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", card.ID, card.Question), models.LogCardDeleted).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,

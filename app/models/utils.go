@@ -48,9 +48,9 @@ type ResponseCard struct {
 }
 
 // Set ResponseCard values
-func (responseCard *ResponseCard) Set(card Card, answers []string) {
+func (responseCard *ResponseCard) Set(card *Card, answers []string) {
 	responseCard.Answers = answers
-	responseCard.Card = card
+	responseCard.Card = *card
 }
 
 // ResponseAuth struct

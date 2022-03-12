@@ -53,10 +53,6 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 		return res
 	}
 
-	log := CreateLog(models.LogSubscribe, user.Username+" subscribed to "+deck.DeckName)
-	_ = CreateUserLog(user.ID, log)
-	_ = CreateDeckLog(deck.ID, log)
-
 	res.GenerateSuccess("Success register a creator access !", *access, 1)
 	return res
 }
@@ -155,8 +151,8 @@ func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP 
 		return res
 	}
 
-	for _, s := range cards {
-		_ = GenerateMemDate(user.ID, s.ID, s.DeckID)
+	for i := range cards {
+		_ = GenerateMemDate(user.ID, cards[i].ID, cards[i].DeckID)
 	}
 	res.GenerateSuccess("Success generated mem_date", nil, 0)
 	return res
@@ -241,7 +237,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	for i := range memDates {
 
 		answersList = GenerateMCQ(&memDates[i], userID)
-		responseCard.Set(memDates[i].Card, answersList)
+		responseCard.Set(&memDates[i].Card, answersList)
 
 		result = append(result, *responseCard)
 	}
@@ -266,7 +262,7 @@ func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	}
 	answersList = GenerateMCQ(memDate, userID)
 
-	responseCard.Set(memDate.Card, answersList)
+	responseCard.Set(&memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res
@@ -292,7 +288,7 @@ func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
 	}
 
 	answersList = GenerateMCQ(memDate, userID)
-	responseCard.Set(memDate.Card, answersList)
+	responseCard.Set(&memDate.Card, answersList)
 
 	res.GenerateSuccess("Success getting next card", responseCard, 1)
 	return res
