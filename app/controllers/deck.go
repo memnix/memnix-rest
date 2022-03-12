@@ -169,8 +169,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	var responseDeck []models.ResponseDeck
 	var decks []models.Deck
 
-	if err := db.Raw("SELECT DISTINCT public.decks.* FROM public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id INNER JOIN public.users ON public.users.id = public.accesses.user_id WHERE public.decks.status = 3 AND "+
-		"(( public.accesses.permission < 1 ) OR (NOT EXISTS (select public.decks.* from public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id WHERE public.decks.status = 3 AND public.accesses.user_id = ?)))", auth.User.ID).Scan(&decks).Error; err != nil {
+	if err := db.Raw("SELECT DISTINCT public.decks.* FROM public.decks LEFT JOIN public.accesses ON public.decks.id = public.accesses.deck_id AND public.accesses.user_id = ? WHERE public.accesses.deck_id IS NULL AND public.decks.status = 3 ", auth.User.ID).Scan(&decks).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -286,12 +285,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
-	if access.Permission == 0 {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
-	}
-
-	access.Permission = 0
-	db.Preload("User").Preload("Deck").Save(access)
+	db.Delete(access)
 
 	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d | Deck - %d", access.UserID, access.DeckID), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
 	_ = log.SendLog()
