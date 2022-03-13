@@ -34,8 +34,6 @@ func main() {
 		log.Panic("Can't connect to rabbitMq: ", err)
 	}
 
-	fmt.Println("Connected to RabbitMQ")
-
 	defer func(conn *amqp.Connection) {
 		_ = conn.Close()
 		fmt.Println("Disconnected to RabbitMQ")
@@ -47,8 +45,8 @@ func main() {
 	}(database.RabbitMqChan)
 
 	var migrates []interface{}
-	_ = append(migrates, models.Access{}, models.Card{}, models.Deck{},
-		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{})
+	migrates = append(migrates, models.Access{}, models.Card{}, models.Deck{},
+		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{}, models.Mcq{})
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {
