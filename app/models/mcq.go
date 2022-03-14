@@ -23,8 +23,7 @@ const (
 )
 
 func (mcq *Mcq) GetAnswers() []string {
-	var answersList []string
-	answersList = mcq.ExtractAnswers()
+	answersList := mcq.ExtractAnswers()
 
 	if mcq.Type == McqLinked {
 
