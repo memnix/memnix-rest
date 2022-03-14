@@ -69,7 +69,10 @@ func (card *Card) GetMCQAnswers() []string {
 
 	if len(answersList) >= 3 {
 		for i := 0; i < 3; i++ {
-			answers = append(answers, answersList[rand.Intn(len(answersList)-1)])
+			index := rand.Intn(len(answersList) - 1)
+			answers = append(answers, answersList[index])
+			answersList[index] = answersList[len(answersList)-1]
+			answersList = answersList[:len(answersList)-1]
 		}
 		answers = append(answers, card.Answer)
 	}
