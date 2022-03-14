@@ -215,7 +215,7 @@ func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 
 		answersList = memDate.Card.GetMCQAnswers()
 		if len(answersList) == 4 {
-			memDate.Card.Type = 2 // MCQ
+			memDate.Card.Type = models.CardMCQ // MCQ
 		}
 		return answersList
 	}

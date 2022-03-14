@@ -76,12 +76,13 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 // @Router /v1/cards/{deckID}/training [get]
 func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
-
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
+	/*
+		auth := CheckAuth(c, models.PermUser) // Check auth
+		if !auth.Success {
+			return queries.AuthError(c, &auth)
+		}
+	*/
+	auth := AuthDebugMode(c)
 	deckID := c.Params("deckID")
 	deckIdInt, _ := strconv.ParseInt(deckID, 10, 32)
 

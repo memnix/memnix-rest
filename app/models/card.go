@@ -9,16 +9,16 @@ import (
 
 // Card structure
 type Card struct {
-	gorm.Model  `swaggerignore:"true"`
-	Question    string `json:"card_question" example:"What's the answer to life ?"`
-	Answer      string `json:"card_answer" example:"42"`
-	DeckID      uint   `json:"deck_id" example:"1"`
-	Deck        Deck
-	Tips        string   `json:"card_tips" example:"The answer is from a book"`
-	Explication string   `json:"card_explication" example:"The number 42 is the answer to life has written in a very famous book"`
-	Type        CardType `json:"card_type" example:"0" gorm:"type:Int"`
-	Format      string   `json:"card_format" example:"Date / Name / Country"`
-	Image       string   `json:"card_image"` // Should be an url
+	gorm.Model `swaggerignore:"true"`
+	Question   string `json:"card_question" example:"What's the answer to life ?"`
+	Answer     string `json:"card_answer" example:"42"`
+	DeckID     uint   `json:"deck_id" example:"1"`
+	Deck       Deck
+	Type       CardType `json:"card_type" example:"0" gorm:"type:Int"`
+	Format     string   `json:"card_format" example:"Date / Name / Country"`
+	Image      string   `json:"card_image"` // Should be an url
+	McqID      uint     `json:"mcq_id"`
+	Mcq        Mcq
 }
 
 // CardType enum type
@@ -44,21 +44,38 @@ func (s CardType) ToString() string {
 	}
 }
 
-// GetMCQAnswers returns 3 random incorrect MCQAnswers
 func (card *Card) GetMCQAnswers() []string {
 	db := database.DBConn // DB Conn
-	var answersList []string
-	var answers []Answer
 
-	if err := db.Joins("Card").Where("answers.card_id = ?", card.ID).Limit(3).Order("random()").Find(&answers).Error; err != nil {
-		return nil
+	var answers []string
+
+	mcq := new(Mcq)
+
+	if err := db.First(&mcq, card.McqID).Error; err != nil {
+		return answers
 	}
 
-	if len(answers) >= 3 {
-		answersList = append(answersList, answers[0].Answer, answers[1].Answer, answers[2].Answer, card.Answer)
-		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
+	answersList := mcq.GetAnswers()
+
+	for i := range answersList {
+		if i >= len(answersList) {
+			break
+		}
+		if answersList[i] == card.Answer {
+			answersList[i] = answersList[len(answersList)-1]
+			answersList = answersList[:len(answersList)-1]
+		}
 	}
 
-	return answersList
+	if len(answersList) >= 3 {
+		for i := 0; i < 3; i++ {
+			answers = append(answers, answersList[rand.Intn(len(answersList)-1)])
+		}
+		answers = append(answers, card.Answer)
+	}
+	rand.Seed(time.Now().UnixNano())
+
+	rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
+
+	return answers
 }
