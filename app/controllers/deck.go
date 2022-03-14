@@ -295,7 +295,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
-	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d | Deck - %d", access.UserID, access.DeckID), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
+	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d (%s) | Deck - %d (%s)", access.UserID, access.User.Username, access.DeckID, access.Deck.DeckName), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -338,7 +338,7 @@ func SubToDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d | Deck - %d", auth.User.ID, deck.ID), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
