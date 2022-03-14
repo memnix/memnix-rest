@@ -2,13 +2,14 @@ package queries
 
 import (
 	"errors"
+	"math/rand"
+	"time"
+
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
-	"math/rand"
-	"time"
 )
 
 // FillResponseDeck returns a filled models.ResponseDeck
@@ -200,8 +201,6 @@ func FetchMem(cardID, userID uint) models.Mem {
 	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", cardID, userID).Order("id desc").First(&mem).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			mem.Efactor = 0
-		} else {
-			//TODO: Generate error log
 		}
 	}
 	return *mem
