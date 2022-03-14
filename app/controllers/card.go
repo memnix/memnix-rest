@@ -285,7 +285,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
+	if len(card.Question) <= 5 || len(card.Answer) == 0 {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
@@ -440,7 +440,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
+	if len(card.Question) <= 5 || len(card.Answer) == 0 {
 		res.GenerateError(utils.ErrorQALen)
 		return res
 	}
