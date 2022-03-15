@@ -24,7 +24,11 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) mod
 	deckResponse.Permission = permission
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
-		deckResponse.Owner = owner
+		publicUser := new(models.PublicUser)
+
+		publicUser.Set(&owner)
+
+		deckResponse.Owner = *publicUser
 		deckResponse.OwnerId = owner.ID
 	}
 
