@@ -76,13 +76,12 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 // @Router /v1/cards/{deckID}/training [get]
 func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
-	/*
-		auth := CheckAuth(c, models.PermUser) // Check auth
-		if !auth.Success {
-			return queries.AuthError(c, &auth)
-		}
-	*/
-	auth := AuthDebugMode(c)
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
 	deckID := c.Params("deckID")
 	deckIdInt, _ := strconv.ParseInt(deckID, 10, 32)
 
@@ -211,7 +210,6 @@ func GetCardByID(c *fiber.Ctx) error {
 
 	if err := db.Joins("Deck").First(&card, id).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -285,8 +283,19 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if len(card.Question) <= 5 || len(card.Answer) == 0 {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
+	}
+
+	if card.McqID != 0 {
+		mcq := new(models.Mcq)
+		if err := db.First(&mcq, card.McqID).Error; err != nil {
+			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		}
+		if mcq.DeckID != card.DeckID {
+			//TODO: Handle errors
+			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		}
 	}
 
 	db.Create(card)
@@ -440,9 +449,23 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) <= 5 || len(card.Answer) == 0 {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
 		res.GenerateError(utils.ErrorQALen)
 		return res
+	}
+
+	//TODO: Errors
+	if card.McqID != 0 {
+		mcq := new(models.Mcq)
+		if err := db.First(&mcq, card.McqID).Error; err != nil {
+			res.GenerateError(utils.ErrorQALen)
+			return res
+		}
+		if mcq.DeckID != card.DeckID {
+			//TODO: Handle errors
+			res.GenerateError(utils.ErrorQALen)
+			return res
+		}
 	}
 
 	db.Save(card)
