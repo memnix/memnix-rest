@@ -39,7 +39,6 @@ func Rabbit() (*amqp.Channel, error) {
 	return ch, nil
 }
 func SendMessageToChannel(ch *amqp.Channel, body []byte, key string) error {
-	fmt.Println("Sent Message to Channel")
 
 	err := ch.Publish(
 		"logs", // exchange
@@ -53,6 +52,5 @@ func SendMessageToChannel(ch *amqp.Channel, body []byte, key string) error {
 	if err != nil {
 		return fmt.Errorf("failed to declare send a message: %s", err)
 	}
-	fmt.Println("Message sent")
 	return nil
 }

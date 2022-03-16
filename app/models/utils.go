@@ -67,5 +67,5 @@ type ResponseDeck struct {
 	Permission AccessPermission `json:"permission" example:"1"`
 	CardCount  int64            `json:"card_count" example:"42"`
 	OwnerId    uint             `json:"owner_id" example:"6"`
-	Owner      User
+	Owner      PublicUser
 }

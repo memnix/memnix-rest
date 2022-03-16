@@ -18,7 +18,8 @@ import (
 // @Tags Card
 // @Produce json
 // @Success 200 {object} models.Card
-// @Router /v1/cards/today [get]
+// @Deprecated
+// @Router /v1/cards/today/one [get]
 func GetTodayCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 
@@ -36,6 +37,33 @@ func GetTodayCard(c *fiber.Ctx) error {
 		Message: "Get today's card",
 		Data:    res.Data,
 		Count:   1,
+	})
+}
+
+// GetAllTodayCard method
+// @Description Get all today card
+// @Summary gets a list of card
+// @Tags Card
+// @Produce json
+// @Success 200 {array} models.Card
+// @Router /v1/cards/today [get]
+func GetAllTodayCard(c *fiber.Ctx) error {
+	res := new(models.ResponseHTTP)
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
+	if res = queries.FetchTodayCard(auth.User.ID); !res.Success {
+		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+	}
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get today's cards",
+		Data:    res.Data,
+		Count:   res.Count,
 	})
 }
 
@@ -182,7 +210,6 @@ func GetCardByID(c *fiber.Ctx) error {
 
 	if err := db.Joins("Deck").First(&card, id).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -256,8 +283,19 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
+	}
+
+	if card.McqID != 0 {
+		mcq := new(models.Mcq)
+		if err := db.First(&mcq, card.McqID).Error; err != nil {
+			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		}
+		if mcq.DeckID != card.DeckID {
+			//TODO: Handle errors
+			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		}
 	}
 
 	db.Create(card)
@@ -411,9 +449,23 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) <= 5 || len(card.Answer) <= 5 {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
 		res.GenerateError(utils.ErrorQALen)
 		return res
+	}
+
+	//TODO: Errors
+	if card.McqID != 0 {
+		mcq := new(models.Mcq)
+		if err := db.First(&mcq, card.McqID).Error; err != nil {
+			res.GenerateError(utils.ErrorQALen)
+			return res
+		}
+		if mcq.DeckID != card.DeckID {
+			//TODO: Handle errors
+			res.GenerateError(utils.ErrorQALen)
+			return res
+		}
 	}
 
 	db.Save(card)

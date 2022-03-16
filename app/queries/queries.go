@@ -2,13 +2,14 @@ package queries
 
 import (
 	"errors"
+	"math/rand"
+	"time"
+
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
-	"math/rand"
-	"time"
 )
 
 // FillResponseDeck returns a filled models.ResponseDeck
@@ -23,7 +24,11 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) mod
 	deckResponse.Permission = permission
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
-		deckResponse.Owner = owner
+		publicUser := new(models.PublicUser)
+
+		publicUser.Set(&owner)
+
+		deckResponse.Owner = *publicUser
 		deckResponse.OwnerId = owner.ID
 	}
 
@@ -198,7 +203,9 @@ func FetchMem(cardID, userID uint) models.Mem {
 
 	mem := new(models.Mem)
 	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", cardID, userID).Order("id desc").First(&mem).Error; err != nil {
-		mem.Efactor = 0
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			mem.Efactor = 0
+		}
 	}
 	return *mem
 }
@@ -212,7 +219,7 @@ func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 
 		answersList = memDate.Card.GetMCQAnswers()
 		if len(answersList) == 4 {
-			memDate.Card.Type = 2 // MCQ
+			memDate.Card.Type = models.CardMCQ // MCQ
 		}
 		return answersList
 	}
@@ -248,6 +255,39 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	res.GenerateSuccess("Success getting next card", result, len(result))
 	return res
 
+}
+
+func FetchTodayCard(userID uint) *models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+	t := time.Now()
+
+	res := new(models.ResponseHTTP)
+	var memDates []models.MemDate
+
+	if err := db.Joins(
+		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
+		userID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ?",
+		userID, t.AddDate(0, 0, 1).Add(
+			time.Duration(-t.Hour())*time.Hour), models.AccessStudent).Order("next_date asc").Find(&memDates).Error; err != nil {
+		res.GenerateError("Today's memDate not found")
+		return res
+	}
+
+	var answersList []string
+	var responseCardList []models.ResponseCard
+	responseCard := new(models.ResponseCard)
+
+	for index := range memDates {
+		answersList = GenerateMCQ(&memDates[index], userID)
+		responseCard.Set(&memDates[index].Card, answersList)
+		responseCardList = append(responseCardList, *responseCard)
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(responseCardList), func(i, j int) { responseCardList[i], responseCardList[j] = responseCardList[j], responseCardList[i] })
+
+	res.GenerateSuccess("Success getting next today's cards", responseCardList, len(responseCardList))
+	return res
 }
 
 func FetchNextTodayCard(userID uint) *models.ResponseHTTP {

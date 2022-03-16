@@ -169,8 +169,10 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	var responseDeck []models.ResponseDeck
 	var decks []models.Deck
 
-	if err := db.Raw("SELECT DISTINCT public.decks.* FROM public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id INNER JOIN public.users ON public.users.id = public.accesses.user_id WHERE public.decks.status = 3 AND "+
-		"(( public.accesses.permission < 1 ) OR (NOT EXISTS (select public.decks.* from public.decks INNER JOIN public.accesses ON public.decks.id = public.accesses.deck_id WHERE public.decks.status = 3 AND public.accesses.user_id = ?)))", auth.User.ID).Scan(&decks).Error; err != nil {
+	if err := db.Raw(
+		"SELECT DISTINCT public.decks.* FROM public.decks LEFT JOIN public.accesses ON public.decks.id = public.accesses.deck_id AND public.accesses.user_id = ? WHERE "+
+			"(public.accesses.deck_id IS NULL  OR public.accesses.permission = 0 OR public.accesses.deleted_at IS NOT NULL) AND public.decks.status = 3",
+		auth.User.ID).Scan(&decks).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -293,7 +295,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
-	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d | Deck - %d", access.UserID, access.DeckID), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
+	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d (%s) | Deck - %d (%s)", access.UserID, access.User.Username, access.DeckID, access.Deck.DeckName), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -336,7 +338,7 @@ func SubToDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d | Deck - %d", auth.User.ID, deck.ID), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
