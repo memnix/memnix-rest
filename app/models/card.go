@@ -68,17 +68,25 @@ func (card *Card) GetMCQAnswers() []string {
 		}
 	}
 
-	if len(answersList) >= 3 {
-		for i := 0; i < 3; i++ {
-			index := rand.Intn(len(answersList) - 1)
-			answers = append(answers, answersList[index])
-			answersList[index] = answersList[len(answersList)-1]
-			answersList = answersList[:len(answersList)-1]
-		}
-		answers = append(answers, card.Answer)
+	if len(answersList) < 3 {
+		return answers
 	}
-	rand.Seed(time.Now().UnixNano())
 
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
+
+	i, c := 0, 0
+	for i < 3 {
+		if answersList[c] != card.Answer {
+			answers = append(answers, answersList[c])
+			i++
+		}
+		c++
+	}
+
+	answers = append(answers, card.Answer)
+
+	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
 
 	return answers
