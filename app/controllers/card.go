@@ -283,11 +283,11 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
-	if card.McqID != 0 {
+	if card.McqID.Int32 != 0 {
 		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
 			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
@@ -449,13 +449,13 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
 		res.GenerateError(utils.ErrorQALen)
 		return res
 	}
 
 	//TODO: Errors
-	if card.McqID != 0 {
+	if card.McqID.Int32 != 0 {
 		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
 			res.GenerateError(utils.ErrorQALen)

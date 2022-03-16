@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"github.com/memnix/memnixrest/pkg/database"
 	"gorm.io/gorm"
 	"math/rand"
@@ -14,10 +15,10 @@ type Card struct {
 	Answer     string `json:"card_answer" example:"42"`
 	DeckID     uint   `json:"deck_id" example:"1"`
 	Deck       Deck
-	Type       CardType `json:"card_type" example:"0" gorm:"type:Int"`
-	Format     string   `json:"card_format" example:"Date / Name / Country"`
-	Image      string   `json:"card_image"` // Should be an url
-	McqID      uint     `json:"mcq_id"`
+	Type       CardType      `json:"card_type" example:"0" gorm:"type:Int"`
+	Format     string        `json:"card_format" example:"Date / Name / Country"`
+	Image      string        `json:"card_image"` // Should be an url
+	McqID      sql.NullInt32 `json:"mcq_id"`
 	Mcq        Mcq
 }
 
