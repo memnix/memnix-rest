@@ -106,6 +106,7 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 // @Description Get next card
 // @Summary gets a card
 // @Tags Card
+// @Deprecated
 // @Produce json
 // @Success 200 {object} models.Card
 // @Router /v1/cards/next [get]
@@ -134,6 +135,7 @@ func GetNextCard(c *fiber.Ctx) error {
 // @Summary get a card
 // @Tags Card
 // @Produce json
+// @Deprecated
 // @Success 200 {object} models.Card
 // @Router /v1/cards/{deckID}/next [get]
 func GetNextCardByDeck(c *fiber.Ctx) error {
@@ -283,6 +285,10 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
+	if res := queries.CheckCardLimit(auth.User.Permissions, card.DeckID); !res {
+		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more card to it.")
+	}
+
 	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
@@ -296,6 +302,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 			//TODO: Handle errors
 			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		}
+	} else {
+		//TODO: Error because users shouldn't use ID=0
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	db.Create(card)
@@ -349,7 +358,6 @@ func PostResponse(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&response); err != nil {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
-
 	}
 
 	if err := db.Joins("Deck").First(&card, response.CardID).Error; err != nil {
@@ -499,6 +507,15 @@ func DeleteCardById(c *fiber.Ctx) error {
 	if res := queries.CheckAccess(auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
+
+	var memDates []models.MemDate
+
+	if err := db.Joins("Card").Where("mem_dates.card_id = ?", card.ID).Find(&memDates).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
+
+	db.Unscoped().Delete(memDates)
 
 	db.Delete(card)
 
