@@ -62,6 +62,8 @@ func UpdateMem(r *models.Mem, validation bool) {
 		r.ComputeQualityFail()
 	}
 
+	mem.Quality = models.MemQualityNone
+
 	mem.ComputeEfactor(r.Efactor, r.Quality)
 
 	db.Save(r)
