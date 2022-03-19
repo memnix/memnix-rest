@@ -2,7 +2,6 @@ package queries
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -49,19 +48,8 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 	access := new(models.Access)
 	res := new(models.ResponseHTTP)
 
-	if err := db.Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.Set(user.ID, deck.ID, models.AccessOwner)
-			db.Create(access)
-		} else {
-			fmt.Println(err.Error())
-		}
-	} else {
-		fmt.Println(deck.ID)
-		fmt.Println(user.ID)
-		res.GenerateError(utils.ErrorForbidden)
-		return res
-	}
+	access.Set(user.ID, deck.ID, models.AccessOwner)
+	db.Create(access)
 
 	res.GenerateSuccess("Success register a creator access !", *access, 1)
 	return res
