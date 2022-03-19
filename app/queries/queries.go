@@ -53,9 +53,12 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			access.Set(user.ID, deck.ID, models.AccessOwner)
 			db.Create(access)
+		} else {
+			fmt.Println(err.Error())
 		}
 	} else {
-		fmt.Println(err.Error())
+		fmt.Println(deck.ID)
+		fmt.Println(user.ID)
 		res.GenerateError(utils.ErrorForbidden)
 		return res
 	}
