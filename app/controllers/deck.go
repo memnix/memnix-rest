@@ -457,13 +457,20 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	}
 
 	var memDates []models.MemDate
+	var accesses []models.Access
 
 	if err := db.Joins("Card").Where("mem_dates.deck_id = ?", deck.ID).Find(&memDates).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		// TODO: Error
 	}
 
+	if err := db.Where("accesses.deck_id = ?", deck.ID).Find(&accesses).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
+
 	db.Unscoped().Delete(memDates)
+	db.Unscoped().Delete(accesses)
 
 	db.Delete(deck)
 
