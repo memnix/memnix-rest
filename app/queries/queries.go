@@ -121,10 +121,28 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 	var count int64
 
 	if err := db.Table("cards").Where("cards.deck_id = ?", deckID).Count(&count).Error; err != nil {
-		return false
+		//TODO: Handle error
+		return true
 	}
 
 	if permission < models.PermMod && count >= utils.MaximumCardDeck {
+		return false
+	}
+
+	return true
+}
+
+// CheckDeckLimit verifies that the user hasn't reached the limit
+func CheckDeckLimit(user *models.User) bool {
+	db := database.DBConn // DB Conn
+	var count int64
+
+	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permissions = ", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
+		//TODO: Handle error
+		return true
+	}
+
+	if user.Permissions < models.PermMod && count >= utils.MaximumDeckNormalUser {
 		return false
 	}
 

@@ -246,6 +246,11 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
 	}
 
+	if res := queries.CheckDeckLimit(&auth.User); !res {
+		//TODO: Create error
+		return queries.RequestError(c, http.StatusBadRequest, "You can't create more deck !")
+	}
+
 	deck.Status = models.DeckPrivate
 	db.Create(deck)
 
@@ -327,7 +332,6 @@ func SubToDeck(c *fiber.Ctx) error {
 
 	if err := db.First(&deck, deckID).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	if err := queries.GenerateAccess(&auth.User, deck); !err.Success {
@@ -375,7 +379,6 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 
 	if err := db.First(&deck, id).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
@@ -409,7 +412,6 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) *models.ResponseHTTP {
 	if err := c.BodyParser(&d); err != nil {
 		res.GenerateError(err.Error())
 		return res
-
 	}
 
 	if d.Status != deckStatus {
