@@ -239,7 +239,6 @@ func CreateNewDeck(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&deck); err != nil {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
-
 	}
 
 	if len(deck.DeckName) <= 5 {
