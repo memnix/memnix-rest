@@ -48,15 +48,8 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 	access := new(models.Access)
 	res := new(models.ResponseHTTP)
 
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id =?", user.ID, deck.ID).Find(&access).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			access.Set(user.ID, deck.ID, models.AccessOwner)
-			db.Create(access)
-		}
-	} else {
-		res.GenerateError(utils.ErrorForbidden)
-		return res
-	}
+	access.Set(user.ID, deck.ID, models.AccessOwner)
+	db.Create(access)
 
 	res.GenerateSuccess("Success register a creator access !", *access, 1)
 	return res
@@ -113,6 +106,40 @@ func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.Resp
 
 	res.GenerateSuccess("Success checking access permissions", *access, 1)
 	return res
+}
+
+// CheckCardLimit verifies that a deck can handle more cards
+func CheckCardLimit(permission models.Permission, deckID uint) bool {
+	db := database.DBConn // DB Conn
+	var count int64
+
+	if err := db.Table("cards").Where("cards.deck_id = ?", deckID).Count(&count).Error; err != nil {
+		//TODO: Handle error
+		return true
+	}
+
+	if permission < models.PermMod && count >= utils.MaximumCardDeck {
+		return false
+	}
+
+	return true
+}
+
+// CheckDeckLimit verifies that the user hasn't reached the limit
+func CheckDeckLimit(user *models.User) bool {
+	db := database.DBConn // DB Conn
+	var count int64
+
+	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ?", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
+		//TODO: Handle error
+		return true
+	}
+
+	if user.Permissions < models.PermMod && count >= utils.MaximumDeckNormalUser {
+		return false
+	}
+
+	return true
 }
 
 // PostMem updates MemDate & Mem

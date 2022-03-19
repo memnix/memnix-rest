@@ -198,7 +198,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 func GetAllPublicDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
 		return queries.AuthError(c, &auth)
 	}
@@ -239,11 +239,15 @@ func CreateNewDeck(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&deck); err != nil {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
-
 	}
 
 	if len(deck.DeckName) <= 5 {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
+	}
+
+	if res := queries.CheckDeckLimit(&auth.User); !res {
+		//TODO: Create error
+		return queries.RequestError(c, http.StatusBadRequest, "You can't create more deck !")
 	}
 
 	deck.Status = models.DeckPrivate
@@ -327,7 +331,6 @@ func SubToDeck(c *fiber.Ctx) error {
 
 	if err := db.First(&deck, deckID).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	if err := queries.GenerateAccess(&auth.User, deck); !err.Success {
@@ -375,7 +378,6 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 
 	if err := db.First(&deck, id).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
@@ -409,7 +411,6 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) *models.ResponseHTTP {
 	if err := c.BodyParser(&d); err != nil {
 		res.GenerateError(err.Error())
 		return res
-
 	}
 
 	if d.Status != deckStatus {
@@ -454,6 +455,15 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
+
+	var memDates []models.MemDate
+
+	if err := db.Joins("Card").Where("mem_dates.deck_id = ?", deck.ID).Find(&memDates).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
+
+	db.Unscoped().Delete(memDates)
 
 	db.Delete(deck)
 
