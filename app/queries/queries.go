@@ -137,7 +137,7 @@ func CheckDeckLimit(user *models.User) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permissions = ?", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
+	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ?", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
 		//TODO: Handle error
 		return true
 	}
