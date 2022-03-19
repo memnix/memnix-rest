@@ -19,6 +19,7 @@ type Card struct {
 	Format     string        `json:"card_format" example:"Date / Name / Country"`
 	Image      string        `json:"card_image"` // Should be an url
 	Case       bool          `json:"card_case" gorm:"default:false"`
+	Spaces     bool          `json:"card_spaces" gorm:"default:false"`
 	McqID      sql.NullInt32 `json:"mcq_id"`
 	Mcq        Mcq
 }
