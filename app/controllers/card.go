@@ -302,6 +302,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 			//TODO: Handle errors
 			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		}
+	} else {
+		//TODO: Error because users shouldn't use ID=0
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	db.Create(card)
