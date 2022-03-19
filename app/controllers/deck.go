@@ -198,7 +198,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 func GetAllPublicDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
 		return queries.AuthError(c, &auth)
 	}
