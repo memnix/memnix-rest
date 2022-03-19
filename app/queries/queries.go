@@ -115,6 +115,22 @@ func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.Resp
 	return res
 }
 
+// CheckCardLimit verifies that a deck can handle more cards
+func CheckCardLimit(permission models.Permission, deckID uint) bool {
+	db := database.DBConn // DB Conn
+	var count int64
+
+	if err := db.Table("cards").Where("cards.deck_id = ?", deckID).Count(&count).Error; err != nil {
+		return false
+	}
+
+	if permission < models.PermMod && count >= utils.MaximumCardDeck {
+		return false
+	}
+
+	return true
+}
+
 // PostMem updates MemDate & Mem
 func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
