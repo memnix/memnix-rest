@@ -457,6 +457,15 @@ func DeleteDeckById(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
+	var memDates []models.MemDate
+
+	if err := db.Joins("Card").Where("mem_dates.deck_id = ?", deck.ID).Find(&memDates).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
+
+	db.Unscoped().Delete(memDates)
+
 	db.Delete(deck)
 
 	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", deck.ID, deck.DeckName), models.LogDeckDeleted).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
