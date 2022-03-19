@@ -5,11 +5,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
+	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 // GetTodayCard method
@@ -371,25 +371,10 @@ func PostResponse(c *fiber.Ctx) error {
 
 	validation := new(models.CardResponseValidation)
 
-	if card.Case {
-		resp := strings.Join(strings.Fields(response.Response), " ")
-		ans := strings.Join(strings.Fields(card.Answer), " ")
-		if strings.Compare(resp, ans) == 0 {
-			validation.Validate = true
-			validation.Message = "Correct answer"
-		} else {
-			validation.Validate = false
-			validation.Message = "Incorrect answer"
-		}
+	if core.ValidateAnswer(response.Response, card) {
+		validation.SetCorrect()
 	} else {
-		if strings.EqualFold(
-			strings.ReplaceAll(response.Response, " ", ""), strings.ReplaceAll(card.Answer, " ", "")) {
-			validation.Validate = true
-			validation.Message = "Correct answer"
-		} else {
-			validation.Validate = false
-			validation.Message = "Incorrect answer"
-		}
+		validation.SetIncorrect()
 	}
 
 	_ = queries.PostMem(&auth.User, card, validation, response.Training)
