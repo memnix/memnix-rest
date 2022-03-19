@@ -82,9 +82,9 @@ func Login(c *fiber.Ctx) error {
 
 	// handle error
 	if user.ID == 0 { //default Id when return nil
-		c.Status(fiber.StatusNotFound)
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"message": "User not found!",
+			"message": "Incorrect email or password !",
 		})
 	}
 
@@ -92,7 +92,7 @@ func Login(c *fiber.Ctx) error {
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["password"])); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"message": "incorrect password!",
+			"message": "Incorrect email or password !",
 		})
 	}
 

@@ -5,11 +5,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
+	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 // GetTodayCard method
@@ -106,6 +106,7 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 // @Description Get next card
 // @Summary gets a card
 // @Tags Card
+// @Deprecated
 // @Produce json
 // @Success 200 {object} models.Card
 // @Router /v1/cards/next [get]
@@ -134,6 +135,7 @@ func GetNextCard(c *fiber.Ctx) error {
 // @Summary get a card
 // @Tags Card
 // @Produce json
+// @Deprecated
 // @Success 200 {object} models.Card
 // @Router /v1/cards/{deckID}/next [get]
 func GetNextCardByDeck(c *fiber.Ctx) error {
@@ -283,11 +285,15 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
+	if res := queries.CheckCardLimit(auth.User.Permissions, card.DeckID); !res {
+		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more card to it.")
+	}
+
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
-	if card.McqID != 0 {
+	if card.McqID.Int32 != 0 {
 		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
 			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
@@ -296,6 +302,9 @@ func CreateNewCard(c *fiber.Ctx) error {
 			//TODO: Handle errors
 			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		}
+	} else {
+		//TODO: Error because users shouldn't use ID=0
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	db.Create(card)
@@ -349,7 +358,6 @@ func PostResponse(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&response); err != nil {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
-
 	}
 
 	if err := db.Joins("Deck").First(&card, response.CardID).Error; err != nil {
@@ -363,13 +371,10 @@ func PostResponse(c *fiber.Ctx) error {
 
 	validation := new(models.CardResponseValidation)
 
-	if strings.EqualFold(
-		strings.ReplaceAll(response.Response, " ", ""), strings.ReplaceAll(card.Answer, " ", "")) {
-		validation.Validate = true
-		validation.Message = "Correct answer"
+	if core.ValidateAnswer(response.Response, card) {
+		validation.SetCorrect()
 	} else {
-		validation.Validate = false
-		validation.Message = "Incorrect answer"
+		validation.SetIncorrect()
 	}
 
 	_ = queries.PostMem(&auth.User, card, validation, response.Training)
@@ -449,13 +454,13 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID == 0) {
+	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
 		res.GenerateError(utils.ErrorQALen)
 		return res
 	}
 
 	//TODO: Errors
-	if card.McqID != 0 {
+	if card.McqID.Int32 != 0 {
 		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
 			res.GenerateError(utils.ErrorQALen)
@@ -499,6 +504,15 @@ func DeleteCardById(c *fiber.Ctx) error {
 	if res := queries.CheckAccess(auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
+
+	var memDates []models.MemDate
+
+	if err := db.Joins("Card").Where("mem_dates.card_id = ?", card.ID).Find(&memDates).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
+
+	db.Unscoped().Delete(memDates)
 
 	db.Delete(card)
 

@@ -21,6 +21,7 @@ type Mem struct {
 type MemQuality int64
 
 const (
+	MemQualityNone     MemQuality = -1
 	MemQualityBlackout MemQuality = iota
 	MemQualityErrorMCQ
 	MemQualityErrorHints

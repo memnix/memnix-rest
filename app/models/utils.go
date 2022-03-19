@@ -41,6 +41,16 @@ type CardResponseValidation struct {
 	Answer   string `json:"correct_answer" example:"42"`
 }
 
+func (validation *CardResponseValidation) SetCorrect() {
+	validation.Validate = true
+	validation.Message = "Correct answer"
+}
+
+func (validation *CardResponseValidation) SetIncorrect() {
+	validation.Validate = false
+	validation.Message = "Incorrect answer"
+}
+
 // ResponseCard struct
 type ResponseCard struct {
 	Card    Card

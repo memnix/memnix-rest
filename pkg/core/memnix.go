@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
+	"strings"
 )
 
 // UpdateMemDate computes NextDate and set it
@@ -62,6 +63,8 @@ func UpdateMem(r *models.Mem, validation bool) {
 		r.ComputeQualityFail()
 	}
 
+	mem.Quality = models.MemQualityNone
+
 	mem.ComputeEfactor(r.Efactor, r.Quality)
 
 	db.Save(r)
@@ -69,4 +72,20 @@ func UpdateMem(r *models.Mem, validation bool) {
 
 	UpdateMemDate(mem)
 
+}
+
+func ValidateAnswer(response string, card *models.Card) bool {
+	var respString, answerString string
+	if card.Spaces {
+		respString = strings.Join(strings.Fields(response), " ")
+		answerString = strings.Join(strings.Fields(card.Answer), " ")
+	} else {
+		respString = strings.ReplaceAll(response, " ", "")
+		answerString = strings.ReplaceAll(card.Answer, " ", "")
+	}
+	if card.Case {
+		return strings.Compare(respString, answerString) == 0
+	} else {
+		return strings.EqualFold(respString, answerString)
+	}
 }
