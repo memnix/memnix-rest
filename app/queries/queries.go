@@ -14,7 +14,7 @@ import (
 
 // FillResponseDeck returns a filled models.ResponseDeck
 // This function might become a method of models.ResponseDeck
-func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) models.ResponseDeck {
+func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) models.ResponseDeck {
 	db := database.DBConn
 
 	deckResponse := new(models.ResponseDeck)
@@ -22,6 +22,7 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) mod
 	deckResponse.Deck = *deck
 	deckResponse.DeckID = deck.ID
 	deckResponse.Permission = permission
+	deckResponse.ToggleToday = toggleToday
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
 		publicUser := new(models.PublicUser)
