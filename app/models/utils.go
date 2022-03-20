@@ -26,6 +26,10 @@ func (res *ResponseHTTP) GenerateSuccess(message string, data interface{}, count
 	res.Set(true, message, data, count)
 }
 
+type DeckConfig struct {
+	TodaySetting bool `json:"settings_today"`
+}
+
 // CardResponse struct
 type CardResponse struct {
 	CardID   uint `json:"card_id" example:"1"`
