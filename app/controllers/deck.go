@@ -7,6 +7,7 @@ import (
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -87,11 +88,13 @@ func GetDeckByID(c *fiber.Ctx) error {
 func GetAllSubDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
+	/*
+		auth := CheckAuth(c, models.PermUser) // Check auth
+		if !auth.Success {
+			return queries.AuthError(c, &auth)
+		} */
 
+	auth := AuthDebugMode(c)
 	var responseDeck []models.ResponseDeck
 
 	var accesses []models.Access // Accesses array
@@ -103,6 +106,10 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	for i := range accesses {
 		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
 	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
