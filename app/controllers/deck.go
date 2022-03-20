@@ -7,6 +7,7 @@ import (
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -103,6 +104,10 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	for i := range accesses {
 		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
 	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
