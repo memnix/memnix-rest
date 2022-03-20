@@ -88,13 +88,11 @@ func GetDeckByID(c *fiber.Ctx) error {
 func GetAllSubDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	/*
-		auth := CheckAuth(c, models.PermUser) // Check auth
-		if !auth.Success {
-			return queries.AuthError(c, &auth)
-		} */
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
 
-	auth := AuthDebugMode(c)
 	var responseDeck []models.ResponseDeck
 
 	var accesses []models.Access // Accesses array
