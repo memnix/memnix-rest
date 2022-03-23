@@ -80,7 +80,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 
 // GetAllSubDecks method to get a deck
 // @Description Get decks a user is sub to
-// @Summary get a list of deck
+// @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
 // @Success 200 {array} models.ResponseDeck
@@ -98,6 +98,45 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	var accesses []models.Access // Accesses array
 
 	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	for i := range accesses {
+		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
+	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all sub decks",
+		Data:    responseDeck,
+		Count:   len(responseDeck),
+	})
+}
+
+// GetAllEditorDecks method to get a deck
+// @Description Get decks the user is an editor
+// @Summary gets a list of deck
+// @Tags Deck
+// @Produce json
+// @Success 200 {array} models.ResponseDeck
+// @Router /v1/decks/editor [get]
+func GetAllEditorDecks(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
+	var responseDeck []models.ResponseDeck
+
+	var accesses []models.Access // Accesses array
+
+	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessEditor).Find(&accesses).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
