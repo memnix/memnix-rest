@@ -5,10 +5,8 @@ definitions:
       card_answer:
         example: "42"
         type: string
-      card_explication:
-        example: The number 42 is the answer to life has written in a very famous
-          book
-        type: string
+      card_case:
+        type: boolean
       card_format:
         example: Date / Name / Country
         type: string
@@ -18,9 +16,8 @@ definitions:
       card_question:
         example: What's the answer to life ?
         type: string
-      card_tips:
-        example: The answer is from a book
-        type: string
+      card_spaces:
+        type: boolean
       card_type:
         example: 0
         type: integer
@@ -29,6 +26,8 @@ definitions:
       deck_id:
         example: 1
         type: integer
+      mcq:
+        $ref: '#/definitions/models.Mcq'
     type: object
   models.Deck:
     properties:
@@ -46,6 +45,35 @@ definitions:
         example: 2
         type: integer
     type: object
+  models.Mcq:
+    properties:
+      deck:
+        $ref: '#/definitions/models.Deck'
+      deck_id:
+        example: 1
+        type: integer
+      mcq_answers:
+        type: string
+      mcq_name:
+        type: string
+      mcq_type:
+        type: integer
+    type: object
+  models.PublicUser:
+    properties:
+      user_avatar:
+        example: avatar url
+        type: string
+      user_bio:
+        example: A simple demo bio
+        type: string
+      user_name:
+        type: string
+      user_permissions:
+        description: '0: User; 1: Mod; 2: Admin'
+        example: 0
+        type: integer
+    type: object
   models.ResponseDeck:
     properties:
       card_count:
@@ -57,13 +85,15 @@ definitions:
         example: 1
         type: integer
       owner:
-        $ref: '#/definitions/models.User'
+        $ref: '#/definitions/models.PublicUser'
       owner_id:
         example: 6
         type: integer
       permission:
         example: 1
         type: integer
+      settings_today:
+        type: boolean
     type: object
   models.User:
     properties:
@@ -131,7 +161,7 @@ paths:
       - Auth
   /logout:
     post:
-      description: Logout to de-auth connected user and delete token [USER]
+      description: Logout to de-auth connected user and delete token
       produces:
       - application/json
       responses:
@@ -144,7 +174,7 @@ paths:
       security:
       - ApiKeyAuth:
         - user
-      summary: logouts and de-auth connected user and delete token [USER]
+      summary: logouts and de-auth connected user and delete token
       tags:
       - Auth
   /register:
@@ -250,6 +280,7 @@ paths:
       - Card
   /v1/cards/{deckID}/next:
     get:
+      deprecated: true
       description: Get next card by deckID
       produces:
       - application/json
@@ -338,6 +369,7 @@ paths:
       - Card
   /v1/cards/next:
     get:
+      deprecated: true
       description: Get next card
       produces:
       - application/json
@@ -364,6 +396,22 @@ paths:
       - Card
   /v1/cards/today:
     get:
+      description: Get all today card
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Card'
+            type: array
+      summary: gets a list of card
+      tags:
+      - Card
+  /v1/cards/today/one:
+    get:
+      deprecated: true
       description: Get next today card
       produces:
       - application/json
@@ -494,6 +542,21 @@ paths:
       summary: get a list of deck
       tags:
       - Deck
+  /v1/decks/editor:
+    get:
+      description: Get decks the user is an editor
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResponseDeck'
+            type: array
+      summary: gets a list of deck
+      tags:
+      - Deck
   /v1/decks/new:
     post:
       consumes:
@@ -541,9 +604,24 @@ paths:
             items:
               $ref: '#/definitions/models.ResponseDeck'
             type: array
-      summary: get a list of deck
+      summary: gets a list of deck
       tags:
       - Deck
+  /v1/mcqs/{deckID}:
+    get:
+      description: Get mcqs linked to the deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Mcq'
+            type: array
+      summary: gets a list of mcqs
+      tags:
+      - Mcq
   /v1/users:
     get:
       description: Get all users.  Shouldn't really be used
@@ -555,6 +633,25 @@ paths:
           schema:
             $ref: '#/definitions/models.User'
       summary: gets a list of user
+      tags:
+      - User
+  /v1/users/config/{deckId}/today:
+    get:
+      description: Set the today config for a deck
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: gets a user
       tags:
       - User
   /v1/users/id/{id}:
