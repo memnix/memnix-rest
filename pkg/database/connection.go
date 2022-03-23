@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"strconv"
@@ -51,10 +52,20 @@ func Connect() (err error) {
 		return err
 	}
 
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			LogLevel:                  logger.Error, // Log level
+			IgnoreRecordNotFoundError: true,         // Ignore ErrRecordNotFound error for logger
+		},
+	)
+
 	// Create postgres connection string
 	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%d sslmode=disable", user, password, host, db, port)
 	// Open connection
-	DBConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DBConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: newLogger,
+	})
 	if err != nil {
 		return err
 	}
