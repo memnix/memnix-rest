@@ -47,6 +47,8 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	if err := db.Create(&user).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on register: %s - %s", data["username"], data["email"]), models.LogAlreadyUsedEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorAlreadyUsedEmail)
 	}
 
@@ -82,6 +84,8 @@ func Login(c *fiber.Ctx) error {
 
 	// handle error
 	if user.ID == 0 { //default Id when return nil
+		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data["email"]), models.LogIncorrectEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"message": "Incorrect email or password !",
@@ -91,6 +95,8 @@ func Login(c *fiber.Ctx) error {
 	// match password
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["password"])); err != nil {
 		c.Status(fiber.StatusBadRequest)
+		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data["email"]), models.LogIncorrectPassword).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
 		return c.JSON(fiber.Map{
 			"message": "Incorrect email or password !",
 		})
@@ -103,6 +109,8 @@ func Login(c *fiber.Ctx) error {
 
 	token, err := claims.SignedString([]byte(SecretKey))
 	if err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on login: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"message": "error when logging in !",
@@ -149,6 +157,7 @@ func User(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
+
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"message": "Unauthenticated",
@@ -204,6 +213,8 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 	var user models.User
 
 	if res := db.Where("id = ?", claims.Issuer).First(&user); res.Error != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
 		c.Status(fiber.StatusInternalServerError)
 		return models.ResponseAuth{
 			Success: false,
@@ -212,6 +223,8 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 	}
 
 	if user.Permissions < p {
+		log := models.CreateLog(fmt.Sprintf("Permission error: %s | had %s but tried %s", user.Email, user.Permissions.ToString(), p.ToString()), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
 		c.Status(fiber.StatusUnauthorized)
 		return models.ResponseAuth{
 			Success: false,

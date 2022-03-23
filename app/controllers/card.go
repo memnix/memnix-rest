@@ -29,6 +29,8 @@ func GetTodayCard(c *fiber.Ctx) error {
 	}
 
 	if res = queries.FetchNextTodayCard(auth.User.ID); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on GetTodayCard: %s", auth.User.Email, res.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
@@ -56,6 +58,8 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 	}
 
 	if res = queries.FetchTodayCard(auth.User.ID); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Error on GetAllTodayCard: %s", res.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
@@ -87,10 +91,14 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 
 	access := queries.CheckAccess(auth.User.ID, uint(deckIdInt), models.AccessStudent)
 	if !access.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - GetTodayCard: %s", auth.User.Email, deckIdInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckIdInt), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if res = queries.FetchTrainingCards(auth.User.ID, uint(deckIdInt)); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Error on GetTrainingCardsByDeck: %s from %s", res.Message, auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckIdInt), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
@@ -119,6 +127,8 @@ func GetNextCard(c *fiber.Ctx) error {
 	}
 
 	if res = queries.FetchNextCard(auth.User.ID, 0); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Error on GetNextCard: %s from %s", res.Message, auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
@@ -149,6 +159,8 @@ func GetNextCardByDeck(c *fiber.Ctx) error {
 	}
 
 	if res = queries.FetchNextCard(auth.User.ID, uint(deckIDInt)); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Error on GetNextCardByDeck: %s from %s on deck %d", res.Message, auth.User.Email, deckIDInt), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckIDInt), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 
 	}
@@ -243,12 +255,16 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, uint(deckID), models.AccessEditor); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - GetCardsFromDeck: %s", auth.User.Email, deckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckID), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	var cards []models.Card
 
 	if err := db.Joins("Deck").Joins("Mcq").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on GetCardsFromDeck: %s from %s on %d", err.Error(), auth.User.Email, deckID), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckID), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -283,24 +299,34 @@ func CreateNewCard(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&card); err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateNewCard: %s", auth.User.Email, card.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if res := queries.CheckCardLimit(auth.User.Permissions, card.DeckID); !res {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateNewCard: This deck has reached his limit", auth.User.Email, card.DeckID), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more card to it.")
 	}
 
 	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
+		log := models.CreateLog(fmt.Sprintf("BadRequest from %s on deck %d - CreateNewCard: BadRequest", auth.User.Email, card.DeckID), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
 	if card.McqID.Int32 != 0 {
 		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
+			log := models.CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, card.DeckID, 0)
+			_ = log.SendLog()
 			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		}
 		if mcq.DeckID != card.DeckID {
@@ -317,6 +343,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 	var users []models.User
 
 	if result = queries.GetSubUsers(card.DeckID); !result.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", auth.User.Email, card.DeckID, result.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, card.DeckID, card.ID)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
@@ -359,15 +387,21 @@ func PostResponse(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := c.BodyParser(&response); err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on PostResponse: %s from %s", err.Error(), auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	if err := db.Joins("Deck").First(&card, response.CardID).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on PostResponse: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusServiceUnavailable, err.Error())
 	}
 
 	res := queries.CheckAccess(auth.User.ID, card.Deck.ID, models.AccessStudent)
 	if !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - PostResponse: %s", auth.User.Email, card.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
@@ -379,6 +413,7 @@ func PostResponse(c *fiber.Ctx) error {
 		validation.SetIncorrect()
 	}
 
+	//TODO: Add error handling
 	_ = queries.PostMem(&auth.User, card, validation, response.Training)
 
 	validation.Answer = card.Answer
@@ -407,6 +442,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 
 	// Params
 	id := c.Params("id")
+	cardID, _ := strconv.ParseUint(id, 10, 32)
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
@@ -416,14 +452,21 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := db.First(&card, id).Error; err != nil {
+
+		log := models.CreateLog(fmt.Sprintf("Error on UpdateCardByID: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, uint(cardID))
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, card.DeckID, models.AccessEditor); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - UpdateCardByID: %s", auth.User.Email, card.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, uint(cardID))
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if err := UpdateCard(c, card); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error on UpdateCardByID: %s from %s", err.Message, auth.User.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, uint(cardID))
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
@@ -491,6 +534,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 func DeleteCardById(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	id := c.Params("id")
+	cardID, _ := strconv.ParseUint(id, 10, 32)
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
@@ -504,12 +548,16 @@ func DeleteCardById(c *fiber.Ctx) error {
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, card.DeckID, models.AccessOwner); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - DeleteCardById: %s", auth.User.Email, card.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, uint(cardID))
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	var memDates []models.MemDate
 
 	if err := db.Joins("Card").Where("mem_dates.card_id = ?", card.ID).Find(&memDates).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on DeleteCardById: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, uint(cardID))
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		// TODO: Error
 	}
