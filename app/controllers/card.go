@@ -210,7 +210,7 @@ func GetCardByID(c *fiber.Ctx) error {
 
 	card := new(models.Card)
 
-	if err := db.Joins("Deck").First(&card, id).Error; err != nil {
+	if err := db.Joins("Deck").Joins("Mcq").First(&card, id).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -235,15 +235,20 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 
 	// Params
 	id := c.Params("deckID")
+	deckID, _ := strconv.ParseUint(id, 10, 32)
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
+	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
 		return queries.AuthError(c, &auth)
 	}
 
+	if res := queries.CheckAccess(auth.User.ID, uint(deckID), models.AccessEditor); !res.Success {
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	}
+
 	var cards []models.Card
 
-	if err := db.Joins("Deck").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
+	if err := db.Joins("Deck").Joins("Mcq").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
