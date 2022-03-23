@@ -26,6 +26,10 @@ func (res *ResponseHTTP) GenerateSuccess(message string, data interface{}, count
 	res.Set(true, message, data, count)
 }
 
+type DeckConfig struct {
+	TodaySetting bool `json:"settings_today"`
+}
+
 // CardResponse struct
 type CardResponse struct {
 	CardID   uint `json:"card_id" example:"1"`
@@ -72,10 +76,11 @@ type ResponseAuth struct {
 
 // ResponseDeck struct
 type ResponseDeck struct {
-	DeckID     uint `json:"deck_id" example:"1"`
-	Deck       Deck
-	Permission AccessPermission `json:"permission" example:"1"`
-	CardCount  int64            `json:"card_count" example:"42"`
-	OwnerId    uint             `json:"owner_id" example:"6"`
-	Owner      PublicUser
+	DeckID      uint `json:"deck_id" example:"1"`
+	Deck        Deck
+	Permission  AccessPermission `json:"permission" example:"1"`
+	CardCount   int64            `json:"card_count" example:"42"`
+	OwnerId     uint             `json:"owner_id" example:"6"`
+	Owner       PublicUser
+	ToggleToday bool `json:"settings_today" `
 }

@@ -14,7 +14,7 @@ import (
 
 // FillResponseDeck returns a filled models.ResponseDeck
 // This function might become a method of models.ResponseDeck
-func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) models.ResponseDeck {
+func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) models.ResponseDeck {
 	db := database.DBConn
 
 	deckResponse := new(models.ResponseDeck)
@@ -22,6 +22,7 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission) mod
 	deckResponse.Deck = *deck
 	deckResponse.DeckID = deck.ID
 	deckResponse.Permission = permission
+	deckResponse.ToggleToday = toggleToday
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
 		publicUser := new(models.PublicUser)
@@ -293,7 +294,7 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 
 	if err := db.Joins(
 		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
-		userID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ?",
+		userID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ? AND accesses.toggle_today IS true",
 		userID, t.AddDate(0, 0, 1).Add(
 			time.Duration(-t.Hour())*time.Hour), models.AccessStudent).Order("next_date asc").Find(&memDates).Error; err != nil {
 		res.GenerateError("Today's memDate not found")

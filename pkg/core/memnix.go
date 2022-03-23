@@ -36,6 +36,8 @@ func UpdateMemTraining(r *models.Mem, validation bool) {
 		r.ComputeQualityFail()
 	}
 
+	mem.Quality = models.MemQualityNone
+
 	mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
 	mem.Interval, mem.Repetition = r.Interval, r.Repetition
 

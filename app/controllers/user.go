@@ -75,6 +75,52 @@ func GetUserByID(c *fiber.Ctx) error {
 	})
 }
 
+// SetTodayConfig method to set a config
+// @Description Set the today config for a deck
+// @Summary gets a user
+// @Tags User
+// @Produce json
+// @Param id path int true "ID"
+// @Success 200 {object} models.User
+// @Router /v1/users/config/{deckId}/today [get]
+func SetTodayConfig(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	// Params
+	deckID := c.Params("deckID")
+
+	deckConfig := new(models.DeckConfig)
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
+	if err := c.BodyParser(&deckConfig); err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+	}
+
+	access := new(models.Access)
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", auth.User.ID, deckID).Find(&access).Error; err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
+	}
+
+	if access.Permission == 0 {
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
+	}
+
+	access.ToggleToday = deckConfig.TodaySetting
+
+	db.Save(access)
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success updated deck config",
+		Data:    nil,
+		Count:   1,
+	})
+}
+
 // PUT
 
 // UpdateUserByID function

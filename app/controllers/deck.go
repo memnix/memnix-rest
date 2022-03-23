@@ -7,6 +7,7 @@ import (
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -79,7 +80,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 
 // GetAllSubDecks method to get a deck
 // @Description Get decks a user is sub to
-// @Summary get a list of deck
+// @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
 // @Success 200 {array} models.ResponseDeck
@@ -101,8 +102,51 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	}
 
 	for i := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission))
+		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
 	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Get all sub decks",
+		Data:    responseDeck,
+		Count:   len(responseDeck),
+	})
+}
+
+// GetAllEditorDecks method to get a deck
+// @Description Get decks the user is an editor
+// @Summary gets a list of deck
+// @Tags Deck
+// @Produce json
+// @Success 200 {array} models.ResponseDeck
+// @Router /v1/decks/editor [get]
+func GetAllEditorDecks(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
+	var responseDeck []models.ResponseDeck
+
+	var accesses []models.Access // Accesses array
+
+	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessEditor).Find(&accesses).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	for i := range accesses {
+		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
+	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -177,7 +221,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	}
 
 	for i := range decks {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&decks[i], models.AccessNone))
+		responseDeck = append(responseDeck, queries.FillResponseDeck(&decks[i], models.AccessNone, false))
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -457,14 +501,30 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	}
 
 	var memDates []models.MemDate
+	var accesses []models.Access
+	var cards []models.Card
 
 	if err := db.Joins("Card").Where("mem_dates.deck_id = ?", deck.ID).Find(&memDates).Error; err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		// TODO: Error
 	}
 
-	db.Unscoped().Delete(memDates)
+	if err := db.Where("accesses.deck_id = ?", deck.ID).Find(&accesses).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
 
+	if err := db.Where("cards.deck_id = ?", deck.ID).Find(&cards).Error; err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
+		// TODO: Error
+	}
+
+	//TODO: Delete without finding
+
+	db.Unscoped().Delete(memDates)
+	db.Unscoped().Delete(accesses)
+
+	db.Delete(cards)
 	db.Delete(deck)
 
 	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", deck.ID, deck.DeckName), models.LogDeckDeleted).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
