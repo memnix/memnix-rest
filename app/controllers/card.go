@@ -287,7 +287,6 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Param card body models.Card true "Card to create"
 // @Success 200
 // @Router /v1/cards/new [post]
-//goland:noinspection Annotator
 func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	result := new(models.ResponseHTTP)
