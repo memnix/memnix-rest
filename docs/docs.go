@@ -769,6 +769,37 @@ var doc = `{
                 }
             }
         },
+        "/v1/mcqs/new": {
+            "post": {
+                "description": "Create a new mcq",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "creates a mcq",
+                "parameters": [
+                    {
+                        "description": "Mcq to create",
+                        "name": "mcq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Mcq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/mcqs/{deckID}": {
             "get": {
                 "description": "Get mcqs linked to the deck",
@@ -788,6 +819,54 @@ var doc = `{
                                 "$ref": "#/definitions/models.Mcq"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/v1/mcqs/{mcqID}": {
+            "delete": {
+                "description": "Delete a mcq",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "deletes a mcq",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/mcqs/{mcqID}/edit": {
+            "put": {
+                "description": "Edit a mcq",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "edits a mcq",
+                "parameters": [
+                    {
+                        "description": "mcq to edit",
+                        "name": "mcq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Mcq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
                     }
                 }
             }

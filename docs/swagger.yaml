@@ -622,6 +622,57 @@ paths:
       summary: gets a list of mcqs
       tags:
       - Mcq
+  /v1/mcqs/{mcqID}:
+    delete:
+      description: Delete a mcq
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: deletes a mcq
+      tags:
+      - Mcq
+  /v1/mcqs/{mcqID}/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit a mcq
+      parameters:
+      - description: mcq to edit
+        in: body
+        name: mcq
+        required: true
+        schema:
+          $ref: '#/definitions/models.Mcq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: edits a mcq
+      tags:
+      - Mcq
+  /v1/mcqs/new:
+    post:
+      consumes:
+      - application/json
+      description: Create a new mcq
+      parameters:
+      - description: Mcq to create
+        in: body
+        name: mcq
+        required: true
+        schema:
+          $ref: '#/definitions/models.Mcq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: creates a mcq
+      tags:
+      - Mcq
   /v1/users:
     get:
       description: Get all users.  Shouldn't really be used
