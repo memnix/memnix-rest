@@ -39,6 +39,12 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 
+	if len(data["password"]) > 50 {
+		log := models.CreateLog(fmt.Sprintf("Error on register, password too long: %s - %s", data["username"], data["email"]), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(0, 0, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusForbidden, "Password too long!")
+	}
+
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	user := models.User{
 		Username: data["username"],
