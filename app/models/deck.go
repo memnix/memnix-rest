@@ -18,16 +18,16 @@ type Deck struct {
 type DeckStatus int64
 
 const (
-	DeckDraft DeckStatus = iota + 1
-	DeckPrivate
+	DeckPrivate DeckStatus = iota + 1
+	DeckWaitingReview
 	DeckPublic
 )
 
 // ToString returns DeckStatus value as a string
 func (s DeckStatus) ToString() string {
 	switch s {
-	case DeckDraft:
-		return "Deck Draft"
+	case DeckWaitingReview:
+		return "Deck Waiting Review"
 	case DeckPrivate:
 		return "Deck Private"
 	case DeckPublic:
