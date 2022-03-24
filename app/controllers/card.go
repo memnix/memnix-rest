@@ -506,20 +506,31 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
+	shouldUpdateMcq := false
+	mcq := new(models.Mcq)
+
 	if card.McqID.Int32 != 0 {
-		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
-			res.GenerateError(utils.ErrorQALen)
+			res.GenerateError(utils.ErrorRequestFailed)
 			return res
 		}
 
 		if mcq.DeckID != card.DeckID {
-			res.GenerateError(utils.ErrorQALen)
+			res.GenerateError(utils.ErrorRequestFailed)
 			return res
+		}
+
+		if mcq.Type == models.McqLinked {
+			shouldUpdateMcq = true
+
 		}
 	}
 
 	db.Save(card)
+
+	if shouldUpdateMcq {
+		mcq.UpdateLinkedAnswers()
+	}
 
 	res.GenerateSuccess("Success update card", nil, 0)
 	return res
