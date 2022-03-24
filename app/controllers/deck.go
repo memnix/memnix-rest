@@ -294,7 +294,7 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
-	if len(deck.DeckName) <= 5 {
+	if len(deck.DeckName) < utils.MinDeckLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) < utils.MinDeckLen || len(deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageUrlLen {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck: BadRequest", auth.User.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
@@ -494,7 +494,7 @@ func UpdateDeck(c *fiber.Ctx, d *models.Deck) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(d.DeckName) <= 5 {
+	if len(d.DeckName) < utils.MinDeckLen || len(d.DeckName) > utils.MaxDeckNameLen || len(d.Description) < utils.MinDeckLen || len(d.Description) > utils.MaxDefaultLen || len(d.Banner) > utils.MaxImageUrlLen {
 		res.GenerateError(utils.ErrorDeckName)
 		return res
 	}
