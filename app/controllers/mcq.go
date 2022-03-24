@@ -68,15 +68,15 @@ func CreateMcq(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if mcq.Type == models.McqStandalone && len(mcq.Answers) < 3 {
+	if mcq.Type == models.McqStandalone && (len(mcq.Answers) < utils.MinMcqAnswersLen || len(mcq.Answers) > utils.MaxMcqAnswersLen) || len(mcq.Name) > utils.MaxMcqName || mcq.Name == "" {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateMcq: BadRequest", auth.User.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
 		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusBadRequest, "You must provide at least 3 answers for Standalone MCQ")
+		return queries.RequestError(c, http.StatusBadRequest, "You must provide at least 3 and max 150 answers for Standalone MCQ")
 	}
 
 	db.Create(mcq)
 
-	//TODO: Log MCQ
+	//TODO: Log create MCQ
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -85,3 +85,5 @@ func CreateMcq(c *fiber.Ctx) error {
 		Count:   1,
 	})
 }
+
+//TODO: Edit & delete MCQ

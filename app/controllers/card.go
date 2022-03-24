@@ -316,7 +316,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more card to it.")
 	}
 
-	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
+	if len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) || len(
+		card.Format) > utils.MaxCardFormatLen || len(card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen {
 		log := models.CreateLog(fmt.Sprintf("BadRequest from %s on deck %d - CreateNewCard: BadRequest", auth.User.Email, card.DeckID), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
@@ -499,20 +500,20 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) <= 5 || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) {
+	if len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) || len(
+		card.Format) > utils.MaxCardFormatLen || len(card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen {
 		res.GenerateError(utils.ErrorQALen)
 		return res
 	}
 
-	//TODO: Errors
 	if card.McqID.Int32 != 0 {
 		mcq := new(models.Mcq)
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
 			res.GenerateError(utils.ErrorQALen)
 			return res
 		}
+
 		if mcq.DeckID != card.DeckID {
-			//TODO: Handle errors
 			res.GenerateError(utils.ErrorQALen)
 			return res
 		}
