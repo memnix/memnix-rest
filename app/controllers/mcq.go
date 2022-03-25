@@ -85,7 +85,8 @@ func CreateMcq(c *fiber.Ctx) error {
 
 	db.Create(mcq)
 
-	//TODO: Log create MCQ
+	log := models.CreateLog(fmt.Sprintf("Created MCQ: %d - %s", mcq.ID, mcq.Name), models.LogCardCreated).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, mcq.DeckID, 0)
+	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
