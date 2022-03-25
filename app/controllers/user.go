@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -88,6 +90,7 @@ func SetTodayConfig(c *fiber.Ctx) error {
 
 	// Params
 	deckID := c.Params("deckID")
+	deckidInt, _ := strconv.ParseUint(deckID, 10, 32)
 
 	deckConfig := new(models.DeckConfig)
 
@@ -97,11 +100,16 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&deckConfig); err != nil {
+
+		log := models.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", auth.User.ID, deckID).Find(&access).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", auth.User.Email, deckidInt), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 

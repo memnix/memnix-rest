@@ -25,8 +25,11 @@ func registerCardRoutes(r fiber.Router) {
 	r.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
 
 	r.Post("/cards/new", controllers.CreateNewCard) // Create a new card
+	r.Post("/mcqs/new", controllers.CreateMcq)      // Create a mcq
 
 	r.Put("/cards/:id/edit", controllers.UpdateCardByID) // Update a card by ID
+	r.Put("/mcqs/:id/edit", controllers.UpdateMcqById)   // Update a mcq by ID
 
 	r.Delete("/cards/:id", controllers.DeleteCardById) // Delete a card by ID
+	r.Delete("/mcqs/:id", controllers.DeleteMcqById)   // Delete a mcq by ID
 }

@@ -89,14 +89,14 @@ var doc = `{
                         ]
                     }
                 ],
-                "description": "Logout to de-auth connected user and delete token [USER]",
+                "description": "Logout to de-auth connected user and delete token",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Auth"
                 ],
-                "summary": "logouts and de-auth connected user and delete token [USER]",
+                "summary": "logouts and de-auth connected user and delete token",
                 "responses": {
                     "200": {
                         "description": "Logout"
@@ -321,6 +321,7 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "gets a card",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -353,6 +354,29 @@ var doc = `{
         },
         "/v1/cards/today": {
             "get": {
+                "description": "Get all today card",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "gets a list of card",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Card"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cards/today/one": {
+            "get": {
                 "description": "Get next today card",
                 "produces": [
                     "application/json"
@@ -361,6 +385,7 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "gets a card",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -429,6 +454,7 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "get a card",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -505,6 +531,29 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/editor": {
+            "get": {
+                "description": "Get decks the user is an editor",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "gets a list of deck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ResponseDeck"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/decks/new": {
             "post": {
                 "description": "Create a new deck",
@@ -568,7 +617,7 @@ var doc = `{
                 "tags": [
                     "Deck"
                 ],
-                "summary": "get a list of deck",
+                "summary": "gets a list of deck",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -720,6 +769,108 @@ var doc = `{
                 }
             }
         },
+        "/v1/mcqs/new": {
+            "post": {
+                "description": "Create a new mcq",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "creates a mcq",
+                "parameters": [
+                    {
+                        "description": "Mcq to create",
+                        "name": "mcq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Mcq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/mcqs/{deckID}": {
+            "get": {
+                "description": "Get mcqs linked to the deck",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "gets a list of mcqs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Mcq"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/mcqs/{mcqID}": {
+            "delete": {
+                "description": "Delete a mcq",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "deletes a mcq",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/mcqs/{mcqID}/edit": {
+            "put": {
+                "description": "Edit a mcq",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mcq"
+                ],
+                "summary": "edits a mcq",
+                "parameters": [
+                    {
+                        "description": "mcq to edit",
+                        "name": "mcq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Mcq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/users": {
             "get": {
                 "description": "Get all users.  Shouldn't really be used",
@@ -730,6 +881,35 @@ var doc = `{
                     "User"
                 ],
                 "summary": "gets a list of user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/config/{deckId}/today": {
+            "get": {
+                "description": "Set the today config for a deck",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "gets a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -778,9 +958,8 @@ var doc = `{
                     "type": "string",
                     "example": "42"
                 },
-                "card_explication": {
-                    "type": "string",
-                    "example": "The number 42 is the answer to life has written in a very famous book"
+                "card_case": {
+                    "type": "boolean"
                 },
                 "card_format": {
                     "type": "string",
@@ -794,9 +973,8 @@ var doc = `{
                     "type": "string",
                     "example": "What's the answer to life ?"
                 },
-                "card_tips": {
-                    "type": "string",
-                    "example": "The answer is from a book"
+                "card_spaces": {
+                    "type": "boolean"
                 },
                 "card_type": {
                     "type": "integer",
@@ -808,6 +986,9 @@ var doc = `{
                 "deck_id": {
                     "type": "integer",
                     "example": 1
+                },
+                "mcq": {
+                    "$ref": "#/definitions/models.Mcq"
                 }
             }
         },
@@ -833,6 +1014,48 @@ var doc = `{
                 }
             }
         },
+        "models.Mcq": {
+            "type": "object",
+            "properties": {
+                "deck": {
+                    "$ref": "#/definitions/models.Deck"
+                },
+                "deck_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "mcq_answers": {
+                    "type": "string"
+                },
+                "mcq_name": {
+                    "type": "string"
+                },
+                "mcq_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.PublicUser": {
+            "type": "object",
+            "properties": {
+                "user_avatar": {
+                    "type": "string",
+                    "example": "avatar url"
+                },
+                "user_bio": {
+                    "type": "string",
+                    "example": "A simple demo bio"
+                },
+                "user_name": {
+                    "type": "string"
+                },
+                "user_permissions": {
+                    "description": "0: User; 1: Mod; 2: Admin",
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
         "models.ResponseDeck": {
             "type": "object",
             "properties": {
@@ -848,7 +1071,7 @@ var doc = `{
                     "example": 1
                 },
                 "owner": {
-                    "$ref": "#/definitions/models.User"
+                    "$ref": "#/definitions/models.PublicUser"
                 },
                 "owner_id": {
                     "type": "integer",
@@ -857,6 +1080,9 @@ var doc = `{
                 "permission": {
                     "type": "integer",
                     "example": 1
+                },
+                "settings_today": {
+                    "type": "boolean"
                 }
             }
         },

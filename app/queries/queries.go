@@ -119,7 +119,7 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 		return true
 	}
 
-	if permission < models.PermMod && count >= utils.MaximumCardDeck {
+	if permission < models.PermMod && count >= utils.MaxCardDeck {
 		return false
 	}
 
@@ -136,7 +136,7 @@ func CheckDeckLimit(user *models.User) bool {
 		return true
 	}
 
-	if user.Permissions < models.PermMod && count >= utils.MaximumDeckNormalUser {
+	if user.Permissions < models.PermMod && count >= utils.MaxDeckNormalUser {
 		return false
 	}
 
