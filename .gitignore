@@ -5,6 +5,7 @@
 *.so
 *.dylib
 
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -12,8 +13,13 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
+# Memnix Binary
 memnixrest
+
+# Env
 .env
+
+# Docker compose files
 docker-*
