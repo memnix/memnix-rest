@@ -30,20 +30,24 @@ func main() {
 		log.Panic("Can't connect database:", err.Error())
 	}
 
+	// Connect to RabbitMQ
 	if _, err := database.Rabbit(); err != nil {
 		log.Panic("Can't connect to rabbitMq: ", err)
 	}
 
+	// Disconnect from RabbitMQ*
 	defer func(conn *amqp.Connection) {
 		_ = conn.Close()
 		fmt.Println("Disconnected to RabbitMQ")
 
 	}(database.RabbitMqConn)
 
+	// Close RabbitMQ channel
 	defer func(ch *amqp.Channel) {
 		_ = ch.Close()
 	}(database.RabbitMqChan)
 
+	// Models to migrate
 	var migrates []interface{}
 	migrates = append(migrates, models.Access{}, models.Card{}, models.Deck{},
 		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{}, models.Mcq{})
