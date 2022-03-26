@@ -289,7 +289,6 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Router /v1/cards/new [post]
 func CreateNewCard(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-	result := new(models.ResponseHTTP)
 	card := new(models.Card)
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
@@ -315,24 +314,15 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more card to it.")
 	}
 
-	if len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) || len(
-		card.Format) > utils.MaxCardFormatLen || len(card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen {
+	if !card.NotValidate() {
 		log := models.CreateLog(fmt.Sprintf("BadRequest from %s on deck %d - CreateNewCard: BadRequest", auth.User.Email, card.DeckID), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
 	}
 
-	if card.McqID.Int32 != 0 {
-		mcq := new(models.Mcq)
-		if err := db.First(&mcq, card.McqID).Error; err != nil {
-			log := models.CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, card.DeckID, 0)
-			_ = log.SendLog()
-			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
-		}
-		if mcq.DeckID != card.DeckID {
-			//TODO: Handle errors
-			return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
-		}
+	_, ok := card.ValidateMCQ(&auth.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	db.Create(card)
@@ -340,23 +330,8 @@ func CreateNewCard(c *fiber.Ctx) error {
 	log := models.CreateLog(fmt.Sprintf("Created: %d - %s", card.ID, card.Question), models.LogCardCreated).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, card.DeckID, card.ID)
 	_ = log.SendLog()
 
-	var users []models.User
-
-	if result = queries.GetSubUsers(card.DeckID); !result.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", auth.User.Email, card.DeckID, result.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, card.DeckID, card.ID)
-		_ = log.SendLog()
+	if res := queries.UpdateSubUsers(card, &auth.User); res != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
-	}
-
-	switch result.Data.(type) {
-	default:
-		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
-	case []models.User:
-		users = result.Data.([]models.User)
-	}
-
-	for i := range users {
-		_ = queries.GenerateMemDate(users[i].ID, card.ID, card.DeckID)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -464,7 +439,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if err := UpdateCard(c, card); !err.Success {
+	if err := UpdateCard(c, card, &auth.User); !err.Success {
 		log := models.CreateLog(fmt.Sprintf("Error on UpdateCardByID: %s from %s", err.Message, auth.User.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, uint(cardID))
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
@@ -482,7 +457,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 }
 
 // UpdateCard function
-func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
+func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.ResponseHTTP {
 	db := database.DBConn
 
 	deckId := card.DeckID
@@ -499,8 +474,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 		return res
 	}
 
-	if len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == models.CardMCQ && card.McqID.Int32 == 0) || len(
-		card.Format) > utils.MaxCardFormatLen || len(card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen {
+	if card.NotValidate() {
 		res.GenerateError(utils.ErrorQALen)
 		return res
 	}
@@ -508,22 +482,13 @@ func UpdateCard(c *fiber.Ctx, card *models.Card) *models.ResponseHTTP {
 	shouldUpdateMcq := false
 	mcq := new(models.Mcq)
 
-	if card.McqID.Int32 != 0 {
-		if err := db.First(&mcq, card.McqID).Error; err != nil {
-			res.GenerateError(utils.ErrorRequestFailed)
-			return res
-		}
-
-		if mcq.DeckID != card.DeckID {
-			res.GenerateError(utils.ErrorRequestFailed)
-			return res
-		}
-
-		if mcq.Type == models.McqLinked {
-			shouldUpdateMcq = true
-
-		}
+	mcq, ok := card.ValidateMCQ(user)
+	if !ok {
+		res.GenerateError(utils.ErrorRequestFailed)
+		return res
 	}
+
+	shouldUpdateMcq = mcq != nil
 
 	db.Save(card)
 

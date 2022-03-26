@@ -2,6 +2,7 @@ package queries
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -11,6 +12,31 @@ import (
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 )
+
+func UpdateSubUsers(card *models.Card, user *models.User) error {
+	var users []models.User
+	result := new(models.ResponseHTTP)
+
+	if result = GetSubUsers(card.DeckID); !result.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", user.Email, card.DeckID, result.Message),
+			models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, card.DeckID, card.ID)
+		_ = log.SendLog()
+		return errors.New("couldn't get sub users")
+	}
+
+	switch result.Data.(type) {
+	default:
+		return errors.New("couldn't get sub users")
+	case []models.User:
+		users = result.Data.([]models.User)
+	}
+
+	for i := range users {
+		_ = GenerateMemDate(users[i].ID, card.ID, card.DeckID)
+	}
+
+	return nil
+}
 
 // FillResponseDeck returns a filled models.ResponseDeck
 // This function might become a method of models.ResponseDeck

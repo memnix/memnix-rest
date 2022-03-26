@@ -2,7 +2,9 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"math/rand"
 	"time"
@@ -32,6 +34,35 @@ const (
 	CardInt
 	CardMCQ
 )
+
+func (card *Card) NotValidate() bool {
+	return len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == CardMCQ && card.McqID.Int32 == 0) || len(
+		card.Format) > utils.MaxCardFormatLen || len(
+		card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen
+}
+
+func (card *Card) ValidateMCQ(user *User) (*Mcq, bool) {
+	db := database.DBConn // DB Conn
+	mcq := new(Mcq)
+
+	if card.McqID.Int32 != 0 {
+		if err := db.First(&mcq, card.McqID).Error; err != nil {
+			log := CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), user.Email), LogQueryGetError).SetType(LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+			_ = log.SendLog()
+			return nil, false
+		}
+		if mcq.DeckID != card.DeckID {
+			log := CreateLog(fmt.Sprintf("Error on CreateNewCard: card.DeckID != mcq.DeckID from %s", user.Email), LogBadRequest).SetType(LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+			_ = log.SendLog()
+			return nil, false
+		}
+
+		if mcq.Type == McqLinked {
+			return mcq, true
+		}
+	}
+	return nil, true
+}
 
 // ToString returns CardType value as a string
 func (s CardType) ToString() string {
