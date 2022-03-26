@@ -314,7 +314,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more card to it.")
 	}
 
-	if !card.NotValidate() {
+	if card.NotValidate() {
 		log := models.CreateLog(fmt.Sprintf("BadRequest from %s on deck %d - CreateNewCard: BadRequest", auth.User.Email, card.DeckID), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorQALen)
