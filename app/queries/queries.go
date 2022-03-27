@@ -152,6 +152,22 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 	return true
 }
 
+// CheckMCQLimit verifies that a deck can handle more mcqs
+func CheckMCQLimit(deckID uint) bool {
+	db := database.DBConn // DB Conn
+	var count int64
+
+	if err := db.Table("mcqs").Where("mcqs.deck_id = ?", deckID).Count(&count).Error; err != nil {
+		return true
+	}
+
+	if count >= utils.MaxMcqDeck {
+		return false
+	}
+
+	return true
+}
+
 // CheckDeckLimit verifies that the user hasn't reached the limit
 func CheckDeckLimit(user *models.User) bool {
 	db := database.DBConn // DB Conn

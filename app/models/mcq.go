@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -61,6 +62,11 @@ func (mcq *Mcq) QueryLinkedAnswers() []string {
 	}
 
 	return responses
+}
+
+func (mcq *Mcq) NotValidate() bool {
+
+	return mcq.Type == McqStandalone && (len(mcq.Answers) < utils.MinMcqAnswersLen || len(mcq.Answers) > utils.MaxMcqAnswersLen) || len(mcq.Name) > utils.MaxMcqName || mcq.Name == ""
 }
 
 func (mcq *Mcq) FillWithLinkedAnswers() *ResponseHTTP {
