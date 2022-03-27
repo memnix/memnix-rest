@@ -342,6 +342,61 @@ func CreateNewCard(c *fiber.Ctx) error {
 	})
 }
 
+// PostSelfEvaluateResponse method
+// @Description Post a self evaluated response
+// @Summary posts a response
+// @Tags Card
+// @Produce json
+// @Success 200
+// @Accept json
+// @Router /v1/cards/selfresponse [post]
+func PostSelfEvaluateResponse(c *fiber.Ctx) error {
+	db := database.DBConn // DB Conn
+
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
+	response := new(models.CardSelfResponse)
+	card := new(models.Card)
+
+	if err := c.BodyParser(&response); err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on PostSelfEvaluateResponse: %s from %s", err.Error(), auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+	}
+
+	if response.Quality > 4 || response.Quality < 1 {
+		log := models.CreateLog(fmt.Sprintf("Error on PostSelfEvaluateResponse: Quality > 4 from %s", auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorBreak)
+	}
+
+	if err := db.Joins("Deck").First(&card, response.CardID).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on PostSelfEvaluateResponse: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusServiceUnavailable, err.Error())
+	}
+
+	res := queries.CheckAccess(auth.User.ID, card.Deck.ID, models.AccessStudent)
+	if !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - PostSelfEvaluateResponse: %s", auth.User.Email, card.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, card.DeckID, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	}
+
+	//TODO: Add error handling
+	_ = queries.PostSelfEvaluatedMem(&auth.User, card, response.Quality, response.Training)
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success post response",
+		Data:    nil,
+		Count:   1,
+	})
+}
+
 // PostResponse method
 // @Description Post a response and check it
 // @Summary posts a response

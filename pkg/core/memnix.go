@@ -6,6 +6,29 @@ import (
 	"strings"
 )
 
+// UpdateMemSelfEvaluated computes self evaluated mem
+func UpdateMemSelfEvaluated(r *models.Mem, training bool, quality uint) {
+	db := database.DBConn
+
+	mem := new(models.Mem)
+
+	mem.UserID, mem.CardID = r.UserID, r.CardID
+
+	mem.Quality = models.MemQualityNone
+	r.Quality = models.MemQuality(quality)
+
+	if training {
+		mem.ComputeTrainingEfactor(r.Efactor, r.Quality)
+	} else {
+		mem.ComputeEfactor(r.Efactor, r.Quality)
+	}
+
+	mem.Interval, mem.Repetition = r.Interval, r.Repetition
+
+	db.Save(r)
+	db.Create(mem)
+}
+
 // UpdateMemDate computes NextDate and set it
 func UpdateMemDate(mem *models.Mem) {
 	db := database.DBConn

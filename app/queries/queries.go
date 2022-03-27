@@ -187,10 +187,34 @@ func CheckDeckLimit(user *models.User) bool {
 	return true
 }
 
+// PostSelfEvaluatedMem updates Mem & MemDate
+func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, training bool) *models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+	res := new(models.ResponseHTTP)
+
+	memDate := new(models.MemDate)
+
+	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
+		user.ID, card.ID).First(&memDate).Error; err != nil {
+		res.GenerateError(utils.ErrorRequestFailed) // MemDate not found
+		// TODO: Create a default MemDate
+		return res
+	}
+
+	exMem := FetchMem(memDate.CardID, user.ID)
+	if exMem.Efactor == 0 {
+		exMem.FillDefaultValues(user.ID, card.ID)
+	}
+
+	core.UpdateMemSelfEvaluated(&exMem, training, quality)
+
+	res.GenerateSuccess("Success Post Mem", nil, 0)
+	return res
+}
+
 // PostMem updates MemDate & Mem
 func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
-	//TODO: Replace struct params with ids
 	res := new(models.ResponseHTTP)
 
 	memDate := new(models.MemDate)

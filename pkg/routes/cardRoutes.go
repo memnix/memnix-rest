@@ -17,7 +17,8 @@ func registerCardRoutes(r fiber.Router) {
 	r.Get("/mcqs/:deckID", controllers.GetMcqsByDeck) // Get MCQs by deckID
 
 	// Post
-	r.Post("/cards/response", controllers.PostResponse) // Post a response
+	r.Post("/cards/response", controllers.PostResponse)                 // Post a response
+	r.Post("/cards/selfresponse", controllers.PostSelfEvaluateResponse) // Post
 
 	// ADMIN ONLY
 	r.Get("/cards", controllers.GetAllCards)                   // Get all cards

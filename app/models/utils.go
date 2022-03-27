@@ -41,6 +41,13 @@ type CardResponse struct {
 	Training bool   `json:"training" example:"false"`
 }
 
+type CardSelfResponse struct {
+	Training bool `json:"training" example:"false"`
+	Quality  uint `json:"quality" example:"3"` // Min 0 - Max 4
+	CardID   uint `json:"card_id" example:"1"`
+	Card     Card
+}
+
 // CardResponseValidation struct
 type CardResponseValidation struct {
 	Validate bool   `json:"validate" example:"true"`
