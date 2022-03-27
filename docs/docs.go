@@ -352,6 +352,26 @@ var doc = `{
                 }
             }
         },
+        "/v1/cards/selfresponse": {
+            "post": {
+                "description": "Post a self evaluated response",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Card"
+                ],
+                "summary": "posts a response",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/cards/today": {
             "get": {
                 "description": "Get all today card",

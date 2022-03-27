@@ -403,6 +403,19 @@ paths:
       summary: posts a response
       tags:
       - Card
+  /v1/cards/selfresponse:
+    post:
+      consumes:
+      - application/json
+      description: Post a self evaluated response
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: posts a response
+      tags:
+      - Card
   /v1/cards/today:
     get:
       description: Get all today card
