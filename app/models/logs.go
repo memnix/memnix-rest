@@ -97,6 +97,7 @@ const (
 	LogSubscribe           LogEvent = "user.subscribe"
 	LogUnsubscribe         LogEvent = "user.unsubscribe"
 	LogUserDeckLimit       LogEvent = "user.deckLimit"
+	LogPublishRequest      LogEvent = "deck.publish"
 	LogDeckCreated         LogEvent = "deck.created"
 	LogDeckDeleted         LogEvent = "deck.deleted"
 	LogDeckEdited          LogEvent = "deck.edited"

@@ -22,6 +22,7 @@ func registerDeckRoutes(r fiber.Router) {
 	r.Post("/decks/:deckID/subscribe", controllers.SubToDeck)                   // Subscribe to a deck
 	r.Post("/decks/:deckID/unsubscribe", controllers.UnSubToDeck)               // Unsubscribe to a deck
 	r.Post("/decks/private/:key/:code/subscribe", controllers.SubToPrivateDeck) // Subscribe to a private deck using key and code
+	r.Post("/decks/:deckID/publish", controllers.PublishDeckRequest)            // Request to publish a deck
 
 	// Put
 	r.Put("/decks/:deckID/edit", controllers.UpdateDeckByID) // Update a deck by ID

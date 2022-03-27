@@ -418,18 +418,18 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 	}
 
 	if err := queries.GenerateAccess(&auth.User, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
 	if err := queries.PopulateMemDate(&auth.User, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("SubToPrivateDeck: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -439,6 +439,58 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 		Count:   0,
 	})
 
+}
+
+// PublishDeckRequest method
+// @Description Request to publish deck
+// @Summary publishes a deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Accept json
+// @Router /v1/decks/{deckID}/publish [post]
+func PublishDeckRequest(c *fiber.Ctx) error {
+	db := database.DBConn
+	id := c.Params("deckID")
+	deckidInt, _ := strconv.ParseUint(id, 10, 32)
+
+	deck := new(models.Deck)
+
+	// Check auth
+	/*
+		auth := CheckAuth(c, models.PermUser)
+		if !auth.Success {
+			return queries.AuthError(c, &auth)
+		} */
+
+	auth := AuthDebugMode(c)
+
+	if err := db.First(&deck, id).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on PublishDeckRequest: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - PublishDeckRequest: %s", auth.User.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
+	}
+
+	deck.Status = models.DeckWaitingReview
+
+	db.Save(deck)
+	// TODO: Error handling
+
+	log := models.CreateLog(fmt.Sprintf("PublishDeckRequest: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogPublishRequest).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	_ = log.SendLog()
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success sending a publish request to deck",
+		Data:    nil,
+		Count:   0,
+	})
 }
 
 // SubToDeck method
@@ -526,7 +578,6 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - UpdateDeckByID: %s", auth.User.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
-
 	}
 
 	if err := UpdateDeck(c, deck); !err.Success {
