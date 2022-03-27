@@ -457,13 +457,10 @@ func PublishDeckRequest(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	// Check auth
-	/*
-		auth := CheckAuth(c, models.PermUser)
-		if !auth.Success {
-			return queries.AuthError(c, &auth)
-		} */
-
-	auth := AuthDebugMode(c)
+	auth := CheckAuth(c, models.PermUser)
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
 
 	if err := db.First(&deck, id).Error; err != nil {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on PublishDeckRequest: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
