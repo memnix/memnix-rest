@@ -16,6 +16,7 @@ const MaxImageUrlLen = 200
 
 const MaxDeckNameLen = 42
 const MinDeckLen = 6
+const DeckKeyLen = 4
 
 const MaxMcqAnswersLen = 150
 const MinMcqAnswersLen = 4

@@ -31,11 +31,17 @@ definitions:
     type: object
   models.Deck:
     properties:
+      code:
+        example: "6452"
+        type: string
       deck_banner:
         example: A banner url
         type: string
       deck_description:
         example: A simple demo deck
+        type: string
+      deck_key:
+        example: MEM
         type: string
       deck_name:
         example: First Deck
@@ -575,6 +581,19 @@ paths:
         "200":
           description: ""
       summary: creates a deck
+      tags:
+      - Deck
+  /v1/decks/private/{key}/{code}/subscribe:
+    post:
+      consumes:
+      - application/json
+      description: Subscribe to a private deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: sub deck
       tags:
       - Deck
   /v1/decks/public:

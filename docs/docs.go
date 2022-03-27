@@ -585,6 +585,26 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/private/{key}/{code}/subscribe": {
+            "post": {
+                "description": "Subscribe to a private deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "sub deck",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/decks/public": {
             "get": {
                 "description": "Get all public deck",
@@ -995,6 +1015,10 @@ var doc = `{
         "models.Deck": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "6452"
+                },
                 "deck_banner": {
                     "type": "string",
                     "example": "A banner url"
@@ -1002,6 +1026,10 @@ var doc = `{
                 "deck_description": {
                     "type": "string",
                     "example": "A simple demo deck"
+                },
+                "deck_key": {
+                    "type": "string",
+                    "example": "MEM"
                 },
                 "deck_name": {
                     "type": "string",

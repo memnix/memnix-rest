@@ -153,16 +153,17 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 	return true
 }
 
-// CheckMCQLimit verifies that a deck can handle more mcqs
-func CheckMCQLimit(deckID uint) bool {
+// CheckCode prevents deck code from being duplicated
+func CheckCode(key, code string) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("mcqs").Where("mcqs.deck_id = ?", deckID).Count(&count).Error; err != nil {
+	if err := db.Table("decks").Where("decks.key = ? AND decks.code = ?", key, code).Count(&count).Error; err != nil {
+		// TODO: Handle error
 		return true
 	}
 
-	if count >= utils.MaxMcqDeck {
+	if count != 0 {
 		return false
 	}
 
