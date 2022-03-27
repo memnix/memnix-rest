@@ -65,7 +65,7 @@ func (deck *Deck) GenerateCode() {
 
 	rand.Shuffle(len(result), func(i, j int) { result[i], result[j] = result[j], result[i] })
 
-	deck.Code = strconv.Itoa(int(result[0]+result[1])/2) + strconv.Itoa(int(result[4])) + strconv.Itoa(int(result[2]+result[3])/2)
+	deck.Code = strconv.Itoa(int(result[0]+result[1])/2) + strconv.Itoa(result[4]) + strconv.Itoa(int(result[2]+result[3])/2)
 }
 
 // GetOwner returns the deck Owner
