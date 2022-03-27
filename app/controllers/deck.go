@@ -411,7 +411,7 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 		return queries.AuthError(c, &auth)
 	}
 
-	if err := db.Where("decks.key = ? AND decks.code = ?", key, code).First(&deck).Error; err != nil {
+	if err := db.Where("decks.key = ? AND decks.code = ? AND decks.share IS TRUE", key, code).First(&deck).Error; err != nil {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
