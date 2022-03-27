@@ -18,9 +18,10 @@ func registerDeckRoutes(r fiber.Router) {
 	r.Get("/decks/:deckID/users", controllers.GetAllSubUsers)   // Get all sub users
 
 	// Post
-	r.Post("/decks/new", controllers.CreateNewDeck)               // Create a new deck
-	r.Post("/decks/:deckID/subscribe", controllers.SubToDeck)     // Subscribe to a deck
-	r.Post("/decks/:deckID/unsubscribe", controllers.UnSubToDeck) // Unsubscribe to a deck
+	r.Post("/decks/new", controllers.CreateNewDeck)                             // Create a new deck
+	r.Post("/decks/:deckID/subscribe", controllers.SubToDeck)                   // Subscribe to a deck
+	r.Post("/decks/:deckID/unsubscribe", controllers.UnSubToDeck)               // Unsubscribe to a deck
+	r.Post("/decks/private/:key/:code/subscribe", controllers.SubToPrivateDeck) // Subscribe to a private deck using key and code
 
 	// Put
 	r.Put("/decks/:deckID/edit", controllers.UpdateDeckByID) // Update a deck by ID

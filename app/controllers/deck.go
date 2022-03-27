@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -294,7 +295,11 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
-	if len(deck.DeckName) < utils.MinDeckLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) < utils.MinDeckLen || len(deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageUrlLen {
+	if len(strings.TrimSpace(deck.Key)) != utils.DeckKeyLen {
+		deck.Key = strings.ToUpper(strings.ReplaceAll(deck.DeckName, " ", "")[0:utils.DeckKeyLen])
+	}
+
+	if deck.NotValidate() {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck: BadRequest", auth.User.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
@@ -304,6 +309,20 @@ func CreateNewDeck(c *fiber.Ctx) error {
 		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on CreateNewDeck: This user has reached his limit", auth.User.Email), models.LogUserDeckLimit).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, "You can't create more deck !")
+	}
+
+	deck.Key = strings.ToUpper(deck.Key)
+	deck.GenerateCode()
+
+	i := 0
+	for !queries.CheckCode(deck.Key, deck.Code) {
+		if i > 10 {
+			log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck Generate Code: Couldn't generate code after 10 attempts", auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+			_ = log.SendLog()
+			return queries.RequestError(c, http.StatusBadRequest, utils.ErrorRequestFailed)
+		}
+		deck.GenerateCode()
+		i++
 	}
 
 	deck.Status = models.DeckPrivate
@@ -369,6 +388,57 @@ func UnSubToDeck(c *fiber.Ctx) error {
 		Data:    nil,
 		Count:   0,
 	})
+}
+
+// SubToPrivateDeck method
+// @Description Subscribe to a deck
+// @Summary sub deck
+// @Tags Deck
+// @Produce json
+// @Success 200
+// @Accept json
+// @Router /v1/decks/private/{key}/{code}/subscribe [post]
+func SubToPrivateDeck(c *fiber.Ctx) error {
+	db := database.DBConn
+	key := c.Params("key")
+	code := c.Params("code")
+
+	deck := new(models.Deck)
+
+	// Check auth
+	auth := CheckAuth(c, models.PermUser)
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
+
+	if err := db.Where("decks.key = ? AND decks.code = ?", key, code).First(&deck).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	}
+
+	if err := queries.GenerateAccess(&auth.User, deck); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
+	}
+
+	if err := queries.PopulateMemDate(&auth.User, deck); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
+	}
+
+	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	_ = log.SendLog()
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success subscribing to deck",
+		Data:    nil,
+		Count:   0,
+	})
+
 }
 
 // SubToDeck method
@@ -477,29 +547,46 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 }
 
 // UpdateDeck function
-func UpdateDeck(c *fiber.Ctx, d *models.Deck) *models.ResponseHTTP {
+func UpdateDeck(c *fiber.Ctx, deck *models.Deck) *models.ResponseHTTP {
 	db := database.DBConn
 
-	deckStatus := d.Status
+	deckStatus := deck.Status
 
 	res := new(models.ResponseHTTP)
 
-	if err := c.BodyParser(&d); err != nil {
+	if err := c.BodyParser(&deck); err != nil {
 		res.GenerateError(err.Error())
 		return res
 	}
 
-	if d.Status != deckStatus {
+	if deck.Status != deckStatus {
 		res.GenerateError(utils.ErrorBreak)
 		return res
 	}
 
-	if len(d.DeckName) < utils.MinDeckLen || len(d.DeckName) > utils.MaxDeckNameLen || len(d.Description) < utils.MinDeckLen || len(d.Description) > utils.MaxDefaultLen || len(d.Banner) > utils.MaxImageUrlLen {
+	if deck.NotValidate() {
 		res.GenerateError(utils.ErrorDeckName)
 		return res
 	}
 
-	db.Save(d)
+	if len(strings.TrimSpace(deck.Key)) != utils.DeckKeyLen {
+		deck.Key = strings.ToUpper(strings.ReplaceAll(deck.DeckName, " ", "")[0:utils.DeckKeyLen])
+	}
+
+	deck.Key = strings.ToUpper(deck.Key)
+	deck.GenerateCode()
+
+	i := 0
+	for !queries.CheckCode(deck.Key, deck.Code) {
+		if i > 10 {
+			res.GenerateError(utils.ErrorRequestFailed)
+			return res
+		}
+		deck.GenerateCode()
+		i++
+	}
+
+	db.Save(deck)
 
 	res.GenerateSuccess("Success update deck", nil, 0)
 	return res
