@@ -77,10 +77,16 @@ func CreateMcq(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if mcq.Type == models.McqStandalone && (len(mcq.Answers) < utils.MinMcqAnswersLen || len(mcq.Answers) > utils.MaxMcqAnswersLen) || len(mcq.Name) > utils.MaxMcqName || mcq.Name == "" {
+	if res := queries.CheckCardLimit(auth.User.Permissions, mcq.DeckID); !res {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateMcq: This deck has reached his limit", auth.User.Email, mcq.DeckID), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, mcq.DeckID, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more mcq to it.")
+	}
+
+	if mcq.NotValidate() {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateMcq: BadRequest", auth.User.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
 		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusBadRequest, "You must provide at least 3 and max 150 answers for Standalone MCQ")
+		return queries.RequestError(c, http.StatusBadRequest, "You must provide at least 3 and at most 150 answers for Standalone MCQ")
 	}
 
 	db.Create(mcq)
