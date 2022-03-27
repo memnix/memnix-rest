@@ -6,6 +6,11 @@ Memnix Rest API
 
 ---
 
+## Memnix REST API
+
+Memnix REST is the rest API that is used by user interfaces to create decks and cards and play on MemnixAPP. It's using [Gofiber](https://github.com/gofiber/fiber) to 
+handle requests and [Gorm](https://github.com/go-gorm/gorm) as a layer for Postgres.
+
 ## Env
 
 Create a **.env** file
@@ -20,4 +25,4 @@ DB_DB = "mydb"
 DB_HOST="localhost"
 ```
 
-## Version v0.1.0-beta3
+## Version v0.1.0-beta4
