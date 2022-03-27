@@ -18,14 +18,17 @@ func (res *ResponseHTTP) Set(success bool, message string, data interface{}, cou
 	}
 }
 
+// GenerateError method
 func (res *ResponseHTTP) GenerateError(message string) {
 	res.Set(false, message, nil, 0)
 }
 
+// GenerateSuccess method
 func (res *ResponseHTTP) GenerateSuccess(message string, data interface{}, count int) {
 	res.Set(true, message, data, count)
 }
 
+// DeckConfig struct
 type DeckConfig struct {
 	TodaySetting bool `json:"settings_today"`
 }
