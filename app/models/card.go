@@ -35,12 +35,14 @@ const (
 	CardMCQ
 )
 
+// NotValidate performs validation of the Card
 func (card *Card) NotValidate() bool {
 	return len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == CardMCQ && card.McqID.Int32 == 0) || len(
 		card.Format) > utils.MaxCardFormatLen || len(
 		card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen
 }
 
+// ValidateMCQ makes sure that the mcq attached to a card is correct
 func (card *Card) ValidateMCQ(user *User) (*Mcq, bool) {
 	db := database.DBConn // DB Conn
 	mcq := new(Mcq)
@@ -78,6 +80,7 @@ func (s CardType) ToString() string {
 	}
 }
 
+// GetMCQAnswers returns mcq's answers
 func (card *Card) GetMCQAnswers() []string {
 	db := database.DBConn // DB Conn
 

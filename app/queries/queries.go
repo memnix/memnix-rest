@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// UpdateSubUsers generates MemDate for sub users
 func UpdateSubUsers(card *models.Card, user *models.User) error {
 	var users []models.User
 	result := new(models.ResponseHTTP)
@@ -268,6 +269,7 @@ func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 	return res
 }
 
+// FetchMem returns last mem of an user on a given card
 func FetchMem(cardID, userID uint) models.Mem {
 	db := database.DBConn // DB Conn
 
@@ -280,6 +282,7 @@ func FetchMem(cardID, userID uint) models.Mem {
 	return *mem
 }
 
+// GenerateMCQ returns a list of answer
 func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 
 	mem := FetchMem(memDate.CardID, userID)
@@ -297,6 +300,7 @@ func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 	return answersList
 }
 
+// FetchTrainingCards returns training cards
 func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	db := database.DBConn // DB Conn
@@ -327,6 +331,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 
 }
 
+// FetchTodayCard return today cards
 func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
 	t := time.Now()
@@ -360,6 +365,7 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	return res
 }
 
+// FetchNextTodayCard return next today card
 func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	responseCard := new(models.ResponseCard)
@@ -378,6 +384,7 @@ func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
 	return res
 }
 
+// FetchNextCard returns next card
 func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	responseCard := new(models.ResponseCard)

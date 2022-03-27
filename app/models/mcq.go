@@ -23,6 +23,7 @@ const (
 	McqLinked
 )
 
+// GetAnswers returns a list of answers
 func (mcq *Mcq) GetAnswers() []string {
 	answersList := mcq.ExtractAnswers()
 
@@ -39,14 +40,17 @@ func (mcq *Mcq) GetAnswers() []string {
 	return answersList
 }
 
+// ExtractAnswers method
 func (mcq *Mcq) ExtractAnswers() []string {
 	return strings.Split(mcq.Answers, ";")
 }
 
+// SetAnswers method
 func (mcq *Mcq) SetAnswers(answers []string) {
 	mcq.Answers = strings.Join(answers, ";")
 }
 
+// QueryLinkedAnswers returns linked answers
 func (mcq *Mcq) QueryLinkedAnswers() []string {
 	db := database.DBConn // DB Conn
 	var cards []Card
@@ -64,11 +68,12 @@ func (mcq *Mcq) QueryLinkedAnswers() []string {
 	return responses
 }
 
+// NotValidate performs validation of the mcq
 func (mcq *Mcq) NotValidate() bool {
-
 	return mcq.Type == McqStandalone && (len(mcq.Answers) < utils.MinMcqAnswersLen || len(mcq.Answers) > utils.MaxMcqAnswersLen) || len(mcq.Name) > utils.MaxMcqName || mcq.Name == ""
 }
 
+// FillWithLinkedAnswers method
 func (mcq *Mcq) FillWithLinkedAnswers() *ResponseHTTP {
 	res := new(ResponseHTTP)
 
@@ -83,6 +88,7 @@ func (mcq *Mcq) FillWithLinkedAnswers() *ResponseHTTP {
 	return res
 }
 
+// UpdateLinkedAnswers method to update the db
 func (mcq *Mcq) UpdateLinkedAnswers() *ResponseHTTP {
 	db := database.DBConn // DB Conn
 	res := new(ResponseHTTP)

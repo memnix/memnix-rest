@@ -17,6 +17,7 @@ type Log struct {
 	CardID    uint      `json:"cardid"`
 }
 
+// SendLog sends log to the rabbitmq channel
 func (l *Log) SendLog() error {
 
 	jsonObject, _ := l.ToJson()
@@ -26,6 +27,7 @@ func (l *Log) SendLog() error {
 	return err
 }
 
+// Set Log
 func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID, DeckID, CardID uint) {
 	l.Type = Type
 	l.Message = Message
@@ -37,16 +39,19 @@ func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID, DeckID, 
 
 }
 
+// CreateLog returns a new Log object
 func CreateLog(message string, event LogEvent) *Log {
 
 	return &Log{Message: message, Event: event, CreatedAt: time.Now()}
 }
 
+// SetType method
 func (l *Log) SetType(Type LogType) *Log {
 	l.Type = Type
 	return l
 }
 
+// AttachIDs method
 func (l *Log) AttachIDs(userID, deckID, cardID uint) *Log {
 	if userID != 0 {
 		l.UserID = userID
@@ -62,6 +67,7 @@ func (l *Log) AttachIDs(userID, deckID, cardID uint) *Log {
 	return l
 }
 
+// ToJson method
 func (l *Log) ToJson() ([]byte, error) {
 	body, err := json.Marshal(l)
 	if err != nil {
