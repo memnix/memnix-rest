@@ -726,6 +726,26 @@ var doc = `{
                 }
             }
         },
+        "/v1/decks/{deckID}/publish": {
+            "post": {
+                "description": "Request to publish deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "publishes a deck",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/decks/{deckID}/subscribe": {
             "post": {
                 "description": "Subscribe to a deck",
@@ -1015,13 +1035,13 @@ var doc = `{
         "models.Deck": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "6452"
-                },
                 "deck_banner": {
                     "type": "string",
                     "example": "A banner url"
+                },
+                "deck_code": {
+                    "type": "string",
+                    "example": "6452"
                 },
                 "deck_description": {
                     "type": "string",
@@ -1034,6 +1054,10 @@ var doc = `{
                 "deck_name": {
                     "type": "string",
                     "example": "First Deck"
+                },
+                "deck_share": {
+                    "type": "boolean",
+                    "example": true
                 },
                 "deck_status": {
                     "description": "1: Draft - 2: Private - 3: Published",
