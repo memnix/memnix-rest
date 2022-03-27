@@ -391,7 +391,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 }
 
 // SubToPrivateDeck method
-// @Description Subscribe to a deck
+// @Description Subscribe to a private deck
 // @Summary sub deck
 // @Tags Deck
 // @Produce json
