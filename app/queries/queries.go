@@ -141,7 +141,7 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("cards").Where("cards.deck_id = ?", deckID).Count(&count).Error; err != nil {
+	if err := db.Table("cards").Where("cards.deck_id = ? AND cards.deleted_at IS NULL", deckID).Count(&count).Error; err != nil {
 		//TODO: Handle error
 		return true
 	}
@@ -158,7 +158,7 @@ func CheckCode(key, code string) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("decks").Where("decks.key = ? AND decks.code = ?", key, code).Count(&count).Error; err != nil {
+	if err := db.Table("decks").Where("decks.key = ? AND decks.code = ? AND decks.deleted_at IS NULL", key, code).Count(&count).Error; err != nil {
 		// TODO: Handle error
 		return true
 	}
@@ -175,7 +175,7 @@ func CheckDeckLimit(user *models.User) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ?", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
+	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ? AND accesses.deleted_at IS NULL", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
 		//TODO: Handle error
 		return true
 	}
