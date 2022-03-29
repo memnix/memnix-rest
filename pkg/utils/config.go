@@ -1,7 +1,7 @@
 package utils
 
 const MaxDeckNormalUser = 5
-const MaxCardDeck = 100
+const MaxCardDeck = 200
 const MaxMcqDeck = 100
 
 const MaxPasswordLen = 50
