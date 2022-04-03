@@ -12,18 +12,20 @@ import (
 
 // Card structure
 type Card struct {
-	gorm.Model `swaggerignore:"true"`
-	Question   string `json:"card_question" example:"What's the answer to life ?"`
-	Answer     string `json:"card_answer" example:"42"`
-	DeckID     uint   `json:"deck_id" example:"1"`
-	Deck       Deck
-	Type       CardType      `json:"card_type" example:"0" gorm:"type:Int"`
-	Format     string        `json:"card_format" example:"Date / Name / Country"`
-	Image      string        `json:"card_image"` // Should be an url
-	Case       bool          `json:"card_case" gorm:"default:false"`
-	Spaces     bool          `json:"card_spaces" gorm:"default:false"`
-	McqID      sql.NullInt32 `json:"mcq_id" swaggerignore:"true"`
-	Mcq        Mcq
+	gorm.Model       `swaggerignore:"true"`
+	Question         string `json:"card_question" example:"What's the answer to life ?"`
+	Answer           string `json:"card_answer" example:"42"`
+	DeckID           uint   `json:"deck_id" example:"1"`
+	Deck             Deck
+	Type             CardType      `json:"card_type" example:"0" gorm:"type:Int"`
+	Format           string        `json:"card_format" example:"Date / Name / Country"`
+	Image            string        `json:"card_image"` // Should be an url
+	Case             bool          `json:"card_case" gorm:"default:false"`
+	Spaces           bool          `json:"card_spaces" gorm:"default:false"`
+	Explication      string        `json:"card_explication"`
+	ExplicationImage string        `json:"card_explication_image"`
+	McqID            sql.NullInt32 `json:"mcq_id" swaggerignore:"true"`
+	Mcq              Mcq
 }
 
 // CardType enum type

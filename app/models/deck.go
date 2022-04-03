@@ -19,6 +19,7 @@ type Deck struct {
 	Key         string     `json:"deck_key" example:"MEM"`
 	Code        string     `json:"deck_code" example:"6452"`
 	Share       bool       `json:"deck_share" example:"true" gorm:"default:false"`
+	Lang        string     `json:"deck_lang"`
 }
 
 // DeckStatus enum type
