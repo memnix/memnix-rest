@@ -41,7 +41,8 @@ const (
 func (card *Card) NotValidate() bool {
 	return len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == CardMCQ && card.McqID.Int32 == 0) || len(
 		card.Format) > utils.MaxCardFormatLen || len(
-		card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen
+		card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen || len(
+		card.ExplicationImage) > utils.MaxImageUrlLen || len(card.Explication) > utils.MaxCardExplicationLen
 }
 
 // ValidateMCQ makes sure that the mcq attached to a card is correct
