@@ -7,14 +7,15 @@ import (
 // Mem structure
 type Mem struct {
 	gorm.Model
-	UserID     uint `json:"user_id" example:"1"`
-	User       User
-	CardID     uint `json:"card_id" example:"1"`
-	Card       Card
-	Quality    MemQuality `json:"quality" example:"0"`
-	Repetition uint       `json:"repetition" example:"0" `
-	Efactor    float32    `json:"e_factor" example:"2.5"`
-	Interval   uint       `json:"interval" example:"0"`
+	UserID        uint `json:"user_id" example:"1"`
+	User          User
+	CardID        uint `json:"card_id" example:"1"`
+	Card          Card
+	Quality       MemQuality    `json:"quality" example:"0"`
+	Repetition    uint          `json:"repetition" example:"0" `
+	Efactor       float32       `json:"e_factor" example:"2.5"`
+	Interval      uint          `json:"interval" example:"0"`
+	LearningStage LearningStage `json:"learning_stage"`
 }
 
 // MemQuality enum type
