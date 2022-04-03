@@ -14,7 +14,7 @@ type Answer struct {
 
 // CardsResponse structure
 type CardsResponse struct {
-	CardID uint `json:"card_id""`
+	CardID uint `json:"card_id"`
 	Card   Card
 	Stage  LearningStage `json:"learning_stage"`
 }
@@ -30,7 +30,7 @@ type DeckResponsePreview struct {
 	DeckID        uint `json:"deck_id"`
 	Deck          Deck
 	ToLearnCount  int32 `json:"to_learn_count"`
-	LearningCount int32 `json:"learning_count"'`
+	LearningCount int32 `json:"learning_count"`
 	ToReviewCount int32 `json:"to_review_count"`
 	TotalCount    int32 `json:"total_count"`
 }
