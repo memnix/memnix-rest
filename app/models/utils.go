@@ -67,14 +67,16 @@ func (validation *CardResponseValidation) SetIncorrect() {
 
 // ResponseCard struct
 type ResponseCard struct {
-	Card    Card
-	Answers []string
+	Card          Card
+	Answers       []string
+	LearningStage LearningStage `json:"learning_stage"`
 }
 
 // Set ResponseCard values
-func (responseCard *ResponseCard) Set(card *Card, answers []string) {
+func (responseCard *ResponseCard) Set(memdate *MemDate, answers []string) {
 	responseCard.Answers = answers
-	responseCard.Card = *card
+	responseCard.Card = memdate.Card
+	responseCard.LearningStage = memdate.LearningStage
 }
 
 // ResponseAuth struct
