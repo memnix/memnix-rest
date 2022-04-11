@@ -364,7 +364,7 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	var memDates []models.MemDate
 
-	var m map[uint]*models.DeckResponse
+	m := make(map[uint][]models.ResponseCard)
 
 	if err := db.Joins(
 		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
@@ -384,14 +384,17 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	for index := range memDates {
 		answersList = GenerateMCQ(&memDates[index], userID)
 		responseCard.Set(&memDates[index], answersList)
-		m[responseCard.Card.DeckID].Cards = append(m[responseCard.Card.DeckID].Cards, *responseCard)
-
+		m[responseCard.Card.DeckID] = append(m[responseCard.Card.DeckID], *responseCard)
 	}
 
 	todayResponse := new(models.TodayResponse)
 
 	for key := range m {
-		todayResponse.DecksReponses = append(todayResponse.DecksReponses, *m[key])
+		deckResponse := new(models.DeckResponse)
+		deckResponse.DeckID = key
+		deckResponse.Cards = m[key]
+		deckResponse.Count = len(deckResponse.Cards)
+		todayResponse.DecksReponses = append(todayResponse.DecksReponses, *deckResponse)
 	}
 
 	todayResponse.Count = len(todayResponse.DecksReponses)
