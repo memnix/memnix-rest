@@ -12,36 +12,6 @@ import (
 	"strconv"
 )
 
-// GetTodayCard method
-// @Description Get next today card
-// @Summary gets a card
-// @Tags Card
-// @Produce json
-// @Success 200 {object} models.Card
-// @Deprecated
-// @Router /v1/cards/today/one [get]
-func GetTodayCard(c *fiber.Ctx) error {
-	res := new(models.ResponseHTTP)
-
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
-	if res = queries.FetchNextTodayCard(auth.User.ID); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on GetTodayCard: %s", auth.User.Email, res.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
-		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Get today's card",
-		Data:    res.Data,
-		Count:   1,
-	})
-}
-
 // GetAllTodayCard method
 // @Description Get all today card
 // @Summary gets a list of card
@@ -52,10 +22,11 @@ func GetTodayCard(c *fiber.Ctx) error {
 func GetAllTodayCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
+	auth := AuthDebugMode(c)
+	//auth := CheckAuth(c, models.PermUser) // Check auth
+	//if !auth.Success {
+	//	return queries.AuthError(c, &auth)
+	//}
 
 	if res = queries.FetchTodayCard(auth.User.ID); !res.Success {
 		log := models.CreateLog(fmt.Sprintf("Error on GetAllTodayCard: %s", res.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
@@ -107,69 +78,6 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 		Message: "Get today's card",
 		Data:    res.Data,
 		Count:   res.Count,
-	})
-}
-
-// GetNextCard method
-// @Description Get next card
-// @Summary gets a card
-// @Tags Card
-// @Deprecated
-// @Produce json
-// @Success 200 {object} models.Card
-// @Router /v1/cards/next [get]
-func GetNextCard(c *fiber.Ctx) error {
-
-	res := new(models.ResponseHTTP)
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
-	if res = queries.FetchNextCard(auth.User.ID, 0); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Error on GetNextCard: %s from %s", res.Message, auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
-		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Get next card",
-		Data:    res.Data,
-		Count:   1,
-	})
-}
-
-// GetNextCardByDeck method
-// @Description Get next card by deckID
-// @Summary get a card
-// @Tags Card
-// @Produce json
-// @Deprecated
-// @Success 200 {object} models.Card
-// @Router /v1/cards/{deckID}/next [get]
-func GetNextCardByDeck(c *fiber.Ctx) error {
-
-	deckID := c.Params("deckID")
-	deckIDInt, _ := strconv.Atoi(deckID)
-	res := new(models.ResponseHTTP)
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
-	if res = queries.FetchNextCard(auth.User.ID, uint(deckIDInt)); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Error on GetNextCardByDeck: %s from %s on deck %d", res.Message, auth.User.Email, deckIDInt), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckIDInt), 0)
-		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
-
-	}
-
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
-		Success: true,
-		Message: "Get next card by deck",
-		Data:    res.Data,
-		Count:   1,
 	})
 }
 

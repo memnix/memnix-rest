@@ -7,14 +7,15 @@ import (
 // Mem structure
 type Mem struct {
 	gorm.Model
-	UserID     uint `json:"user_id" example:"1"`
-	User       User
-	CardID     uint `json:"card_id" example:"1"`
-	Card       Card
-	Quality    MemQuality `json:"quality" example:"0"`
-	Repetition uint       `json:"repetition" example:"0" `
-	Efactor    float32    `json:"e_factor" example:"2.5"`
-	Interval   uint       `json:"interval" example:"0"`
+	UserID        uint `json:"user_id" example:"1"`
+	User          User
+	CardID        uint `json:"card_id" example:"1"`
+	Card          Card
+	Quality       MemQuality    `json:"quality" example:"0"`
+	Repetition    uint          `json:"repetition" example:"0" `
+	Efactor       float32       `json:"e_factor" example:"2.5"`
+	Interval      uint          `json:"interval" example:"0"`
+	LearningStage LearningStage `json:"learning_stage"`
 }
 
 // MemQuality enum type
@@ -38,6 +39,7 @@ func (mem *Mem) FillDefaultValues(userID, cardID uint) {
 	mem.Repetition = 0
 	mem.Efactor = 2.5
 	mem.Interval = 0
+	mem.LearningStage = StageToLearn
 }
 
 // ComputeEfactor calculates and sets new efactor using oldEfactor and MemQuality
@@ -88,14 +90,23 @@ func (mem *Mem) ComputeInterval(oldInterval uint, eFactor float32, repetition ui
 	}
 }
 
+func (mem *Mem) ComputeLearningStage() {
+	if mem.Repetition > 3 && mem.Repetition < 7 {
+		mem.LearningStage = StageReviewing
+	} else if mem.Repetition > 7 {
+		mem.LearningStage = StageKnown
+	} else {
+		mem.LearningStage = StageLearning
+	}
+}
+
 // ComputeQualitySuccess sets the answer Quality
 func (mem *Mem) ComputeQualitySuccess() {
-	if mem.GetCardType() == CardMCQ {
+	if mem.GetCardType() == CardMCQ || mem.LearningStage == StageToLearn {
 		mem.Quality = MemQualityError
+	} else if mem.LearningStage == StageKnown {
+		mem.Quality = MemQualityPerfect
 	} else {
-		if mem.Repetition > 3 {
-			mem.Quality = MemQualityPerfect
-		}
 		mem.Quality = MemQualityGoodMCQ
 	}
 }
@@ -103,19 +114,20 @@ func (mem *Mem) ComputeQualitySuccess() {
 // ComputeQualityFail sets the answer Quality
 func (mem *Mem) ComputeQualityFail() {
 	if mem.GetCardType() == CardMCQ {
-		if mem.Repetition <= 3 {
+		if mem.LearningStage == StageToLearn {
 			mem.Quality = MemQualityBlackout
+		} else {
+			mem.Quality = MemQualityErrorMCQ
 		}
+	} else if mem.LearningStage == StageLearning {
 		mem.Quality = MemQualityErrorMCQ
+	} else {
+		mem.Quality = MemQualityErrorHints
 	}
-	if mem.Repetition <= 4 {
-		mem.Quality = MemQualityErrorMCQ
-	}
-	mem.Quality = MemQualityErrorHints
 }
 
 // IsMCQ returns if the Mem should be an MCQ or not.
 // It doesn't include Card.Type checks
 func (mem *Mem) IsMCQ() bool {
-	return mem.Efactor <= 1.7 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 3)
+	return mem.LearningStage < StageReviewing || mem.Efactor <= 1.7 || mem.Repetition < 2 || (mem.Efactor <= 2.3 && mem.Repetition < 3)
 }

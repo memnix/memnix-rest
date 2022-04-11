@@ -80,11 +80,13 @@ func UpdateMem(r *models.Mem, validation bool) {
 	if validation {
 		mem.ComputeInterval(r.Interval, r.Efactor, r.Repetition)
 		mem.Repetition = r.Repetition + 1
+		mem.ComputeLearningStage()
 		r.ComputeQualitySuccess()
 
 	} else {
 		mem.Repetition = 0
 		mem.Interval = 0
+		mem.LearningStage = models.StageToLearn
 		r.ComputeQualityFail()
 	}
 

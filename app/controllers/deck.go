@@ -43,7 +43,6 @@ func GetAllDecks(c *fiber.Ctx) error {
 		Data:    decks,
 		Count:   len(decks),
 	})
-
 }
 
 // GetDeckByID method to get a deck

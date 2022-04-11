@@ -19,6 +19,7 @@ type Deck struct {
 	Key         string     `json:"deck_key" example:"MEM"`
 	Code        string     `json:"deck_code" example:"6452"`
 	Share       bool       `json:"deck_share" example:"true" gorm:"default:false"`
+	Lang        string     `json:"deck_lang"`
 }
 
 // DeckStatus enum type
@@ -46,7 +47,9 @@ func (s DeckStatus) ToString() string {
 
 // NotValidate performs validation of the deck
 func (deck *Deck) NotValidate() bool {
-	return len(deck.DeckName) < utils.MinDeckLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) < utils.MinDeckLen || len(deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageUrlLen // || len(strings.ReplaceAll(deck.DeckName, " ", "")) != utils.DeckKeyLen
+	return len(deck.DeckName) < utils.MinDeckLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) < utils.MinDeckLen || len(
+		deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageUrlLen || len(deck.Key) > utils.DeckKeyLen || len(
+		deck.Lang) > utils.MaxLangLen
 }
 
 // GenerateCode creates a random code from the deck key
