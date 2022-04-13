@@ -22,11 +22,10 @@ import (
 func GetAllTodayCard(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
 
-	auth := AuthDebugMode(c)
-	//auth := CheckAuth(c, models.PermUser) // Check auth
-	//if !auth.Success {
-	//	return queries.AuthError(c, &auth)
-	//}
+	auth := CheckAuth(c, models.PermUser) // Check auth
+	if !auth.Success {
+		return queries.AuthError(c, &auth)
+	}
 
 	if res = queries.FetchTodayCard(auth.User.ID); !res.Success {
 		log := models.CreateLog(fmt.Sprintf("Error on GetAllTodayCard: %s", res.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
