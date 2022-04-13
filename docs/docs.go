@@ -311,27 +311,6 @@ var doc = `{
                 }
             }
         },
-        "/v1/cards/next": {
-            "get": {
-                "description": "Get next card",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Card"
-                ],
-                "summary": "gets a card",
-                "deprecated": true,
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Card"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/cards/response": {
             "post": {
                 "description": "Post a response and check it",
@@ -395,27 +374,6 @@ var doc = `{
                 }
             }
         },
-        "/v1/cards/today/one": {
-            "get": {
-                "description": "Get next today card",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Card"
-                ],
-                "summary": "gets a card",
-                "deprecated": true,
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Card"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/cards/{cardID}": {
             "delete": {
                 "description": "Delete a card",
@@ -460,27 +418,6 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": ""
-                    }
-                }
-            }
-        },
-        "/v1/cards/{deckID}/next": {
-            "get": {
-                "description": "Get next card by deckID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Card"
-                ],
-                "summary": "get a card",
-                "deprecated": true,
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Card"
-                        }
                     }
                 }
             }
@@ -1021,6 +958,12 @@ var doc = `{
                 "card_case": {
                     "type": "boolean"
                 },
+                "card_explication": {
+                    "type": "string"
+                },
+                "card_explication_image": {
+                    "type": "string"
+                },
                 "card_format": {
                     "type": "string",
                     "example": "Date / Name / Country"
@@ -1070,6 +1013,9 @@ var doc = `{
                 "deck_key": {
                     "type": "string",
                     "example": "MEM"
+                },
+                "deck_lang": {
+                    "type": "string"
                 },
                 "deck_name": {
                     "type": "string",
