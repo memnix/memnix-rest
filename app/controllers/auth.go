@@ -134,15 +134,38 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
-func extractToken(c *fiber.Ctx) string {
-	token := c.Get("Authorization")
-	// Normally Authorization HTTP header.
-	onlyToken := strings.Split(token, " ")
-	if len(onlyToken) == 2 {
-		return onlyToken[1]
+func isConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
+	db := database.DBConn // DB Conn
+	tokenString := extractToken(c)
+	var user models.User
+
+	token, err := jwt.Parse(tokenString, jwtKeyFunc)
+	if err != nil {
+		return fiber.StatusForbidden, models.ResponseAuth{
+			Success: false,
+			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
+			User:    user,
+		}
 	}
 
-	return ""
+	claims := token.Claims.(jwt.MapClaims)
+
+	if res := db.Where("id = ?", claims["iss"]).First(&user); res.Error != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", res.Error), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
+		c.Status(fiber.StatusInternalServerError)
+		return fiber.StatusInternalServerError, models.ResponseAuth{
+			Success: false,
+			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
+			User:    user,
+		}
+	}
+
+	return fiber.StatusOK, models.ResponseAuth{
+		Success: true,
+		Message: "User is connected",
+		User:    user,
+	}
 }
 
 // User method to get connected user
@@ -156,25 +179,10 @@ func extractToken(c *fiber.Ctx) string {
 // @Security ApiKeyAuth
 // @Router /user [get]
 func User(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
 
-	tokenString := extractToken(c)
+	statusCode, response := isConnected(c)
 
-	token, err := jwt.Parse(tokenString, jwtKeyFunc)
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "Unauthenticated",
-		})
-	}
-
-	claims := token.Claims.(jwt.MapClaims)
-
-	var user models.User
-
-	db.Where("id = ?", claims["Issuer"]).First(&user)
-
-	return c.JSON(user)
+	return c.Status(statusCode).JSON(response)
 }
 
 func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
@@ -197,32 +205,14 @@ func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
 }
 
 func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
-	db := database.DBConn // DB Conn
-	tokenString := extractToken(c)
+	statusCode, response := isConnected(c)
 
-	token, err := jwt.Parse(tokenString, jwtKeyFunc)
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-
-		return models.ResponseAuth{
-			Message: "Unauthenticated",
-			Success: false,
-		}
+	if statusCode != fiber.StatusOK {
+		c.Status(statusCode)
+		return response
 	}
 
-	claims := token.Claims.(jwt.MapClaims)
-
-	var user models.User
-
-	if res := db.Where("id = ?", claims["Issuer"]).First(&user); res.Error != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
-		_ = log.SendLog()
-		c.Status(fiber.StatusInternalServerError)
-		return models.ResponseAuth{
-			Success: false,
-			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
-		}
-	}
+	user := response.User
 
 	if user.Permissions < p {
 		log := models.CreateLog(fmt.Sprintf("Permission error: %s | had %s but tried %s", user.Email, user.Permissions.ToString(), p.ToString()), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
@@ -269,6 +259,17 @@ func Logout(c *fiber.Ctx) error {
 		"message": "successfully logged out !",
 		"token":   "",
 	})
+}
+
+func extractToken(c *fiber.Ctx) string {
+	token := c.Get("Authorization")
+	// Normally Authorization HTTP header.
+	onlyToken := strings.Split(token, " ")
+	if len(onlyToken) == 2 {
+		return onlyToken[1]
+	}
+
+	return ""
 }
 
 func jwtKeyFunc(token *jwt.Token) (interface{}, error) {
