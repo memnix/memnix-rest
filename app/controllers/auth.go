@@ -64,9 +64,9 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// Login method to login user and return access with fresh token as a cookie
-// @Description Login user and return access with fresh token as a cookie
-// @Summary logins user and return access with fresh token as a cookie
+// Login method to login user and return access with fresh token
+// @Description Login user and return access with fresh token
+// @Summary logins user and return access with fresh token
 // @Tags Auth
 // @Produce json
 // @Param email body string true "Email"
@@ -110,8 +110,8 @@ func Login(c *fiber.Ctx) error {
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		Issuer:    strconv.Itoa(int(user.ID)),
-		ExpiresAt: time.Now().Add(time.Hour * 168).Unix(), //7 day
-	})
+		ExpiresAt: time.Now().Add(time.Hour * 336).Unix(), //14 day
+	}) // expires after 2 weeks
 
 	token, err := claims.SignedString([]byte(SecretKey))
 	if err != nil {
@@ -123,16 +123,6 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "memnix-jwt",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 168),
-		HTTPOnly: true,
-		SameSite: "none",
-		Secure:   true,
-	}
-	c.Cookie(&cookie)
-
 	log := models.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), models.LogUserLogin).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	if err = log.SendLog(); err != nil {
 		fmt.Println(err)
@@ -140,8 +130,19 @@ func Login(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"message": "Login Succeeded",
-		//"token": token,
+		"token":   token,
 	})
+}
+
+func extractToken(c *fiber.Ctx) string {
+	token := c.Get("Authorization")
+	// Normally Authorization HTTP header.
+	onlyToken := strings.Split(token, " ")
+	if len(onlyToken) == 2 {
+		return onlyToken[1]
+	}
+
+	return ""
 }
 
 // User method to get connected user
@@ -155,26 +156,23 @@ func Login(c *fiber.Ctx) error {
 // @Security ApiKeyAuth
 // @Router /user [get]
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("memnix-jwt")
 	db := database.DBConn // DB Conn
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
+	tokenString := extractToken(c)
 
+	token, err := jwt.Parse(tokenString, jwtKeyFunc)
 	if err != nil {
-
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"message": "Unauthenticated",
 		})
 	}
 
-	claims := token.Claims.(*jwt.StandardClaims)
+	claims := token.Claims.(jwt.MapClaims)
 
 	var user models.User
 
-	db.Where("id = ?", claims.Issuer).First(&user)
+	db.Where("id = ?", claims["Issuer"]).First(&user)
 
 	return c.JSON(user)
 }
@@ -199,12 +197,10 @@ func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
 }
 
 func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
-	cookie := c.Cookies("memnix-jwt")
 	db := database.DBConn // DB Conn
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
+	tokenString := extractToken(c)
 
+	token, err := jwt.Parse(tokenString, jwtKeyFunc)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 
@@ -214,11 +210,11 @@ func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
 		}
 	}
 
-	claims := token.Claims.(*jwt.StandardClaims)
+	claims := token.Claims.(jwt.MapClaims)
 
 	var user models.User
 
-	if res := db.Where("id = ?", claims.Issuer).First(&user); res.Error != nil {
+	if res := db.Where("id = ?", claims["Issuer"]).First(&user); res.Error != nil {
 		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		c.Status(fiber.StatusInternalServerError)
@@ -266,20 +262,15 @@ func Logout(c *fiber.Ctx) error {
 		})
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "memnix-jwt",
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: true,
-		SameSite: "none",
-		Secure:   true,
-	}
-	c.Cookie(&cookie)
-
 	log := models.CreateLog(fmt.Sprintf("Logout: %s - %s", auth.User.Username, auth.User.Email), models.LogUserLogout).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, 0, 0)
 	_ = log.SendLog()
 
 	return c.JSON(fiber.Map{
 		"message": "successfully logged out !",
+		"token":   "",
 	})
+}
+
+func jwtKeyFunc(token *jwt.Token) (interface{}, error) {
+	return []byte(SecretKey), nil
 }
