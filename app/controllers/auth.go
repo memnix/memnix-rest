@@ -27,7 +27,7 @@ var SecretKey = os.Getenv("SECRET") // SecretKey env variable
 // @Param credentials body models.RegisterStruct true "Credentials"
 // @Success 200 {object} models.User
 // @Failure 403 "Forbidden"
-// @Router /register [post]
+// @Router /v1/register [post]
 func Register(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -73,7 +73,7 @@ func Register(c *fiber.Ctx) error {
 // @Success 200 {object} models.LoginResponse
 // @Failure 400 "Incorrect password or email"
 // @Failure 500 "Internal error"
-// @Router /login [post]
+// @Router /v1/login [post]
 func Login(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -148,7 +148,7 @@ func Login(c *fiber.Ctx) error {
 // @Success 200 {object} models.ResponseAuth
 // @Failure 401 "Forbidden"
 // @Security Beaver
-// @Router /user [get]
+// @Router /v1/user [get]
 func User(c *fiber.Ctx) error {
 
 	statusCode, response := IsConnected(c) // Check if connected
@@ -164,7 +164,7 @@ func User(c *fiber.Ctx) error {
 // @Success 200 "Success"
 // @Failure 401 "Forbidden"
 // @Security Beaver
-// @Router /logout [post]
+// @Router /v1/logout [post]
 func Logout(c *fiber.Ctx) error {
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {

@@ -25,13 +25,52 @@ definitions:
       card_type:
         example: 0
         type: integer
-      deck:
-        $ref: '#/definitions/models.Deck'
       deck_id:
         example: 1
         type: integer
       mcq:
         $ref: '#/definitions/models.Mcq'
+    type: object
+  models.CardResponse:
+    properties:
+      card:
+        $ref: '#/definitions/models.Card'
+      card_id:
+        example: 1
+        type: integer
+      response:
+        example: "42"
+        type: string
+      training:
+        example: false
+        type: boolean
+    type: object
+  models.CardResponseValidation:
+    properties:
+      correct_answer:
+        example: "42"
+        type: string
+      message:
+        example: Correct answer
+        type: string
+      validate:
+        example: true
+        type: boolean
+    type: object
+  models.CardSelfResponse:
+    properties:
+      card:
+        $ref: '#/definitions/models.Card'
+      card_id:
+        example: 1
+        type: integer
+      quality:
+        description: Min 0 - Max 4
+        example: 3
+        type: integer
+      training:
+        example: false
+        type: boolean
     type: object
   models.Deck:
     properties:
@@ -60,6 +99,22 @@ definitions:
         example: 2
         type: integer
     type: object
+  models.DeckConfig:
+    properties:
+      settings_today:
+        type: boolean
+    type: object
+  models.DeckResponse:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/models.ResponseCard'
+        type: array
+      count:
+        type: integer
+      deck_id:
+        type: integer
+    type: object
   models.LoginResponse:
     properties:
       message:
@@ -76,8 +131,6 @@ definitions:
     type: object
   models.Mcq:
     properties:
-      deck:
-        $ref: '#/definitions/models.Deck'
       deck_id:
         example: 1
         type: integer
@@ -86,21 +139,6 @@ definitions:
       mcq_name:
         type: string
       mcq_type:
-        type: integer
-    type: object
-  models.PublicUser:
-    properties:
-      user_avatar:
-        example: avatar url
-        type: string
-      user_bio:
-        example: A simple demo bio
-        type: string
-      user_name:
-        type: string
-      user_permissions:
-        description: '0: User; 1: Mod; 2: Admin'
-        example: 0
         type: integer
     type: object
   models.RegisterStruct:
@@ -121,6 +159,17 @@ definitions:
       user:
         $ref: '#/definitions/models.User'
     type: object
+  models.ResponseCard:
+    properties:
+      answers:
+        items:
+          type: string
+        type: array
+      card:
+        $ref: '#/definitions/models.Card'
+      learning_stage:
+        type: integer
+    type: object
   models.ResponseDeck:
     properties:
       card_count:
@@ -131,8 +180,6 @@ definitions:
       deck_id:
         example: 1
         type: integer
-      owner:
-        $ref: '#/definitions/models.PublicUser'
       owner_id:
         example: 6
         type: integer
@@ -141,6 +188,15 @@ definitions:
         type: integer
       settings_today:
         type: boolean
+    type: object
+  models.TodayResponse:
+    properties:
+      count:
+        type: integer
+      decks_responses:
+        items:
+          $ref: '#/definitions/models.DeckResponse'
+        type: array
     type: object
   models.User:
     properties:
@@ -174,7 +230,493 @@ info:
   title: Memnix
   version: "1.0"
 paths:
-  /login:
+  /v1/cards/:
+    get:
+      deprecated: true
+      description: Get every card. Shouldn't really be used
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Card'
+            type: array
+      security:
+      - Admin: []
+      summary: gets all cards
+      tags:
+      - Card
+  /v1/cards/{cardID}:
+    delete:
+      description: Delete a card (must be a deck owner)
+      parameters:
+      - description: card id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: deletes a card
+      tags:
+      - Card
+  /v1/cards/{cardID}/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit a card
+      parameters:
+      - description: card to edit
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/models.Card'
+      - description: card id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Card'
+      security:
+      - Beaver: []
+      summary: edits a card
+      tags:
+      - Card
+  /v1/cards/{deckID}/training:
+    get:
+      description: Get training cards from a deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Card'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of cards
+      tags:
+      - Card
+  /v1/cards/deck/{deckID}:
+    get:
+      description: Get every card from a deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Card'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of card
+      tags:
+      - Card
+  /v1/cards/id/{id}:
+    get:
+      description: Get a card by id
+      parameters:
+      - description: Card ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Card'
+      security:
+      - Admin: []
+      summary: gets a card
+      tags:
+      - Card
+  /v1/cards/new:
+    post:
+      consumes:
+      - application/json
+      description: Create a new card (must be a deck editor)
+      parameters:
+      - description: Card to create
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/models.Card'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: creates a card
+      tags:
+      - Card
+  /v1/cards/response:
+    post:
+      consumes:
+      - application/json
+      description: Post a response and check it
+      parameters:
+      - description: Response
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/models.CardResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CardResponseValidation'
+      security:
+      - Beaver: []
+      summary: posts a response
+      tags:
+      - Card
+  /v1/cards/selfresponse:
+    post:
+      consumes:
+      - application/json
+      description: Post a self evaluated response
+      parameters:
+      - description: Self response
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/models.CardSelfResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: posts a response
+      tags:
+      - Card
+  /v1/cards/today:
+    get:
+      description: Get all today card
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TodayResponse'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of card
+      tags:
+      - Card
+  /v1/decks:
+    get:
+      deprecated: true
+      description: Get every deck. Shouldn't really be used !
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Deck'
+            type: array
+      security:
+      - Admin: []
+      summary: gets all decks
+      tags:
+      - Deck
+  /v1/decks/{deckID}:
+    delete:
+      description: Delete a deck (must be deck owner)
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: delete a deck
+      tags:
+      - Deck
+    get:
+      description: Get a deck by ID
+      parameters:
+      - description: Deck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: model
+      security:
+      - Admin: []
+      summary: get a deck
+      tags:
+      - Deck
+  /v1/decks/{deckID}/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit a deck
+      parameters:
+      - description: Deck to edit
+        in: body
+        name: deck
+        required: true
+        schema:
+          $ref: '#/definitions/models.Deck'
+      - description: Deck ID
+        in: path
+        name: deckID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: edits a deck
+      tags:
+      - Deck
+  /v1/decks/{deckID}/publish:
+    post:
+      description: Request to publish deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: publishes a deck
+      tags:
+      - Deck
+  /v1/decks/{deckID}/subscribe:
+    post:
+      description: Subscribe to a deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: sub deck
+      tags:
+      - Deck
+  /v1/decks/{deckID}/unsubscribe:
+    post:
+      description: Unsubscribe to a deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: unsub deck
+      tags:
+      - Deck
+  /v1/decks/{deckID}/users:
+    get:
+      description: Get all the sub users to a deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+      security:
+      - Admin: []
+      summary: gets a list of users
+      tags:
+      - Deck
+  /v1/decks/available:
+    get:
+      description: Get all public deck that you are not sub to
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResponseDeck'
+            type: array
+      security:
+      - Beaver: []
+      summary: get a list of deck
+      tags:
+      - Deck
+  /v1/decks/editor:
+    get:
+      description: Get decks the user is an editor
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResponseDeck'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of deck
+      tags:
+      - Deck
+  /v1/decks/new:
+    post:
+      consumes:
+      - application/json
+      description: Create a new deck
+      parameters:
+      - description: Deck to create
+        in: body
+        name: deck
+        required: true
+        schema:
+          $ref: '#/definitions/models.Deck'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Deck'
+      security:
+      - Beaver: []
+      summary: creates a deck
+      tags:
+      - Deck
+  /v1/decks/private/{key}/{code}/subscribe:
+    post:
+      description: Subscribe to a private deck
+      parameters:
+      - description: Deck unique Key
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Deck unique Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: sub deck
+      tags:
+      - Deck
+  /v1/decks/public:
+    get:
+      description: Get all public deck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Deck'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of deck
+      tags:
+      - Deck
+  /v1/decks/sub:
+    get:
+      description: Get decks a user is sub to
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResponseDeck'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of deck
+      tags:
+      - Deck
+  /v1/login:
     post:
       description: Login the user and return a fresh token
       parameters:
@@ -198,7 +740,7 @@ paths:
       summary: logins user and return a fresh token
       tags:
       - Auth
-  /logout:
+  /v1/logout:
     post:
       description: Logout the user and create a record in the log
       produces:
@@ -213,7 +755,98 @@ paths:
       summary: logouts the user
       tags:
       - Auth
-  /register:
+  /v1/mcqs/{deckID}:
+    get:
+      description: Get mcqs linked to the deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Mcq'
+            type: array
+      security:
+      - Beaver: []
+      summary: gets a list of mcqs
+      tags:
+      - Mcq
+  /v1/mcqs/{mcqID}:
+    delete:
+      description: Delete a mcq
+      parameters:
+      - description: MCQ ID
+        in: path
+        name: mcqID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: deletes a mcq
+      tags:
+      - Mcq
+  /v1/mcqs/{mcqID}/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit a mcq
+      parameters:
+      - description: MCQ to edit
+        in: body
+        name: mcq
+        required: true
+        schema:
+          $ref: '#/definitions/models.Mcq'
+      - description: MCQ ID
+        in: path
+        name: mcqID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: edits a mcq
+      tags:
+      - Mcq
+  /v1/mcqs/new:
+    post:
+      consumes:
+      - application/json
+      description: Create a new mcq
+      parameters:
+      - description: Mcq to create
+        in: body
+        name: mcq
+        required: true
+        schema:
+          $ref: '#/definitions/models.Mcq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - Beaver: []
+      summary: creates a mcq
+      tags:
+      - Mcq
+  /v1/register:
     post:
       description: Create a new user
       parameters:
@@ -235,7 +868,7 @@ paths:
       summary: creates a new user
       tags:
       - Auth
-  /user:
+  /v1/user:
     get:
       description: Get connected user
       produces:
@@ -252,446 +885,9 @@ paths:
       summary: gets connected user
       tags:
       - Auth
-  /v1/cards/:
-    get:
-      description: Get every card. Shouldn't really be used
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      summary: gets all cards
-      tags:
-      - Card
-  /v1/cards/{cardID}:
-    delete:
-      description: Delete a card
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: deletes a card
-      tags:
-      - Card
-  /v1/cards/{cardID}/edit:
-    put:
-      consumes:
-      - application/json
-      description: Edit a card
-      parameters:
-      - description: card to edit
-        in: body
-        name: card
-        required: true
-        schema:
-          $ref: '#/definitions/models.Card'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: edits a card
-      tags:
-      - Card
-  /v1/cards/{deckID}/training:
-    get:
-      description: Get training cards
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      summary: gets a list of cards
-      tags:
-      - Card
-  /v1/cards/deck/{deckID}:
-    get:
-      description: Get every card from a deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      summary: gets a list of card
-      tags:
-      - Card
-  /v1/cards/id/{id}:
-    get:
-      description: Get a card by tech id
-      parameters:
-      - description: Card ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Card'
-      summary: gets a card
-      tags:
-      - Card
-  /v1/cards/new:
-    post:
-      consumes:
-      - application/json
-      description: Create a new card
-      parameters:
-      - description: Card to create
-        in: body
-        name: card
-        required: true
-        schema:
-          $ref: '#/definitions/models.Card'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: creates a card
-      tags:
-      - Card
-  /v1/cards/response:
-    post:
-      consumes:
-      - application/json
-      description: Post a response and check it
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: posts a response
-      tags:
-      - Card
-  /v1/cards/selfresponse:
-    post:
-      consumes:
-      - application/json
-      description: Post a self evaluated response
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: posts a response
-      tags:
-      - Card
-  /v1/cards/today:
-    get:
-      description: Get all today card
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      summary: gets a list of card
-      tags:
-      - Card
-  /v1/decks:
-    get:
-      description: Get every deck. Shouldn't really be used, consider using /v1/decks/public
-        instead !
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Deck'
-      summary: gets all decks
-      tags:
-      - Deck
-  /v1/decks/{deckID}:
-    delete:
-      description: Delete a deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: delete a deck
-      tags:
-      - Deck
-    get:
-      description: Get a deck by tech ID
-      parameters:
-      - description: Deck ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: model
-      summary: get a deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/edit:
-    put:
-      consumes:
-      - application/json
-      description: Edit a deck
-      parameters:
-      - description: Deck to edit
-        in: body
-        name: deck
-        required: true
-        schema:
-          $ref: '#/definitions/models.Deck'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: edits a deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/publish:
-    post:
-      consumes:
-      - application/json
-      description: Request to publish deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: publishes a deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/subscribe:
-    post:
-      consumes:
-      - application/json
-      description: Subscribe to a deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: sub deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/unsubscribe:
-    post:
-      consumes:
-      - application/json
-      description: Unsubscribe to a deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: unsub deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/users:
-    get:
-      description: Get all the sub users to a deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
-      summary: gets a list of users
-      tags:
-      - Deck
-  /v1/decks/available:
-    get:
-      description: Get all public deck that you are not sub to
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ResponseDeck'
-            type: array
-      summary: get a list of deck
-      tags:
-      - Deck
-  /v1/decks/editor:
-    get:
-      description: Get decks the user is an editor
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ResponseDeck'
-            type: array
-      summary: gets a list of deck
-      tags:
-      - Deck
-  /v1/decks/new:
-    post:
-      consumes:
-      - application/json
-      description: Create a new deck
-      parameters:
-      - description: Deck to create
-        in: body
-        name: deck
-        required: true
-        schema:
-          $ref: '#/definitions/models.Deck'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: creates a deck
-      tags:
-      - Deck
-  /v1/decks/private/{key}/{code}/subscribe:
-    post:
-      consumes:
-      - application/json
-      description: Subscribe to a private deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: sub deck
-      tags:
-      - Deck
-  /v1/decks/public:
-    get:
-      description: Get all public deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Deck'
-            type: array
-      summary: gets a list of deck
-      tags:
-      - Deck
-  /v1/decks/sub:
-    get:
-      description: Get decks a user is sub to
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ResponseDeck'
-            type: array
-      summary: gets a list of deck
-      tags:
-      - Deck
-  /v1/mcqs/{deckID}:
-    get:
-      description: Get mcqs linked to the deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Mcq'
-            type: array
-      summary: gets a list of mcqs
-      tags:
-      - Mcq
-  /v1/mcqs/{mcqID}:
-    delete:
-      description: Delete a mcq
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: deletes a mcq
-      tags:
-      - Mcq
-  /v1/mcqs/{mcqID}/edit:
-    put:
-      consumes:
-      - application/json
-      description: Edit a mcq
-      parameters:
-      - description: mcq to edit
-        in: body
-        name: mcq
-        required: true
-        schema:
-          $ref: '#/definitions/models.Mcq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: edits a mcq
-      tags:
-      - Mcq
-  /v1/mcqs/new:
-    post:
-      consumes:
-      - application/json
-      description: Create a new mcq
-      parameters:
-      - description: Mcq to create
-        in: body
-        name: mcq
-        required: true
-        schema:
-          $ref: '#/definitions/models.Mcq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: creates a mcq
-      tags:
-      - Mcq
   /v1/users:
     get:
+      deprecated: true
       description: Get all users.  Shouldn't really be used
       produces:
       - application/json
@@ -700,25 +896,33 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+      security:
+      - Admin: []
       summary: gets a list of user
       tags:
       - User
   /v1/users/config/{deckId}/today:
     get:
+      consumes:
+      - application/json
       description: Set the today config for a deck
       parameters:
-      - description: ID
+      - description: Deck ID
         in: path
-        name: id
+        name: deckId
         required: true
         type: integer
+      - description: Deck Config
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeckConfig'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
+          description: ""
       summary: gets a user
       tags:
       - User
@@ -738,10 +942,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+      security:
+      - Admin: []
       summary: gets a user
       tags:
       - User
 securityDefinitions:
+  Admin:
+    in: header
+    name: Authorization
+    type: apiKey
   Beaver:
     in: header
     name: Authorization

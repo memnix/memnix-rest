@@ -17,6 +17,9 @@ import (
 // @securityDefinitions.apikey Beaver
 // @in header
 // @name Authorization
+// @securityDefinitions.apikey Admin
+// @in header
+// @name Authorization
 // @termsOfService https://github.com/memnix/memnix/blob/main/PRIVACY.md
 // @contact.name API Support
 // @contact.email contact@memnix.app
