@@ -31,12 +31,23 @@ func LoadVar() {
 		log.Fatal("Error loading .env file")
 	}
 
-	user = os.Getenv("DB_USER")         // Get DB_USER from env
-	password = os.Getenv("DB_PASSWORD") // Get DB_PASSWORD from env
-	host = os.Getenv("DB_HOST")         // Get DB_HOST from env
-	db = os.Getenv("DB_DB")             // Get DB_DB (db name) from env
-	port = os.Getenv("DB_PORT")         // Get DB_PORT from env
-	rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
+	if os.Getenv("APP_ENV") == "development" {
+		log.Println("Running in development mode")
+		user = os.Getenv("DEBUG_DB_USER")         // Get DB_USER from env
+		password = os.Getenv("DEBUG_DB_PASSWORD") // Get DB_PASSWORD from env
+		host = os.Getenv("DEBUG_DB_HOST")         // Get DB_HOST from env
+		db = os.Getenv("DEBUG_DB_DB")             // Get DB_DB (db name) from env
+		port = os.Getenv("DEBUG_DB_PORT")         // Get DB_PORT from env
+		rabbitMQ = os.Getenv("DEBUG_RABBIT_MQ")   // Get DB_PORT from env
+	} else {
+		log.Println("Running in production mode")
+		user = os.Getenv("DB_USER")         // Get DB_USER from env
+		password = os.Getenv("DB_PASSWORD") // Get DB_PASSWORD from env
+		host = os.Getenv("DB_HOST")         // Get DB_HOST from env
+		db = os.Getenv("DB_DB")             // Get DB_DB (db name) from env
+		port = os.Getenv("DB_PORT")         // Get DB_PORT from env
+		rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
+	}
 
 }
 
