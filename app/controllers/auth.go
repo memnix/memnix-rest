@@ -64,9 +64,9 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// Login method to login user and return access with fresh token as a cookie
-// @Description Login user and return access with fresh token as a cookie
-// @Summary logins user and return access with fresh token as a cookie
+// Login method to login user and return access with fresh token
+// @Description Login user and return access with fresh token
+// @Summary logins user and return access with fresh token
 // @Tags Auth
 // @Produce json
 // @Param email body string true "Email"
@@ -110,8 +110,8 @@ func Login(c *fiber.Ctx) error {
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		Issuer:    strconv.Itoa(int(user.ID)),
-		ExpiresAt: time.Now().Add(time.Hour * 168).Unix(), //7 day
-	})
+		ExpiresAt: time.Now().Add(time.Hour * 336).Unix(), //14 day
+	}) // expires after 2 weeks
 
 	token, err := claims.SignedString([]byte(SecretKey))
 	if err != nil {
@@ -123,16 +123,6 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "memnix-jwt",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 168),
-		HTTPOnly: true,
-		SameSite: "none",
-		Secure:   true,
-	}
-	c.Cookie(&cookie)
-
 	log := models.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), models.LogUserLogin).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	if err = log.SendLog(); err != nil {
 		fmt.Println(err)
@@ -140,8 +130,42 @@ func Login(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"message": "Login Succeeded",
-		//"token": token,
+		"token":   token,
 	})
+}
+
+func isConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
+	db := database.DBConn // DB Conn
+	tokenString := extractToken(c)
+	var user models.User
+
+	token, err := jwt.Parse(tokenString, jwtKeyFunc)
+	if err != nil {
+		return fiber.StatusForbidden, models.ResponseAuth{
+			Success: false,
+			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
+			User:    user,
+		}
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	if res := db.Where("id = ?", claims["iss"]).First(&user); res.Error != nil {
+		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", res.Error), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
+		c.Status(fiber.StatusInternalServerError)
+		return fiber.StatusInternalServerError, models.ResponseAuth{
+			Success: false,
+			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
+			User:    user,
+		}
+	}
+
+	return fiber.StatusOK, models.ResponseAuth{
+		Success: true,
+		Message: "User is connected",
+		User:    user,
+	}
 }
 
 // User method to get connected user
@@ -155,28 +179,10 @@ func Login(c *fiber.Ctx) error {
 // @Security ApiKeyAuth
 // @Router /user [get]
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("memnix-jwt")
-	db := database.DBConn // DB Conn
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
+	statusCode, response := isConnected(c)
 
-	if err != nil {
-
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "Unauthenticated",
-		})
-	}
-
-	claims := token.Claims.(*jwt.StandardClaims)
-
-	var user models.User
-
-	db.Where("id = ?", claims.Issuer).First(&user)
-
-	return c.JSON(user)
+	return c.Status(statusCode).JSON(response)
 }
 
 func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
@@ -199,34 +205,14 @@ func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
 }
 
 func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
-	cookie := c.Cookies("memnix-jwt")
-	db := database.DBConn // DB Conn
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
+	statusCode, response := isConnected(c)
 
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-
-		return models.ResponseAuth{
-			Message: "Unauthenticated",
-			Success: false,
-		}
+	if statusCode != fiber.StatusOK {
+		c.Status(statusCode)
+		return response
 	}
 
-	claims := token.Claims.(*jwt.StandardClaims)
-
-	var user models.User
-
-	if res := db.Where("id = ?", claims.Issuer).First(&user); res.Error != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
-		_ = log.SendLog()
-		c.Status(fiber.StatusInternalServerError)
-		return models.ResponseAuth{
-			Success: false,
-			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
-		}
-	}
+	user := response.User
 
 	if user.Permissions < p {
 		log := models.CreateLog(fmt.Sprintf("Permission error: %s | had %s but tried %s", user.Email, user.Permissions.ToString(), p.ToString()), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
@@ -266,20 +252,26 @@ func Logout(c *fiber.Ctx) error {
 		})
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "memnix-jwt",
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: true,
-		SameSite: "none",
-		Secure:   true,
-	}
-	c.Cookie(&cookie)
-
 	log := models.CreateLog(fmt.Sprintf("Logout: %s - %s", auth.User.Username, auth.User.Email), models.LogUserLogout).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, 0, 0)
 	_ = log.SendLog()
 
 	return c.JSON(fiber.Map{
 		"message": "successfully logged out !",
+		"token":   "",
 	})
+}
+
+func extractToken(c *fiber.Ctx) string {
+	token := c.Get("Authorization")
+	// Normally Authorization HTTP header.
+	onlyToken := strings.Split(token, " ")
+	if len(onlyToken) == 2 {
+		return onlyToken[1]
+	}
+
+	return ""
+}
+
+func jwtKeyFunc(token *jwt.Token) (interface{}, error) {
+	return []byte(SecretKey), nil
 }
