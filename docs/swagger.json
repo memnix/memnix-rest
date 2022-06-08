@@ -19,14 +19,14 @@
     "paths": {
         "/login": {
             "post": {
-                "description": "Login user and return access with fresh token as a cookie",
+                "description": "Login user and return access with fresh token",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Auth"
                 ],
-                "summary": "logins user and return access with fresh token as a cookie",
+                "summary": "logins user and return access with fresh token",
                 "parameters": [
                     {
                         "description": "Email",

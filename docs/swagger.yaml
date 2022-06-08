@@ -144,7 +144,7 @@ info:
 paths:
   /login:
     post:
-      description: Login user and return access with fresh token as a cookie
+      description: Login user and return access with fresh token
       parameters:
       - description: Email
         in: body
@@ -171,7 +171,7 @@ paths:
           description: Error
         "500":
           description: Internal error
-      summary: logins user and return access with fresh token as a cookie
+      summary: logins user and return access with fresh token
       tags:
       - Auth
   /logout:
