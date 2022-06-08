@@ -134,7 +134,7 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
-func isConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
+func IsConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
 	db := database.DBConn // DB Conn
 	tokenString := extractToken(c)
 	var user models.User
@@ -180,7 +180,7 @@ func isConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
 // @Router /user [get]
 func User(c *fiber.Ctx) error {
 
-	statusCode, response := isConnected(c)
+	statusCode, response := IsConnected(c)
 
 	return c.Status(statusCode).JSON(response)
 }
@@ -205,7 +205,7 @@ func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
 }
 
 func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
-	statusCode, response := isConnected(c)
+	statusCode, response := IsConnected(c)
 
 	if statusCode != fiber.StatusOK {
 		c.Status(statusCode)
