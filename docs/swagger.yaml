@@ -1,4 +1,4 @@
-basePath: /api
+basePath: /v1
 definitions:
   models.Card:
     properties:
@@ -60,6 +60,20 @@ definitions:
         example: 2
         type: integer
     type: object
+  models.LoginResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  models.LoginStruct:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   models.Mcq:
     properties:
       deck:
@@ -88,6 +102,24 @@ definitions:
         description: '0: User; 1: Mod; 2: Admin'
         example: 0
         type: integer
+    type: object
+  models.RegisterStruct:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.ResponseAuth:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+      user:
+        $ref: '#/definitions/models.User'
     type: object
   models.ResponseDeck:
     properties:
@@ -129,91 +161,68 @@ definitions:
         example: 0
         type: integer
     type: object
-host: https://api-memnix.yumenetwork.net
+host: http://192.168.1.151:1813/
 info:
   contact:
-    email: fiber@swagger.io
+    email: contact@memnix.app
     name: API Support
-  description: Memnix API documentation
+  description: Memnix API
   license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
+    name: BSD 3-Clause License
+    url: https://github.com/memnix/memnix-rest/blob/main/LICENSE
+  termsOfService: https://github.com/memnix/memnix/blob/main/PRIVACY.md
   title: Memnix
   version: "1.0"
 paths:
   /login:
     post:
-      description: Login user and return access with fresh token
+      description: Login the user and return a fresh token
       parameters:
-      - description: Email
+      - description: Credentials
         in: body
-        name: email
+        name: credentials
         required: true
         schema:
-          type: string
-      - description: Password
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/models.LoginStruct'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.LoginResponse'
         "400":
-          description: Incorrect password
-        "404":
-          description: Error
+          description: Incorrect password or email
         "500":
           description: Internal error
-      summary: logins user and return access with fresh token
+      summary: logins user and return a fresh token
       tags:
       - Auth
   /logout:
     post:
-      description: Logout to de-auth connected user and delete token
+      description: Logout the user and create a record in the log
       produces:
       - application/json
       responses:
         "200":
-          description: Logout
+          description: Success
         "401":
           description: Forbidden
-        "404":
-          description: Error
       security:
-      - ApiKeyAuth:
-        - user
-      summary: logouts and de-auth connected user and delete token
+      - Beaver: []
+      summary: logouts the user
       tags:
       - Auth
   /register:
     post:
-      description: Register a new user
+      description: Create a new user
       parameters:
-      - description: Email
+      - description: Credentials
         in: body
-        name: email
+        name: credentials
         required: true
         schema:
-          type: string
-      - description: Password
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
-      - description: Username
-        in: body
-        name: username
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/models.RegisterStruct'
       produces:
       - application/json
       responses:
@@ -223,27 +232,23 @@ paths:
             $ref: '#/definitions/models.User'
         "403":
           description: Forbidden
-        "404":
-          description: Error
-      summary: registers a new user
+      summary: creates a new user
       tags:
       - Auth
   /user:
     get:
-      description: To get connected user
+      description: Get connected user
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.ResponseAuth'
         "401":
           description: Forbidden
-        "404":
-          description: Error
       security:
-      - ApiKeyAuth: []
+      - Beaver: []
       summary: gets connected user
       tags:
       - Auth
@@ -737,8 +742,8 @@ paths:
       tags:
       - User
 securityDefinitions:
-  ApiKeyAuth:
-    in: cookie
-    name: memnix-jwt
+  Beaver:
+    in: header
+    name: Authorization
     type: apiKey
 swagger: "2.0"

@@ -13,17 +13,17 @@ import (
 
 // @title Memnix
 // @version 1.0
-// @description Memnix API documentation
-// @securityDefinitions.apikey ApiKeyAuth
-// @in cookie
-// @name memnix-jwt
-// @termsOfService http://swagger.io/terms/
+// @description Memnix API
+// @securityDefinitions.apikey Beaver
+// @in header
+// @name Authorization
+// @termsOfService https://github.com/memnix/memnix/blob/main/PRIVACY.md
 // @contact.name API Support
-// @contact.email fiber@swagger.io
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host https://api-memnix.yumenetwork.net
-// @BasePath /api
+// @contact.email contact@memnix.app
+// @license.name BSD 3-Clause License
+// @license.url https://github.com/memnix/memnix-rest/blob/main/LICENSE
+// @host http://192.168.1.151:1813/
+// @BasePath /v1
 func main() {
 	// Try to connect to the database
 	if err := database.Connect(); err != nil {

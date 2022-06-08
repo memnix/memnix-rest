@@ -17,14 +17,14 @@ var doc = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "https://github.com/memnix/memnix/blob/main/PRIVACY.md",
         "contact": {
             "name": "API Support",
-            "email": "fiber@swagger.io"
+            "email": "contact@memnix.app"
         },
         "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "name": "BSD 3-Clause License",
+            "url": "https://github.com/memnix/memnix-rest/blob/main/LICENSE"
         },
         "version": "{{.Version}}"
     },
@@ -33,31 +33,22 @@ var doc = `{
     "paths": {
         "/login": {
             "post": {
-                "description": "Login user and return access with fresh token",
+                "description": "Login the user and return a fresh token",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Auth"
                 ],
-                "summary": "logins user and return access with fresh token",
+                "summary": "logins user and return a fresh token",
                 "parameters": [
                     {
-                        "description": "Email",
-                        "name": "email",
+                        "description": "Credentials",
+                        "name": "credentials",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.LoginStruct"
                         }
                     }
                 ],
@@ -65,14 +56,11 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     },
                     "400": {
-                        "description": "Incorrect password"
-                    },
-                    "404": {
-                        "description": "Error"
+                        "description": "Incorrect password or email"
                     },
                     "500": {
                         "description": "Internal error"
@@ -84,68 +72,45 @@ var doc = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": [
-                            "user"
-                        ]
+                        "Beaver": []
                     }
                 ],
-                "description": "Logout to de-auth connected user and delete token",
+                "description": "Logout the user and create a record in the log",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Auth"
                 ],
-                "summary": "logouts and de-auth connected user and delete token",
+                "summary": "logouts the user",
                 "responses": {
                     "200": {
-                        "description": "Logout"
+                        "description": "Success"
                     },
                     "401": {
                         "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Error"
                     }
                 }
             }
         },
         "/register": {
             "post": {
-                "description": "Register a new user",
+                "description": "Create a new user",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Auth"
                 ],
-                "summary": "registers a new user",
+                "summary": "creates a new user",
                 "parameters": [
                     {
-                        "description": "Email",
-                        "name": "email",
+                        "description": "Credentials",
+                        "name": "credentials",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Username",
-                        "name": "username",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.RegisterStruct"
                         }
                     }
                 ],
@@ -158,9 +123,6 @@ var doc = `{
                     },
                     "403": {
                         "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Error"
                     }
                 }
             }
@@ -169,10 +131,10 @@ var doc = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "Beaver": []
                     }
                 ],
-                "description": "To get connected user",
+                "description": "Get connected user",
                 "produces": [
                     "application/json"
                 ],
@@ -184,14 +146,11 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseAuth"
                         }
                     },
                     "401": {
                         "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Error"
                     }
                 }
             }
@@ -1032,6 +991,28 @@ var doc = `{
                 }
             }
         },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LoginStruct": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Mcq": {
             "type": "object",
             "properties": {
@@ -1071,6 +1052,34 @@ var doc = `{
                     "description": "0: User; 1: Mod; 2: Admin",
                     "type": "integer",
                     "example": 0
+                }
+            }
+        },
+        "models.RegisterStruct": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResponseAuth": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },
@@ -1132,10 +1141,10 @@ var doc = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "Beaver": {
             "type": "apiKey",
-            "name": "memnix-jwt",
-            "in": "cookie"
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -1152,11 +1161,11 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "https://api-memnix.yumenetwork.net",
-	BasePath:    "/api",
+	Host:        "http://192.168.1.151:1813/",
+	BasePath:    "/v1",
 	Schemes:     []string{},
 	Title:       "Memnix",
-	Description: "Memnix API documentation",
+	Description: "Memnix API",
 }
 
 type s struct{}
