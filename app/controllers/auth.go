@@ -44,13 +44,14 @@ func Register(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
 	}
 
-	password, _ := bcrypt.GenerateFromPassword([]byte(data.Password), 14) // Hash password
+	password, _ := bcrypt.GenerateFromPassword([]byte(data.Password), 10) // Hash password
 	user := models.User{
 		Username: data.Username,
 		Email:    strings.ToLower(data.Email),
 		Password: password,
 	} // Create object
 
+	//TODO: manual checking for unique username and email
 	if err := db.Create(&user).Error; err != nil {
 		log := models.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), models.LogAlreadyUsedEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
