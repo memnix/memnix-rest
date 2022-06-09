@@ -16,6 +16,8 @@ import (
 // @Summary gets a list of mcqs
 // @Tags Mcq
 // @Produce json
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Success 200 {array} models.Mcq
 // @Router /v1/mcqs/{deckID} [get]
 func GetMcqsByDeck(c *fiber.Ctx) error {
@@ -53,6 +55,7 @@ func GetMcqsByDeck(c *fiber.Ctx) error {
 // @Produce json
 // @Accept json
 // @Param mcq body models.Mcq true "Mcq to create"
+// @Security Beaver
 // @Success 200
 // @Router /v1/mcqs/new [post]
 func CreateMcq(c *fiber.Ctx) error {
@@ -111,7 +114,9 @@ func CreateMcq(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200
 // @Accept json
-// @Param mcq body models.Mcq true "mcq to edit"
+// @Param mcq body models.Mcq true "MCQ to edit"
+// @Param mcqID path string true "MCQ ID"
+// @Security Beaver
 // @Router /v1/mcqs/{mcqID}/edit [put]
 func UpdateMcqById(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -194,6 +199,8 @@ func UpdateMcq(c *fiber.Ctx, mcq *models.Mcq) *models.ResponseHTTP {
 // @Tags Mcq
 // @Produce json
 // @Success 200
+// @Param mcqID path string true "MCQ ID"
+// @Security Beaver
 // @Router /v1/mcqs/{mcqID} [delete]
 func DeleteMcqById(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn

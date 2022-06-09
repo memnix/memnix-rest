@@ -93,6 +93,6 @@ type ResponseDeck struct {
 	Permission  AccessPermission `json:"permission" example:"1"`
 	CardCount   int64            `json:"card_count" example:"42"`
 	OwnerId     uint             `json:"owner_id" example:"6"`
-	Owner       PublicUser
-	ToggleToday bool `json:"settings_today" `
+	Owner       PublicUser       `swaggerignore:"true"`
+	ToggleToday bool             `json:"settings_today" `
 }

@@ -17,187 +17,27 @@ var doc = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "https://github.com/memnix/memnix/blob/main/PRIVACY.md",
         "contact": {
             "name": "API Support",
-            "email": "fiber@swagger.io"
+            "email": "contact@memnix.app"
         },
         "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "name": "BSD 3-Clause License",
+            "url": "https://github.com/memnix/memnix-rest/blob/main/LICENSE"
         },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
-            "post": {
-                "description": "Login user and return access with fresh token",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "logins user and return access with fresh token",
-                "parameters": [
-                    {
-                        "description": "Email",
-                        "name": "email",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "400": {
-                        "description": "Incorrect password"
-                    },
-                    "404": {
-                        "description": "Error"
-                    },
-                    "500": {
-                        "description": "Internal error"
-                    }
-                }
-            }
-        },
-        "/logout": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": [
-                            "user"
-                        ]
-                    }
-                ],
-                "description": "Logout to de-auth connected user and delete token",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "logouts and de-auth connected user and delete token",
-                "responses": {
-                    "200": {
-                        "description": "Logout"
-                    },
-                    "401": {
-                        "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Error"
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "description": "Register a new user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "registers a new user",
-                "parameters": [
-                    {
-                        "description": "Email",
-                        "name": "email",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Username",
-                        "name": "username",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Error"
-                    }
-                }
-            }
-        },
-        "/user": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To get connected user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "gets connected user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "401": {
-                        "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Error"
-                    }
-                }
-            }
-        },
         "/v1/cards/": {
             "get": {
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
                 "description": "Get every card. Shouldn't really be used",
                 "produces": [
                     "application/json"
@@ -206,6 +46,7 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "gets all cards",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -221,6 +62,11 @@ var doc = `{
         },
         "/v1/cards/deck/{deckID}": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get every card from a deck",
                 "produces": [
                     "application/json"
@@ -253,7 +99,12 @@ var doc = `{
         },
         "/v1/cards/id/{id}": {
             "get": {
-                "description": "Get a card by tech id",
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
+                "description": "Get a card by id",
                 "produces": [
                     "application/json"
                 ],
@@ -282,7 +133,12 @@ var doc = `{
         },
         "/v1/cards/new": {
             "post": {
-                "description": "Create a new card",
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Create a new card (must be a deck editor)",
                 "consumes": [
                     "application/json"
                 ],
@@ -313,6 +169,11 @@ var doc = `{
         },
         "/v1/cards/response": {
             "post": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Post a response and check it",
                 "consumes": [
                     "application/json"
@@ -324,15 +185,34 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "posts a response",
+                "parameters": [
+                    {
+                        "description": "Response",
+                        "name": "card",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CardResponse"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CardResponseValidation"
+                        }
                     }
                 }
             }
         },
         "/v1/cards/selfresponse": {
             "post": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Post a self evaluated response",
                 "consumes": [
                     "application/json"
@@ -344,6 +224,17 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "posts a response",
+                "parameters": [
+                    {
+                        "description": "Self response",
+                        "name": "card",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CardSelfResponse"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -353,6 +244,11 @@ var doc = `{
         },
         "/v1/cards/today": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get all today card",
                 "produces": [
                     "application/json"
@@ -367,7 +263,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Card"
+                                "$ref": "#/definitions/models.TodayResponse"
                             }
                         }
                     }
@@ -376,7 +272,12 @@ var doc = `{
         },
         "/v1/cards/{cardID}": {
             "delete": {
-                "description": "Delete a card",
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Delete a card (must be a deck owner)",
                 "produces": [
                     "application/json"
                 ],
@@ -384,6 +285,15 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "deletes a card",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "card id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -393,6 +303,11 @@ var doc = `{
         },
         "/v1/cards/{cardID}/edit": {
             "put": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Edit a card",
                 "consumes": [
                     "application/json"
@@ -413,18 +328,33 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/models.Card"
                         }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "card id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Card"
+                        }
                     }
                 }
             }
         },
         "/v1/cards/{deckID}/training": {
             "get": {
-                "description": "Get training cards",
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Get training cards from a deck",
                 "produces": [
                     "application/json"
                 ],
@@ -432,6 +362,15 @@ var doc = `{
                     "Card"
                 ],
                 "summary": "gets a list of cards",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deck ID",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -447,7 +386,12 @@ var doc = `{
         },
         "/v1/decks": {
             "get": {
-                "description": "Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !",
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
+                "description": "Get every deck. Shouldn't really be used !",
                 "produces": [
                     "application/json"
                 ],
@@ -455,11 +399,15 @@ var doc = `{
                     "Deck"
                 ],
                 "summary": "gets all decks",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Deck"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Deck"
+                            }
                         }
                     }
                 }
@@ -467,6 +415,11 @@ var doc = `{
         },
         "/v1/decks/available": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get all public deck that you are not sub to",
                 "produces": [
                     "application/json"
@@ -490,6 +443,11 @@ var doc = `{
         },
         "/v1/decks/editor": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get decks the user is an editor",
                 "produces": [
                     "application/json"
@@ -513,6 +471,11 @@ var doc = `{
         },
         "/v1/decks/new": {
             "post": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Create a new deck",
                 "consumes": [
                     "application/json"
@@ -537,17 +500,22 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Deck"
+                        }
                     }
                 }
             }
         },
         "/v1/decks/private/{key}/{code}/subscribe": {
             "post": {
-                "description": "Subscribe to a private deck",
-                "consumes": [
-                    "application/json"
+                "security": [
+                    {
+                        "Beaver": []
+                    }
                 ],
+                "description": "Subscribe to a private deck",
                 "produces": [
                     "application/json"
                 ],
@@ -555,6 +523,22 @@ var doc = `{
                     "Deck"
                 ],
                 "summary": "sub deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck unique Key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Deck unique Code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -564,6 +548,11 @@ var doc = `{
         },
         "/v1/decks/public": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get all public deck",
                 "produces": [
                     "application/json"
@@ -587,6 +576,11 @@ var doc = `{
         },
         "/v1/decks/sub": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get decks a user is sub to",
                 "produces": [
                     "application/json"
@@ -610,7 +604,12 @@ var doc = `{
         },
         "/v1/decks/{deckID}": {
             "get": {
-                "description": "Get a deck by tech ID",
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
+                "description": "Get a deck by ID",
                 "produces": [
                     "application/json"
                 ],
@@ -637,7 +636,12 @@ var doc = `{
                 }
             },
             "delete": {
-                "description": "Delete a deck",
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Delete a deck (must be deck owner)",
                 "produces": [
                     "application/json"
                 ],
@@ -645,6 +649,15 @@ var doc = `{
                     "Deck"
                 ],
                 "summary": "delete a deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -654,6 +667,11 @@ var doc = `{
         },
         "/v1/decks/{deckID}/edit": {
             "put": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Edit a deck",
                 "consumes": [
                     "application/json"
@@ -674,6 +692,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/models.Deck"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -685,10 +710,12 @@ var doc = `{
         },
         "/v1/decks/{deckID}/publish": {
             "post": {
-                "description": "Request to publish deck",
-                "consumes": [
-                    "application/json"
+                "security": [
+                    {
+                        "Beaver": []
+                    }
                 ],
+                "description": "Request to publish deck",
                 "produces": [
                     "application/json"
                 ],
@@ -696,6 +723,15 @@ var doc = `{
                     "Deck"
                 ],
                 "summary": "publishes a deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -705,10 +741,12 @@ var doc = `{
         },
         "/v1/decks/{deckID}/subscribe": {
             "post": {
-                "description": "Subscribe to a deck",
-                "consumes": [
-                    "application/json"
+                "security": [
+                    {
+                        "Beaver": []
+                    }
                 ],
+                "description": "Subscribe to a deck",
                 "produces": [
                     "application/json"
                 ],
@@ -716,6 +754,15 @@ var doc = `{
                     "Deck"
                 ],
                 "summary": "sub deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -725,10 +772,12 @@ var doc = `{
         },
         "/v1/decks/{deckID}/unsubscribe": {
             "post": {
-                "description": "Unsubscribe to a deck",
-                "consumes": [
-                    "application/json"
+                "security": [
+                    {
+                        "Beaver": []
+                    }
                 ],
+                "description": "Unsubscribe to a deck",
                 "produces": [
                     "application/json"
                 ],
@@ -745,6 +794,11 @@ var doc = `{
         },
         "/v1/decks/{deckID}/users": {
             "get": {
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
                 "description": "Get all the sub users to a deck",
                 "produces": [
                     "application/json"
@@ -766,8 +820,75 @@ var doc = `{
                 }
             }
         },
+        "/v1/login": {
+            "post": {
+                "description": "Login the user and return a fresh token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "logins user and return a fresh token",
+                "parameters": [
+                    {
+                        "description": "Credentials",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect password or email"
+                    },
+                    "500": {
+                        "description": "Internal error"
+                    }
+                }
+            }
+        },
+        "/v1/logout": {
+            "post": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Logout the user and create a record in the log",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "logouts the user",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
         "/v1/mcqs/new": {
             "post": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Create a new mcq",
                 "consumes": [
                     "application/json"
@@ -799,6 +920,11 @@ var doc = `{
         },
         "/v1/mcqs/{deckID}": {
             "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Get mcqs linked to the deck",
                 "produces": [
                     "application/json"
@@ -807,6 +933,15 @@ var doc = `{
                     "Mcq"
                 ],
                 "summary": "gets a list of mcqs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -822,6 +957,11 @@ var doc = `{
         },
         "/v1/mcqs/{mcqID}": {
             "delete": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Delete a mcq",
                 "produces": [
                     "application/json"
@@ -830,6 +970,15 @@ var doc = `{
                     "Mcq"
                 ],
                 "summary": "deletes a mcq",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "MCQ ID",
+                        "name": "mcqID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
@@ -839,6 +988,11 @@ var doc = `{
         },
         "/v1/mcqs/{mcqID}/edit": {
             "put": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
                 "description": "Edit a mcq",
                 "consumes": [
                     "application/json"
@@ -852,13 +1006,20 @@ var doc = `{
                 "summary": "edits a mcq",
                 "parameters": [
                     {
-                        "description": "mcq to edit",
+                        "description": "MCQ to edit",
                         "name": "mcq",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.Mcq"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "MCQ ID",
+                        "name": "mcqID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -868,8 +1029,75 @@ var doc = `{
                 }
             }
         },
+        "/v1/register": {
+            "post": {
+                "description": "Create a new user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "creates a new user",
+                "parameters": [
+                    {
+                        "description": "Credentials",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RegisterStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/v1/user": {
+            "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Get connected user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "gets connected user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAuth"
+                        }
+                    },
+                    "401": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
         "/v1/users": {
             "get": {
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
                 "description": "Get all users.  Shouldn't really be used",
                 "produces": [
                     "application/json"
@@ -878,6 +1106,7 @@ var doc = `{
                     "User"
                 ],
                 "summary": "gets a list of user",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -891,6 +1120,9 @@ var doc = `{
         "/v1/users/config/{deckId}/today": {
             "get": {
                 "description": "Set the today config for a deck",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -901,24 +1133,35 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID",
-                        "name": "id",
+                        "description": "Deck ID",
+                        "name": "deckId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Deck Config",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeckConfig"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
+                        "description": ""
                     }
                 }
             }
         },
         "/v1/users/id/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Admin": []
+                    }
+                ],
                 "description": "Get a user by ID.",
                 "produces": [
                     "application/json"
@@ -983,15 +1226,70 @@ var doc = `{
                     "type": "integer",
                     "example": 0
                 },
-                "deck": {
-                    "$ref": "#/definitions/models.Deck"
-                },
                 "deck_id": {
                     "type": "integer",
                     "example": 1
                 },
                 "mcq": {
                     "$ref": "#/definitions/models.Mcq"
+                }
+            }
+        },
+        "models.CardResponse": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "$ref": "#/definitions/models.Card"
+                },
+                "card_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "response": {
+                    "type": "string",
+                    "example": "42"
+                },
+                "training": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "models.CardResponseValidation": {
+            "type": "object",
+            "properties": {
+                "correct_answer": {
+                    "type": "string",
+                    "example": "42"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Correct answer"
+                },
+                "validate": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "models.CardSelfResponse": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "$ref": "#/definitions/models.Card"
+                },
+                "card_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "quality": {
+                    "description": "Min 0 - Max 4",
+                    "type": "integer",
+                    "example": 3
+                },
+                "training": {
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },
@@ -1032,12 +1330,56 @@ var doc = `{
                 }
             }
         },
+        "models.DeckConfig": {
+            "type": "object",
+            "properties": {
+                "settings_today": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.DeckResponse": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResponseCard"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "deck_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LoginStruct": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Mcq": {
             "type": "object",
             "properties": {
-                "deck": {
-                    "$ref": "#/definitions/models.Deck"
-                },
                 "deck_id": {
                     "type": "integer",
                     "example": 1
@@ -1053,24 +1395,48 @@ var doc = `{
                 }
             }
         },
-        "models.PublicUser": {
+        "models.RegisterStruct": {
             "type": "object",
             "properties": {
-                "user_avatar": {
-                    "type": "string",
-                    "example": "avatar url"
-                },
-                "user_bio": {
-                    "type": "string",
-                    "example": "A simple demo bio"
-                },
-                "user_name": {
+                "email": {
                     "type": "string"
                 },
-                "user_permissions": {
-                    "description": "0: User; 1: Mod; 2: Admin",
-                    "type": "integer",
-                    "example": 0
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResponseAuth": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "models.ResponseCard": {
+            "type": "object",
+            "properties": {
+                "answers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "card": {
+                    "$ref": "#/definitions/models.Card"
+                },
+                "learning_stage": {
+                    "type": "integer"
                 }
             }
         },
@@ -1088,9 +1454,6 @@ var doc = `{
                     "type": "integer",
                     "example": 1
                 },
-                "owner": {
-                    "$ref": "#/definitions/models.PublicUser"
-                },
                 "owner_id": {
                     "type": "integer",
                     "example": 6
@@ -1101,6 +1464,20 @@ var doc = `{
                 },
                 "settings_today": {
                     "type": "boolean"
+                }
+            }
+        },
+        "models.TodayResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "decks_responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeckResponse"
+                    }
                 }
             }
         },
@@ -1132,10 +1509,15 @@ var doc = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "Admin": {
             "type": "apiKey",
-            "name": "memnix-jwt",
-            "in": "cookie"
+            "name": "Authorization",
+            "in": "header"
+        },
+        "Beaver": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -1152,11 +1534,11 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "https://api-memnix.yumenetwork.net",
-	BasePath:    "/api",
+	Host:        "http://192.168.1.151:1813/",
+	BasePath:    "/v1",
 	Schemes:     []string{},
 	Title:       "Memnix",
-	Description: "Memnix API documentation",
+	Description: "Memnix API",
 }
 
 type s struct{}

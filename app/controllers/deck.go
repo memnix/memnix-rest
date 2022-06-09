@@ -16,12 +16,14 @@ import (
 
 // GET
 
-// GetAllDecks method to get all decks
-// @Description Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !
+// GetAllDecks function to get all decks
+// @Description Get every deck. Shouldn't really be used !
+// @Security Admin
+// @Deprecated
 // @Summary gets all decks
 // @Tags Deck
 // @Produce json
-// @Success 200 {object} models.Deck
+// @Success 200 {array} models.Deck
 // @Router /v1/decks [get]
 func GetAllDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -45,9 +47,10 @@ func GetAllDecks(c *fiber.Ctx) error {
 	})
 }
 
-// GetDeckByID method to get a deck
-// @Description Get a deck by tech ID
+// GetDeckByID function to get a deck
+// @Description Get a deck by ID
 // @Summary get a deck
+// @Security Admin
 // @Tags Deck
 // @Produce json
 // @Param id path int true "Deck ID"
@@ -83,6 +86,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 // @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
+// @Security Beaver
 // @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/sub [get]
 func GetAllSubDecks(c *fiber.Ctx) error {
@@ -123,6 +127,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 // @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
+// @Security Beaver
 // @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/editor [get]
 func GetAllEditorDecks(c *fiber.Ctx) error {
@@ -163,6 +168,7 @@ func GetAllEditorDecks(c *fiber.Ctx) error {
 // @Description Get all the sub users to a deck
 // @Summary gets a list of users
 // @Tags Deck
+// @Security Admin
 // @Produce json
 // @Success 200 {array} models.User
 // @Router /v1/decks/{deckID}/users [get]
@@ -171,7 +177,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 	// Params
 	deckID := c.Params("deckID")
 	result := new(models.ResponseHTTP)
-	auth := CheckAuth(c, models.PermUser) // Check auth
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
 		return queries.AuthError(c, &auth)
 	}
@@ -205,6 +211,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 // @Summary get a list of deck
 // @Tags Deck
 // @Produce json
+// @Security Beaver
 // @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/available [get]
 func GetAllAvailableDecks(c *fiber.Ctx) error {
@@ -243,6 +250,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 // @Description Get all public deck
 // @Summary gets a list of deck
 // @Tags Deck
+// @Security Beaver
 // @Produce json
 // @Success 200 {array} models.Deck
 // @Router /v1/decks/public [get]
@@ -274,7 +282,8 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 // @Summary creates a deck
 // @Tags Deck
 // @Produce json
-// @Success 200
+// @Security Beaver
+// @Success 200 {object} models.Deck
 // @Accept json
 // @Param deck body models.Deck true "Deck to create"
 // @Router /v1/decks/new [post]
@@ -348,9 +357,9 @@ func CreateNewDeck(c *fiber.Ctx) error {
 // @Description Unsubscribe to a deck
 // @Summary unsub deck
 // @Tags Deck
+// @Security Beaver
 // @Produce json
 // @Success 200
-// @Accept json
 // @Router /v1/decks/{deckID}/unsubscribe [post]
 func UnSubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -395,7 +404,9 @@ func UnSubToDeck(c *fiber.Ctx) error {
 // @Tags Deck
 // @Produce json
 // @Success 200
-// @Accept json
+// @Param key path string true "Deck unique Key"
+// @Param code path string true "Deck unique Code"
+// @Security Beaver
 // @Router /v1/decks/private/{key}/{code}/subscribe [post]
 func SubToPrivateDeck(c *fiber.Ctx) error {
 	db := database.DBConn
@@ -446,7 +457,8 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 // @Tags Deck
 // @Produce json
 // @Success 200
-// @Accept json
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID}/publish [post]
 func PublishDeckRequest(c *fiber.Ctx) error {
 	db := database.DBConn
@@ -495,8 +507,9 @@ func PublishDeckRequest(c *fiber.Ctx) error {
 // @Tags Deck
 // @Produce json
 // @Success 200
-// @Accept json
-// @Router /v1/decks/{deckID}/subscribe [post]
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
+//@Router /v1/decks/{deckID}/subscribe [post]
 func SubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	deckID := c.Params("deckID")
@@ -549,6 +562,8 @@ func SubToDeck(c *fiber.Ctx) error {
 // @Success 200
 // @Accept json
 // @Param deck body models.Deck true "Deck to edit"
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID}/edit [put]
 func UpdateDeckByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -640,11 +655,13 @@ func UpdateDeck(c *fiber.Ctx, deck *models.Deck) *models.ResponseHTTP {
 }
 
 // DeleteDeckById method
-// @Description Delete a deck
+// @Description Delete a deck (must be deck owner)
 // @Summary delete a deck
 // @Tags Deck
 // @Produce json
 // @Success 200
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID} [delete]
 func DeleteDeckById(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
