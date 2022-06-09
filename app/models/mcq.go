@@ -13,7 +13,7 @@ type Mcq struct {
 	Answers    string  `json:"mcq_answers"`
 	Type       McqType `json:"mcq_type"`
 	DeckID     uint    `json:"deck_id" example:"1"`
-	Deck       Deck
+	Deck       Deck    `swaggerignore:"true" json:"-"`
 }
 
 type McqType int64

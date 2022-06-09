@@ -23,22 +23,17 @@ func New() *fiber.App {
 	app.Get("/swagger/*", swagger.Handler) // default
 
 	// Api group
-	api := app.Group("/api")
+	v1 := app.Group("/v1")
 
-	api.Get("/", func(c *fiber.Ctx) error {
+	v1.Get("/", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
 	// Auth
-	api.Post("/register", controllers.Register)
-	api.Post("/login", controllers.Login)
-	api.Get("/user", controllers.User)
-	api.Post("/logout", controllers.Logout)
-
-	// v1 group "/api/v1"
-	v1 := api.Group("/v1", func(c *fiber.Ctx) error {
-		return c.Next()
-	})
+	v1.Post("/register", controllers.Register)
+	v1.Post("/login", controllers.Login)
+	v1.Get("/user", controllers.User)
+	v1.Post("/logout", controllers.Logout)
 
 	v1.Get("/", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error

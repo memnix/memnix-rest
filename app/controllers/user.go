@@ -21,6 +21,8 @@ import (
 // @Tags User
 // @Produce json
 // @Success 200 {object} models.User
+// @Security Admin
+// @Deprecated
 // @Router /v1/users [get]
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -51,6 +53,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "ID"
 // @Success 200 {object} models.User
+// @Security Admin
 // @Router /v1/users/id/{id} [get]
 func GetUserByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -82,8 +85,10 @@ func GetUserByID(c *fiber.Ctx) error {
 // @Summary gets a user
 // @Tags User
 // @Produce json
-// @Param id path int true "ID"
-// @Success 200 {object} models.User
+// @Accept json
+// @Param deckId path int true "Deck ID"
+// @Param config body models.DeckConfig true "Deck Config"
+// @Success 200
 // @Router /v1/users/config/{deckId}/today [get]
 func SetTodayConfig(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn

@@ -13,10 +13,10 @@ import (
 // Card structure
 type Card struct {
 	gorm.Model       `swaggerignore:"true"`
-	Question         string `json:"card_question" example:"What's the answer to life ?"`
-	Answer           string `json:"card_answer" example:"42"`
-	DeckID           uint   `json:"deck_id" example:"1"`
-	Deck             Deck
+	Question         string        `json:"card_question" example:"What's the answer to life ?"`
+	Answer           string        `json:"card_answer" example:"42"`
+	DeckID           uint          `json:"deck_id" example:"1"`
+	Deck             Deck          `swaggerignore:"true" json:"-"`
 	Type             CardType      `json:"card_type" example:"0" gorm:"type:Int"`
 	Format           string        `json:"card_format" example:"Date / Name / Country"`
 	Image            string        `json:"card_image"` // Should be an url

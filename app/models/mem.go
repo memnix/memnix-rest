@@ -6,11 +6,11 @@ import (
 
 // Mem structure
 type Mem struct {
-	gorm.Model
-	UserID        uint `json:"user_id" example:"1"`
-	User          User
-	CardID        uint `json:"card_id" example:"1"`
-	Card          Card
+	gorm.Model    `swaggerignore:"true"`
+	UserID        uint          `json:"user_id" example:"1"`
+	User          User          `swaggerignore:"true"`
+	CardID        uint          `json:"card_id" example:"1"`
+	Card          Card          `swaggerignore:"true"`
 	Quality       MemQuality    `json:"quality" example:"0"`
 	Repetition    uint          `json:"repetition" example:"0" `
 	Efactor       float32       `json:"e_factor" example:"2.5"`
