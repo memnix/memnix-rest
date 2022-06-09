@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"fmt"
@@ -8,35 +8,29 @@ import (
 	"github.com/memnix/memnixrest/pkg/routes"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
-
-	_ "github.com/arsmn/fiber-swagger/v2"
+	"testing"
 )
 
-// @title Memnix
-// @version 1.0
-// @description Memnix API
-// @securityDefinitions.apikey Beaver
-// @in header
-// @name Authorization
-// @securityDefinitions.apikey Admin
-// @in header
-// @name Authorization
-// @termsOfService https://github.com/memnix/memnix/blob/main/PRIVACY.md
-// @contact.name API Support
-// @contact.email contact@memnix.app
-// @license.name BSD 3-Clause License
-// @license.url https://github.com/memnix/memnix-rest/blob/main/LICENSE
-// @host http://192.168.1.151:1813/
-// @BasePath /v1
-func main() {
-	app := Setup() // Create the app
-
-	// Listen to port 1813
-	log.Fatal(app.Listen(":1813"))
-
+func TestSetup(t *testing.T) {
+	tests := []struct {
+		name string
+		want *fiber.App
+	}{
+		{
+			name: "TestSetup",
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := Setup(); got != nil {
+				t.Errorf("Setup() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
-func Setup() *fiber.App {
+func Setup() (error, *fiber.App) {
 	// Try to connect to the database
 	if err := database.Connect(); err != nil {
 		log.Panic("Can't connect database:", err.Error())
@@ -75,5 +69,5 @@ func Setup() *fiber.App {
 	// Create the app
 	app := routes.New()
 
-	return app
+	return nil, app
 }

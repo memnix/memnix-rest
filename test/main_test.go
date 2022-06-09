@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"bytes"
@@ -9,19 +9,24 @@ import (
 	"testing"
 )
 
-func TestAuthRoute(t *testing.T) {
-	tests := []struct {
-		description string
+type Test struct {
+	description string
 
-		// Test input
-		route   string
-		body    []byte
-		reqType string
-		// Expected output
-		expectedError bool
-		expectedCode  int
-		expectedBody  string
-	}{
+	// Test input
+	route   string
+	body    []byte
+	reqType string
+	// Expected output
+	expectedError bool
+	expectedCode  int
+	expectedBody  string
+}
+
+func testIndex() []Test {
+	var tests []Test
+
+	tests = []Test{
+
 		{
 			description:   "index",
 			route:         "/",
@@ -33,10 +38,17 @@ func TestAuthRoute(t *testing.T) {
 		},
 	}
 
-	app := Setup()
+	return tests
+}
+
+func TestRoute(t *testing.T) {
+
+	_, app := Setup()
+
+	tests := testIndex()
 
 	for _, test := range tests {
-		req, _ := http.NewRequest(test.reqType, test.route, bytes.NewBuffer(test.body))
+		req, _ := http.NewRequest(test.reqType, "/v1/"+test.route, bytes.NewBuffer(test.body))
 		// Perform the request plain with the app.
 		// The -1 disables request latency.
 		res, err := app.Test(req, -1)
