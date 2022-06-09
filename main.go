@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/routes"
@@ -25,6 +26,13 @@ import (
 // @host https://api-memnix.yumenetwork.net
 // @BasePath /api
 func main() {
+	app := Setup()
+
+	log.Fatal(app.Listen(":1813"))
+
+}
+
+func Setup() *fiber.App {
 	// Try to connect to the database
 	if err := database.Connect(); err != nil {
 		log.Panic("Can't connect database:", err.Error())
@@ -62,6 +70,7 @@ func main() {
 
 	// Create the app
 	app := routes.New()
+
+	return app
 	// Listen to port 1812
-	log.Fatal(app.Listen(":1813"))
 }
