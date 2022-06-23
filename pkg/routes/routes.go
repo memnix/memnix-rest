@@ -24,14 +24,14 @@ func New() *fiber.App {
 	}))
 
 	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestSpeed, // 1
+		Level: compress.LevelBestCompression, // 2
 	}))
 
 	app.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
 			return c.Query("refresh") == "true"
 		},
-		Expiration:   30 * time.Minute,
+		Expiration:   10 * time.Minute,
 		CacheControl: true,
 	}))
 
