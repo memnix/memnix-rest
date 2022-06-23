@@ -1,8 +1,11 @@
 package routes
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/memnix/memnixrest/app/controllers"
 	_ "github.com/memnix/memnixrest/docs"
+	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
 
@@ -18,6 +21,18 @@ func New() *fiber.App {
 		AllowOrigins:     "http://localhost, *",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
+	}))
+
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed, // 1
+	}))
+
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Query("refresh") == "true"
+		},
+		Expiration:   30 * time.Minute,
+		CacheControl: true,
 	}))
 
 	app.Get("/swagger/*", swagger.Handler) // default
