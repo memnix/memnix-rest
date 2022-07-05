@@ -60,7 +60,7 @@ func (mcq *Mcq) QueryLinkedAnswers() []string {
 
 	responses := make([]string, len(cards))
 	for i := range cards {
-		responses = append(responses, cards[i].Answer)
+		responses[i] = cards[i].Answer
 	}
 
 	return responses

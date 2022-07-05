@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"sort"
 	"time"
 
 	"github.com/memnix/memnixrest/app/models"
@@ -309,12 +308,13 @@ func FetchMem(cardID, userID uint) models.Mem {
 func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 	mem := FetchMem(memDate.CardID, userID)
 
-	var answersList []string
+	answersList := make([]string, 4)
 	if mem.IsMCQ() || memDate.Card.Type == models.CardMCQ {
 		answersList = memDate.Card.GetMCQAnswers()
 		if len(answersList) == 4 {
 			memDate.Card.Type = models.CardMCQ // MCQ
 		}
+
 		return answersList
 	}
 
@@ -340,8 +340,7 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	for i := range memDates {
 		answersList = GenerateMCQ(&memDates[i], userID)
 		responseCard.Set(&memDates[i], answersList)
-
-		result = append(result, *responseCard)
+		result[i] = *responseCard
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -391,10 +390,6 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 		deckResponse.Count = len(deckResponse.Cards)
 		todayResponse.DecksReponses = append(todayResponse.DecksReponses, *deckResponse)
 	}
-
-	sort.Slice(todayResponse.DecksReponses, func(i, j int) bool {
-		return todayResponse.DecksReponses[i].Count < todayResponse.DecksReponses[j].Count
-	})
 
 	todayResponse.Count = len(todayResponse.DecksReponses)
 
