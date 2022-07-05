@@ -4,13 +4,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/memnix/memnixrest/app/controllers"
-	_ "github.com/memnix/memnixrest/docs"
+	_ "github.com/memnix/memnixrest/docs" // Side effect import
 	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
 
-	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func New() *fiber.App {
@@ -35,7 +35,7 @@ func New() *fiber.App {
 		CacheControl: true,
 	}))
 
-	app.Get("/swagger/*", swagger.Handler) // default
+	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
 	// Api group
 	v1 := app.Group("/v1")

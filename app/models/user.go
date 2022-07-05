@@ -45,7 +45,7 @@ func (publicUser *PublicUser) Set(user *User) {
 	publicUser.Bio = user.Bio
 }
 
-//Permission enum type
+// Permission enum type
 type Permission int64
 
 const (

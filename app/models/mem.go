@@ -91,37 +91,40 @@ func (mem *Mem) ComputeInterval(oldInterval uint, eFactor float32, repetition ui
 }
 
 func (mem *Mem) ComputeLearningStage() {
-	if mem.Repetition > 3 && mem.Repetition < 7 {
+	switch {
+	case mem.Repetition > 3 && mem.Repetition < 7:
 		mem.LearningStage = StageReviewing
-	} else if mem.Repetition > 7 {
+	case mem.Repetition > 7:
 		mem.LearningStage = StageKnown
-	} else {
+	default:
 		mem.LearningStage = StageLearning
 	}
 }
 
 // ComputeQualitySuccess sets the answer Quality
 func (mem *Mem) ComputeQualitySuccess() {
-	if mem.GetCardType() == CardMCQ || mem.LearningStage == StageToLearn {
+	switch {
+	case mem.GetCardType() == CardMCQ || mem.LearningStage == StageToLearn:
 		mem.Quality = MemQualityError
-	} else if mem.LearningStage == StageKnown {
+	case mem.LearningStage == StageKnown:
 		mem.Quality = MemQualityPerfect
-	} else {
+	default:
 		mem.Quality = MemQualityGoodMCQ
 	}
 }
 
 // ComputeQualityFail sets the answer Quality
 func (mem *Mem) ComputeQualityFail() {
-	if mem.GetCardType() == CardMCQ {
+	switch {
+	case mem.GetCardType() == CardMCQ:
 		if mem.LearningStage == StageToLearn {
 			mem.Quality = MemQualityBlackout
 		} else {
 			mem.Quality = MemQualityErrorMCQ
 		}
-	} else if mem.LearningStage == StageLearning {
+	case mem.LearningStage == StageLearning:
 		mem.Quality = MemQualityErrorMCQ
-	} else {
+	default:
 		mem.Quality = MemQualityErrorHints
 	}
 }
