@@ -35,8 +35,8 @@ type DeckConfig struct {
 
 // CardResponse struct
 type CardResponse struct {
-	CardID   uint `json:"card_id" example:"1"`
-	Card     Card
+	CardID   uint   `json:"card_id" example:"1"`
+	Card     Card   `json:"-" swaggerignore:"true"`
 	Response string `json:"response" example:"42"`
 	Training bool   `json:"training" example:"false"`
 }
@@ -81,9 +81,9 @@ func (responseCard *ResponseCard) Set(memdate *MemDate, answers []string) {
 
 // ResponseAuth struct
 type ResponseAuth struct {
-	Success bool
-	User    User
-	Message string
+	Success bool   `json:"success"`
+	User    User   `json:"user"`
+	Message string `json:"message"`
 }
 
 // ResponseDeck struct

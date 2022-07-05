@@ -25,7 +25,7 @@ type Card struct {
 	Explication      string        `json:"card_explication"`
 	ExplicationImage string        `json:"card_explication_image"`
 	McqID            sql.NullInt32 `json:"mcq_id" swaggerignore:"true"`
-	Mcq              Mcq
+	Mcq              Mcq           `swaggerignore:"true" json:"-"`
 }
 
 // CardType enum type
