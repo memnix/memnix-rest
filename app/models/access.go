@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,7 @@ type Access struct {
 }
 
 // AccessPermission  enum type
-type AccessPermission int64
+type AccessPermission uint8
 
 const (
 	AccessNone AccessPermission = iota
@@ -35,7 +36,7 @@ func (s AccessPermission) ToString() string {
 	case AccessOwner:
 		return "Access Owner"
 	default:
-		return "Unknown"
+		return utils.UNKNOWN
 	}
 }
 

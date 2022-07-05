@@ -28,10 +28,8 @@ func (mcq *Mcq) GetAnswers() []string {
 	answersList := mcq.ExtractAnswers()
 
 	if mcq.Type == McqLinked {
-
 		answers := mcq.QueryLinkedAnswers()
 		if len(answers) != len(answersList) {
-
 			mcq.UpdateLinkedAnswers()
 			return answers
 		}
@@ -54,13 +52,13 @@ func (mcq *Mcq) SetAnswers(answers []string) {
 func (mcq *Mcq) QueryLinkedAnswers() []string {
 	db := database.DBConn // DB Conn
 	var cards []Card
-	var responses []string
 
 	if err := db.Joins("Mcq").Where("cards.mcq_id = ?", mcq.ID).Find(&cards).Error; err != nil {
-		return responses
+		return make([]string, 0)
 		//TODO: Error logging
 	}
 
+	responses := make([]string, len(cards))
 	for i := range cards {
 		responses = append(responses, cards[i].Answer)
 	}

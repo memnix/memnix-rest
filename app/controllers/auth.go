@@ -89,7 +89,7 @@ func Login(c *fiber.Ctx) error {
 	db.Where("email = ?", strings.ToLower(data.Email)).First(&user) // Get user
 
 	// handle error
-	if user.ID == 0 { //default Id when return nil
+	if user.ID == 0 { // default Id when return nil
 		// Create log
 		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), models.LogIncorrectEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()                // Send log
@@ -116,7 +116,7 @@ func Login(c *fiber.Ctx) error {
 	// Create token
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		Issuer:    strconv.Itoa(int(user.ID)),
-		ExpiresAt: time.Now().Add(time.Hour * 336).Unix(), //14 day
+		ExpiresAt: time.Now().Add(time.Hour * 336).Unix(), // 14 day
 	}) // expires after 2 weeks
 
 	token, err := claims.SignedString([]byte(SecretKey)) // Sign token
@@ -151,7 +151,6 @@ func Login(c *fiber.Ctx) error {
 // @Security Beaver
 // @Router /v1/user [get]
 func User(c *fiber.Ctx) error {
-
 	statusCode, response := IsConnected(c) // Check if connected
 
 	return c.Status(statusCode).JSON(response) // Return response

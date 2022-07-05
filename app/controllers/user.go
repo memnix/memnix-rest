@@ -105,7 +105,6 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&deckConfig); err != nil {
-
 		log := models.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())

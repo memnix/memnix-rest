@@ -107,7 +107,7 @@ func CreateMcq(c *fiber.Ctx) error {
 
 // PUT
 
-// UpdateMcqById method
+// UpdateMcqByID method
 // @Description Edit a mcq
 // @Summary edits a mcq
 // @Tags Mcq
@@ -118,7 +118,7 @@ func CreateMcq(c *fiber.Ctx) error {
 // @Param mcqID path string true "MCQ ID"
 // @Security Beaver
 // @Router /v1/mcqs/{mcqID}/edit [put]
-func UpdateMcqById(c *fiber.Ctx) error {
+func UpdateMcqByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
 	// Params
@@ -164,7 +164,7 @@ func UpdateMcqById(c *fiber.Ctx) error {
 func UpdateMcq(c *fiber.Ctx, mcq *models.Mcq) *models.ResponseHTTP {
 	db := database.DBConn
 
-	deckId := mcq.DeckID
+	deckID := mcq.DeckID
 
 	res := new(models.ResponseHTTP)
 
@@ -173,7 +173,7 @@ func UpdateMcq(c *fiber.Ctx, mcq *models.Mcq) *models.ResponseHTTP {
 		return res
 	}
 
-	if deckId != mcq.DeckID {
+	if deckID != mcq.DeckID {
 		res.GenerateError(utils.ErrorBreak)
 		return res
 	}
@@ -193,7 +193,7 @@ func UpdateMcq(c *fiber.Ctx, mcq *models.Mcq) *models.ResponseHTTP {
 	return res
 }
 
-// DeleteMcqById method
+// DeleteMcqByID method
 // @Description Delete a mcq
 // @Summary deletes a mcq
 // @Tags Mcq
@@ -202,7 +202,7 @@ func UpdateMcq(c *fiber.Ctx, mcq *models.Mcq) *models.ResponseHTTP {
 // @Param mcqID path string true "MCQ ID"
 // @Security Beaver
 // @Router /v1/mcqs/{mcqID} [delete]
-func DeleteMcqById(c *fiber.Ctx) error {
+func DeleteMcqByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	id := c.Params("id")
 
@@ -234,5 +234,4 @@ func DeleteMcqById(c *fiber.Ctx) error {
 		Data:    *mcq,
 		Count:   1,
 	})
-
 }

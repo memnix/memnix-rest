@@ -88,11 +88,11 @@ type ResponseAuth struct {
 
 // ResponseDeck struct
 type ResponseDeck struct {
-	DeckID      uint `json:"deck_id" example:"1"`
-	Deck        Deck
+	DeckID      uint             `json:"deck_id" example:"1"`
 	Permission  AccessPermission `json:"permission" example:"1"`
-	CardCount   int64            `json:"card_count" example:"42"`
-	OwnerId     uint             `json:"owner_id" example:"6"`
-	Owner       PublicUser       `swaggerignore:"true"`
+	CardCount   uint16           `json:"card_count" example:"42"`
 	ToggleToday bool             `json:"settings_today" `
+	OwnerID     uint             `json:"owner_id" example:"6"`
+	Owner       PublicUser       `swaggerignore:"true"`
+	Deck        Deck
 }

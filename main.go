@@ -42,7 +42,6 @@ func main() {
 	defer func(conn *amqp.Connection) {
 		_ = conn.Close()
 		fmt.Println("Disconnected to RabbitMQ")
-
 	}(database.RabbitMqConn)
 
 	// Close RabbitMQ channel
