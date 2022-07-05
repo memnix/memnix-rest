@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sort"
 	"time"
 
 	"github.com/memnix/memnixrest/app/models"
@@ -390,6 +391,10 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 		deckResponse.Count = len(deckResponse.Cards)
 		todayResponse.DecksReponses = append(todayResponse.DecksReponses, *deckResponse)
 	}
+
+	sort.Slice(todayResponse.DecksReponses, func(i, j int) bool {
+		return todayResponse.DecksReponses[i].Count < todayResponse.DecksReponses[j].Count
+	})
 
 	todayResponse.Count = len(todayResponse.DecksReponses)
 
