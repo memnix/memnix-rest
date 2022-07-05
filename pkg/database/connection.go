@@ -53,12 +53,10 @@ func LoadVar() {
 
 // Connect creates a connection to database
 func Connect() (err error) {
-
-	// Load var from .env file
-	LoadVar()
+	LoadVar() // Load var from .env file
 
 	// Convert port
-	port, err := strconv.Atoi(port)
+	dbPort, err := strconv.Atoi(port)
 	if err != nil {
 		return err
 	}
@@ -72,7 +70,7 @@ func Connect() (err error) {
 	)
 
 	// Create postgres connection string
-	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%d sslmode=disable", user, password, host, db, port)
+	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%d sslmode=disable", user, password, host, db, dbPort)
 	// Open connection
 	DBConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger:                 newLogger,

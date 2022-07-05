@@ -21,7 +21,7 @@ import (
 // @Security Beaver
 // @Router /v1/cards/today [get]
 func GetAllTodayCard(c *fiber.Ctx) error {
-	var res *models.ResponseHTTP
+	res := new(models.ResponseHTTP)
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
