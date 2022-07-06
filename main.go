@@ -26,9 +26,7 @@ import (
 // @license.url https://github.com/memnix/memnix-rest/blob/main/LICENSE
 // @host http://192.168.1.151:1813/
 // @BasePath /v1
-func main() {
-
-	// Try to connect to the database
+func main() { // Try to connect to the database
 	if err := database.Connect(); err != nil {
 		log.Panic("Can't connect database:", err.Error())
 	}
