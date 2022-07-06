@@ -7,8 +7,10 @@ import (
 	"github.com/memnix/memnixrest/pkg/routes"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
+	"net/http"
 
 	_ "github.com/arsmn/fiber-swagger/v2"
+	_ "net/http/pprof"
 )
 
 // @title Memnix
@@ -28,6 +30,11 @@ import (
 // @host http://192.168.1.151:1813/
 // @BasePath /v1
 func main() {
+	// Server for pprof
+	go func() {
+		log.Println(http.ListenAndServe(":6060", nil))
+	}()
+
 	// Try to connect to the database
 	if err := database.Connect(); err != nil {
 		log.Panic("Can't connect database:", err.Error())
