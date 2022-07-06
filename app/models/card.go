@@ -13,10 +13,10 @@ import (
 // Card structure
 type Card struct {
 	gorm.Model       `swaggerignore:"true"`
-	Question         string `json:"card_question" example:"What's the answer to life ?"`
-	Answer           string `json:"card_answer" example:"42"`
-	DeckID           uint   `json:"deck_id" example:"1"`
-	Deck             Deck
+	Question         string        `json:"card_question" example:"What's the answer to life ?"`
+	Answer           string        `json:"card_answer" example:"42"`
+	DeckID           uint          `json:"deck_id" example:"1"`
+	Deck             Deck          `swaggerignore:"true" json:"-"`
 	Type             CardType      `json:"card_type" example:"0" gorm:"type:Int"`
 	Format           string        `json:"card_format" example:"Date / Name / Country"`
 	Image            string        `json:"card_image"` // Should be an url
@@ -25,7 +25,7 @@ type Card struct {
 	Explication      string        `json:"card_explication"`
 	ExplicationImage string        `json:"card_explication_image"`
 	McqID            sql.NullInt32 `json:"mcq_id" swaggerignore:"true"`
-	Mcq              Mcq
+	Mcq              Mcq           `swaggerignore:"true" json:"-"`
 }
 
 // CardType enum type
@@ -41,8 +41,8 @@ const (
 func (card *Card) NotValidate() bool {
 	return len(card.Question) < utils.MinCardQuestionLen || card.Answer == "" || (card.Type == CardMCQ && card.McqID.Int32 == 0) || len(
 		card.Format) > utils.MaxCardFormatLen || len(
-		card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageUrlLen || len(
-		card.ExplicationImage) > utils.MaxImageUrlLen || len(card.Explication) > utils.MaxCardExplicationLen
+		card.Question) > utils.MaxDefaultLen || len(card.Answer) > utils.MaxDefaultLen || len(card.Image) > utils.MaxImageURLLen || len(
+		card.ExplicationImage) > utils.MaxImageURLLen || len(card.Explication) > utils.MaxCardExplicationLen
 }
 
 // ValidateMCQ makes sure that the mcq attached to a card is correct
@@ -79,7 +79,7 @@ func (s CardType) ToString() string {
 	case CardMCQ:
 		return "Card MCQ"
 	default:
-		return "Unknown"
+		return utils.UNKNOWN
 	}
 }
 

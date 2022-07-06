@@ -12,18 +12,18 @@ import (
 // Deck structure
 type Deck struct {
 	gorm.Model  `swaggerignore:"true"`
+	Share       bool       `json:"deck_share" example:"true" gorm:"default:false"`
+	Status      DeckStatus `json:"deck_status" example:"2"` // 1: Draft - 2: Private - 3: Published
 	DeckName    string     `json:"deck_name" example:"First Deck"`
 	Description string     `json:"deck_description" example:"A simple demo deck"`
 	Banner      string     `json:"deck_banner" example:"A banner url"`
-	Status      DeckStatus `json:"deck_status" example:"2"` // 1: Draft - 2: Private - 3: Published
 	Key         string     `json:"deck_key" example:"MEM"`
 	Code        string     `json:"deck_code" example:"6452"`
-	Share       bool       `json:"deck_share" example:"true" gorm:"default:false"`
 	Lang        string     `json:"deck_lang"`
 }
 
 // DeckStatus enum type
-type DeckStatus int64
+type DeckStatus uint8
 
 const (
 	DeckPrivate DeckStatus = iota + 1
@@ -48,7 +48,7 @@ func (s DeckStatus) ToString() string {
 // NotValidate performs validation of the deck
 func (deck *Deck) NotValidate() bool {
 	return len(deck.DeckName) < utils.MinDeckLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) < utils.MinDeckLen || len(
-		deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageUrlLen || len(deck.Key) > utils.DeckKeyLen || len(
+		deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageURLLen || len(deck.Key) > utils.DeckKeyLen || len(
 		deck.Lang) > utils.MaxLangLen
 }
 
@@ -67,7 +67,7 @@ func (deck *Deck) GenerateCode() {
 
 	rand.Shuffle(len(result), func(i, j int) { result[i], result[j] = result[j], result[i] })
 
-	deck.Code = strconv.Itoa(int(result[0]+result[1])/2) + strconv.Itoa(result[4]) + strconv.Itoa(int(result[2]+result[3])/2)
+	deck.Code = strconv.Itoa(result[0]+result[1]/2) + strconv.Itoa(result[4]) + strconv.Itoa(result[2]+result[3]/2)
 }
 
 // GetOwner returns the deck Owner

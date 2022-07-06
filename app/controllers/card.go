@@ -12,15 +12,16 @@ import (
 	"strconv"
 )
 
-// GetAllTodayCard method
+// GetAllTodayCard function to get all today card for a user
 // @Description Get all today card
 // @Summary gets a list of card
 // @Tags Card
 // @Produce json
-// @Success 200 {array} models.Card
+// @Success 200  {array} models.TodayResponse
+// @Security Beaver
 // @Router /v1/cards/today [get]
 func GetAllTodayCard(c *fiber.Ctx) error {
-	res := new(models.ResponseHTTP)
+	var res *models.ResponseHTTP
 
 	auth := CheckAuth(c, models.PermUser) // Check auth
 	if !auth.Success {
@@ -41,12 +42,14 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 	})
 }
 
-// GetTrainingCardsByDeck method
-// @Description Get training cards
+// GetTrainingCardsByDeck function to get training cards by deck
+// @Description Get training cards from a deck
 // @Summary gets a list of cards
 // @Tags Card
 // @Produce json
 // @Success 200 {array} models.Card
+// @Param deckId path int true "Deck ID"
+// @Security Beaver
 // @Router /v1/cards/{deckID}/training [get]
 func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	res := new(models.ResponseHTTP)
@@ -57,17 +60,17 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	}
 
 	deckID := c.Params("deckID")
-	deckIdInt, _ := strconv.ParseInt(deckID, 10, 32)
+	deckIDInt, _ := strconv.ParseInt(deckID, 10, 32)
 
-	access := queries.CheckAccess(auth.User.ID, uint(deckIdInt), models.AccessStudent)
+	access := queries.CheckAccess(auth.User.ID, uint(deckIDInt), models.AccessStudent)
 	if !access.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - GetTodayCard: %s", auth.User.Email, deckIdInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckIdInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - GetTodayCard: %s", auth.User.Email, deckIDInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckIDInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	if res = queries.FetchTrainingCards(auth.User.ID, uint(deckIdInt)); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Error on GetTrainingCardsByDeck: %s from %s", res.Message, auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckIdInt), 0)
+	if res = queries.FetchTrainingCards(auth.User.ID, uint(deckIDInt)); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Error on GetTrainingCardsByDeck: %s from %s", res.Message, auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckIDInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
@@ -80,13 +83,15 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	})
 }
 
-// GetAllCards method
+// GetAllCards function to get all cards (deprecated)
 // @Description Get every card. Shouldn't really be used
 // @Summary gets all cards
 // @Tags Card
 // @Produce json
+// @Security Admin
 // @Success 200 {array} models.Card
 // @Router /v1/cards/ [get]
+// @Deprecated
 func GetAllCards(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
@@ -106,15 +111,15 @@ func GetAllCards(c *fiber.Ctx) error {
 		Data:    cards,
 		Count:   len(cards),
 	})
-
 }
 
-// GetCardByID method to get a card by id
-// @Description Get a card by tech id
+// GetCardByID function to get a card by id
+// @Description Get a card by id
 // @Summary gets a card
 // @Tags Card
 // @Produce json
 // @Param id path int true "Card ID"
+// @Security Admin
 // @Success 200 {object} models.Card
 // @Router /v1/cards/id/{id} [get]
 func GetCardByID(c *fiber.Ctx) error {
@@ -147,6 +152,7 @@ func GetCardByID(c *fiber.Ctx) error {
 // @Tags Card
 // @Produce json
 // @Param deckID path int true "Deck ID"
+// @Security Beaver
 // @Success 200 {array} models.Card
 // @Router /v1/cards/deck/{deckID} [get]
 func GetCardsFromDeck(c *fiber.Ctx) error {
@@ -161,7 +167,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 		return queries.AuthError(c, &auth)
 	}
 
-	if res := queries.CheckAccess(auth.User.ID, uint(deckID), models.AccessEditor); !res.Success {
+	if res := queries.CheckAccess(auth.User.ID, uint(deckID), models.AccessStudent); !res.Success {
 		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - GetCardsFromDeck: %s", auth.User.Email, deckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckID), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
@@ -186,11 +192,12 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // POST
 
 // CreateNewCard method
-// @Description Create a new card
+// @Description Create a new card (must be a deck editor)
 // @Summary creates a card
 // @Tags Card
 // @Produce json
 // @Accept json
+// @Security Beaver
 // @Param card body models.Card true "Card to create"
 // @Success 200
 // @Router /v1/cards/new [post]
@@ -254,8 +261,10 @@ func CreateNewCard(c *fiber.Ctx) error {
 // @Summary posts a response
 // @Tags Card
 // @Produce json
-// @Success 200
+// @Security Beaver
 // @Accept json
+// @Param card body models.CardSelfResponse true "Self response"
+// @Success 200
 // @Router /v1/cards/selfresponse [post]
 func PostSelfEvaluateResponse(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -309,8 +318,10 @@ func PostSelfEvaluateResponse(c *fiber.Ctx) error {
 // @Summary posts a response
 // @Tags Card
 // @Produce json
-// @Success 200
+// @Security Beaver
 // @Accept json
+// @Param card body models.CardResponse true "Response"
+// @Success 200 {object} models.CardResponseValidation
 // @Router /v1/cards/response [post]
 func PostResponse(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -370,9 +381,11 @@ func PostResponse(c *fiber.Ctx) error {
 // @Summary edits a card
 // @Tags Card
 // @Produce json
-// @Success 200
+// @Success 200 {object} models.Card
+// @Security Beaver
 // @Accept json
 // @Param card body models.Card true "card to edit"
+// @Param id path int true "card id"
 // @Router /v1/cards/{cardID}/edit [put]
 func UpdateCardByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -389,7 +402,6 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	card := new(models.Card)
 
 	if err := db.First(&card, id).Error; err != nil {
-
 		log := models.CreateLog(fmt.Sprintf("Error on UpdateCardByID: %s from %s", err.Error(), auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, uint(cardID))
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
@@ -422,7 +434,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.ResponseHTTP {
 	db := database.DBConn
 
-	deckId := card.DeckID
+	deckID := card.DeckID
 
 	res := new(models.ResponseHTTP)
 
@@ -431,7 +443,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.Resp
 		return res
 	}
 
-	if deckId != card.DeckID {
+	if deckID != card.DeckID {
 		res.GenerateError(utils.ErrorBreak)
 		return res
 	}
@@ -442,7 +454,6 @@ func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.Resp
 	}
 
 	shouldUpdateMcq := false
-	mcq := new(models.Mcq)
 
 	mcq, ok := card.ValidateMCQ(user)
 	if !ok {
@@ -462,14 +473,16 @@ func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.Resp
 	return res
 }
 
-// DeleteCardById method
-// @Description Delete a card
+// DeleteCardByID method
+// @Description Delete a card (must be a deck owner)
 // @Summary deletes a card
 // @Tags Card
 // @Produce json
+// @Security Beaver
+// @Param id path int true "card id"
 // @Success 200
 // @Router /v1/cards/{cardID} [delete]
-func DeleteCardById(c *fiber.Ctx) error {
+func DeleteCardByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 	id := c.Params("id")
 	cardID, _ := strconv.ParseUint(id, 10, 32)
@@ -513,5 +526,4 @@ func DeleteCardById(c *fiber.Ctx) error {
 		Data:    *card,
 		Count:   1,
 	})
-
 }

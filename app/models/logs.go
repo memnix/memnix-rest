@@ -19,8 +19,7 @@ type Log struct {
 
 // SendLog sends log to the rabbitmq channel
 func (l *Log) SendLog() error {
-
-	jsonObject, _ := l.ToJson()
+	jsonObject, _ := l.ToJSON()
 	key := fmt.Sprintf("%s.%s", l.Type, l.Event)
 
 	err := database.SendMessageToChannel(database.RabbitMqChan, jsonObject, key)
@@ -28,26 +27,24 @@ func (l *Log) SendLog() error {
 }
 
 // Set Log
-func (l *Log) Set(Type LogType, Message string, Event LogEvent, UserID, DeckID, CardID uint) {
-	l.Type = Type
-	l.Message = Message
-	l.Event = Event
-	l.UserID = UserID
-	l.CardID = CardID
-	l.DeckID = DeckID
+func (l *Log) Set(logType LogType, message string, event LogEvent, userID, deckID, cardID uint) {
+	l.Type = logType
+	l.Message = message
+	l.Event = event
+	l.UserID = userID
+	l.CardID = cardID
+	l.DeckID = deckID
 	l.CreatedAt = time.Now()
-
 }
 
 // CreateLog returns a new Log object
 func CreateLog(message string, event LogEvent) *Log {
-
 	return &Log{Message: message, Event: event, CreatedAt: time.Now()}
 }
 
 // SetType method
-func (l *Log) SetType(Type LogType) *Log {
-	l.Type = Type
+func (l *Log) SetType(logType LogType) *Log {
+	l.Type = logType
 	return l
 }
 
@@ -67,8 +64,8 @@ func (l *Log) AttachIDs(userID, deckID, cardID uint) *Log {
 	return l
 }
 
-// ToJson method
-func (l *Log) ToJson() ([]byte, error) {
+// ToJSON method
+func (l *Log) ToJSON() ([]byte, error) {
 	body, err := json.Marshal(l)
 	if err != nil {
 		return nil, err

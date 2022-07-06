@@ -12,7 +12,7 @@ const MaxDefaultLen = 200
 
 const MinCardQuestionLen = 1
 const MaxCardFormatLen = 50
-const MaxImageUrlLen = 200
+const MaxImageURLLen = 200
 const MaxCardExplicationLen = 500
 
 const MaxDeckNameLen = 42

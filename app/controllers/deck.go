@@ -16,12 +16,14 @@ import (
 
 // GET
 
-// GetAllDecks method to get all decks
-// @Description Get every deck. Shouldn't really be used, consider using /v1/decks/public instead !
+// GetAllDecks function to get all decks
+// @Description Get every deck. Shouldn't really be used !
+// @Security Admin
+// @Deprecated
 // @Summary gets all decks
 // @Tags Deck
 // @Produce json
-// @Success 200 {object} models.Deck
+// @Success 200 {array} models.Deck
 // @Router /v1/decks [get]
 func GetAllDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -45,9 +47,10 @@ func GetAllDecks(c *fiber.Ctx) error {
 	})
 }
 
-// GetDeckByID method to get a deck
-// @Description Get a deck by tech ID
+// GetDeckByID function to get a deck
+// @Description Get a deck by ID
 // @Summary get a deck
+// @Security Admin
 // @Tags Deck
 // @Produce json
 // @Param id path int true "Deck ID"
@@ -83,6 +86,7 @@ func GetDeckByID(c *fiber.Ctx) error {
 // @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
+// @Security Beaver
 // @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/sub [get]
 func GetAllSubDecks(c *fiber.Ctx) error {
@@ -93,7 +97,6 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 		return queries.AuthError(c, &auth)
 	}
 
-	var responseDeck []models.ResponseDeck
 	var accesses []models.Access // Accesses array
 
 	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
@@ -101,9 +104,10 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
+	responseDeck := make([]models.ResponseDeck, len(accesses))
 
 	for i := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
+		responseDeck[i] = queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday)
 	}
 
 	sort.Slice(responseDeck, func(i, j int) bool {
@@ -123,6 +127,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 // @Summary gets a list of deck
 // @Tags Deck
 // @Produce json
+// @Security Beaver
 // @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/editor [get]
 func GetAllEditorDecks(c *fiber.Ctx) error {
@@ -133,8 +138,6 @@ func GetAllEditorDecks(c *fiber.Ctx) error {
 		return queries.AuthError(c, &auth)
 	}
 
-	var responseDeck []models.ResponseDeck
-
 	var accesses []models.Access // Accesses array
 
 	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessEditor).Find(&accesses).Error; err != nil {
@@ -143,8 +146,10 @@ func GetAllEditorDecks(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
+	responseDeck := make([]models.ResponseDeck, len(accesses))
+
 	for i := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
+		responseDeck[i] = queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday)
 	}
 
 	sort.Slice(responseDeck, func(i, j int) bool {
@@ -163,15 +168,14 @@ func GetAllEditorDecks(c *fiber.Ctx) error {
 // @Description Get all the sub users to a deck
 // @Summary gets a list of users
 // @Tags Deck
+// @Security Admin
 // @Produce json
 // @Success 200 {array} models.User
 // @Router /v1/decks/{deckID}/users [get]
-func GetAllSubUsers(c *fiber.Ctx) error {
-
-	// Params
+func GetAllSubUsers(c *fiber.Ctx) error { // Params
 	deckID := c.Params("deckID")
-	result := new(models.ResponseHTTP)
-	auth := CheckAuth(c, models.PermUser) // Check auth
+	var result *models.ResponseHTTP
+	auth := CheckAuth(c, models.PermAdmin) // Check auth
 	if !auth.Success {
 		return queries.AuthError(c, &auth)
 	}
@@ -205,6 +209,7 @@ func GetAllSubUsers(c *fiber.Ctx) error {
 // @Summary get a list of deck
 // @Tags Deck
 // @Produce json
+// @Security Beaver
 // @Success 200 {array} models.ResponseDeck
 // @Router /v1/decks/available [get]
 func GetAllAvailableDecks(c *fiber.Ctx) error {
@@ -215,7 +220,6 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 		return queries.AuthError(c, &auth)
 	}
 
-	var responseDeck []models.ResponseDeck
 	var decks []models.Deck
 
 	if err := db.Raw(
@@ -227,9 +231,15 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
+	responseDeck := make([]models.ResponseDeck, len(decks))
+
 	for i := range decks {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&decks[i], models.AccessNone, false))
+		responseDeck[i] = queries.FillResponseDeck(&decks[i], models.AccessNone, false)
 	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -243,6 +253,7 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 // @Description Get all public deck
 // @Summary gets a list of deck
 // @Tags Deck
+// @Security Beaver
 // @Produce json
 // @Success 200 {array} models.Deck
 // @Router /v1/decks/public [get]
@@ -274,7 +285,8 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 // @Summary creates a deck
 // @Tags Deck
 // @Produce json
-// @Success 200
+// @Security Beaver
+// @Success 200 {object} models.Deck
 // @Accept json
 // @Param deck body models.Deck true "Deck to create"
 // @Router /v1/decks/new [post]
@@ -348,9 +360,9 @@ func CreateNewDeck(c *fiber.Ctx) error {
 // @Description Unsubscribe to a deck
 // @Summary unsub deck
 // @Tags Deck
+// @Security Beaver
 // @Produce json
 // @Success 200
-// @Accept json
 // @Router /v1/decks/{deckID}/unsubscribe [post]
 func UnSubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -395,7 +407,9 @@ func UnSubToDeck(c *fiber.Ctx) error {
 // @Tags Deck
 // @Produce json
 // @Success 200
-// @Accept json
+// @Param key path string true "Deck unique Key"
+// @Param code path string true "Deck unique Code"
+// @Security Beaver
 // @Router /v1/decks/private/{key}/{code}/subscribe [post]
 func SubToPrivateDeck(c *fiber.Ctx) error {
 	db := database.DBConn
@@ -437,7 +451,6 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 		Data:    nil,
 		Count:   0,
 	})
-
 }
 
 // PublishDeckRequest method
@@ -446,7 +459,8 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 // @Tags Deck
 // @Produce json
 // @Success 200
-// @Accept json
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID}/publish [post]
 func PublishDeckRequest(c *fiber.Ctx) error {
 	db := database.DBConn
@@ -495,7 +509,8 @@ func PublishDeckRequest(c *fiber.Ctx) error {
 // @Tags Deck
 // @Produce json
 // @Success 200
-// @Accept json
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID}/subscribe [post]
 func SubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -549,6 +564,8 @@ func SubToDeck(c *fiber.Ctx) error {
 // @Success 200
 // @Accept json
 // @Param deck body models.Deck true "Deck to edit"
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID}/edit [put]
 func UpdateDeckByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -640,11 +657,13 @@ func UpdateDeck(c *fiber.Ctx, deck *models.Deck) *models.ResponseHTTP {
 }
 
 // DeleteDeckById method
-// @Description Delete a deck
+// @Description Delete a deck (must be deck owner)
 // @Summary delete a deck
 // @Tags Deck
 // @Produce json
 // @Success 200
+// @Param deckID path string true "Deck ID"
+// @Security Beaver
 // @Router /v1/decks/{deckID} [delete]
 func DeleteDeckById(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
@@ -662,7 +681,6 @@ func DeleteDeckById(c *fiber.Ctx) error {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
-
 	}
 
 	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
@@ -710,5 +728,4 @@ func DeleteDeckById(c *fiber.Ctx) error {
 		Data:    *deck,
 		Count:   1,
 	})
-
 }

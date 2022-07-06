@@ -6,9 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func registerDeckRoutes(r fiber.Router) {
-
-	// Get
+func registerDeckRoutes(r fiber.Router) { // Get
 	r.Get("/decks", controllers.GetAllDecks)                    // Get all decks
 	r.Get("/decks/public", controllers.GetAllPublicDecks)       // Get all public decks
 	r.Get("/decks/available", controllers.GetAllAvailableDecks) // Get all available decks
@@ -29,5 +27,4 @@ func registerDeckRoutes(r fiber.Router) {
 
 	// Delete
 	r.Delete("/decks/:deckID", controllers.DeleteDeckById) // Delete a deck by ID
-
 }
