@@ -24,7 +24,7 @@ func New() *fiber.App {
 	}))
 
 	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestCompression, // 2
+		Level: compress.LevelBestSpeed, // 2
 	}))
 
 	app.Use(cache.New(cache.Config{
