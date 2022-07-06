@@ -15,13 +15,14 @@ import (
 
 var (
 	// DBConn is a pointer to gorm.DB
-	DBConn   *gorm.DB
-	user     string
-	password string
-	host     string
-	db       string
-	port     string
-	rabbitMQ string
+	DBConn    *gorm.DB
+	user      string
+	password  string
+	host      string
+	db        string
+	port      string
+	debugMode bool
+	rabbitMQ  string
 )
 
 func LoadVar() {
@@ -39,6 +40,7 @@ func LoadVar() {
 		db = os.Getenv("DEBUG_DB_DB")             // Get DB_DB (db name) from env
 		port = os.Getenv("DEBUG_DB_PORT")         // Get DB_PORT from env
 		rabbitMQ = os.Getenv("DEBUG_RABBIT_MQ")   // Get DB_PORT from env
+		debugMode = true
 	} else {
 		log.Println("Running in production mode")
 		user = os.Getenv("DB_USER")         // Get DB_USER from env
@@ -47,6 +49,7 @@ func LoadVar() {
 		db = os.Getenv("DB_DB")             // Get DB_DB (db name) from env
 		port = os.Getenv("DB_PORT")         // Get DB_PORT from env
 		rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
+		debugMode = false
 	}
 
 }
