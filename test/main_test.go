@@ -23,9 +23,8 @@ type Test struct {
 }
 
 func testIndex() []Test {
-	var tests []Test
 
-	tests = []Test{
+	tests := []Test{
 
 		{
 			description:   "index",
@@ -42,8 +41,7 @@ func testIndex() []Test {
 }
 
 func TestRoute(t *testing.T) {
-
-	_, app := Setup()
+	app, _ := Setup()
 
 	tests := testIndex()
 

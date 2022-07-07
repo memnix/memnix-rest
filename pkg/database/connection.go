@@ -51,7 +51,6 @@ func LoadVar() {
 		rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
 		debugMode = false
 	}
-
 }
 
 // Connect creates a connection to database

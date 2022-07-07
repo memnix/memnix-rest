@@ -63,5 +63,5 @@ func main() { // Try to connect to the database
 	// Create the app
 	app := routes.New()
 	// Listen to port 1812
-	log.Fatal(app.Listen(":1813"))
+	log.Panic(app.Listen(":1813"))
 }
