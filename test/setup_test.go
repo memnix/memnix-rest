@@ -23,14 +23,14 @@ func TestSetup(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := Setup(); got != nil {
+			if _, got := Setup(); got != nil {
 				t.Errorf("Setup() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Setup() (error, *fiber.App) {
+func Setup() (*fiber.App, error) {
 	// Try to connect to the database
 	if err := database.Connect(); err != nil {
 		log.Panic("Can't connect database:", err.Error())
@@ -45,7 +45,6 @@ func Setup() (error, *fiber.App) {
 	defer func(conn *amqp.Connection) {
 		_ = conn.Close()
 		fmt.Println("Disconnected to RabbitMQ")
-
 	}(database.RabbitMqConn)
 
 	// Close RabbitMQ channel
@@ -69,5 +68,5 @@ func Setup() (error, *fiber.App) {
 	// Create the app
 	app := routes.New()
 
-	return nil, app
+	return app, nil
 }
