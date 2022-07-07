@@ -70,7 +70,6 @@ func UpdateMemTraining(r *models.Mem, validation bool) {
 
 // UpdateMem computes and set mem values
 func UpdateMem(r *models.Mem, validation bool) {
-
 	db := database.DBConn
 
 	mem := new(models.Mem)
@@ -82,7 +81,6 @@ func UpdateMem(r *models.Mem, validation bool) {
 		mem.Repetition = r.Repetition + 1
 		mem.ComputeLearningStage()
 		r.ComputeQualitySuccess()
-
 	} else {
 		mem.Repetition = 0
 		mem.Interval = 0
@@ -98,7 +96,6 @@ func UpdateMem(r *models.Mem, validation bool) {
 	db.Create(mem)
 
 	UpdateMemDate(mem)
-
 }
 
 func ValidateAnswer(response string, card *models.Card) bool {
@@ -112,7 +109,6 @@ func ValidateAnswer(response string, card *models.Card) bool {
 	}
 	if card.Case {
 		return strings.Compare(respString, answerString) == 0
-	} else {
-		return strings.EqualFold(respString, answerString)
 	}
+	return strings.EqualFold(respString, answerString)
 }
