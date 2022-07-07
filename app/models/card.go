@@ -108,7 +108,7 @@ func (card *Card) GetMCQAnswers() []string {
 	}
 
 	if len(answersList) < 3 {
-		return answers
+		return make([]string, 0)
 	}
 
 	rand.Seed(time.Now().UnixNano())
