@@ -45,12 +45,14 @@ func UpdateSubUsers(card *models.Card, user *models.User) error {
 func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) models.ResponseDeck {
 	db := database.DBConn
 
-	deckResponse := new(models.ResponseDeck)
-
-	deckResponse.Deck = *deck
-	deckResponse.DeckID = deck.ID
-	deckResponse.Permission = permission
-	deckResponse.ToggleToday = toggleToday
+	deckResponse := models.ResponseDeck{
+		Deck:        *deck,
+		DeckID:      deck.ID,
+		Permission:  permission,
+		ToggleToday: toggleToday,
+		OwnerID:     0,
+		Owner:       models.PublicUser{},
+	}
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
 		publicUser := new(models.PublicUser)
@@ -67,7 +69,7 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, tog
 	} else {
 		deckResponse.CardCount = uint16(count)
 	}
-	return *deckResponse
+	return deckResponse
 }
 
 // GenerateCreatorAccess sets an user as a deck creator
