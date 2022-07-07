@@ -107,7 +107,7 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 	responseDeck := make([]models.ResponseDeck, len(accesses))
 
 	for i := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
+		responseDeck[i] = queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday)
 	}
 
 	sort.Slice(responseDeck, func(i, j int) bool {
@@ -149,7 +149,7 @@ func GetAllEditorDecks(c *fiber.Ctx) error {
 	responseDeck := make([]models.ResponseDeck, len(accesses))
 
 	for i := range accesses {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday))
+		responseDeck[i] = queries.FillResponseDeck(&accesses[i].Deck, accesses[i].Permission, accesses[i].ToggleToday)
 	}
 
 	sort.Slice(responseDeck, func(i, j int) bool {
@@ -234,8 +234,12 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 	responseDeck := make([]models.ResponseDeck, len(decks))
 
 	for i := range decks {
-		responseDeck = append(responseDeck, queries.FillResponseDeck(&decks[i], models.AccessNone, false))
+		responseDeck[i] = queries.FillResponseDeck(&decks[i], models.AccessNone, false)
 	}
+
+	sort.Slice(responseDeck, func(i, j int) bool {
+		return responseDeck[i].Deck.DeckName < responseDeck[j].Deck.DeckName
+	})
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
