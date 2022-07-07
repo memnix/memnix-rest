@@ -204,7 +204,7 @@ func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, tr
 		exMem.FillDefaultValues(user.ID, card.ID)
 	}
 
-	core.UpdateMemSelfEvaluated(&exMem, training, quality)
+	core.UpdateMemSelfEvaluated(exMem, training, quality)
 
 	res.GenerateSuccess("Success Post Mem", nil, 0)
 	return res
@@ -230,9 +230,9 @@ func PostMem(user *models.User, card *models.Card, validation *models.CardRespon
 	}
 
 	if training {
-		core.UpdateMemTraining(&exMem, validation.Validate)
+		core.UpdateMemTraining(exMem, validation.Validate)
 	} else {
-		core.UpdateMem(&exMem, validation.Validate)
+		core.UpdateMem(exMem, validation.Validate)
 	}
 	res.GenerateSuccess("Success Post Mem", nil, 0)
 	return res
@@ -293,7 +293,7 @@ func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 }
 
 // FetchMem returns last mem of an user on a given card
-func FetchMem(cardID, userID uint) models.Mem {
+func FetchMem(cardID, userID uint) *models.Mem {
 	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
@@ -302,7 +302,7 @@ func FetchMem(cardID, userID uint) models.Mem {
 			mem.Efactor = 0
 		}
 	}
-	return *mem
+	return mem
 }
 
 // GenerateMCQ returns a list of answer
@@ -359,8 +359,6 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	var memDates []models.MemDate
 
-	m := make(map[uint][]models.ResponseCard)
-
 	if err := db.Joins(
 		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
 		userID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ? AND accesses.toggle_today IS true",
@@ -370,8 +368,7 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 		return res
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(memDates), func(i, j int) { memDates[i], memDates[j] = memDates[j], memDates[i] })
+	m := make(map[uint][]models.ResponseCard)
 
 	var answersList []string
 	responseCard := new(models.ResponseCard)
@@ -385,11 +382,12 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	todayResponse := new(models.TodayResponse)
 
 	for key := range m {
-		deckResponse := new(models.DeckResponse)
-		deckResponse.DeckID = key
-		deckResponse.Cards = m[key]
-		deckResponse.Count = len(deckResponse.Cards)
-		todayResponse.DecksReponses = append(todayResponse.DecksReponses, *deckResponse)
+		deckResponse := models.DeckResponse{
+			DeckID: key,
+			Cards:  m[key],
+			Count:  len(m[key]),
+		}
+		todayResponse.DecksReponses = append(todayResponse.DecksReponses, deckResponse)
 	}
 
 	sort.Slice(todayResponse.DecksReponses, func(i, j int) bool {
