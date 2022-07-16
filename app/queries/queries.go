@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sort"
+	"sync"
 	"time"
 
 	"github.com/memnix/memnixrest/app/models"
@@ -16,7 +18,7 @@ import (
 // UpdateSubUsers generates MemDate for sub users
 func UpdateSubUsers(card *models.Card, user *models.User) error {
 	var users []models.User
-	result := new(models.ResponseHTTP)
+	var result *models.ResponseHTTP
 
 	if result = GetSubUsers(card.DeckID); !result.Success {
 		log := models.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", user.Email, card.DeckID, result.Message),
@@ -44,12 +46,14 @@ func UpdateSubUsers(card *models.Card, user *models.User) error {
 func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) models.ResponseDeck {
 	db := database.DBConn
 
-	deckResponse := new(models.ResponseDeck)
-
-	deckResponse.Deck = *deck
-	deckResponse.DeckID = deck.ID
-	deckResponse.Permission = permission
-	deckResponse.ToggleToday = toggleToday
+	deckResponse := models.ResponseDeck{
+		Deck:        *deck,
+		DeckID:      deck.ID,
+		Permission:  permission,
+		ToggleToday: toggleToday,
+		OwnerID:     0,
+		Owner:       models.PublicUser{},
+	}
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
 		publicUser := new(models.PublicUser)
@@ -57,16 +61,16 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, tog
 		publicUser.Set(&owner)
 
 		deckResponse.Owner = *publicUser
-		deckResponse.OwnerId = owner.ID
+		deckResponse.OwnerID = owner.ID
 	}
 
 	var count int64
 	if err := db.Table("cards").Where("cards.deck_id = ?", deck.ID).Count(&count).Error; err != nil {
 		deckResponse.CardCount = 0
 	} else {
-		deckResponse.CardCount = count
+		deckResponse.CardCount = uint16(count)
 	}
-	return *deckResponse
+	return deckResponse
 }
 
 // GenerateCreatorAccess sets an user as a deck creator
@@ -100,16 +104,13 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 			access.Set(user.ID, deck.ID, models.AccessStudent)
 			db.Preload("User").Preload("Deck").Create(access)
 		}
-
 	} else {
 		if access.Permission >= models.AccessStudent {
 			res.GenerateError(utils.ErrorAlreadySub)
 			return res
-
-		} else {
-			access.Set(user.ID, deck.ID, models.AccessStudent)
-			db.Preload("User").Preload("Deck").Save(access)
 		}
+		access.Set(user.ID, deck.ID, models.AccessStudent)
+		db.Preload("User").Preload("Deck").Save(access)
 	}
 
 	res.GenerateSuccess("Success register an access", *access, 1)
@@ -141,7 +142,7 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("cards").Where("cards.deck_id = ?", deckID).Count(&count).Error; err != nil {
+	if err := db.Table("cards").Where("cards.deck_id = ? AND cards.deleted_at IS NULL", deckID).Count(&count).Error; err != nil {
 		//TODO: Handle error
 		return true
 	}
@@ -153,16 +154,17 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 	return true
 }
 
-// CheckMCQLimit verifies that a deck can handle more mcqs
-func CheckMCQLimit(deckID uint) bool {
+// CheckCode prevents deck code from being duplicated
+func CheckCode(key, code string) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("mcqs").Where("mcqs.deck_id = ?", deckID).Count(&count).Error; err != nil {
+	if err := db.Table("decks").Where("decks.key = ? AND decks.code = ? AND decks.deleted_at IS NULL", key, code).Count(&count).Error; err != nil {
+		// TODO: Handle error
 		return true
 	}
 
-	if count >= utils.MaxMcqDeck {
+	if count != 0 {
 		return false
 	}
 
@@ -174,7 +176,7 @@ func CheckDeckLimit(user *models.User) bool {
 	db := database.DBConn // DB Conn
 	var count int64
 
-	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ?", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
+	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ? AND accesses.deleted_at IS NULL", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
 		//TODO: Handle error
 		return true
 	}
@@ -186,10 +188,34 @@ func CheckDeckLimit(user *models.User) bool {
 	return true
 }
 
+// PostSelfEvaluatedMem updates Mem & MemDate
+func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, training bool) *models.ResponseHTTP {
+	db := database.DBConn // DB Conn
+	res := new(models.ResponseHTTP)
+
+	memDate := new(models.MemDate)
+
+	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
+		user.ID, card.ID).First(&memDate).Error; err != nil {
+		res.GenerateError(utils.ErrorRequestFailed) // MemDate not found
+		// TODO: Create a default MemDate
+		return res
+	}
+
+	exMem := FetchMem(memDate.CardID, user.ID)
+	if exMem.Efactor == 0 {
+		exMem.FillDefaultValues(user.ID, card.ID)
+	}
+
+	core.UpdateMemSelfEvaluated(exMem, training, quality)
+
+	res.GenerateSuccess("Success Post Mem", nil, 0)
+	return res
+}
+
 // PostMem updates MemDate & Mem
 func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
-	//TODO: Replace struct params with ids
 	res := new(models.ResponseHTTP)
 
 	memDate := new(models.MemDate)
@@ -207,9 +233,9 @@ func PostMem(user *models.User, card *models.Card, validation *models.CardRespon
 	}
 
 	if training {
-		core.UpdateMemTraining(&exMem, validation.Validate)
+		core.UpdateMemTraining(exMem, validation.Validate)
 	} else {
-		core.UpdateMem(&exMem, validation.Validate)
+		core.UpdateMem(exMem, validation.Validate)
 	}
 	res.GenerateSuccess("Success Post Mem", nil, 0)
 	return res
@@ -270,7 +296,7 @@ func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 }
 
 // FetchMem returns last mem of an user on a given card
-func FetchMem(cardID, userID uint) models.Mem {
+func FetchMem(cardID, userID uint) *models.Mem {
 	db := database.DBConn // DB Conn
 
 	mem := new(models.Mem)
@@ -279,21 +305,20 @@ func FetchMem(cardID, userID uint) models.Mem {
 			mem.Efactor = 0
 		}
 	}
-	return *mem
+	return mem
 }
 
 // GenerateMCQ returns a list of answer
 func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
-
 	mem := FetchMem(memDate.CardID, userID)
 
-	var answersList []string
+	answersList := make([]string, 4)
 	if mem.IsMCQ() || memDate.Card.Type == models.CardMCQ {
-
 		answersList = memDate.Card.GetMCQAnswers()
 		if len(answersList) == 4 {
 			memDate.Card.Type = models.CardMCQ // MCQ
 		}
+
 		return answersList
 	}
 
@@ -304,7 +329,6 @@ func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	res := new(models.ResponseHTTP)
 	db := database.DBConn // DB Conn
-	var result []models.ResponseCard
 
 	var memDates []models.MemDate
 
@@ -315,12 +339,12 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 	responseCard := new(models.ResponseCard)
 	var answersList []string
 
+	result := make([]models.ResponseCard, len(memDates))
+
 	for i := range memDates {
-
 		answersList = GenerateMCQ(&memDates[i], userID)
-		responseCard.Set(&memDates[i].Card, answersList)
-
-		result = append(result, *responseCard)
+		responseCard.Set(&memDates[i], answersList)
+		result[i] = *responseCard
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -328,7 +352,6 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 
 	res.GenerateSuccess("Success getting next card", result, len(result))
 	return res
-
 }
 
 // FetchTodayCard return today cards
@@ -348,65 +371,62 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 		return res
 	}
 
-	var answersList []string
-	var responseCardList []models.ResponseCard
+	m := make(map[uint][]models.ResponseCard)
+	wg := new(sync.WaitGroup)
 	responseCard := new(models.ResponseCard)
 
-	for index := range memDates {
-		answersList = GenerateMCQ(&memDates[index], userID)
-		responseCard.Set(&memDates[index].Card, answersList)
-		responseCardList = append(responseCardList, *responseCard)
+	workers := 10
+
+	if len(memDates) < 10 {
+		workers = 1
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(responseCardList), func(i, j int) { responseCardList[i], responseCardList[j] = responseCardList[j], responseCardList[i] })
+	M := len(memDates) / workers
 
-	res.GenerateSuccess("Success getting next today's cards", responseCardList, len(responseCardList))
-	return res
-}
+	wg.Add(workers)
 
-// FetchNextTodayCard return next today card
-func FetchNextTodayCard(userID uint) *models.ResponseHTTP {
-	res := new(models.ResponseHTTP)
-	responseCard := new(models.ResponseCard)
-	memDate := new(models.MemDate)
-	var answersList []string
+	ch := make(chan models.ResponseCard, len(memDates))
 
-	if result := memDate.GetNextToday(userID); !result.Success {
-		res.GenerateError("Next card not found")
-		return res
-	}
-	answersList = GenerateMCQ(memDate, userID)
-
-	responseCard.Set(&memDate.Card, answersList)
-
-	res.GenerateSuccess("Success getting next card", responseCard, 1)
-	return res
-}
-
-// FetchNextCard returns next card
-func FetchNextCard(userID, deckID uint) *models.ResponseHTTP {
-	res := new(models.ResponseHTTP)
-	responseCard := new(models.ResponseCard)
-	memDate := new(models.MemDate)
-	var answersList []string
-
-	if deckID != 0 {
-		if result := memDate.GetNextByDeck(userID, deckID); !result.Success {
-			res.GenerateError("Next card not found")
-			return res
-		}
-	} else {
-		if result := memDate.GetNext(userID); !result.Success {
-			res.GenerateError("Next card not found")
-			return res
+	for i := 0; i < workers; i++ {
+		hi, lo := i*M, (i+1)*M
+		if i == workers-1 {
+			lo = len(memDates)
 		}
 
+		subMemDates := memDates[hi:lo]
+		go func() {
+			for index := range subMemDates {
+				answersList := GenerateMCQ(&subMemDates[index], userID)
+				responseCard.Set(&subMemDates[index], answersList)
+				ch <- *responseCard
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	close(ch)
+
+	for toto := range ch {
+		m[toto.Card.DeckID] = append(m[toto.Card.DeckID], toto)
 	}
 
-	answersList = GenerateMCQ(memDate, userID)
-	responseCard.Set(&memDate.Card, answersList)
+	todayResponse := new(models.TodayResponse)
 
-	res.GenerateSuccess("Success getting next card", responseCard, 1)
+	for key := range m {
+		deckResponse := models.DeckResponse{
+			DeckID: key,
+			Cards:  m[key],
+			Count:  len(m[key]),
+		}
+		todayResponse.DecksReponses = append(todayResponse.DecksReponses, deckResponse)
+	}
+
+	sort.Slice(todayResponse.DecksReponses, func(i, j int) bool {
+		return todayResponse.DecksReponses[i].Count < todayResponse.DecksReponses[j].Count
+	})
+
+	todayResponse.Count = len(todayResponse.DecksReponses)
+
+	res.GenerateSuccess("Success getting next today's cards", todayResponse, len(memDates))
 	return res
 }

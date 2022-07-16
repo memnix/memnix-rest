@@ -13,7 +13,7 @@ type Mcq struct {
 	Answers    string  `json:"mcq_answers"`
 	Type       McqType `json:"mcq_type"`
 	DeckID     uint    `json:"deck_id" example:"1"`
-	Deck       Deck
+	Deck       Deck    `swaggerignore:"true" json:"-"`
 }
 
 type McqType int64
@@ -28,10 +28,8 @@ func (mcq *Mcq) GetAnswers() []string {
 	answersList := mcq.ExtractAnswers()
 
 	if mcq.Type == McqLinked {
-
 		answers := mcq.QueryLinkedAnswers()
 		if len(answers) != len(answersList) {
-
 			mcq.UpdateLinkedAnswers()
 			return answers
 		}
@@ -54,15 +52,15 @@ func (mcq *Mcq) SetAnswers(answers []string) {
 func (mcq *Mcq) QueryLinkedAnswers() []string {
 	db := database.DBConn // DB Conn
 	var cards []Card
-	var responses []string
 
 	if err := db.Joins("Mcq").Where("cards.mcq_id = ?", mcq.ID).Find(&cards).Error; err != nil {
-		return responses
+		return make([]string, 0)
 		//TODO: Error logging
 	}
 
+	responses := make([]string, len(cards))
 	for i := range cards {
-		responses = append(responses, cards[i].Answer)
+		responses[i] = cards[i].Answer
 	}
 
 	return responses
