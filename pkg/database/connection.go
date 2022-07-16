@@ -2,20 +2,21 @@ package database
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/patrickmn/go-cache"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var (
 	// DBConn is a pointer to gorm.DB
 	DBConn    *gorm.DB
+	Cache     *cache.Cache
 	user      string
 	password  string
 	host      string
@@ -51,6 +52,11 @@ func LoadVar() {
 		rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
 		debugMode = false
 	}
+}
+
+func CreateCache() error {
+	Cache = cache.New(10*time.Minute, 15*time.Minute)
+	return nil
 }
 
 // Connect creates a connection to database

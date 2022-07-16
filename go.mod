@@ -7,8 +7,10 @@ require (
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/gofiber/swagger v0.0.1
 	github.com/joho/godotenv v1.4.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rabbitmq/amqp091-go v1.3.4
 	github.com/stretchr/testify v1.7.0
+	gopkg.in/mail.v2 v2.3.1
 	gorm.io/driver/postgres v1.3.8
 	gorm.io/gorm v1.23.7
 )
@@ -16,6 +18,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
 require (
