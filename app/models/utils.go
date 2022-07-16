@@ -93,6 +93,6 @@ type ResponseDeck struct {
 	CardCount   uint16           `json:"card_count" example:"42"`
 	ToggleToday bool             `json:"settings_today" `
 	OwnerID     uint             `json:"owner_id" example:"6"`
-	Owner       PublicUser       `swaggerignore:"true"`
-	Deck        Deck
+	Owner       PublicUser       `swaggerignore:"true" json:"Owner,omitempty"`
+	Deck        Deck             `json:"Deck,omitempty"`
 }

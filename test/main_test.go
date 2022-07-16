@@ -23,7 +23,6 @@ type Test struct {
 }
 
 func testIndex() []Test {
-
 	tests := []Test{
 
 		{

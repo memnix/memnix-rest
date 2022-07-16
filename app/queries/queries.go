@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/memnix/memnixrest/app/models"
@@ -45,12 +46,14 @@ func UpdateSubUsers(card *models.Card, user *models.User) error {
 func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) models.ResponseDeck {
 	db := database.DBConn
 
-	deckResponse := new(models.ResponseDeck)
-
-	deckResponse.Deck = *deck
-	deckResponse.DeckID = deck.ID
-	deckResponse.Permission = permission
-	deckResponse.ToggleToday = toggleToday
+	deckResponse := models.ResponseDeck{
+		Deck:        *deck,
+		DeckID:      deck.ID,
+		Permission:  permission,
+		ToggleToday: toggleToday,
+		OwnerID:     0,
+		Owner:       models.PublicUser{},
+	}
 
 	if owner := deck.GetOwner(); owner.ID != 0 {
 		publicUser := new(models.PublicUser)
@@ -67,7 +70,7 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, tog
 	} else {
 		deckResponse.CardCount = uint16(count)
 	}
-	return *deckResponse
+	return deckResponse
 }
 
 // GenerateCreatorAccess sets an user as a deck creator
@@ -369,14 +372,42 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	}
 
 	m := make(map[uint][]models.ResponseCard)
-
-	var answersList []string
+	wg := new(sync.WaitGroup)
 	responseCard := new(models.ResponseCard)
 
-	for index := range memDates {
-		answersList = GenerateMCQ(&memDates[index], userID)
-		responseCard.Set(&memDates[index], answersList)
-		m[responseCard.Card.DeckID] = append(m[responseCard.Card.DeckID], *responseCard)
+	workers := 10
+
+	if len(memDates) < 10 {
+		workers = 1
+	}
+
+	M := len(memDates) / workers
+
+	wg.Add(workers)
+
+	ch := make(chan models.ResponseCard, len(memDates))
+
+	for i := 0; i < workers; i++ {
+		hi, lo := i*M, (i+1)*M
+		if i == workers-1 {
+			lo = len(memDates)
+		}
+
+		subMemDates := memDates[hi:lo]
+		go func() {
+			for index := range subMemDates {
+				answersList := GenerateMCQ(&subMemDates[index], userID)
+				responseCard.Set(&subMemDates[index], answersList)
+				ch <- *responseCard
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	close(ch)
+
+	for toto := range ch {
+		m[toto.Card.DeckID] = append(m[toto.Card.DeckID], toto)
 	}
 
 	todayResponse := new(models.TodayResponse)
