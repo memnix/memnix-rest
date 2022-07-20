@@ -1155,6 +1155,37 @@ var doc = `{
                 }
             }
         },
+        "/v1/users/confirmpassword": {
+            "post": {
+                "description": "Confirm a password reset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "reset a password",
+                "parameters": [
+                    {
+                        "description": "Password reset",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PasswordResetConfirm"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/v1/users/id/{id}": {
             "get": {
                 "security": [
@@ -1185,6 +1216,37 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
+                    }
+                }
+            }
+        },
+        "/v1/users/resetpassword": {
+            "post": {
+                "description": "Request a password reset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "gets a code to reset a password",
+                "parameters": [
+                    {
+                        "description": "Email",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
                     }
                 }
             }
@@ -1229,18 +1291,12 @@ var doc = `{
                 "deck_id": {
                     "type": "integer",
                     "example": 1
-                },
-                "mcq": {
-                    "$ref": "#/definitions/models.Mcq"
                 }
             }
         },
         "models.CardResponse": {
             "type": "object",
             "properties": {
-                "card": {
-                    "$ref": "#/definitions/models.Card"
-                },
                 "card_id": {
                     "type": "integer",
                     "example": 1
@@ -1395,6 +1451,20 @@ var doc = `{
                 }
             }
         },
+        "models.PasswordResetConfirm": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "models.RegisterStruct": {
             "type": "object",
             "properties": {
@@ -1443,12 +1513,12 @@ var doc = `{
         "models.ResponseDeck": {
             "type": "object",
             "properties": {
+                "Deck": {
+                    "$ref": "#/definitions/models.Deck"
+                },
                 "card_count": {
                     "type": "integer",
                     "example": 42
-                },
-                "deck": {
-                    "$ref": "#/definitions/models.Deck"
                 },
                 "deck_id": {
                     "type": "integer",

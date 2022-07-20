@@ -7,8 +7,11 @@ import (
 	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -128,6 +131,121 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success updated deck config",
+		Data:    nil,
+		Count:   1,
+	})
+}
+
+// ResetPassword method to request a password reset
+// @Description Request a password reset
+// @Summary gets a code to reset a password
+// @Tags User
+// @Produce json
+// @Accept json
+// @Param config body string true "Email"
+// @Success 200
+// @Router /v1/users/resetpassword [post]
+func ResetPassword(c *fiber.Ctx) error {
+	db := database.DBConn
+
+	var body struct {
+		Email string `json:"email"`
+	}
+
+	if err := c.BodyParser(&body); err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+	}
+
+	email := strings.ToLower(body.Email)
+	email = strings.TrimSpace(email)
+
+	if err := db.Where("email = ?", email).First(&models.User{}).Error; err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+	}
+
+	_, found := database.Cache.Get(email)
+	if found {
+		return queries.RequestError(c, http.StatusBadRequest, "A password reset has already been sent to this email address. Please check your email for the link.")
+	}
+
+	token := utils.GenerateSecretCode(3)
+	database.Cache.Set(email, token, time.Minute*10)
+
+	// Send email
+	go func() {
+		err := utils.SendEmail(email, "Password Reset", "Your password reset code is: "+token)
+		if err != nil {
+			log := models.CreateLog(fmt.Sprintf("Error on ResetPassword: %s", err.Error()), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(0, 0, 0)
+			_ = log.SendLog()
+		}
+	}()
+
+	log := models.CreateLog(fmt.Sprintf("Password reset request for %s", email), models.LogUserPasswordReset).SetType(models.LogTypeInfo).AttachIDs(0, 0, 0)
+	_ = log.SendLog()
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success sent password reset email",
+		Data:    nil,
+		Count:   1,
+	})
+}
+
+// ResetPasswordConfirm method to confirm a password reset
+// @Description Confirm a password reset
+// @Summary reset a password
+// @Tags User
+// @Produce json
+// @Accept json
+// @Param config body models.PasswordResetConfirm true "Password reset"
+// @Success 200
+// @Router /v1/users/confirmpassword [post]
+func ResetPasswordConfirm(c *fiber.Ctx) error {
+	db := database.DBConn
+
+	var body models.PasswordResetConfirm
+
+	if err := c.BodyParser(&body); err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+	}
+
+	email := strings.ToLower(body.Email)
+	email = strings.TrimSpace(email)
+
+	token, found := database.Cache.Get(email)
+	if !found {
+		return queries.RequestError(c, http.StatusBadRequest, "Your password reset code has expired. Please request a new one.")
+	}
+
+	if token != body.Code {
+		return queries.RequestError(c, http.StatusBadRequest, "Invalid password reset code.")
+	}
+
+	user := new(models.User)
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+	}
+
+	// Register checks
+	if len(body.Pass) > utils.MaxPasswordLen {
+		log := models.CreateLog(fmt.Sprintf("Error on reset password: %s - %s", user.Username, user.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
+	}
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(body.Pass), 10) // Hash password
+
+	user.Password = password
+	db.Save(user)
+
+	database.Cache.Delete(email)
+
+	log := models.CreateLog(fmt.Sprintf("Password reset for %s", email), models.LogUserPasswordChanged).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	_ = log.SendLog()
+
+	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+		Success: true,
+		Message: "Success updated password",
 		Data:    nil,
 		Count:   1,
 	})

@@ -91,6 +91,8 @@ const (
 	LogUserRegister        LogEvent = "user.register"
 	LogUserEdit            LogEvent = "user.edit"
 	LogUserDeleted         LogEvent = "user.deleted"
+	LogUserPasswordReset   LogEvent = "user.password_reset"
+	LogUserPasswordChanged LogEvent = "user.password_changed"
 	LogSubscribe           LogEvent = "user.subscribe"
 	LogUnsubscribe         LogEvent = "user.unsubscribe"
 	LogUserDeckLimit       LogEvent = "user.deckLimit"

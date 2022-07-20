@@ -31,6 +31,11 @@ func main() { // Try to connect to the database
 		log.Panic("Can't connect database:", err.Error())
 	}
 
+	// Create caching session
+	if err := database.CreateCache(); err != nil {
+		log.Panic("Can't create caching session:", err.Error())
+	}
+
 	// Connect to RabbitMQ
 	if _, err := database.Rabbit(); err != nil {
 		log.Panic("Can't connect to rabbitMq: ", err)
