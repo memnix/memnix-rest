@@ -31,6 +31,12 @@ type RegisterStruct struct {
 	Password string `json:"password"`
 }
 
+type PasswordResetConfirm struct {
+	Email string `json:"email"`
+	Code  string `json:"code"`
+	Pass  string `json:"password"`
+}
+
 type PublicUser struct {
 	Username    string     `json:"user_name"`
 	Permissions Permission `json:"user_permissions" example:"0"` // 0: User; 1: Mod; 2: Admin

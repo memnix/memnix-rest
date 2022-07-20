@@ -136,6 +136,15 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	})
 }
 
+// ResetPassword method to request a password reset
+// @Description Request a password reset
+// @Summary gets a code to reset a password
+// @Tags User
+// @Produce json
+// @Accept json
+// @Param config body string true "Email"
+// @Success 200
+// @Router /v1/users/resetpassword [post]
 func ResetPassword(c *fiber.Ctx) error {
 	db := database.DBConn
 
@@ -182,14 +191,19 @@ func ResetPassword(c *fiber.Ctx) error {
 	})
 }
 
+// ResetPasswordConfirm method to confirm a password reset
+// @Description Confirm a password reset
+// @Summary reset a password
+// @Tags User
+// @Produce json
+// @Accept json
+// @Param config body models.PasswordResetConfirm true "Password reset"
+// @Success 200
+// @Router /v1/users/confirmpassword [post]
 func ResetPasswordConfirm(c *fiber.Ctx) error {
 	db := database.DBConn
 
-	var body struct {
-		Code  string `json:"code"`
-		Pass  string `json:"password"`
-		Email string `json:"email"`
-	}
+	var body models.PasswordResetConfirm
 
 	if err := c.BodyParser(&body); err != nil {
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())

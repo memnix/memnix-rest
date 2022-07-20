@@ -28,13 +28,9 @@ definitions:
       deck_id:
         example: 1
         type: integer
-      mcq:
-        $ref: '#/definitions/models.Mcq'
     type: object
   models.CardResponse:
     properties:
-      card:
-        $ref: '#/definitions/models.Card'
       card_id:
         example: 1
         type: integer
@@ -141,6 +137,15 @@ definitions:
       mcq_type:
         type: integer
     type: object
+  models.PasswordResetConfirm:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   models.RegisterStruct:
     properties:
       email:
@@ -172,11 +177,11 @@ definitions:
     type: object
   models.ResponseDeck:
     properties:
+      Deck:
+        $ref: '#/definitions/models.Deck'
       card_count:
         example: 42
         type: integer
-      deck:
-        $ref: '#/definitions/models.Deck'
       deck_id:
         example: 1
         type: integer
@@ -926,6 +931,26 @@ paths:
       summary: gets a user
       tags:
       - User
+  /v1/users/confirmpassword:
+    post:
+      consumes:
+      - application/json
+      description: Confirm a password reset
+      parameters:
+      - description: Password reset
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/models.PasswordResetConfirm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: reset a password
+      tags:
+      - User
   /v1/users/id/{id}:
     get:
       description: Get a user by ID.
@@ -945,6 +970,26 @@ paths:
       security:
       - Admin: []
       summary: gets a user
+      tags:
+      - User
+  /v1/users/resetpassword:
+    post:
+      consumes:
+      - application/json
+      description: Request a password reset
+      parameters:
+      - description: Email
+        in: body
+        name: config
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: gets a code to reset a password
       tags:
       - User
 securityDefinitions:
