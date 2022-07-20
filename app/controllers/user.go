@@ -187,7 +187,7 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 
 	var body struct {
 		Code  string `json:"code"`
-		Pass  string `json:"pass"`
+		Pass  string `json:"password"`
 		Email string `json:"email"`
 	}
 
