@@ -49,7 +49,9 @@ func getSMTPConfig() (*gomail.Dialer, *gomail.Message) {
 	// Settings for SMTP server
 	d := gomail.NewDialer(host, port, from, password)
 	d.TLSConfig = &tls.Config{
-		InsecureSkipVerify: true,
+		InsecureSkipVerify: false,
+		MaxVersion:         0,
+		ServerName:         host,
 	}
 	m := gomail.NewMessage()
 	m.SetHeader("From", from)
