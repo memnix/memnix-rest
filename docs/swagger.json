@@ -1103,44 +1103,6 @@
                 }
             }
         },
-        "/v1/users/config/{deckId}/today": {
-            "post": {
-                "description": "Set the today config for a deck",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "sets the today config for a deck",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Deck ID",
-                        "name": "deckId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Deck Config",
-                        "name": "config",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.DeckConfig"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/v1/users/confirmpassword": {
             "post": {
                 "description": "Confirm a password reset",
@@ -1227,6 +1189,44 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/users/settings/{deckId}/today": {
+            "post": {
+                "description": "Set the today config for a deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "sets the today config for a deck",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deck ID",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Deck Config",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeckConfig"
                         }
                     }
                 ],

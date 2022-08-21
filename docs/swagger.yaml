@@ -906,31 +906,6 @@ paths:
       summary: gets a list of user
       tags:
       - User
-  /v1/users/config/{deckId}/today:
-    post:
-      consumes:
-      - application/json
-      description: Set the today config for a deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckId
-        required: true
-        type: integer
-      - description: Deck Config
-        in: body
-        name: config
-        required: true
-        schema:
-          $ref: '#/definitions/models.DeckConfig'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: sets the today config for a deck
-      tags:
-      - User
   /v1/users/confirmpassword:
     post:
       consumes:
@@ -990,6 +965,31 @@ paths:
         "200":
           description: ""
       summary: gets a code to reset a password
+      tags:
+      - User
+  /v1/users/settings/{deckId}/today:
+    post:
+      consumes:
+      - application/json
+      description: Set the today config for a deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckId
+        required: true
+        type: integer
+      - description: Deck Config
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeckConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: sets the today config for a deck
       tags:
       - User
 securityDefinitions:
