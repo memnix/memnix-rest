@@ -85,14 +85,14 @@ func GetUserByID(c *fiber.Ctx) error {
 
 // SetTodayConfig method to set a config
 // @Description Set the today config for a deck
-// @Summary gets a user
+// @Summary sets the today config for a deck
 // @Tags User
 // @Produce json
 // @Accept json
 // @Param deckId path int true "Deck ID"
 // @Param config body models.DeckConfig true "Deck Config"
 // @Success 200
-// @Router /v1/users/config/{deckId}/today [get]
+// @Router /v1/users/config/{deckId}/today [put]
 func SetTodayConfig(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 

@@ -1118,7 +1118,7 @@ var doc = `{
             }
         },
         "/v1/users/config/{deckId}/today": {
-            "get": {
+            "put": {
                 "description": "Set the today config for a deck",
                 "consumes": [
                     "application/json"
@@ -1129,7 +1129,7 @@ var doc = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "gets a user",
+                "summary": "sets the today config for a deck",
                 "parameters": [
                     {
                         "type": "integer",
