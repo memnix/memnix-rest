@@ -907,7 +907,7 @@ paths:
       tags:
       - User
   /v1/users/config/{deckId}/today:
-    put:
+    post:
       consumes:
       - application/json
       description: Set the today config for a deck

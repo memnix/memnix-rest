@@ -1118,7 +1118,7 @@ var doc = `{
             }
         },
         "/v1/users/config/{deckId}/today": {
-            "put": {
+            "post": {
                 "description": "Set the today config for a deck",
                 "consumes": [
                     "application/json"
