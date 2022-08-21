@@ -16,7 +16,7 @@ const MaxImageURLLen = 200
 const MaxCardExplicationLen = 500
 
 const MaxDeckNameLen = 42
-const MinDeckLen = 6
+const MinDeckNameLen = 5
 const DeckKeyLen = 4
 const MaxLangLen = 2
 

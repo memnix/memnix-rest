@@ -47,7 +47,7 @@ func (s DeckStatus) ToString() string {
 
 // NotValidate performs validation of the deck
 func (deck *Deck) NotValidate() bool {
-	return len(deck.DeckName) < utils.MinDeckLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) < utils.MinDeckLen || len(
+	return len(deck.DeckName) <= utils.MinDeckNameLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) <= utils.MinDeckNameLen || len(
 		deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageURLLen || len(deck.Key) > utils.DeckKeyLen || len(
 		deck.Lang) > utils.MaxLangLen
 }
