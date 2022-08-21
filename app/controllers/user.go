@@ -92,7 +92,7 @@ func GetUserByID(c *fiber.Ctx) error {
 // @Param deckId path int true "Deck ID"
 // @Param config body models.DeckConfig true "Deck Config"
 // @Success 200
-// @Router /v1/users/config/{deckId}/today [put]
+// @Router /v1/users/config/{deckId}/today [post]
 func SetTodayConfig(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
