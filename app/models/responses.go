@@ -15,6 +15,7 @@ type Answer struct {
 // DeckResponse structure
 type DeckResponse struct {
 	DeckID uint           `json:"deck_id"`
+	Deck   Deck           `json:"deck"`
 	Cards  []ResponseCard `json:"cards"`
 	Count  int            `json:"count"`
 }

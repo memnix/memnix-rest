@@ -400,6 +400,7 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 				responseCard.Set(&subMemDates[index], answersList)
 				ch <- *responseCard
 			}
+
 			wg.Done()
 		}()
 	}
@@ -413,10 +414,13 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	todayResponse := new(models.TodayResponse)
 
 	for key := range m {
+		deck := new(models.Deck)
+		_ = db.First(&deck, key).Error
 		deckResponse := models.DeckResponse{
 			DeckID: key,
 			Cards:  m[key],
 			Count:  len(m[key]),
+			Deck:   *deck,
 		}
 		todayResponse.DecksReponses = append(todayResponse.DecksReponses, deckResponse)
 	}
