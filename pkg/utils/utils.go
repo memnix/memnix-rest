@@ -50,6 +50,7 @@ func getSMTPConfig() (*gomail.Dialer, *gomail.Message) {
 	d := gomail.NewDialer(host, port, from, password)
 	d.TLSConfig = &tls.Config{
 		InsecureSkipVerify: false,
+		MinVersion:         tls.VersionTLS12,
 		MaxVersion:         0,
 		ServerName:         host,
 	}
