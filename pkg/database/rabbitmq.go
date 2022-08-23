@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -39,7 +40,8 @@ func Rabbit() (*amqp.Channel, error) {
 	return ch, nil
 }
 func SendMessageToChannel(ch *amqp.Channel, body []byte, key string) error {
-	err := ch.Publish(
+	err := ch.PublishWithContext(
+		context.Background(),
 		"logs", // exchange
 		key,    // routing key
 		false,  // mandatory

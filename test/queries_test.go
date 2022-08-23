@@ -19,7 +19,10 @@ func TestFetchTodayCard(t *testing.T) {
 		},
 	}
 
-	Setup()
+	_, err := Setup()
+	if err != nil {
+		return
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
