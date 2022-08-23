@@ -2,20 +2,21 @@ package database
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/patrickmn/go-cache"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var (
 	// DBConn is a pointer to gorm.DB
 	DBConn   *gorm.DB
+	Cache    *cache.Cache
 	user     string
 	password string
 	host     string
@@ -31,23 +32,36 @@ func LoadVar() {
 		log.Fatal("Error loading .env file")
 	}
 
-	user = os.Getenv("DB_USER")         // Get DB_USER from env
-	password = os.Getenv("DB_PASSWORD") // Get DB_PASSWORD from env
-	host = os.Getenv("DB_HOST")         // Get DB_HOST from env
-	db = os.Getenv("DB_DB")             // Get DB_DB (db name) from env
-	port = os.Getenv("DB_PORT")         // Get DB_PORT from env
-	rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
+	if os.Getenv("APP_ENV") == "development" {
+		log.Println("Running in development mode")
+		user = os.Getenv("DEBUG_DB_USER")         // Get DB_USER from env
+		password = os.Getenv("DEBUG_DB_PASSWORD") // Get DB_PASSWORD from env
+		host = os.Getenv("DEBUG_DB_HOST")         // Get DB_HOST from env
+		db = os.Getenv("DEBUG_DB_DB")             // Get DB_DB (db name) from env
+		port = os.Getenv("DEBUG_DB_PORT")         // Get DB_PORT from env
+		rabbitMQ = os.Getenv("DEBUG_RABBIT_MQ")   // Get DB_PORT from env
+	} else {
+		log.Println("Running in production mode")
+		user = os.Getenv("DB_USER")         // Get DB_USER from env
+		password = os.Getenv("DB_PASSWORD") // Get DB_PASSWORD from env
+		host = os.Getenv("DB_HOST")         // Get DB_HOST from env
+		db = os.Getenv("DB_DB")             // Get DB_DB (db name) from env
+		port = os.Getenv("DB_PORT")         // Get DB_PORT from env
+		rabbitMQ = os.Getenv("RABBIT_MQ")   // Get DB_PORT from env
+	}
+}
 
+func CreateCache() error {
+	Cache = cache.New(10*time.Minute, 15*time.Minute)
+	return nil
 }
 
 // Connect creates a connection to database
 func Connect() (err error) {
-
-	// Load var from .env file
-	LoadVar()
+	LoadVar() // Load var from .env file
 
 	// Convert port
-	port, err := strconv.Atoi(port)
+	dbPort, err := strconv.Atoi(port)
 	if err != nil {
 		return err
 	}
@@ -61,10 +75,11 @@ func Connect() (err error) {
 	)
 
 	// Create postgres connection string
-	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%d sslmode=disable", user, password, host, db, port)
+	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%d sslmode=disable", user, password, host, db, dbPort)
 	// Open connection
 	DBConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: newLogger,
+		Logger:                 newLogger,
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		return err

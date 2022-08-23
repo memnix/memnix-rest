@@ -2,20 +2,28 @@ package models
 
 import (
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
+	"math/rand"
+	"strconv"
+	"time"
 )
 
 // Deck structure
 type Deck struct {
 	gorm.Model  `swaggerignore:"true"`
+	Share       bool       `json:"deck_share" example:"true" gorm:"default:false"`
+	Status      DeckStatus `json:"deck_status" example:"2"` // 1: Draft - 2: Private - 3: Published
 	DeckName    string     `json:"deck_name" example:"First Deck"`
 	Description string     `json:"deck_description" example:"A simple demo deck"`
 	Banner      string     `json:"deck_banner" example:"A banner url"`
-	Status      DeckStatus `json:"deck_status" example:"2"` // 1: Draft - 2: Private - 3: Published
+	Key         string     `json:"deck_key" example:"MEM"`
+	Code        string     `json:"deck_code" example:"6452"`
+	Lang        string     `json:"deck_lang"`
 }
 
 // DeckStatus enum type
-type DeckStatus int64
+type DeckStatus uint8
 
 const (
 	DeckPrivate DeckStatus = iota + 1
@@ -35,6 +43,31 @@ func (s DeckStatus) ToString() string {
 	default:
 		return "Unknown"
 	}
+}
+
+// NotValidate performs validation of the deck
+func (deck *Deck) NotValidate() bool {
+	return len(deck.DeckName) <= utils.MinDeckNameLen || len(deck.DeckName) > utils.MaxDeckNameLen || len(deck.Description) <= utils.MinDeckNameLen || len(
+		deck.Description) > utils.MaxDefaultLen || len(deck.Banner) > utils.MaxImageURLLen || len(deck.Key) > utils.DeckKeyLen || len(
+		deck.Lang) > utils.MaxLangLen
+}
+
+// GenerateCode creates a random code from the deck key
+func (deck *Deck) GenerateCode() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	randomInt := rand.Intn(99)
+	runes := []rune(deck.Key)
+	var result []int
+	result = append(result, randomInt)
+
+	for i := 0; i < len(runes); i++ {
+		result = append(result, int(runes[i]))
+	}
+
+	rand.Shuffle(len(result), func(i, j int) { result[i], result[j] = result[j], result[i] })
+
+	deck.Code = strconv.Itoa(result[0]+result[1]/2) + strconv.Itoa(result[4]) + strconv.Itoa(result[2]+result[3]/2)
 }
 
 // GetOwner returns the deck Owner

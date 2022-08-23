@@ -1,22 +1,23 @@
 package models
 
 import (
+	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 )
 
 // Access structure
 type Access struct {
-	gorm.Model
-	UserID      uint `json:"user_id" example:"1"`
-	User        User
-	DeckID      uint `json:"deck_id" example:"1"`
-	Deck        Deck
+	gorm.Model  `swaggerignore:"true"`
+	UserID      uint             `json:"user_id" example:"1"`
+	User        User             `swaggerignore:"true"`
+	DeckID      uint             `json:"deck_id" example:"1"`
+	Deck        Deck             `swaggerignore:"true"`
 	Permission  AccessPermission `json:"permission" example:"0"` // 0: None - 1: Student - 2: Editor - 3: Owner
 	ToggleToday bool             `json:"today" gorm:"default:true"`
 }
 
 // AccessPermission  enum type
-type AccessPermission int64
+type AccessPermission uint8
 
 const (
 	AccessNone AccessPermission = iota
@@ -35,7 +36,7 @@ func (s AccessPermission) ToString() string {
 	case AccessOwner:
 		return "Access Owner"
 	default:
-		return "Unknown"
+		return utils.UNKNOWN
 	}
 }
 

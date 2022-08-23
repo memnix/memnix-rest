@@ -1,14 +1,16 @@
 package routes
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/memnix/memnixrest/app/controllers"
-
-	_ "github.com/memnix/memnixrest/docs"
+	_ "github.com/memnix/memnixrest/docs" // Side effect import
+	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
 
-	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func New() *fiber.App {
@@ -21,25 +23,32 @@ func New() *fiber.App {
 		AllowCredentials: true,
 	}))
 
-	app.Get("/swagger/*", swagger.Handler) // default
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed, // 2
+	}))
+
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Query("refresh") == "true"
+		},
+		Expiration:   2 * time.Minute,
+		CacheControl: true,
+	}))
+
+	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
 	// Api group
-	api := app.Group("/api")
+	v1 := app.Group("/v1")
 
-	api.Get("/", func(c *fiber.Ctx) error {
+	v1.Get("/", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
 	// Auth
-	api.Post("/register", controllers.Register)
-	api.Post("/login", controllers.Login)
-	api.Get("/user", controllers.User)
-	api.Post("/logout", controllers.Logout)
-
-	// v1 group "/api/v1"
-	v1 := api.Group("/v1", func(c *fiber.Ctx) error {
-		return c.Next()
-	})
+	v1.Post("/register", controllers.Register)
+	v1.Post("/login", controllers.Login)
+	v1.Get("/user", controllers.User)
+	v1.Post("/logout", controllers.Logout)
 
 	v1.Get("/", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error

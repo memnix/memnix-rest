@@ -15,6 +15,28 @@ type User struct {
 	Password    []byte     `json:"-" swaggerignore:"true"`
 }
 
+type LoginStruct struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token   string `json:"token"`
+	Message string `json:"message"`
+}
+
+type RegisterStruct struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type PasswordResetConfirm struct {
+	Email string `json:"email"`
+	Code  string `json:"code"`
+	Pass  string `json:"password"`
+}
+
 type PublicUser struct {
 	Username    string     `json:"user_name"`
 	Permissions Permission `json:"user_permissions" example:"0"` // 0: User; 1: Mod; 2: Admin
@@ -29,7 +51,7 @@ func (publicUser *PublicUser) Set(user *User) {
 	publicUser.Bio = user.Bio
 }
 
-//Permission enum type
+// Permission enum type
 type Permission int64
 
 const (

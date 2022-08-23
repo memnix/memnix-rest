@@ -13,6 +13,8 @@ func registerUserRoutes(r fiber.Router) {
 
 	// Post
 	r.Post("/users/settings/:deckID/today", controllers.SetTodayConfig)
+	r.Post("/users/resetpassword", controllers.ResetPassword)
+	r.Post("/users/confirmpassword", controllers.ResetPasswordConfirm)
 
 	// Put
 	r.Put("/users/id/:id", controllers.UpdateUserByID) // Update a user using his ID

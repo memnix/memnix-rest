@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -11,14 +12,14 @@ var RabbitMqChan *amqp.Channel
 func Rabbit() (*amqp.Channel, error) {
 	conn, err := amqp.Dial(rabbitMQ)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to RabbitMQ: %s", err)
+		return nil, fmt.Errorf("failed to connect to RabbitMQ: %w", err)
 	}
 
 	fmt.Println("Connected to RabbitMQ")
 
 	ch, err := conn.Channel()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open a channel: %s", err)
+		return nil, fmt.Errorf("failed to open a channel: %w", err)
 	}
 
 	err = ch.ExchangeDeclare(
@@ -31,7 +32,7 @@ func Rabbit() (*amqp.Channel, error) {
 		nil,     // arguments
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to declare an exchange: %s", err)
+		return nil, fmt.Errorf("failed to declare an exchange: %w", err)
 	}
 
 	RabbitMqChan, RabbitMqConn = ch, conn
@@ -39,8 +40,8 @@ func Rabbit() (*amqp.Channel, error) {
 	return ch, nil
 }
 func SendMessageToChannel(ch *amqp.Channel, body []byte, key string) error {
-
-	err := ch.Publish(
+	err := ch.PublishWithContext(
+		context.Background(),
 		"logs", // exchange
 		key,    // routing key
 		false,  // mandatory
@@ -50,7 +51,7 @@ func SendMessageToChannel(ch *amqp.Channel, body []byte, key string) error {
 			Body:        body,
 		})
 	if err != nil {
-		return fmt.Errorf("failed to declare send a message: %s", err)
+		return fmt.Errorf("failed to declare send a message: %w", err)
 	}
 	return nil
 }

@@ -9,15 +9,13 @@ import (
 func registerCardRoutes(r fiber.Router) {
 	// Get
 	r.Get("/cards/today", controllers.GetAllTodayCard)                   // Get all Today's card
-	r.Get("/cards/today/one", controllers.GetTodayCard)                  // Get Today card
-	r.Get("/cards/next", controllers.GetNextCard)                        // Get Next card
-	r.Get("/cards/:deckID/next", controllers.GetNextCardByDeck)          // Get Next card by deck
 	r.Get("/cards/:deckID/training", controllers.GetTrainingCardsByDeck) // Get training card by deck
 
 	r.Get("/mcqs/:deckID", controllers.GetMcqsByDeck) // Get MCQs by deckID
 
 	// Post
-	r.Post("/cards/response", controllers.PostResponse) // Post a response
+	r.Post("/cards/response", controllers.PostResponse)                 // Post a response
+	r.Post("/cards/selfresponse", controllers.PostSelfEvaluateResponse) // Post
 
 	// ADMIN ONLY
 	r.Get("/cards", controllers.GetAllCards)                   // Get all cards
@@ -28,8 +26,8 @@ func registerCardRoutes(r fiber.Router) {
 	r.Post("/mcqs/new", controllers.CreateMcq)      // Create a mcq
 
 	r.Put("/cards/:id/edit", controllers.UpdateCardByID) // Update a card by ID
-	r.Put("/mcqs/:id/edit", controllers.UpdateMcqById)   // Update a mcq by ID
+	r.Put("/mcqs/:id/edit", controllers.UpdateMcqByID)   // Update a mcq by ID
 
-	r.Delete("/cards/:id", controllers.DeleteCardById) // Delete a card by ID
-	r.Delete("/mcqs/:id", controllers.DeleteMcqById)   // Delete a mcq by ID
+	r.Delete("/cards/:id", controllers.DeleteCardByID) // Delete a card by ID
+	r.Delete("/mcqs/:id", controllers.DeleteMcqByID)   // Delete a mcq by ID
 }
