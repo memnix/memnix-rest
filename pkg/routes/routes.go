@@ -29,7 +29,7 @@ func New() *fiber.App {
 
 	app.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
-			return c.Query("refresh") == "true"
+			return c.Query("refresh") == "true" || c.Path() == "/v1/user" || c.Path() == "/v1/login" || c.Path() == "/v1/register" || c.Path() == "/v1/logout"
 		},
 		Expiration:   2 * time.Minute,
 		CacheControl: true,
