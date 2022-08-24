@@ -17,7 +17,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var SecretKey = os.Getenv("SECRET") // SecretKey env variable
+var SecretKey string // SecretKey env variable
+
+func Init() {
+	SecretKey = os.Getenv("SECRET") // SecretKey env variable
+}
 
 // Register function to create a new user
 // @Description Create a new user
