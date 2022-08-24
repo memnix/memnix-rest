@@ -38,6 +38,7 @@ type PasswordResetConfirm struct {
 }
 
 type PublicUser struct {
+	ID          uint       `json:"user_id"`
 	Username    string     `json:"user_name"`
 	Permissions Permission `json:"user_permissions" example:"0"` // 0: User; 1: Mod; 2: Admin
 	Avatar      string     `json:"user_avatar" example:"avatar url"`
@@ -45,6 +46,7 @@ type PublicUser struct {
 }
 
 func (publicUser *PublicUser) Set(user *User) {
+	publicUser.ID = user.ID
 	publicUser.Username = user.Username
 	publicUser.Permissions = user.Permissions
 	publicUser.Avatar = user.Avatar

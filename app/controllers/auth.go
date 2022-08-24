@@ -153,7 +153,17 @@ func Login(c *fiber.Ctx) error {
 func User(c *fiber.Ctx) error {
 	statusCode, response := IsConnected(c) // Check if connected
 
-	return c.Status(statusCode).JSON(response) // Return response
+	user := new(models.PublicUser)
+
+	user.Set(&response.User) // Set user
+
+	responseUser := models.ResponsePublicAuth{
+		Success: response.Success,
+		Message: response.Message,
+		User:    *user,
+	}
+
+	return c.Status(statusCode).JSON(responseUser) // Return response
 }
 
 // Logout function to log user logout

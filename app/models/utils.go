@@ -81,6 +81,12 @@ func (responseCard *ResponseCard) Set(memdate *MemDate, answers []string) {
 
 // ResponseAuth struct
 type ResponseAuth struct {
+	Success bool   `json:"success"`
+	User    User   `json:"user"`
+	Message string `json:"message"`
+}
+
+type ResponsePublicAuth struct {
 	Success bool       `json:"success"`
 	User    PublicUser `json:"user"`
 	Message string     `json:"message"`
