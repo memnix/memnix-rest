@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
+	github.com/bytedance/sonic v1.4.0
 	github.com/gofiber/fiber/v2 v2.36.0
 	github.com/gofiber/swagger v0.1.0
 	github.com/joho/godotenv v1.4.0
@@ -16,8 +17,12 @@ require (
 )
 
 require (
+	github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
+	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 

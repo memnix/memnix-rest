@@ -12,10 +12,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
 )
+import "github.com/bytedance/sonic"
 
 func New() *fiber.App {
 	// Create new app
-	app := fiber.New()
+	app := fiber.New(
+		fiber.Config{
+			JSONEncoder: sonic.Marshal,
+			JSONDecoder: sonic.Unmarshal,
+		})
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost, *",
