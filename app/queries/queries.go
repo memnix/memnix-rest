@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"sync"
 	"time"
 
 	"github.com/memnix/memnixrest/app/models"
@@ -357,58 +356,19 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 // FetchTodayCard return today cards
 func FetchTodayCard(userID uint) *models.ResponseHTTP {
 	db := database.DBConn // DB Conn
-	t := time.Now()
 
 	res := new(models.ResponseHTTP)
-	var memDates []models.MemDate
 
-	if err := db.Joins(
-		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
-		userID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ? AND accesses.toggle_today IS true",
-		userID, t.AddDate(0, 0, 1).Add(
-			time.Duration(-t.Hour())*time.Hour), models.AccessStudent).Order("next_date asc").Find(&memDates).Error; err != nil {
-		res.GenerateError("Today's memDate not found")
+	memDates, err := FetchTodayMemDate(userID)
+	if err != nil {
+		res.GenerateError(err.Error())
 		return res
 	}
 
-	m := make(map[uint][]models.ResponseCard)
-	wg := new(sync.WaitGroup)
-	responseCard := new(models.ResponseCard)
-
-	workers := 10
-
-	if len(memDates) < 10 {
-		workers = 1
-	}
-
-	M := len(memDates) / workers
-
-	wg.Add(workers)
-
-	ch := make(chan models.ResponseCard, len(memDates))
-
-	for i := 0; i < workers; i++ {
-		hi, lo := i*M, (i+1)*M
-		if i == workers-1 {
-			lo = len(memDates)
-		}
-
-		subMemDates := memDates[hi:lo]
-		go func() {
-			for index := range subMemDates {
-				answersList := GenerateMCQ(&subMemDates[index], userID)
-				responseCard.Set(&subMemDates[index], answersList)
-				ch <- *responseCard
-			}
-
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-	close(ch)
-
-	for toto := range ch {
-		m[toto.Card.DeckID] = append(m[toto.Card.DeckID], toto)
+	m, err := GenerateResponseCardMap(memDates, userID)
+	if err != nil {
+		res.GenerateError(err.Error())
+		return res
 	}
 
 	todayResponse := new(models.TodayResponse)
@@ -422,7 +382,7 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 			Count:  len(m[key]),
 			Deck:   *deck,
 		}
-		todayResponse.DecksReponses = append(todayResponse.DecksReponses, deckResponse)
+		todayResponse.AppendDeckResponse(deckResponse)
 	}
 
 	sort.Slice(todayResponse.DecksReponses, func(i, j int) bool {

@@ -24,3 +24,7 @@ type TodayResponse struct {
 	DecksReponses []DeckResponse `json:"decks_responses"`
 	Count         int            `json:"count"`
 }
+
+func (today *TodayResponse) AppendDeckResponse(deckResponse DeckResponse) {
+	today.DecksReponses = append(today.DecksReponses, deckResponse)
+}
