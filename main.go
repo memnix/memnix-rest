@@ -5,6 +5,7 @@ import (
 	_ "github.com/arsmn/fiber-swagger/v2"
 	"github.com/memnix/memnixrest/app/controllers"
 	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/routes"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -68,6 +69,9 @@ func main() { // Try to connect to the database
 			log.Panic("Can't auto migrate models:", err.Error())
 		}
 	}
+
+	// Init memDates cache
+	queries.InitCache()
 
 	// Create the app
 	app := routes.New()

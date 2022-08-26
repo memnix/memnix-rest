@@ -1,43 +1,32 @@
 package queries
 
 import (
-	"fmt"
 	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/cache"
 	"github.com/memnix/memnixrest/pkg/database"
 	"sync"
 	"time"
 )
 
-var cache = make(map[uint]map[uint]models.MemDate)
+var memDateCache *cache.Cache
 
-func exportCache(userID uint) []models.MemDate {
-	fmt.Println("export")
-	memDates := make([]models.MemDate, 0, len(cache[userID]))
-	for _, v := range cache[userID] {
-		memDates = append(memDates, v)
-	}
-	return memDates
-}
-
-func importCache(userID uint, memDates []models.MemDate) {
-	fmt.Println("import")
-	cache[userID] = make(map[uint]models.MemDate, len(memDates))
-	for _, v := range memDates {
-		cache[userID][v.CardID] = v
-	}
+func InitCache() {
+	memDateCache = cache.NewCache()
 }
 
 func FetchTodayMemDate(userID uint) ([]models.MemDate, error) {
 	db := database.DBConn // DB Conn
 	t := time.Now()
 
-	var memDates []models.MemDate
+	// Check if cache exists
 
-	if cache[userID] != nil {
-		fmt.Println("cache")
-		return exportCache(userID), nil
+	if memDateCache.Exists(userID) {
+		return memDateCache.Items(userID), nil
 	}
 
+	var memDates []models.MemDate
+
+	// Fetch today's memDates from DB
 	if err := db.Joins(
 		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
 		userID).Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ? AND accesses.toggle_today IS true",
@@ -46,7 +35,8 @@ func FetchTodayMemDate(userID uint) ([]models.MemDate, error) {
 		return nil, err
 	}
 
-	importCache(userID, memDates)
+	// Cache memDates
+	memDateCache.SetSlice(userID, memDates)
 
 	return memDates, nil
 }
@@ -57,15 +47,16 @@ func GenerateResponseCardMap(memDates []models.MemDate, userID uint) (map[uint][
 	wg := new(sync.WaitGroup)
 	responseCard := new(models.ResponseCard)
 
-	workers := 10
+	M := 12 // Number of handle per goroutine. Benchmark this value to optimize performance. (12 has been doing well)
 
-	if len(memDates) < workers {
+	var workers int
+
+	if len(memDates) < M {
 		workers = 1
-	} else if len(memDates) < workers*2 {
-		workers = 4
+		M = len(memDates)
+	} else {
+		workers = len(memDates) / M
 	}
-
-	M := len(memDates) / workers
 
 	wg.Add(workers)
 
