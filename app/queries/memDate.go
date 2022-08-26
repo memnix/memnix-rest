@@ -1,11 +1,31 @@
 package queries
 
 import (
+	"fmt"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
 	"sync"
 	"time"
 )
+
+var cache = make(map[uint]map[uint]models.MemDate)
+
+func exportCache(userID uint) []models.MemDate {
+	fmt.Println("export")
+	memDates := make([]models.MemDate, 0, len(cache[userID]))
+	for _, v := range cache[userID] {
+		memDates = append(memDates, v)
+	}
+	return memDates
+}
+
+func importCache(userID uint, memDates []models.MemDate) {
+	fmt.Println("import")
+	cache[userID] = make(map[uint]models.MemDate, len(memDates))
+	for _, v := range memDates {
+		cache[userID][v.CardID] = v
+	}
+}
 
 func FetchTodayMemDate(userID uint) ([]models.MemDate, error) {
 	db := database.DBConn // DB Conn
@@ -13,13 +33,20 @@ func FetchTodayMemDate(userID uint) ([]models.MemDate, error) {
 
 	var memDates []models.MemDate
 
+	if cache[userID] != nil {
+		fmt.Println("cache")
+		return exportCache(userID), nil
+	}
+
 	if err := db.Joins(
 		"left join accesses ON mem_dates.deck_id = accesses.deck_id AND accesses.user_id = ?",
-		userID).Joins("Card").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ? AND accesses.toggle_today IS true",
+		userID).Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.next_date < ? AND accesses.permission >= ? AND accesses.toggle_today IS true",
 		userID, t.AddDate(0, 0, 1).Add(
 			time.Duration(-t.Hour())*time.Hour), models.AccessStudent).Order("next_date asc").Find(&memDates).Error; err != nil {
 		return nil, err
 	}
+
+	importCache(userID, memDates)
 
 	return memDates, nil
 }
