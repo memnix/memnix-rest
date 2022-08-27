@@ -393,6 +393,8 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d (%s) | Deck - %d (%s)", access.UserID, access.User.Username, access.DeckID, access.Deck.DeckName), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
 	_ = log.SendLog()
 
+	_ = queries.ClearCacheByUserID(auth.User.ID)
+
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success unsub to the deck",
@@ -441,6 +443,8 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
+
+	_, _ = queries.FetchTodayMemDateByDeck(auth.User.ID, deck.ID, true)
 
 	log := models.CreateLog(fmt.Sprintf("SubToPrivateDeck: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
 	_ = log.SendLog()
@@ -542,6 +546,8 @@ func SubToDeck(c *fiber.Ctx) error {
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
+
+	_, _ = queries.FetchTodayMemDateByDeck(auth.User.ID, deck.ID, true)
 
 	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
 	_ = log.SendLog()

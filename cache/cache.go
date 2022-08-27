@@ -1,5 +1,6 @@
 package cache
 
+import "C"
 import (
 	"fmt"
 	"github.com/memnix/memnixrest/app/models"
@@ -43,6 +44,20 @@ func (c *Cache) SetSlice(key uint, value []models.MemDate) {
 	}
 }
 
+func (c *Cache) AppendSlice(key uint, value []models.MemDate) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	_, found := c.c[key]
+	if !found {
+		c.c[key] = cacheItem{
+			Object: make(map[uint]models.MemDate, len(value)),
+		}
+	}
+	for _, v := range value {
+		c.c[key].Object[v.ID] = v
+	}
+}
+
 func (c *Cache) Items(key uint) []models.MemDate {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -56,6 +71,17 @@ func (c *Cache) Items(key uint) []models.MemDate {
 		memDates = append(memDates, v)
 	}
 	return memDates
+}
+
+func (c *Cache) Replace(key uint, item models.MemDate) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	_, found := c.c[key]
+	if !found {
+		return
+	}
+
+	c.c[key].Object[item.ID] = item
 }
 
 func (c *Cache) Exists(key uint) bool {

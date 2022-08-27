@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/memnix/memnixrest/app/models"
-	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
@@ -187,59 +186,6 @@ func CheckDeckLimit(user *models.User) bool {
 	return true
 }
 
-// PostSelfEvaluatedMem updates Mem & MemDate
-func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, training bool) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
-
-	memDate := new(models.MemDate)
-
-	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
-		user.ID, card.ID).First(&memDate).Error; err != nil {
-		res.GenerateError(utils.ErrorRequestFailed) // MemDate not found
-		// TODO: Create a default MemDate
-		return res
-	}
-
-	exMem := FetchMem(memDate.CardID, user.ID)
-	if exMem.Efactor == 0 {
-		exMem.FillDefaultValues(user.ID, card.ID)
-	}
-
-	core.UpdateMemSelfEvaluated(exMem, training, quality)
-
-	res.GenerateSuccess("Success Post Mem", nil, 0)
-	return res
-}
-
-// PostMem updates MemDate & Mem
-func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
-
-	memDate := new(models.MemDate)
-
-	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
-		user.ID, card.ID).First(&memDate).Error; err != nil {
-		res.GenerateError(utils.ErrorRequestFailed) // MemDate not found
-		// TODO: Create a default MemDate
-		return res
-	}
-
-	exMem := FetchMem(memDate.CardID, user.ID)
-	if exMem.Efactor == 0 {
-		exMem.FillDefaultValues(user.ID, card.ID)
-	}
-
-	if training {
-		core.UpdateMemTraining(exMem, validation.Validate)
-	} else {
-		core.UpdateMem(exMem, validation.Validate)
-	}
-	res.GenerateSuccess("Success Post Mem", nil, 0)
-	return res
-}
-
 // PopulateMemDate with default value for a given user & deck
 // This is used on deck sub
 func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP {
@@ -272,39 +218,6 @@ func GetSubUsers(deckID uint) *models.ResponseHTTP {
 	}
 	res.GenerateSuccess("Success getting sub users", users, len(users))
 	return res
-}
-
-// GenerateMemDate with default nextDate
-func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
-
-	memDate := new(models.MemDate)
-
-	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", userID, cardID).First(&memDate).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			memDate.SetDefaultNextDate(userID, cardID, deckID)
-			db.Create(memDate)
-		} else {
-			res.GenerateError(err.Error())
-			return res
-		}
-	}
-	res.GenerateSuccess("Success generate MemDate", memDate, 1)
-	return res
-}
-
-// FetchMem returns last mem of an user on a given card
-func FetchMem(cardID, userID uint) *models.Mem {
-	db := database.DBConn // DB Conn
-
-	mem := new(models.Mem)
-	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", cardID, userID).Order("id desc").First(&mem).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			mem.Efactor = 0
-		}
-	}
-	return mem
 }
 
 // GenerateMCQ returns a list of answer
