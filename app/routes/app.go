@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
-	"github.com/memnix/memnixrest/app/models"
 	_ "github.com/memnix/memnixrest/docs" // Side effect import
+	"github.com/memnix/memnixrest/pkg/models"
 
 	"time"
 )

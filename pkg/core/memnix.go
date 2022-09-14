@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/models"
 	"strings"
 )
 

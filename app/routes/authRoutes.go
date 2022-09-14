@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/memnix/memnixrest/app/controllers"
-	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/pkg/models"
 )
 
 func registerAuthRoutes() {

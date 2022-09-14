@@ -2,8 +2,8 @@ package queries
 
 import (
 	"fmt"
-	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/models"
 	"sync"
 	"time"
 )

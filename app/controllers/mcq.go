@@ -3,9 +3,9 @@ package controllers
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
 	"strconv"

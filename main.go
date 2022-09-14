@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	_ "github.com/arsmn/fiber-swagger/v2"
-	"github.com/memnix/memnixrest/app/auth"
-	"github.com/memnix/memnixrest/app/models"
+	"github.com/memnix/memnixrest/app/routes"
+	"github.com/memnix/memnixrest/pkg/auth"
 	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/routes"
+	"github.com/memnix/memnixrest/pkg/models"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 )
