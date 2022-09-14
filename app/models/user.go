@@ -57,7 +57,8 @@ func (publicUser *PublicUser) Set(user *User) {
 type Permission int64
 
 const (
-	PermUser Permission = iota
+	PermNone Permission = iota
+	PermUser
 	PermMod
 	PermAdmin
 )

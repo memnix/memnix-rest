@@ -155,19 +155,23 @@ func Login(c *fiber.Ctx) error {
 // @Security Beaver
 // @Router /v1/user [get]
 func User(c *fiber.Ctx) error {
-	statusCode, response := IsConnected(c) // Check if connected
+	// statusCode, response := IsConnected(c) // Check if connected
 
 	user := new(models.PublicUser)
+	localUser, ok := c.Locals("user").(*models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
+	}
 
-	user.Set(&response.User) // Set user
+	user.Set(localUser) // Set user
 
 	responseUser := models.ResponsePublicAuth{
-		Success: response.Success,
-		Message: response.Message,
+		Success: true,
+		Message: "User is connected",
 		User:    *user,
 	}
 
-	return c.Status(statusCode).JSON(responseUser) // Return response
+	return c.Status(fiber.StatusOK).JSON(responseUser) // Return response
 }
 
 // Logout function to log user logout

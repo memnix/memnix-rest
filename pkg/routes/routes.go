@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/memnix/memnixrest/app/controllers"
+	"github.com/memnix/memnixrest/app/models"
 	_ "github.com/memnix/memnixrest/docs" // Side effect import
 	"time"
 
@@ -13,6 +14,14 @@ import (
 	"github.com/gofiber/swagger"
 )
 import "github.com/bytedance/sonic"
+
+type RouteStruct struct {
+	Method     string
+	Handler    func(c *fiber.Ctx) error
+	Permission models.Permission
+}
+
+var RoutesMap map[string]RouteStruct
 
 func New() *fiber.App {
 	// Create new app
@@ -49,10 +58,29 @@ func New() *fiber.App {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
+	v1.Use(IsConnectedMiddleware())
+
+	RoutesMap = map[string]RouteStruct{
+		"/user": {
+			Method:     "GET",
+			Handler:    controllers.User,
+			Permission: models.PermUser,
+		},
+		"/login": {
+			Method:     "POST",
+			Handler:    controllers.Login,
+			Permission: models.PermNone,
+		},
+	}
+
+	for route, routeData := range RoutesMap {
+		v1.Add(routeData.Method, route, routeData.Handler)
+	}
+
 	// Auth
 	v1.Post("/register", controllers.Register)
-	v1.Post("/login", controllers.Login)
-	v1.Get("/user", controllers.User)
+	// v1.Post("/login", controllers.Login)
+	// v1.Get("/user", controllers.User)
 	v1.Post("/logout", controllers.Logout)
 
 	v1.Get("/", func(c *fiber.Ctx) error {
