@@ -3,9 +3,9 @@ package test
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/routes"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/models"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"testing"
