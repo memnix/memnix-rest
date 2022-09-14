@@ -220,26 +220,6 @@ func GetSubUsers(deckID uint) *models.ResponseHTTP {
 	return res
 }
 
-// GenerateMemDate with default nextDate
-func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
-
-	memDate := new(models.MemDate)
-
-	if err := db.Joins("User").Joins("Card").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?", userID, cardID).First(&memDate).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			memDate.SetDefaultNextDate(userID, cardID, deckID)
-			db.Create(memDate)
-		} else {
-			res.GenerateError(err.Error())
-			return res
-		}
-	}
-	res.GenerateSuccess("Success generate MemDate", memDate, 1)
-	return res
-}
-
 // GenerateMCQ returns a list of answer
 func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 	mem := FetchMem(memDate.CardID, userID)
