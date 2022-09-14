@@ -7,6 +7,7 @@ import (
 	"github.com/memnix/memnixrest/app/routes"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/pkg/queries"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 )
@@ -68,6 +69,9 @@ func main() { // Try to connect to the database
 			log.Panic("Can't auto migrate models:", err.Error())
 		}
 	}
+
+	// Create queries cache for the first time
+	queries.InitCache()
 
 	// Create the app
 	app := routes.New()

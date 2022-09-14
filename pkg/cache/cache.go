@@ -58,6 +58,7 @@ func (c *Cache) AppendSlice(key uint, value []models.MemDate) {
 	}
 }
 
+// Items in cache
 func (c *Cache) Items(key uint) []models.MemDate {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
