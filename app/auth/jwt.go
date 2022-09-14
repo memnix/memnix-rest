@@ -1,4 +1,4 @@
-package jwt
+package auth
 
 import (
 	"fmt"
@@ -10,12 +10,12 @@ import (
 	"strings"
 )
 
-var SecretKey string   // SecretKey env variable
-var AuthDebugMode bool // AuthDebugMode env variable
+var SecretKey string // SecretKey env variable
+var _ bool           // AuthDebugMode env variable
 
 func Init() {
-	SecretKey = os.Getenv("SECRET")                   // SecretKey env variable
-	AuthDebugMode = os.Getenv("AUTH_DEBUG") == "true" // AuthDebugMode env variable
+	SecretKey = os.Getenv("SECRET")       // SecretKey env variable
+	_ = os.Getenv("AUTH_DEBUG") == "true" // AuthDebugMode env variable
 }
 
 // extractToken function to extract token from header

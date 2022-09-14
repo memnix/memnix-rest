@@ -2,22 +2,47 @@ package routes
 
 import (
 	"github.com/memnix/memnixrest/app/controllers"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnixrest/app/models"
 )
 
-func registerUserRoutes(r fiber.Router) {
+func registerUserRoutes() {
 	// Get
-	r.Get("/users", controllers.GetAllUsers)        // Get all users
-	r.Get("/users/id/:id", controllers.GetUserByID) // Get user by ID
+	routesMap["/users"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllUsers,
+		Permission: models.PermAdmin,
+	}
+
+	routesMap["/users/id/:id"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetUserByID,
+		Permission: models.PermAdmin,
+	}
 
 	// Post
-	r.Post("/users/settings/:deckID/today", controllers.SetTodayConfig)
-	r.Post("/users/resetpassword", controllers.ResetPassword)
-	r.Post("/users/confirmpassword", controllers.ResetPasswordConfirm)
+	routesMap["/users/settings/:deckID/today"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.SetTodayConfig,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/users/settings/resetpassword"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.ResetPassword,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/users/settings/confirmpassword"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.ResetPasswordConfirm,
+		Permission: models.PermUser,
+	}
 
 	// Put
-	r.Put("/users/id/:id", controllers.UpdateUserByID) // Update a user using his ID
+	routesMap["/users/id/:id"] = routeStruct{
+		Method:     "PUT",
+		Handler:    controllers.UpdateUserByID,
+		Permission: models.PermAdmin,
+	}
 
-	//TODO: User Management
 }

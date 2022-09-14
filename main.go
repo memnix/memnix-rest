@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	_ "github.com/arsmn/fiber-swagger/v2"
-	"github.com/memnix/memnixrest/app/controllers"
+	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/routes"
@@ -43,7 +43,7 @@ func main() { // Try to connect to the database
 	}
 
 	// Init the secret key
-	controllers.Init()
+	auth.Init()
 
 	// Disconnect from RabbitMQ*
 	defer func(conn *amqp.Connection) {

@@ -30,11 +30,6 @@ import (
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
 	var users []models.User
 
 	if res := db.Find(&users); res.Error != nil {
@@ -60,11 +55,6 @@ func GetAllUsers(c *fiber.Ctx) error {
 // @Router /v1/users/id/{id} [get]
 func GetUserByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
-
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
 
 	// Params
 	id := c.Params("id")
@@ -96,26 +86,26 @@ func GetUserByID(c *fiber.Ctx) error {
 func SetTodayConfig(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
+	}
+
 	// Params
 	deckID := c.Params("deckID")
 	deckidInt, _ := strconv.ParseUint(deckID, 10, 32)
 
 	deckConfig := new(models.DeckConfig)
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
 	if err := c.BodyParser(&deckConfig); err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), auth.User.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), user.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	access := new(models.Access)
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", auth.User.ID, deckID).Find(&access).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", auth.User.Email, deckidInt), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deckID).Find(&access).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", user.Email, deckidInt), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
@@ -254,16 +244,19 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 // PUT
 
 // UpdateUserByID function
+// @Description Update a user by ID
+// @Summary updates a user by ID
+// @Tags User
+// @Produce json
+// @Accept json
+// @Param config body models.User true "User"
+// @Success 200
+// @Router /v1/users/id/{id} [put]
 func UpdateUserByID(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
 	// Params
 	id := c.Params("id")
-
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
 
 	user := new(models.User)
 

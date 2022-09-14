@@ -28,11 +28,6 @@ import (
 func GetAllDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
 	var decks []models.Deck
 
 	if res := db.Find(&decks); res.Error != nil {
@@ -62,11 +57,6 @@ func GetDeckByID(c *fiber.Ctx) error {
 	// Params
 	id := c.Params("deckID")
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
@@ -92,15 +82,15 @@ func GetDeckByID(c *fiber.Ctx) error {
 func GetAllSubDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	var accesses []models.Access // Accesses array
 
-	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllSubDecks: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", user.ID, models.AccessStudent).Find(&accesses).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllSubDecks: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
@@ -133,15 +123,15 @@ func GetAllSubDecks(c *fiber.Ctx) error {
 func GetAllEditorDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	var accesses []models.Access // Accesses array
 
-	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", auth.User.ID, models.AccessEditor).Find(&accesses).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllEditorDecks: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+	if err := db.Joins("Deck").Joins("User").Where("accesses.user_id = ? AND accesses.permission >= ?", user.ID, models.AccessEditor).Find(&accesses).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllEditorDecks: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
@@ -175,16 +165,17 @@ func GetAllEditorDecks(c *fiber.Ctx) error {
 func GetAllSubUsers(c *fiber.Ctx) error { // Params
 	deckID := c.Params("deckID")
 	var result *models.ResponseHTTP
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	var users []models.User
 	id, _ := strconv.ParseUint(deckID, 10, 32)
 
 	if result = queries.GetSubUsers(uint(id)); !result.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllSubUsers: %s", auth.User.Email, result.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllSubUsers: %s", user.Email, result.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
@@ -215,18 +206,17 @@ func GetAllSubUsers(c *fiber.Ctx) error { // Params
 func GetAllAvailableDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
-
 	var decks []models.Deck
 
 	if err := db.Raw(
 		"SELECT DISTINCT public.decks.* FROM public.decks LEFT JOIN public.accesses ON public.decks.id = public.accesses.deck_id AND public.accesses.user_id = ? WHERE "+
 			"(public.accesses.deck_id IS NULL  OR public.accesses.permission = 0 OR public.accesses.deleted_at IS NOT NULL) AND public.decks.status = 3",
-		auth.User.ID).Scan(&decks).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllAvailableDecks: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		user.ID).Scan(&decks).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on GetAllAvailableDecks: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
@@ -260,11 +250,6 @@ func GetAllAvailableDecks(c *fiber.Ctx) error {
 func GetAllPublicDecks(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermAdmin) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
-	}
-
 	var decks []models.Deck
 
 	if err := db.Where("decks.status = ?", models.DeckPublic).Find(&decks).Error; err != nil {
@@ -293,15 +278,15 @@ func GetAllPublicDecks(c *fiber.Ctx) error {
 func CreateNewDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	deck := new(models.Deck)
 
 	if err := c.BodyParser(&deck); err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck: %s", auth.User.Email, err.Error()), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck: %s", user.Email, err.Error()), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
@@ -311,13 +296,13 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	}
 
 	if deck.NotValidate() {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck: BadRequest", auth.User.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, 0, 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck: BadRequest", user.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorDeckName)
 	}
 
-	if res := queries.CheckDeckLimit(&auth.User); !res {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on CreateNewDeck: This user has reached his limit", auth.User.Email), models.LogUserDeckLimit).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, 0, 0)
+	if res := queries.CheckDeckLimit(&user); !res {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on CreateNewDeck: This user has reached his limit", user.Email), models.LogUserDeckLimit).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, "You can't create more deck !")
 	}
@@ -328,7 +313,7 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	i := 0
 	for !queries.CheckCode(deck.Key, deck.Code) {
 		if i > 10 {
-			log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck Generate Code: Couldn't generate code after 10 attempts", auth.User.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+			log := models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck Generate Code: Couldn't generate code after 10 attempts", user.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 			_ = log.SendLog()
 			return queries.RequestError(c, http.StatusBadRequest, utils.ErrorRequestFailed)
 		}
@@ -339,11 +324,11 @@ func CreateNewDeck(c *fiber.Ctx) error {
 	deck.Status = models.DeckPrivate
 	db.Create(deck)
 
-	log := models.CreateLog(fmt.Sprintf("Created: %d - %s", deck.ID, deck.DeckName), models.LogDeckCreated).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("Created: %d - %s", deck.ID, deck.DeckName), models.LogDeckCreated).SetType(models.LogTypeInfo).AttachIDs(user.ID, deck.ID, 0)
 	_ = log.SendLog()
 
-	if err := queries.GenerateCreatorAccess(&auth.User, deck); !err.Success {
-		log = models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck Generate Creator Access: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+	if err := queries.GenerateCreatorAccess(&user, deck); !err.Success {
+		log = models.CreateLog(fmt.Sprintf("Error from %s on CreateNewDeck Generate Creator Access: %s", user.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
@@ -367,9 +352,9 @@ func CreateNewDeck(c *fiber.Ctx) error {
 func UnSubToDeck(c *fiber.Ctx) error {
 	db := database.DBConn // DB Conn
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	// Params
@@ -377,8 +362,8 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	deckidInt, _ := strconv.ParseUint(deckID, 10, 32)
 
 	access := new(models.Access)
-	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", auth.User.ID, deckID).Find(&access).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on UnSubToDeck to %d: %s", auth.User.Email, deckidInt, err.Error()), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deckID).Find(&access).Error; err != nil {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on UnSubToDeck to %d: %s", user.Email, deckidInt, err.Error()), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
@@ -390,7 +375,7 @@ func UnSubToDeck(c *fiber.Ctx) error {
 	access.Permission = 0
 	db.Preload("User").Preload("Deck").Save(access)
 
-	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d (%s) | Deck - %d (%s)", access.UserID, access.User.Username, access.DeckID, access.Deck.DeckName), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, access.DeckID, 0)
+	log := models.CreateLog(fmt.Sprintf("Unsubscribed: User - %d (%s) | Deck - %d (%s)", access.UserID, access.User.Username, access.DeckID, access.Deck.DeckName), models.LogUnsubscribe).SetType(models.LogTypeInfo).AttachIDs(user.ID, access.DeckID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -419,30 +404,30 @@ func SubToPrivateDeck(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	// Check auth
-	auth := CheckAuth(c, models.PermUser)
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	if err := db.Where("decks.key = ? AND decks.code = ? AND decks.share IS TRUE", key, code).First(&deck).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, 0, 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	if err := queries.GenerateAccess(&auth.User, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
+	if err := queries.GenerateAccess(&user, deck); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", user.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, deck.ID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	if err := queries.PopulateMemDate(&auth.User, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, deck.ID, 0)
+	if err := queries.PopulateMemDate(&user, deck); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToPrivateDeck: %s", user.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, deck.ID, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("SubToPrivateDeck: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("SubToPrivateDeck: User - %d (%s)| Deck - %d (%s)", user.ID, user.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(user.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -469,20 +454,19 @@ func PublishDeckRequest(c *fiber.Ctx) error {
 
 	deck := new(models.Deck)
 
-	// Check auth
-	auth := CheckAuth(c, models.PermUser)
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	if err := db.First(&deck, id).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on PublishDeckRequest: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on PublishDeckRequest: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - PublishDeckRequest: %s", auth.User.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if res := queries.CheckAccess(user.ID, deck.ID, models.AccessOwner); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - PublishDeckRequest: %s", user.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
@@ -492,7 +476,7 @@ func PublishDeckRequest(c *fiber.Ctx) error {
 	db.Save(deck)
 	// TODO: Error handling
 
-	log := models.CreateLog(fmt.Sprintf("PublishDeckRequest: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogPublishRequest).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("PublishDeckRequest: User - %d (%s)| Deck - %d (%s)", user.ID, user.Username, deck.ID, deck.DeckName), models.LogPublishRequest).SetType(models.LogTypeInfo).AttachIDs(user.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -520,30 +504,30 @@ func SubToDeck(c *fiber.Ctx) error {
 	deck := new(models.Deck)
 
 	// Check auth
-	auth := CheckAuth(c, models.PermUser)
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	if err := db.First(&deck, deckID).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	if err := queries.GenerateAccess(&auth.User, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if err := queries.GenerateAccess(&user, deck); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", user.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	if err := queries.PopulateMemDate(&auth.User, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", auth.User.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if err := queries.PopulateMemDate(&user, deck); !err.Success {
+		log := models.CreateLog(fmt.Sprintf("Error from %s on SubToDeck: %s", user.Email, err.Message), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", auth.User.ID, auth.User.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("Subscribed: User - %d (%s)| Deck - %d (%s)", user.ID, user.Username, deck.ID, deck.DeckName), models.LogSubscribe).SetType(models.LogTypeInfo).AttachIDs(user.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -574,32 +558,32 @@ func UpdateDeckByID(c *fiber.Ctx) error {
 	id := c.Params("deckID")
 	deckidInt, _ := strconv.ParseUint(id, 10, 32)
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on UpdateDeckByID: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on UpdateDeckByID: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - UpdateDeckByID: %s", auth.User.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if res := queries.CheckAccess(user.ID, deck.ID, models.AccessOwner); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - UpdateDeckByID: %s", user.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if err := UpdateDeck(c, deck); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error on UpdateDeckByID: %s from %s", err.Message, auth.User.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error on UpdateDeckByID: %s from %s", err.Message, user.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Updated: %d - %s", deck.ID, deck.DeckName), models.LogDeckEdited).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("Updated: %d - %s", deck.ID, deck.DeckName), models.LogDeckEdited).SetType(models.LogTypeInfo).AttachIDs(user.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -670,21 +654,21 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	id := c.Params("deckID")
 	deckidInt, _ := strconv.ParseUint(id, 10, 32)
 
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		return queries.AuthError(c, &auth)
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	deck := new(models.Deck)
 
 	if err := db.First(&deck, id).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	if res := queries.CheckAccess(auth.User.ID, deck.ID, models.AccessOwner); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - DeleteDeckById: %s", auth.User.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+	if res := queries.CheckAccess(user.ID, deck.ID, models.AccessOwner); !res.Success {
+		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - DeleteDeckById: %s", user.Email, deckidInt, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
@@ -694,21 +678,21 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	var cards []models.Card
 
 	if err := db.Joins("Card").Where("mem_dates.deck_id = ?", deck.ID).Find(&memDates).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		// TODO: Error
 	}
 
 	if err := db.Where("accesses.deck_id = ?", deck.ID).Find(&accesses).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 		// TODO: Error
 	}
 
 	if err := db.Where("cards.deck_id = ?", deck.ID).Find(&cards).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", auth.User.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(auth.User.ID, uint(deckidInt), 0)
+		log := models.CreateLog(fmt.Sprintf("Error from %s on DeleteDeckById: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
@@ -719,7 +703,7 @@ func DeleteDeckById(c *fiber.Ctx) error {
 	db.Delete(cards)
 	db.Delete(deck)
 
-	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", deck.ID, deck.DeckName), models.LogDeckDeleted).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, deck.ID, 0)
+	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", deck.ID, deck.DeckName), models.LogDeckDeleted).SetType(models.LogTypeInfo).AttachIDs(user.ID, deck.ID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

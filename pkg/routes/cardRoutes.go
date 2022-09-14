@@ -2,32 +2,101 @@ package routes
 
 import (
 	"github.com/memnix/memnixrest/app/controllers"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnixrest/app/models"
 )
 
-func registerCardRoutes(r fiber.Router) {
-	// Get
-	r.Get("/cards/today", controllers.GetAllTodayCard)                   // Get all Today's card
-	r.Get("/cards/:deckID/training", controllers.GetTrainingCardsByDeck) // Get training card by deck
+func registerCardRoutes() {
 
-	r.Get("/mcqs/:deckID", controllers.GetMcqsByDeck) // Get MCQs by deckID
+	// Get routes
+	routesMap["/cards/today"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllTodayCard,
+		Permission: models.PermUser,
+	}
 
-	// Post
-	r.Post("/cards/response", controllers.PostResponse)                 // Post a response
-	r.Post("/cards/selfresponse", controllers.PostSelfEvaluateResponse) // Post
+	routesMap["/cards/:deckID/training"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetTrainingCardsByDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/mcqs/:deckID"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetMcqsByDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/cards/deck/:deckID"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetCardsFromDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/cards/new"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.CreateNewCard,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/mcqs/new"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.CreateMcq,
+		Permission: models.PermUser,
+	}
+
+	// Post routes
+	routesMap["/cards/response"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.PostResponse,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/cards/selfresponse"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.PostSelfEvaluateResponse,
+		Permission: models.PermUser,
+	}
+
+	// Put routes
+
+	routesMap["/cards/:id/edit"] = routeStruct{
+		Method:     "PUT",
+		Handler:    controllers.UpdateCardByID,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/mcqs/:id/edit"] = routeStruct{
+		Method:     "PUT",
+		Handler:    controllers.UpdateMcqByID,
+		Permission: models.PermUser,
+	}
+
+	// Delete routes
+
+	routesMap["/cards/:id"] = routeStruct{
+		Method:     "DELETE",
+		Handler:    controllers.DeleteCardByID,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/mcqs/:id"] = routeStruct{
+		Method:     "DELETE",
+		Handler:    controllers.DeleteMcqByID,
+		Permission: models.PermUser,
+	}
 
 	// ADMIN ONLY
-	r.Get("/cards", controllers.GetAllCards)                   // Get all cards
-	r.Get("/cards/id/:id", controllers.GetCardByID)            // Get card by ID
-	r.Get("/cards/deck/:deckID", controllers.GetCardsFromDeck) // Get card by deckID
 
-	r.Post("/cards/new", controllers.CreateNewCard) // Create a new card
-	r.Post("/mcqs/new", controllers.CreateMcq)      // Create a mcq
+	routesMap["/cards"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllCards,
+		Permission: models.PermAdmin,
+	}
 
-	r.Put("/cards/:id/edit", controllers.UpdateCardByID) // Update a card by ID
-	r.Put("/mcqs/:id/edit", controllers.UpdateMcqByID)   // Update a mcq by ID
+	routesMap["/cards/id/:id"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetCardByID,
+		Permission: models.PermAdmin,
+	}
 
-	r.Delete("/cards/:id", controllers.DeleteCardByID) // Delete a card by ID
-	r.Delete("/mcqs/:id", controllers.DeleteMcqByID)   // Delete a mcq by ID
 }

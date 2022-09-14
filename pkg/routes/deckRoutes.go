@@ -2,29 +2,99 @@ package routes
 
 import (
 	"github.com/memnix/memnixrest/app/controllers"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnixrest/app/models"
 )
 
-func registerDeckRoutes(r fiber.Router) { // Get
-	r.Get("/decks", controllers.GetAllDecks)                    // Get all decks
-	r.Get("/decks/public", controllers.GetAllPublicDecks)       // Get all public decks
-	r.Get("/decks/available", controllers.GetAllAvailableDecks) // Get all available decks
-	r.Get("/decks/editor", controllers.GetAllEditorDecks)       // Get all decks the user is editor
-	r.Get("/decks/sub", controllers.GetAllSubDecks)             // Get all decks the user is sub to
-	r.Get("/decks/:deckID", controllers.GetDeckByID)            // Get deck by ID
-	r.Get("/decks/:deckID/users", controllers.GetAllSubUsers)   // Get all sub users
+func registerDeckRoutes() {
+
+	// Admin only
+	routesMap["/decks"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllDecks,
+		Permission: models.PermAdmin,
+	}
+
+	// Get routes
+	routesMap["/decks/public"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllPublicDecks,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/available"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllAvailableDecks,
+		Permission: models.PermUser,
+	}
+
+	// Get all editor decks
+	routesMap["/decks/editor"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllEditorDecks,
+		Permission: models.PermUser,
+	}
+
+	// Get all decks the user is sub to
+	routesMap["/decks/sub"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllSubDecks,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/:deckID"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetDeckByID,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/:deckID/users"] = routeStruct{
+		Method:     "GET",
+		Handler:    controllers.GetAllSubUsers,
+		Permission: models.PermUser,
+	}
 
 	// Post
-	r.Post("/decks/new", controllers.CreateNewDeck)                             // Create a new deck
-	r.Post("/decks/:deckID/subscribe", controllers.SubToDeck)                   // Subscribe to a deck
-	r.Post("/decks/:deckID/unsubscribe", controllers.UnSubToDeck)               // Unsubscribe to a deck
-	r.Post("/decks/private/:key/:code/subscribe", controllers.SubToPrivateDeck) // Subscribe to a private deck using key and code
-	r.Post("/decks/:deckID/publish", controllers.PublishDeckRequest)            // Request to publish a deck
+	routesMap["/decks/new"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.CreateNewDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/:deckID/subscribe"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.SubToDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/:deckID/unsubscribe"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.UnSubToDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/private/:key/:code/subscribe"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.SubToPrivateDeck,
+		Permission: models.PermUser,
+	}
+
+	routesMap["/decks/:deckID/publish"] = routeStruct{
+		Method:     "POST",
+		Handler:    controllers.PublishDeckRequest,
+		Permission: models.PermUser,
+	}
 
 	// Put
-	r.Put("/decks/:deckID/edit", controllers.UpdateDeckByID) // Update a deck by ID
+	routesMap["/decks/:deckID/edit"] = routeStruct{
+		Method:     "PUT",
+		Handler:    controllers.UpdateDeckByID,
+		Permission: models.PermUser,
+	}
 
 	// Delete
-	r.Delete("/decks/:deckID", controllers.DeleteDeckById) // Delete a deck by ID
+	routesMap["/decks/:deckID"] = routeStruct{
+		Method:     "DELETE",
+		Handler:    controllers.DeleteDeckById,
+		Permission: models.PermUser,
+	}
 }

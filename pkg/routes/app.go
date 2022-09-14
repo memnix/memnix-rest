@@ -1,27 +1,25 @@
 package routes
 
 import (
+	"github.com/bytedance/sonic"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/memnix/memnixrest/app/controllers"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
 	"github.com/memnix/memnixrest/app/models"
 	_ "github.com/memnix/memnixrest/docs" // Side effect import
+
 	"time"
-
-	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
 )
-import "github.com/bytedance/sonic"
 
-type RouteStruct struct {
+type routeStruct struct {
 	Method     string
 	Handler    func(c *fiber.Ctx) error
 	Permission models.Permission
 }
 
-var RoutesMap map[string]RouteStruct
+var routesMap map[string]routeStruct
 
 func New() *fiber.App {
 	// Create new app
@@ -60,37 +58,17 @@ func New() *fiber.App {
 
 	v1.Use(IsConnectedMiddleware())
 
-	RoutesMap = map[string]RouteStruct{
-		"/user": {
-			Method:     "GET",
-			Handler:    controllers.User,
-			Permission: models.PermUser,
-		},
-		"/login": {
-			Method:     "POST",
-			Handler:    controllers.Login,
-			Permission: models.PermNone,
-		},
-	}
+	// Register routes
+	routesMap = make(map[string]routeStruct)
 
-	for route, routeData := range RoutesMap {
+	registerAuthRoutes() // /v1/
+	registerUserRoutes() // /v1/users/
+	registerDeckRoutes() // /v1/decks/
+	registerCardRoutes() // /v1/cards/
+
+	for route, routeData := range routesMap {
 		v1.Add(routeData.Method, route, routeData.Handler)
 	}
-
-	// Auth
-	v1.Post("/register", controllers.Register)
-	// v1.Post("/login", controllers.Login)
-	// v1.Get("/user", controllers.User)
-	v1.Post("/logout", controllers.Logout)
-
-	v1.Get("/", func(c *fiber.Ctx) error {
-		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
-	})
-
-	// Register routes
-	registerUserRoutes(v1) // /v1/users/
-	registerDeckRoutes(v1) // /v1/decks/
-	registerCardRoutes(v1) // /v1/cards/
 
 	return app
 }

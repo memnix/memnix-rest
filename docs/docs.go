@@ -1180,6 +1180,35 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Update a user by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "updates a user by ID",
+                "parameters": [
+                    {
+                        "description": "User",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
             }
         },
         "/v1/users/resetpassword": {
@@ -1406,6 +1435,9 @@ var doc = `{
                 "count": {
                     "type": "integer"
                 },
+                "deck": {
+                    "$ref": "#/definitions/models.Deck"
+                },
                 "deck_id": {
                     "type": "integer"
                 }
@@ -1571,7 +1603,7 @@ var doc = `{
                     "example": "Yume"
                 },
                 "user_permissions": {
-                    "description": "0: User; 1: Mod; 2: Admin",
+                    "description": "0: None 1: User; 2: Mod; 3: Admin",
                     "type": "integer",
                     "example": 0
                 }

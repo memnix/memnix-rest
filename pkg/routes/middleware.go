@@ -3,7 +3,7 @@ package routes
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnixrest/app/jwt"
+	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/app/queries"
 	"strings"
@@ -15,13 +15,13 @@ func IsConnectedMiddleware() func(c *fiber.Ctx) error {
 		path := strings.TrimLeft(c.Path(), "/v1")
 		path = strings.TrimRight(path, "/")
 
-		p := RoutesMap["/"+path].Permission
+		p := routesMap["/"+path].Permission
 
 		if p == models.PermNone {
 			return c.Next()
 		}
 
-		statusCode, response := jwt.IsConnected(c) // Check if connected
+		statusCode, response := auth.IsConnected(c) // Check if connected
 
 		// Check statusCode
 		if statusCode != fiber.StatusOK {
