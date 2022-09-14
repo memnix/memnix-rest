@@ -6,6 +6,7 @@ import (
 	"github.com/memnix/memnixrest/app/routes"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/pkg/queries"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"testing"
@@ -67,6 +68,8 @@ func Setup() (*fiber.App, error) {
 
 	// Create the app
 	app := routes.New()
+
+	queries.InitCache()
 
 	return app, nil
 }
