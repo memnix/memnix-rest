@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"log"
 )
 
 var RabbitMqConn *amqp.Connection
@@ -15,7 +16,7 @@ func Rabbit() (*amqp.Channel, error) {
 		return nil, fmt.Errorf("failed to connect to RabbitMQ: %w", err)
 	}
 
-	fmt.Println("Connected to RabbitMQ")
+	log.Println("Connected to RabbitMQ")
 
 	ch, err := conn.Channel()
 	if err != nil {
