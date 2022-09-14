@@ -1,8 +1,8 @@
-package models
+package logger
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/bytedance/sonic"
 	"github.com/memnix/memnixrest/pkg/database"
 	"time"
 )
@@ -66,7 +66,7 @@ func (l *Log) AttachIDs(userID, deckID, cardID uint) *Log {
 
 // ToJSON method
 func (l *Log) ToJSON() ([]byte, error) {
-	body, err := json.Marshal(l)
+	body, err := sonic.Marshal(l)
 	if err != nil {
 		return nil, err
 	}

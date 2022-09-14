@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"math/rand"
@@ -52,12 +53,12 @@ func (card *Card) ValidateMCQ(user *User) (*Mcq, bool) {
 
 	if card.McqID.Int32 != 0 {
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
-			log := CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), user.Email), LogQueryGetError).SetType(LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+			log := logger.CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), user.Email), logger.LogQueryGetError).SetType(logger.LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
 			_ = log.SendLog()
 			return nil, false
 		}
 		if mcq.DeckID != card.DeckID {
-			log := CreateLog(fmt.Sprintf("Error on CreateNewCard: card.DeckID != mcq.DeckID from %s", user.Email), LogBadRequest).SetType(LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+			log := logger.CreateLog(fmt.Sprintf("Error on CreateNewCard: card.DeckID != mcq.DeckID from %s", user.Email), logger.LogBadRequest).SetType(logger.LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
 			_ = log.SendLog()
 			return nil, false
 		}

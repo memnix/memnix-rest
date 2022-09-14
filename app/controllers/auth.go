@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/queries"
 	"github.com/memnix/memnixrest/pkg/utils"
@@ -37,7 +38,7 @@ func Register(c *fiber.Ctx) error {
 
 	// Register checks
 	if len(data.Password) > utils.MaxPasswordLen || len(data.Username) > utils.MaxUsernameLen || len(data.Email) > utils.MaxEmailLen {
-		log := models.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(0, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), logger.LogBadRequest).SetType(logger.LogTypeWarning).AttachIDs(0, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
 	}
@@ -51,13 +52,13 @@ func Register(c *fiber.Ctx) error {
 
 	//TODO: manual checking for unique username and email
 	if err := db.Create(&user).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), models.LogAlreadyUsedEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), logger.LogAlreadyUsedEmail).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorAlreadyUsedEmail)
 	} // Add user to DB
 
 	// Create log
-	log := models.CreateLog(fmt.Sprintf("Register: %s - %s", user.Username, user.Email), models.LogUserRegister).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Register: %s - %s", user.Username, user.Email), logger.LogUserRegister).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog() // Send log
 
 	return c.JSON(user) // Return user
@@ -89,7 +90,7 @@ func Login(c *fiber.Ctx) error {
 	// handle error
 	if user.ID == 0 { // default ID when return nil
 		// Create log
-		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), models.LogIncorrectEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), logger.LogIncorrectEmail).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()                // Send log
 		c.Status(fiber.StatusBadRequest) // BadRequest Status
 		// return error message as Json object
@@ -102,7 +103,7 @@ func Login(c *fiber.Ctx) error {
 	// Check password
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data.Password)); err != nil {
 		c.Status(fiber.StatusBadRequest) // BadRequest Status
-		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), models.LogIncorrectPassword).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), logger.LogIncorrectPassword).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog() // Send log
 		// return error message as Json object
 		return c.JSON(models.LoginResponse{
@@ -119,7 +120,7 @@ func Login(c *fiber.Ctx) error {
 
 	token, err := claims.SignedString([]byte(auth.SecretKey)) // Sign token
 	if err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on login: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on login: %s", err.Error()), logger.LogLoginError).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()                         // Send log
 		c.Status(fiber.StatusInternalServerError) // InternalServerError Status
 		// return error message as Json object
@@ -129,7 +130,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), models.LogUserLogin).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), logger.LogUserLogin).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog() // Send log
 
 	// return token as Json object
@@ -185,7 +186,7 @@ func Logout(c *fiber.Ctx) error {
 	}
 
 	// Create log
-	log := models.CreateLog(fmt.Sprintf("Logout: %s - %s", user.Username, user.Email), models.LogUserLogout).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Logout: %s - %s", user.Username, user.Email), logger.LogUserLogout).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog()
 
 	// Return response with success

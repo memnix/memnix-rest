@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/models"
 	queries2 "github.com/memnix/memnixrest/pkg/queries"
 	"github.com/memnix/memnixrest/pkg/utils"
@@ -98,14 +99,14 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	deckConfig := new(models.DeckConfig)
 
 	if err := c.BodyParser(&deckConfig); err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), user.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), user.Email), logger.LogBodyParserError).SetType(logger.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deckID).Find(&access).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", user.Email, deckidInt), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
+		log := logger.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", user.Email, deckidInt), logger.LogDeckCardLimit).SetType(logger.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
@@ -168,12 +169,12 @@ func ResetPassword(c *fiber.Ctx) error {
 	go func() {
 		err := utils.SendEmail(email, "Password Reset", "Your password reset code is: "+token)
 		if err != nil {
-			log := models.CreateLog(fmt.Sprintf("Error on ResetPassword: %s", err.Error()), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(0, 0, 0)
+			log := logger.CreateLog(fmt.Sprintf("Error on ResetPassword: %s", err.Error()), logger.LogBodyParserError).SetType(logger.LogTypeError).AttachIDs(0, 0, 0)
 			_ = log.SendLog()
 		}
 	}()
 
-	log := models.CreateLog(fmt.Sprintf("Password reset request for %s", email), models.LogUserPasswordReset).SetType(models.LogTypeInfo).AttachIDs(0, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Password reset request for %s", email), logger.LogUserPasswordReset).SetType(logger.LogTypeInfo).AttachIDs(0, 0, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -221,7 +222,7 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 
 	// Register checks
 	if len(body.Pass) > utils.MaxPasswordLen {
-		log := models.CreateLog(fmt.Sprintf("Error on reset password: %s - %s", user.Username, user.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on reset password: %s - %s", user.Username, user.Email), logger.LogBadRequest).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
 	}
@@ -233,7 +234,7 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 
 	database.Cache.Delete(email)
 
-	log := models.CreateLog(fmt.Sprintf("Password reset for %s", email), models.LogUserPasswordChanged).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Password reset for %s", email), logger.LogUserPasswordChanged).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

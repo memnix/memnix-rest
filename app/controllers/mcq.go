@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/models"
 	queries2 "github.com/memnix/memnixrest/pkg/queries"
 	"github.com/memnix/memnixrest/pkg/utils"
@@ -35,7 +36,7 @@ func GetMcqsByDeck(c *fiber.Ctx) error {
 
 	if err := db.Joins("Deck").Where("mcqs.deck_id = ?", deckID).Find(&mcqs).Error; err != nil {
 		deckidInt, _ := strconv.ParseUint(deckID, 10, 32)
-		log := models.CreateLog(fmt.Sprintf("Error from %s on GetMcqsByDeck: %s", user.Email, err.Error()), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
+		log := logger.CreateLog(fmt.Sprintf("Error from %s on GetMcqsByDeck: %s", user.Email, err.Error()), logger.LogQueryGetError).SetType(logger.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
@@ -69,32 +70,32 @@ func CreateMcq(c *fiber.Ctx) error {
 	mcq := new(models.Mcq)
 
 	if err := c.BodyParser(&mcq); err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateMcq: %s", user.Email, err.Error()), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error from %s on CreateMcq: %s", user.Email, err.Error()), logger.LogBodyParserError).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	if res := queries2.CheckAccess(user.ID, mcq.DeckID, models.AccessEditor); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateMcq: %s", user.Email, mcq.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
+		log := logger.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateMcq: %s", user.Email, mcq.DeckID, res.Message), logger.LogPermissionForbidden).SetType(logger.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if res := queries2.CheckCardLimit(user.Permissions, mcq.DeckID); !res {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateMcq: This deck has reached his limit", user.Email, mcq.DeckID), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
+		log := logger.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - CreateMcq: This deck has reached his limit", user.Email, mcq.DeckID), logger.LogDeckCardLimit).SetType(logger.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusForbidden, "This deck has reached his limit ! You can't add more mcq to it.")
 	}
 
 	if mcq.NotValidate() {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on CreateMcq: BadRequest", user.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error from %s on CreateMcq: BadRequest", user.Email), logger.LogBadRequest).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusBadRequest, "You must provide at least 3 and at most 150 answers for Standalone MCQ")
 	}
 
 	db.Create(mcq)
 
-	log := models.CreateLog(fmt.Sprintf("Created MCQ: %d - %s", mcq.ID, mcq.Name), models.LogCardCreated).SetType(models.LogTypeInfo).AttachIDs(user.ID, mcq.DeckID, 0)
+	log := logger.CreateLog(fmt.Sprintf("Created MCQ: %d - %s", mcq.ID, mcq.Name), logger.LogCardCreated).SetType(logger.LogTypeInfo).AttachIDs(user.ID, mcq.DeckID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -132,24 +133,24 @@ func UpdateMcqByID(c *fiber.Ctx) error {
 	mcq := new(models.Mcq)
 
 	if err := db.First(&mcq, id).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on UpdateMcqById: %s from %s", err.Error(), user.Email), models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on UpdateMcqById: %s from %s", err.Error(), user.Email), logger.LogQueryGetError).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	if res := queries2.CheckAccess(user.ID, mcq.DeckID, models.AccessEditor); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - UpdateCardByID: %s", user.Email, mcq.DeckID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
+		log := logger.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - UpdateCardByID: %s", user.Email, mcq.DeckID, res.Message), logger.LogPermissionForbidden).SetType(logger.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	if err := UpdateMcq(c, mcq); !err.Success {
-		log := models.CreateLog(fmt.Sprintf("Error on UpdateCardByID: %s from %s", err.Message, user.Email), models.LogBadRequest).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on UpdateCardByID: %s from %s", err.Message, user.Email), logger.LogBadRequest).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusBadRequest, err.Message)
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Edited: %d - %s", mcq.ID, mcq.Name), models.LogCardEdited).SetType(models.LogTypeInfo).AttachIDs(user.ID, mcq.DeckID, 0)
+	log := logger.CreateLog(fmt.Sprintf("Edited: %d - %s", mcq.ID, mcq.Name), logger.LogCardEdited).SetType(logger.LogTypeInfo).AttachIDs(user.ID, mcq.DeckID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -218,14 +219,14 @@ func DeleteMcqByID(c *fiber.Ctx) error {
 	}
 
 	if res := queries2.CheckAccess(user.ID, mcq.DeckID, models.AccessOwner); !res.Success {
-		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d and mcq %d - DeleteMcqById: %s", user.Email, mcq.DeckID, mcq.ID, res.Message), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
+		log := logger.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d and mcq %d - DeleteMcqById: %s", user.Email, mcq.DeckID, mcq.ID, res.Message), logger.LogPermissionForbidden).SetType(logger.LogTypeWarning).AttachIDs(user.ID, mcq.DeckID, 0)
 		_ = log.SendLog()
 		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
 	db.Delete(mcq)
 
-	log := models.CreateLog(fmt.Sprintf("Deleted: %d - %s", mcq.ID, mcq.Name), models.LogCardDeleted).SetType(models.LogTypeInfo).AttachIDs(user.ID, mcq.DeckID, 0)
+	log := logger.CreateLog(fmt.Sprintf("Deleted: %d - %s", mcq.ID, mcq.Name), logger.LogCardDeleted).SetType(logger.LogTypeInfo).AttachIDs(user.ID, mcq.DeckID, 0)
 	_ = log.SendLog()
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

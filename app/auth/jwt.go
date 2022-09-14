@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/models"
 	"os"
 	"strings"
@@ -56,7 +57,7 @@ func IsConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
 	// Get user from token
 	if res := db.Where("id = ?", claims["iss"]).First(&user); res.Error != nil {
 		// Generate log
-		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", res.Error), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on check auth: %s", res.Error), logger.LogLoginError).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()                         // Send log
 		c.Status(fiber.StatusInternalServerError) // InternalServerError Status
 		// return error

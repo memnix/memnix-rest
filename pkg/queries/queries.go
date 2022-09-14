@@ -3,6 +3,7 @@ package queries
 import (
 	"errors"
 	"fmt"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"math/rand"
 	"sort"
 	"time"
@@ -19,8 +20,8 @@ func UpdateSubUsers(card *models.Card, user *models.User) error {
 	var result *models.ResponseHTTP
 
 	if result = GetSubUsers(card.DeckID); !result.Success {
-		log := models.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", user.Email, card.DeckID, result.Message),
-			models.LogQueryGetError).SetType(models.LogTypeError).AttachIDs(user.ID, card.DeckID, card.ID)
+		log := logger.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", user.Email, card.DeckID, result.Message),
+			logger.LogQueryGetError).SetType(logger.LogTypeError).AttachIDs(user.ID, card.DeckID, card.ID)
 		_ = log.SendLog()
 		return errors.New("couldn't get sub users")
 	}
