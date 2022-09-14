@@ -41,6 +41,8 @@ func UpdateMemDate(mem *models.Mem) (*models.MemDate, error) {
 
 	memDate.ComputeNextDate(int(mem.Interval))
 
+	memDate.LearningStage = mem.LearningStage
+
 	db.Save(memDate)
 
 	return memDate, nil
