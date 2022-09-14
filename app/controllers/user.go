@@ -115,9 +115,12 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	}
 
 	access.ToggleToday = deckConfig.TodaySetting
-
 	db.Save(access)
-
+	if deckConfig.TodaySetting {
+		_, _ = queries.FetchTodayMemDateByDeck(auth.User.ID, uint(deckidInt), true)
+	} else {
+		_ = queries.ClearCacheByUserID(auth.User.ID)
+	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
 		Message: "Success updated deck config",
