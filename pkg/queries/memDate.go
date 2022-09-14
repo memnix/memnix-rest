@@ -2,7 +2,7 @@ package queries
 
 import (
 	"errors"
-	"github.com/memnix/memnixrest/cache"
+	"github.com/memnix/memnixrest/pkg/cache"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/models"
 	"gorm.io/gorm"

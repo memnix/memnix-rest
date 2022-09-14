@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/memnix/memnixrest/app/queries"
-	"github.com/memnix/memnixrest/pkg/auth"
+	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/pkg/queries"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
 	"strconv"

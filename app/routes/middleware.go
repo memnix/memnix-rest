@@ -3,9 +3,9 @@ package routes
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnixrest/app/queries"
-	"github.com/memnix/memnixrest/pkg/auth"
+	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/pkg/queries"
 	"strings"
 )
 

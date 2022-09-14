@@ -3,9 +3,9 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"github.com/memnix/memnixrest/app/queries"
 	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/models"
+	queries2 "github.com/memnix/memnixrest/pkg/queries"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -33,7 +33,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 	var users []models.User
 
 	if res := db.Find(&users); res.Error != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Error.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, res.Error.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -62,7 +62,7 @@ func GetUserByID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.First(&user, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
@@ -88,7 +88,7 @@ func SetTodayConfig(c *fiber.Ctx) error {
 
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
-		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
+		return queries2.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	// Params
@@ -100,26 +100,26 @@ func SetTodayConfig(c *fiber.Ctx) error {
 	if err := c.BodyParser(&deckConfig); err != nil {
 		log := models.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), user.Email), models.LogBodyParserError).SetType(models.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deckID).Find(&access).Error; err != nil {
 		log := models.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", user.Email, deckidInt), models.LogDeckCardLimit).SetType(models.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
+		return queries2.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
 	if access.Permission == 0 {
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
 	}
 
 	access.ToggleToday = deckConfig.TodaySetting
 	db.Save(access)
 	if deckConfig.TodaySetting {
-		_, _ = queries.FetchTodayMemDateByDeck(user.ID, uint(deckidInt), true)
+		_, _ = queries2.FetchTodayMemDateByDeck(user.ID, uint(deckidInt), true)
 	} else {
-		_ = queries.ClearCacheByUserID(user.ID)
+		_ = queries2.ClearCacheByUserID(user.ID)
 	}
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
 		Success: true,
@@ -146,19 +146,19 @@ func ResetPassword(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&body); err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	email := strings.ToLower(body.Email)
 	email = strings.TrimSpace(email)
 
 	if err := db.Where("email = ?", email).First(&models.User{}).Error; err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	_, found := database.Cache.Get(email)
 	if found {
-		return queries.RequestError(c, http.StatusBadRequest, "A password reset has already been sent to this email address. Please check your email for the link.")
+		return queries2.RequestError(c, http.StatusBadRequest, "A password reset has already been sent to this email address. Please check your email for the link.")
 	}
 
 	token := utils.GenerateSecretCode(3)
@@ -199,7 +199,7 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 	var body models.PasswordResetConfirm
 
 	if err := c.BodyParser(&body); err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	email := strings.ToLower(body.Email)
@@ -207,23 +207,23 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 
 	token, found := database.Cache.Get(email)
 	if !found {
-		return queries.RequestError(c, http.StatusBadRequest, "Your password reset code has expired. Please request a new one.")
+		return queries2.RequestError(c, http.StatusBadRequest, "Your password reset code has expired. Please request a new one.")
 	}
 
 	if token != body.Code {
-		return queries.RequestError(c, http.StatusBadRequest, "Invalid password reset code.")
+		return queries2.RequestError(c, http.StatusBadRequest, "Invalid password reset code.")
 	}
 
 	user := new(models.User)
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		return queries.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	// Register checks
 	if len(body.Pass) > utils.MaxPasswordLen {
 		log := models.CreateLog(fmt.Sprintf("Error on reset password: %s - %s", user.Username, user.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
-		return queries.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
+		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(body.Pass), 10) // Hash password
@@ -264,11 +264,11 @@ func UpdateUserByID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.First(&user, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	if res := UpdateUser(c, user); !res.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
 	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{

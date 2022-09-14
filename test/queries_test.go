@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/memnix/memnixrest/app/queries"
+	"github.com/memnix/memnixrest/pkg/queries"
 	"reflect"
 	"testing"
 )
