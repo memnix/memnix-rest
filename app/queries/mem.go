@@ -2,9 +2,10 @@ package queries
 
 import (
 	"errors"
-	"github.com/memnix/memnixrest/app/models"
+	_ "github.com/memnix/memnixrest/cache"
 	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"time"
