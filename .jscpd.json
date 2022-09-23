@@ -1,4 +1,3 @@
 {
-  "threshold": 20,
-  "minLines": 15
+  "minLines": 8
 }
