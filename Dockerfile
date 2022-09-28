@@ -18,7 +18,7 @@ RUN go get -d -v
 RUN go build -ldflags="-s -w" -o /app/memnixrest .
 RUN upx /app/memnixrest
 
-FROM alpine:3.14
+FROM alpine:3.16
 
 RUN apk update --no-cache && apk add --no-cache ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
