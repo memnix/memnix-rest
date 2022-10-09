@@ -1,18 +1,25 @@
 package routes
 
 import (
+	"github.com/bytedance/sonic"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/memnix/memnixrest/app/controllers"
-	_ "github.com/memnix/memnixrest/docs" // Side effect import
-	"time"
-
 	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
+	_ "github.com/memnix/memnixrest/docs" // Side effect import
+	"github.com/memnix/memnixrest/pkg/models"
+
+	"time"
 )
-import "github.com/bytedance/sonic"
+
+type routeStruct struct {
+	Method     string
+	Handler    func(c *fiber.Ctx) error
+	Permission models.Permission
+}
+
+var routesMap map[string]routeStruct
 
 func New() *fiber.App {
 	// Create new app
@@ -49,20 +56,19 @@ func New() *fiber.App {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
-	// Auth
-	v1.Post("/register", controllers.Register)
-	v1.Post("/login", controllers.Login)
-	v1.Get("/user", controllers.User)
-	v1.Post("/logout", controllers.Logout)
-
-	v1.Get("/", func(c *fiber.Ctx) error {
-		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
-	})
+	v1.Use(IsConnectedMiddleware())
 
 	// Register routes
-	registerUserRoutes(v1) // /v1/users/
-	registerDeckRoutes(v1) // /v1/decks/
-	registerCardRoutes(v1) // /v1/cards/
+	routesMap = make(map[string]routeStruct)
+
+	registerAuthRoutes() // /v1/
+	registerUserRoutes() // /v1/users/
+	registerDeckRoutes() // /v1/decks/
+	registerCardRoutes() // /v1/cards/
+
+	for route, routeData := range routesMap {
+		v1.Add(routeData.Method, route, routeData.Handler)
+	}
 
 	return app
 }

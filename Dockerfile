@@ -5,7 +5,7 @@ LABEL stage=gobuilder
 ENV CGO_ENABLED 0
 ENV GOOS linux
 
-RUN apk update --no-cache && apk add --no-cache tzdata && apk add upx
+RUN apk update && apk add tzdata && apk add upx
 
 WORKDIR /build
 
@@ -20,7 +20,7 @@ RUN upx /app/memnixrest
 
 FROM alpine:3.16
 
-RUN apk update --no-cache && apk add --no-cache ca-certificates
+RUN apk update && apk add ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 

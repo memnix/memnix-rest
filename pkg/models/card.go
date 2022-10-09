@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"math/rand"
-	"time"
 )
 
 // Card structure
@@ -52,12 +52,12 @@ func (card *Card) ValidateMCQ(user *User) (*Mcq, bool) {
 
 	if card.McqID.Int32 != 0 {
 		if err := db.First(&mcq, card.McqID).Error; err != nil {
-			log := CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), user.Email), LogQueryGetError).SetType(LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+			log := logger.CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s", err.Error(), user.Email), logger.LogQueryGetError).SetType(logger.LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
 			_ = log.SendLog()
 			return nil, false
 		}
 		if mcq.DeckID != card.DeckID {
-			log := CreateLog(fmt.Sprintf("Error on CreateNewCard: card.DeckID != mcq.DeckID from %s", user.Email), LogBadRequest).SetType(LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+			log := logger.CreateLog(fmt.Sprintf("Error on CreateNewCard: card.DeckID != mcq.DeckID from %s", user.Email), logger.LogBadRequest).SetType(logger.LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
 			_ = log.SendLog()
 			return nil, false
 		}
@@ -111,7 +111,6 @@ func (card *Card) GetMCQAnswers() []string {
 		return make([]string, 0)
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
 
 	i, c := 0, 0
@@ -125,7 +124,6 @@ func (card *Card) GetMCQAnswers() []string {
 
 	answers = append(answers, card.Answer)
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
 
 	return answers

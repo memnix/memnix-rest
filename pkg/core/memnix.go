@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/memnix/memnixrest/app/models"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/models"
 	"strings"
 )
 
@@ -30,19 +30,22 @@ func UpdateMemSelfEvaluated(r *models.Mem, training bool, quality uint) {
 }
 
 // UpdateMemDate computes NextDate and set it
-func UpdateMemDate(mem *models.Mem) {
+func UpdateMemDate(mem *models.Mem) (*models.MemDate, error) {
 	db := database.DBConn
 	memDate := new(models.MemDate)
 
-	_ = db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
-		mem.UserID, mem.CardID).First(&memDate).Error
-	//TODO: Error handling
+	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
+		mem.UserID, mem.CardID).First(&memDate).Error; err != nil {
+		return nil, err
+	}
 
 	memDate.ComputeNextDate(int(mem.Interval))
 
+	memDate.LearningStage = mem.LearningStage
+
 	db.Save(memDate)
 
-	//TODO: Return error
+	return memDate, nil
 }
 
 // UpdateMemTraining computes and set mem values
@@ -69,7 +72,7 @@ func UpdateMemTraining(r *models.Mem, validation bool) {
 }
 
 // UpdateMem computes and set mem values
-func UpdateMem(r *models.Mem, validation bool) {
+func UpdateMem(r *models.Mem, validation bool) (*models.MemDate, error) {
 	db := database.DBConn
 
 	mem := new(models.Mem)
@@ -95,7 +98,12 @@ func UpdateMem(r *models.Mem, validation bool) {
 	db.Save(r)
 	db.Create(mem)
 
-	UpdateMemDate(mem)
+	memDate, err := UpdateMemDate(mem)
+	if err != nil {
+		return nil, err
+	}
+
+	return memDate, nil
 }
 
 func ValidateAnswer(response string, card *models.Card) bool {

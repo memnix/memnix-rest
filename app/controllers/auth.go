@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/memnix/memnixrest/app/models"
-	"github.com/memnix/memnixrest/app/queries"
+	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
+	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/pkg/queries"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -16,12 +17,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var SecretKey string // SecretKey env variable
-
-func Init() {
-	SecretKey = os.Getenv("SECRET") // SecretKey env variable
-}
 
 // Register function to create a new user
 // @Description Create a new user
@@ -43,7 +38,7 @@ func Register(c *fiber.Ctx) error {
 
 	// Register checks
 	if len(data.Password) > utils.MaxPasswordLen || len(data.Username) > utils.MaxUsernameLen || len(data.Email) > utils.MaxEmailLen {
-		log := models.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), models.LogBadRequest).SetType(models.LogTypeWarning).AttachIDs(0, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), logger.LogBadRequest).SetType(logger.LogTypeWarning).AttachIDs(0, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
 	}
@@ -57,13 +52,13 @@ func Register(c *fiber.Ctx) error {
 
 	//TODO: manual checking for unique username and email
 	if err := db.Create(&user).Error; err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), models.LogAlreadyUsedEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on register: %s - %s", data.Username, data.Email), logger.LogAlreadyUsedEmail).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorAlreadyUsedEmail)
 	} // Add user to DB
 
 	// Create log
-	log := models.CreateLog(fmt.Sprintf("Register: %s - %s", user.Username, user.Email), models.LogUserRegister).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Register: %s - %s", user.Username, user.Email), logger.LogUserRegister).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog() // Send log
 
 	return c.JSON(user) // Return user
@@ -93,9 +88,9 @@ func Login(c *fiber.Ctx) error {
 	db.Where("email = ?", strings.ToLower(data.Email)).First(&user) // Get user
 
 	// handle error
-	if user.ID == 0 { // default Id when return nil
+	if user.ID == 0 { // default ID when return nil
 		// Create log
-		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), models.LogIncorrectEmail).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), logger.LogIncorrectEmail).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()                // Send log
 		c.Status(fiber.StatusBadRequest) // BadRequest Status
 		// return error message as Json object
@@ -108,7 +103,7 @@ func Login(c *fiber.Ctx) error {
 	// Check password
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data.Password)); err != nil {
 		c.Status(fiber.StatusBadRequest) // BadRequest Status
-		log := models.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), models.LogIncorrectPassword).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on login: %s", data.Email), logger.LogIncorrectPassword).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog() // Send log
 		// return error message as Json object
 		return c.JSON(models.LoginResponse{
@@ -123,9 +118,9 @@ func Login(c *fiber.Ctx) error {
 		ExpiresAt: time.Now().Add(time.Hour * 336).Unix(), // 14 day
 	}) // expires after 2 weeks
 
-	token, err := claims.SignedString([]byte(SecretKey)) // Sign token
+	token, err := claims.SignedString([]byte(auth.SecretKey)) // Sign token
 	if err != nil {
-		log := models.CreateLog(fmt.Sprintf("Error on login: %s", err.Error()), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
+		log := logger.CreateLog(fmt.Sprintf("Error on login: %s", err.Error()), logger.LogLoginError).SetType(logger.LogTypeError).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()                         // Send log
 		c.Status(fiber.StatusInternalServerError) // InternalServerError Status
 		// return error message as Json object
@@ -135,7 +130,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	log := models.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), models.LogUserLogin).SetType(models.LogTypeInfo).AttachIDs(user.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Login: %s - %s", user.Username, user.Email), logger.LogUserLogin).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog() // Send log
 
 	// return token as Json object
@@ -155,19 +150,24 @@ func Login(c *fiber.Ctx) error {
 // @Security Beaver
 // @Router /v1/user [get]
 func User(c *fiber.Ctx) error {
-	statusCode, response := IsConnected(c) // Check if connected
+	// statusCode, response := IsConnected(c) // Check if connected
 
 	user := new(models.PublicUser)
 
-	user.Set(&response.User) // Set user
+	localUser, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
+	}
+
+	user.Set(&localUser) // Set user
 
 	responseUser := models.ResponsePublicAuth{
-		Success: response.Success,
-		Message: response.Message,
+		Success: true,
+		Message: "User is connected",
 		User:    *user,
 	}
 
-	return c.Status(statusCode).JSON(responseUser) // Return response
+	return c.Status(fiber.StatusOK).JSON(responseUser) // Return response
 }
 
 // Logout function to log user logout
@@ -180,19 +180,13 @@ func User(c *fiber.Ctx) error {
 // @Security Beaver
 // @Router /v1/logout [post]
 func Logout(c *fiber.Ctx) error {
-	auth := CheckAuth(c, models.PermUser) // Check auth
-	if !auth.Success {
-		// Return error
-		return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
-			Success: false,
-			Message: auth.Message,
-			Data:    nil,
-			Count:   0,
-		})
+	user, ok := c.Locals("user").(models.User)
+	if !ok {
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	// Create log
-	log := models.CreateLog(fmt.Sprintf("Logout: %s - %s", auth.User.Username, auth.User.Email), models.LogUserLogout).SetType(models.LogTypeInfo).AttachIDs(auth.User.ID, 0, 0)
+	log := logger.CreateLog(fmt.Sprintf("Logout: %s - %s", user.Username, user.Email), logger.LogUserLogout).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog()
 
 	// Return response with success
@@ -200,117 +194,4 @@ func Logout(c *fiber.Ctx) error {
 		"message": "successfully logged out !",
 		"token":   "",
 	})
-}
-
-// AuthDebugMode function to bypass auth in debug mode
-func AuthDebugMode(c *fiber.Ctx) models.ResponseAuth {
-	db := database.DBConn // DB Conn
-	var user models.User  // User object
-
-	// Get user
-	if res := db.Where("id = ?", 6).First(&user); res.Error != nil {
-		c.Status(fiber.StatusInternalServerError) // InternalServerError Status
-		// return error message as Json object
-		return models.ResponseAuth{
-			Success: false,
-			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
-		}
-	}
-
-	return models.ResponseAuth{
-		Success: true,
-		Message: "Authenticated",
-		User:    user,
-	}
-}
-
-// CheckAuth function to check if user is connected
-func CheckAuth(c *fiber.Ctx, p models.Permission) models.ResponseAuth {
-	statusCode, response := IsConnected(c) // Check if connected
-
-	// Check statusCode
-	if statusCode != fiber.StatusOK {
-		c.Status(statusCode)
-		// Return response
-		return response
-	}
-
-	user := response.User // Get user from response
-
-	// Check permission
-	if user.Permissions < p {
-		// Log permission error
-		log := models.CreateLog(fmt.Sprintf("Permission error: %s | had %s but tried %s", user.Email, user.Permissions.ToString(), p.ToString()), models.LogPermissionForbidden).SetType(models.LogTypeWarning).AttachIDs(user.ID, 0, 0)
-		_ = log.SendLog()                  // Send log
-		c.Status(fiber.StatusUnauthorized) // Unauthorized Status
-		// Return response
-		return models.ResponseAuth{
-			Success: false,
-			Message: "You don't have the right permissions to perform this request.",
-		}
-	}
-
-	// Validate permissions
-	return models.ResponseAuth{
-		Success: true,
-		Message: "Authenticated",
-		User:    user,
-	}
-}
-
-// IsConnected function to check if user is connected
-func IsConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
-	db := database.DBConn          // DB Conn
-	tokenString := extractToken(c) // Extract token
-	var user models.User           // User object
-
-	// Parse token
-	token, err := jwt.Parse(tokenString, jwtKeyFunc)
-	if err != nil {
-		// Return error
-		return fiber.StatusForbidden, models.ResponseAuth{
-			Success: false,
-			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
-			User:    user,
-		}
-	}
-	// Check if token is valid
-	claims := token.Claims.(jwt.MapClaims)
-
-	// Get user from token
-	if res := db.Where("id = ?", claims["iss"]).First(&user); res.Error != nil {
-		// Generate log
-		log := models.CreateLog(fmt.Sprintf("Error on check auth: %s", res.Error), models.LogLoginError).SetType(models.LogTypeError).AttachIDs(user.ID, 0, 0)
-		_ = log.SendLog()                         // Send log
-		c.Status(fiber.StatusInternalServerError) // InternalServerError Status
-		// return error
-		return fiber.StatusInternalServerError, models.ResponseAuth{
-			Success: false,
-			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
-			User:    user,
-		}
-	}
-
-	// User is connected
-	return fiber.StatusOK, models.ResponseAuth{
-		Success: true,
-		Message: "User is connected",
-		User:    user,
-	}
-}
-
-// extractToken function to extract token from header
-func extractToken(c *fiber.Ctx) string {
-	token := c.Get("Authorization") // Get token from header
-	// Normally Authorization HTTP header.
-	onlyToken := strings.Split(token, " ") // Split token
-	if len(onlyToken) == 2 {
-		return onlyToken[1] // Return only token
-	}
-	return "" // Return empty string
-}
-
-// jwtKeyFunc function to get the key for the token
-func jwtKeyFunc(_ *jwt.Token) (interface{}, error) {
-	return []byte(SecretKey), nil // Return secret key
 }

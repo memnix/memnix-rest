@@ -108,6 +108,8 @@ definitions:
         type: array
       count:
         type: integer
+      deck:
+        $ref: '#/definitions/models.Deck'
       deck_id:
         type: integer
     type: object
@@ -218,7 +220,7 @@ definitions:
         example: Yume
         type: string
       user_permissions:
-        description: '0: User; 1: Mod; 2: Admin'
+        description: '0: None 1: User; 2: Mod; 3: Admin'
         example: 0
         type: integer
     type: object
@@ -945,6 +947,25 @@ paths:
       security:
       - Admin: []
       summary: gets a user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update a user by ID
+      parameters:
+      - description: User
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: updates a user by ID
       tags:
       - User
   /v1/users/resetpassword:
