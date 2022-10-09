@@ -52,6 +52,8 @@ github.com/gofiber/fiber/v2 v2.38.1 h1:GEQ/Yt3Wsf2a30iTqtLXlBYJZso0JXPovt/tmj5H9
 github.com/gofiber/fiber/v2 v2.38.1/go.mod h1:t0NlbaXzuGH7I+7M4paE848fNWInZ7mfxI/Er1fTth8=
 github.com/gofiber/swagger v0.1.0 h1:I2XMqcZcPVrYYQc3NMnCussCBI5qPgV1LiOObOVFsUc=
 github.com/gofiber/swagger v0.1.0/go.mod h1:X3+7UsNZCL8BW3GzRzTpKxEyX1kRYdy0gwHwGHw2yW0=
+github.com/gofiber/swagger v0.1.4 h1:+Z/Xu6J1NYq2yuOm5rET2NDNXY6/bMgvx5fYmBQe9Qs=
+github.com/gofiber/swagger v0.1.4/go.mod h1:cTI29LN749q6KRg0dfHeBszeLwaphfSTSvXD8+0mCw8=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
