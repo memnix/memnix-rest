@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/mail.v2 v2.3.1
 	gorm.io/driver/postgres v1.3.9
-	gorm.io/gorm v1.23.8
+	gorm.io/gorm v1.24.0
 )
 
 require (
