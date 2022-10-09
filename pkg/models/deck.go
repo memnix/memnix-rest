@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 	"math/rand"
 	"strconv"
-	"time"
 )
 
 // Deck structure
@@ -54,7 +53,6 @@ func (deck *Deck) NotValidate() bool {
 
 // GenerateCode creates a random code from the deck key
 func (deck *Deck) GenerateCode() {
-	rand.Seed(time.Now().UTC().UnixNano())
 
 	randomInt := rand.Intn(99)
 	runes := []rune(deck.Key)

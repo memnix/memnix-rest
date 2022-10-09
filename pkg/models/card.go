@@ -8,7 +8,6 @@ import (
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
 	"math/rand"
-	"time"
 )
 
 // Card structure
@@ -112,7 +111,6 @@ func (card *Card) GetMCQAnswers() []string {
 		return make([]string, 0)
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(answersList), func(i, j int) { answersList[i], answersList[j] = answersList[j], answersList[i] })
 
 	i, c := 0, 0
@@ -126,7 +124,6 @@ func (card *Card) GetMCQAnswers() []string {
 
 	answers = append(answers, card.Answer)
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
 
 	return answers

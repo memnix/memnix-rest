@@ -1,6 +1,8 @@
 package main
 
 import (
+	cryptoRand "crypto/rand"
+	"encoding/binary"
 	"fmt"
 	_ "github.com/arsmn/fiber-swagger/v2"
 	"github.com/memnix/memnixrest/app/auth"
@@ -10,7 +12,17 @@ import (
 	"github.com/memnix/memnixrest/pkg/queries"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
+	"math/rand"
 )
+
+func init() {
+	var b [8]byte
+	_, err := cryptoRand.Read(b[:])
+	if err != nil {
+		panic("cannot seed math/rand package with cryptographically secure random number generator")
+	}
+	rand.Seed(int64(binary.LittleEndian.Uint64(b[:])))
+}
 
 // @title Memnix
 // @version 1.0
@@ -28,14 +40,15 @@ import (
 // @license.url https://github.com/memnix/memnix-rest/blob/main/LICENSE
 // @host http://192.168.1.151:1813/
 // @BasePath /v1
-func main() { // Try to connect to the database
+func main() {
+	// Try to connect to the database
 	if err := database.Connect(); err != nil {
 		log.Panic("Can't connect database:", err.Error())
 	}
 
-	// Create caching session
+	// Create cache session
 	if err := database.CreateCache(); err != nil {
-		log.Panic("Can't create caching session:", err.Error())
+		log.Panic("Can't create cache session:", err.Error())
 	}
 
 	// Connect to RabbitMQ

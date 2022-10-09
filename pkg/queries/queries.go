@@ -3,15 +3,13 @@ package queries
 import (
 	"errors"
 	"fmt"
-	"github.com/memnix/memnixrest/pkg/logger"
-	"math/rand"
-	"sort"
-	"time"
-
 	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/utils"
 	"gorm.io/gorm"
+	"math/rand"
+	"sort"
 )
 
 // UpdateSubUsers generates MemDate for sub users
@@ -260,7 +258,6 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 		result[i] = *responseCard
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(result), func(i, j int) { result[i], result[j] = result[j], result[i] })
 
 	res.GenerateSuccess("Success getting next card", result, len(result))

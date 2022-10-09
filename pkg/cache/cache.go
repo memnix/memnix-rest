@@ -1,6 +1,5 @@
 package cache
 
-import "C"
 import (
 	"fmt"
 	"github.com/memnix/memnixrest/pkg/models"
