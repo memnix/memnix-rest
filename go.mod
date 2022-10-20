@@ -13,8 +13,8 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/mail.v2 v2.3.1
-	gorm.io/driver/postgres v1.4.4
-	gorm.io/gorm v1.24.0
+	gorm.io/driver/postgres v1.4.5
+	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
 )
 
 require (
