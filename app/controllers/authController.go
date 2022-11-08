@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/interfaces"
 	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/queries"
@@ -19,6 +20,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type AuthController struct {
+	interfaces.IAuthService
+}
+
 // Register function to create a new user
 // @Description Create a new user
 // @Summary creates a new user
@@ -28,7 +33,7 @@ import (
 // @Success 200 {object} models.User
 // @Failure 403 "Forbidden"
 // @Router /v1/register [post]
-func Register(c *fiber.Ctx) error {
+func (a *AuthController) Register(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	var data models.RegisterStruct // Data object
@@ -75,7 +80,7 @@ func Register(c *fiber.Ctx) error {
 // @Failure 400 "Incorrect password or email"
 // @Failure 500 "Internal error"
 // @Router /v1/login [post]
-func Login(c *fiber.Ctx) error {
+func (a *AuthController) Login(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	var data models.LoginStruct // Data object
@@ -150,7 +155,7 @@ func Login(c *fiber.Ctx) error {
 // @Failure 401 "Forbidden"
 // @Security Beaver
 // @Router /v1/user [get]
-func User(c *fiber.Ctx) error {
+func (a *AuthController) User(c *fiber.Ctx) error {
 	// statusCode, response := IsConnected(c) // Check if connected
 
 	user := new(models.PublicUser)
@@ -180,7 +185,7 @@ func User(c *fiber.Ctx) error {
 // @Failure 401 "Forbidden"
 // @Security Beaver
 // @Router /v1/logout [post]
-func Logout(c *fiber.Ctx) error {
+func (a *AuthController) Logout(c *fiber.Ctx) error {
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
 		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)

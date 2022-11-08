@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/interfaces"
 	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
 	"github.com/memnix/memnixrest/pkg/queries"
@@ -12,6 +13,10 @@ import (
 	"net/http"
 	"strconv"
 )
+
+type McqController struct {
+	interfaces.IMcqService
+}
 
 // GetMcqsByDeck method
 // @Description Get mcqs linked to the deck
@@ -22,7 +27,7 @@ import (
 // @Security Beaver
 // @Success 200 {array} models.Mcq
 // @Router /v1/mcqs/{deckID} [get]
-func GetMcqsByDeck(c *fiber.Ctx) error {
+func (mcqController McqController) GetMcqsByDeck(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
@@ -60,7 +65,7 @@ func GetMcqsByDeck(c *fiber.Ctx) error {
 // @Security Beaver
 // @Success 200
 // @Router /v1/mcqs/new [post]
-func CreateMcq(c *fiber.Ctx) error {
+func (mcqController McqController) CreateMcq(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
@@ -120,7 +125,7 @@ func CreateMcq(c *fiber.Ctx) error {
 // @Param mcqID path string true "MCQ ID"
 // @Security Beaver
 // @Router /v1/mcqs/{mcqID}/edit [put]
-func UpdateMcqByID(c *fiber.Ctx) error {
+func (mcqController McqController) UpdateMcqByID(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
@@ -204,7 +209,7 @@ func UpdateMcq(c *fiber.Ctx, mcq *models.Mcq) *viewmodels.ResponseHTTP {
 // @Param mcqID path string true "MCQ ID"
 // @Security Beaver
 // @Router /v1/mcqs/{mcqID} [delete]
-func DeleteMcqByID(c *fiber.Ctx) error {
+func (mcqController McqController) DeleteMcqByID(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 	id := c.Params("id")
 

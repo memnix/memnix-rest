@@ -1,34 +1,36 @@
 package routes
 
 import (
-	"github.com/memnix/memnixrest/app/controllers"
 	"github.com/memnix/memnixrest/models"
+	"github.com/memnix/memnixrest/services"
 )
 
 func registerAuthRoutes() {
+	a := services.GetServiceContainer().InjectAuthController()
+
 	// Get
 	routesMap["/user"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.User,
+		Handler:    a.User,
 		Permission: models.PermUser,
 	}
 
 	// Post
 	routesMap["/login"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.Login,
+		Handler:    a.Login,
 		Permission: models.PermNone,
 	}
 
 	routesMap["/register"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.Register,
+		Handler:    a.Register,
 		Permission: models.PermNone,
 	}
 
 	routesMap["/logout"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.Logout,
+		Handler:    a.Logout,
 		Permission: models.PermNone,
 	}
 }

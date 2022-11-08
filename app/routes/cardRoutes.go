@@ -1,59 +1,49 @@
 package routes
 
 import (
-	"github.com/memnix/memnixrest/app/controllers"
 	"github.com/memnix/memnixrest/models"
+	"github.com/memnix/memnixrest/services"
 )
 
 func registerCardRoutes() {
 
+	c := services.GetServiceContainer().InjectCardController()
+
 	// Get routes
 	routesMap["/cards/today"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetAllTodayCard,
+		Handler:    c.GetAllTodayCard,
 		Permission: models.PermUser,
 	}
 
 	routesMap["/cards/:deckID/training"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetTrainingCardsByDeck,
-		Permission: models.PermUser,
-	}
-
-	routesMap["/mcqs/:deckID"] = routeStruct{
-		Method:     "GET",
-		Handler:    controllers.GetMcqsByDeck,
+		Handler:    c.GetTrainingCardsByDeck,
 		Permission: models.PermUser,
 	}
 
 	routesMap["/cards/deck/:deckID"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetCardsFromDeck,
+		Handler:    c.GetCardsFromDeck,
 		Permission: models.PermUser,
 	}
 
 	routesMap["/cards/new"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.CreateNewCard,
-		Permission: models.PermUser,
-	}
-
-	routesMap["/mcqs/new"] = routeStruct{
-		Method:     "POST",
-		Handler:    controllers.CreateMcq,
+		Handler:    c.CreateNewCard,
 		Permission: models.PermUser,
 	}
 
 	// Post routes
 	routesMap["/cards/response"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.PostResponse,
+		Handler:    c.PostResponse,
 		Permission: models.PermUser,
 	}
 
 	routesMap["/cards/selfresponse"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.PostSelfEvaluateResponse,
+		Handler:    c.PostSelfEvaluateResponse,
 		Permission: models.PermUser,
 	}
 
@@ -61,13 +51,7 @@ func registerCardRoutes() {
 
 	routesMap["/cards/:id/edit"] = routeStruct{
 		Method:     "PUT",
-		Handler:    controllers.UpdateCardByID,
-		Permission: models.PermUser,
-	}
-
-	routesMap["/mcqs/:id/edit"] = routeStruct{
-		Method:     "PUT",
-		Handler:    controllers.UpdateMcqByID,
+		Handler:    c.UpdateCardByID,
 		Permission: models.PermUser,
 	}
 
@@ -75,13 +59,7 @@ func registerCardRoutes() {
 
 	routesMap["/cards/:id"] = routeStruct{
 		Method:     "DELETE",
-		Handler:    controllers.DeleteCardByID,
-		Permission: models.PermUser,
-	}
-
-	routesMap["/mcqs/:id"] = routeStruct{
-		Method:     "DELETE",
-		Handler:    controllers.DeleteMcqByID,
+		Handler:    c.DeleteCardByID,
 		Permission: models.PermUser,
 	}
 
@@ -89,13 +67,13 @@ func registerCardRoutes() {
 
 	routesMap["/cards"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetAllCards,
+		Handler:    c.GetAllCards,
 		Permission: models.PermAdmin,
 	}
 
 	routesMap["/cards/id/:id"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetCardByID,
+		Handler:    c.GetCardByID,
 		Permission: models.PermAdmin,
 	}
 

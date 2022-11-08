@@ -2,12 +2,25 @@ package services
 
 import (
 	"errors"
+	"github.com/memnix/memnixrest/app/controllers"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/data/repositories"
 	"github.com/memnix/memnixrest/interfaces"
 	"github.com/memnix/memnixrest/models"
 )
 
 type UserService struct {
 	interfaces.IUserRepository
+}
+
+func (k *kernel) InjectUserController() controllers.UserController {
+	DBConn := infrastructures.GetDBConn()
+
+	userRepository := &repositories.UserRepository{DBConn: DBConn}
+	userService := &UserService{IUserRepository: userRepository}
+	userController := controllers.UserController{IUserService: userService}
+
+	return userController
 }
 
 // GetByID returns a user by id

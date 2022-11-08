@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/interfaces"
 	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/core"
 	"github.com/memnix/memnixrest/pkg/logger"
@@ -14,6 +15,10 @@ import (
 	"strconv"
 )
 
+type CardController struct {
+	interfaces.ICardService
+}
+
 // GetAllTodayCard function to get all today card for a user
 // @Description Get all today card
 // @Summary gets a list of card
@@ -22,7 +27,7 @@ import (
 // @Success 200  {array} models.TodayResponse
 // @Security Beaver
 // @Router /v1/cards/today [get]
-func GetAllTodayCard(c *fiber.Ctx) error {
+func (cardController *CardController) GetAllTodayCard(c *fiber.Ctx) error {
 	var res *viewmodels.ResponseHTTP
 
 	user, ok := c.Locals("user").(models.User)
@@ -53,7 +58,7 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 // @Param deckId path int true "Deck ID"
 // @Security Beaver
 // @Router /v1/cards/{deckID}/training [get]
-func GetTrainingCardsByDeck(c *fiber.Ctx) error {
+func (cardController *CardController) GetTrainingCardsByDeck(c *fiber.Ctx) error {
 	res := new(viewmodels.ResponseHTTP)
 
 	user, ok := c.Locals("user").(models.User)
@@ -94,7 +99,7 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 // @Success 200 {array} models.Card
 // @Router /v1/cards/ [get]
 // @Deprecated
-func GetAllCards(c *fiber.Ctx) error {
+func (cardController *CardController) GetAllCards(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	var cards []models.Card
@@ -119,7 +124,7 @@ func GetAllCards(c *fiber.Ctx) error {
 // @Security Admin
 // @Success 200 {object} models.Card
 // @Router /v1/cards/id/{id} [get]
-func GetCardByID(c *fiber.Ctx) error {
+func (cardController *CardController) GetCardByID(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
@@ -148,7 +153,7 @@ func GetCardByID(c *fiber.Ctx) error {
 // @Security Beaver
 // @Success 200 {array} models.Card
 // @Router /v1/cards/deck/{deckID} [get]
-func GetCardsFromDeck(c *fiber.Ctx) error {
+func (cardController *CardController) GetCardsFromDeck(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
@@ -194,7 +199,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Param card body models.Card true "Card to create"
 // @Success 200
 // @Router /v1/cards/new [post]
-func CreateNewCard(c *fiber.Ctx) error {
+func (cardController *CardController) CreateNewCard(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 	card := new(models.Card)
 
@@ -259,7 +264,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 // @Param card body models.CardSelfResponse true "Self response"
 // @Success 200
 // @Router /v1/cards/selfresponse [post]
-func PostSelfEvaluateResponse(c *fiber.Ctx) error {
+func (cardController *CardController) PostSelfEvaluateResponse(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
@@ -316,7 +321,7 @@ func PostSelfEvaluateResponse(c *fiber.Ctx) error {
 // @Param card body models.CardResponse true "Response"
 // @Success 200 {object} models.CardResponseValidation
 // @Router /v1/cards/response [post]
-func PostResponse(c *fiber.Ctx) error {
+func (cardController *CardController) PostResponse(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
@@ -380,7 +385,7 @@ func PostResponse(c *fiber.Ctx) error {
 // @Param card body models.Card true "card to edit"
 // @Param id path int true "card id"
 // @Router /v1/cards/{cardID}/edit [put]
-func UpdateCardByID(c *fiber.Ctx) error {
+func (cardController *CardController) UpdateCardByID(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
@@ -474,7 +479,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *viewmodels.
 // @Param id path int true "card id"
 // @Success 200
 // @Router /v1/cards/{cardID} [delete]
-func DeleteCardByID(c *fiber.Ctx) error {
+func (cardController *CardController) DeleteCardByID(c *fiber.Ctx) error {
 	db := infrastructures.GetDBConn() // DB Conn
 	id := c.Params("id")
 	cardID, _ := strconv.ParseUint(id, 10, 32)
