@@ -26,3 +26,8 @@ func (u *UserRepository) GetAll() ([]models.User, error) {
 	u.DBConn.Find(&users)
 	return users, nil
 }
+
+func (u *UserRepository) Update(user *models.User) error {
+	u.DBConn.Save(user)
+	return nil
+}

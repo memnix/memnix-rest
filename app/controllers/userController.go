@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/memnix/memnixrest/data/infrastructures"
 	"github.com/memnix/memnixrest/interfaces"
@@ -58,21 +57,21 @@ func (u *UserController) GetAllUsers(c *fiber.Ctx) error {
 // @Security Admin
 // @Router /v1/users/id/{id} [get]
 func (u *UserController) GetUserByID(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
-
 	// Params
 	id := c.Params("id")
 
-	user := new(models.User)
+	// Convert id to uint
+	idInt, _ := strconv.ParseUint(id, utils.Base10, utils.BitSize)
 
-	if err := db.First(&user, id).Error; err != nil {
+	user, err := u.GetByID(uint(idInt))
+	if err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success get user by ID.",
-		Data:    *user,
+		Data:    user,
 		Count:   1,
 	})
 }
@@ -260,19 +259,21 @@ func (u *UserController) ResetPasswordConfirm(c *fiber.Ctx) error {
 // @Success 200
 // @Router /v1/users/id/{id} [put]
 func (u *UserController) UpdateUserByID(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
-
 	// Params
 	id := c.Params("id")
 
 	user := new(models.User)
 
-	if err := db.First(&user, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	if err := c.BodyParser(&user); err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
-	if res := UpdateUser(c, user); !res.Success {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
+	// Convert id to uint
+	idUint, err := strconv.ParseUint(id, utils.Base10, utils.BitSize)
+
+	err = u.UpdateByID(uint(idUint), user)
+	if err != nil {
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
@@ -281,28 +282,4 @@ func (u *UserController) UpdateUserByID(c *fiber.Ctx) error {
 		Data:    *user,
 		Count:   1,
 	})
-}
-
-// UpdateUser function
-func UpdateUser(c *fiber.Ctx, user *models.User) *viewmodels.ResponseHTTP {
-	db := infrastructures.GetDBConn()
-
-	email, password, permissions := user.Email, user.Password, user.Permissions
-
-	res := new(viewmodels.ResponseHTTP)
-
-	if err := c.BodyParser(&user); err != nil {
-		res.GenerateError(err.Error())
-		return res
-	}
-
-	if user.Email != email || !bytes.Equal(user.Password, password) || user.Permissions != permissions {
-		res.GenerateError(utils.ErrorBreak)
-		return res
-	}
-
-	db.Save(user)
-
-	res.GenerateSuccess("Success update user", nil, 0)
-	return res
 }

@@ -100,13 +100,11 @@ func (cardController *CardController) GetTrainingCardsByDeck(c *fiber.Ctx) error
 // @Router /v1/cards/ [get]
 // @Deprecated
 func (cardController *CardController) GetAllCards(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
-
-	var cards []models.Card
-
-	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
+	cards, err := cardController.GetAll()
+	if err != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
+
 	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Get All cards",
@@ -125,21 +123,21 @@ func (cardController *CardController) GetAllCards(c *fiber.Ctx) error {
 // @Success 200 {object} models.Card
 // @Router /v1/cards/id/{id} [get]
 func (cardController *CardController) GetCardByID(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
-
 	// Params
 	id := c.Params("id")
 
-	card := new(models.Card)
+	// Convert to int
+	idInt, _ := strconv.ParseInt(id, 10, 32)
 
-	if err := db.Joins("Deck").Joins("Mcq").First(&card, id).Error; err != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	card, err := cardController.GetByID(uint(idInt))
+	if err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
 	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
-		Data:    *card,
+		Data:    card,
 		Count:   1,
 	})
 }
@@ -154,7 +152,6 @@ func (cardController *CardController) GetCardByID(c *fiber.Ctx) error {
 // @Success 200 {array} models.Card
 // @Router /v1/cards/deck/{deckID} [get]
 func (cardController *CardController) GetCardsFromDeck(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
 	id := c.Params("deckID")
@@ -171,9 +168,9 @@ func (cardController *CardController) GetCardsFromDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	var cards []models.Card
+	cards, err := cardController.ICardService.GetCardsFromDeck(uint(deckID))
 
-	if err := db.Joins("Deck").Joins("Mcq").Where("cards.deck_id = ?", id).Find(&cards).Error; err != nil {
+	if err != nil {
 		log := logger.CreateLog(fmt.Sprintf("Error on GetCardsFromDeck: %s from %s on %d", err.Error(), user.Email, deckID), logger.LogQueryGetError).SetType(logger.LogTypeError).AttachIDs(user.ID, uint(deckID), 0)
 		_ = log.SendLog()
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
@@ -200,7 +197,6 @@ func (cardController *CardController) GetCardsFromDeck(c *fiber.Ctx) error {
 // @Success 200
 // @Router /v1/cards/new [post]
 func (cardController *CardController) CreateNewCard(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
 	card := new(models.Card)
 
 	user, ok := c.Locals("user").(models.User)
@@ -237,7 +233,12 @@ func (cardController *CardController) CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
-	db.Create(card)
+	err := cardController.ICardService.CreateCard(*card)
+	if err != nil {
+		log := logger.CreateLog(fmt.Sprintf("Error on CreateNewCard: %s from %s on %d", err.Error(), user.Email, card.DeckID), logger.LogBadRequest).SetType(logger.LogTypeError).AttachIDs(user.ID, card.DeckID, 0)
+		_ = log.SendLog()
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
+	}
 
 	log := logger.CreateLog(fmt.Sprintf("Created: %d - %s", card.ID, card.Question), logger.LogCardCreated).SetType(logger.LogTypeInfo).AttachIDs(user.ID, card.DeckID, card.ID)
 	_ = log.SendLog()

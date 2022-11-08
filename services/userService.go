@@ -1,12 +1,14 @@
 package services
 
 import (
+	"bytes"
 	"errors"
 	"github.com/memnix/memnixrest/app/controllers"
 	"github.com/memnix/memnixrest/data/infrastructures"
 	"github.com/memnix/memnixrest/data/repositories"
 	"github.com/memnix/memnixrest/interfaces"
 	"github.com/memnix/memnixrest/models"
+	"github.com/memnix/memnixrest/utils"
 )
 
 type UserService struct {
@@ -40,4 +42,18 @@ func (u *UserService) GetAll() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (u *UserService) UpdateByID(id uint, newUser *models.User) error {
+	user, err := u.IUserRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if user.Email != newUser.Email || !bytes.Equal(user.Password, newUser.Password) || user.Permissions != newUser.Permissions {
+		return errors.New(utils.ErrorBreak)
+	}
+
+	return u.IUserRepository.Update(newUser)
+
 }
