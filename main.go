@@ -7,8 +7,8 @@ import (
 	_ "github.com/arsmn/fiber-swagger/v2"
 	"github.com/memnix/memnixrest/app/auth"
 	"github.com/memnix/memnixrest/app/routes"
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/queries"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
@@ -41,18 +41,18 @@ func init() {
 // @host http://192.168.1.151:1813/
 // @BasePath /v1
 func main() {
-	// Try to connect to the database
-	if err := database.Connect(); err != nil {
-		log.Panic("Can't connect database:", err.Error())
+	// Try to connect to the infrastructures
+	if err := infrastructures.Connect(); err != nil {
+		log.Panic("Can't connect infrastructures:", err.Error())
 	}
 
 	// Create cache session
-	if err := database.CreateCache(); err != nil {
+	if err := infrastructures.CreateCache(); err != nil {
 		log.Panic("Can't create cache session:", err.Error())
 	}
 
 	// Connect to RabbitMQ
-	if _, err := database.Rabbit(); err != nil {
+	if _, err := infrastructures.Rabbit(); err != nil {
 		log.Panic("Can't connect to rabbitMq: ", err)
 	}
 
@@ -63,12 +63,12 @@ func main() {
 	defer func(conn *amqp.Connection) {
 		_ = conn.Close()
 		fmt.Println("Disconnected to RabbitMQ")
-	}(database.RabbitMqConn)
+	}(infrastructures.RabbitMQ.Connection)
 
 	// Close RabbitMQ channel
 	defer func(ch *amqp.Channel) {
 		_ = ch.Close()
-	}(database.RabbitMqChan)
+	}(infrastructures.RabbitMQ.Channel)
 
 	// Models to migrate
 	var migrates []interface{}
@@ -77,7 +77,7 @@ func main() {
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {
-		err := database.DBConn.AutoMigrate(&migrates[i])
+		err := infrastructures.GetDBConn().AutoMigrate(&migrates[i])
 		if err != nil {
 			log.Panic("Can't auto migrate models:", err.Error())
 		}

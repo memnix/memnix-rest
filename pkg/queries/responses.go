@@ -2,12 +2,12 @@ package queries
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/viewmodels"
 	"net/http"
 )
 
-func AuthError(c *fiber.Ctx, auth *models.ResponseAuth) error {
-	return c.Status(http.StatusUnauthorized).JSON(models.ResponseHTTP{
+func AuthError(c *fiber.Ctx, auth *viewmodels.ResponseAuth) error {
+	return c.Status(http.StatusUnauthorized).JSON(viewmodels.ResponseHTTP{
 		Success: false,
 		Message: auth.Message,
 		Data:    nil,
@@ -16,7 +16,7 @@ func AuthError(c *fiber.Ctx, auth *models.ResponseAuth) error {
 }
 
 func RequestError(c *fiber.Ctx, statusCode int, message string) error {
-	return c.Status(statusCode).JSON(models.ResponseHTTP{
+	return c.Status(statusCode).JSON(viewmodels.ResponseHTTP{
 		Success: false,
 		Message: message,
 		Data:    nil,

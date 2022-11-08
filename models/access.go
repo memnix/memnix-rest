@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/utils"
 	"gorm.io/gorm"
 )
 

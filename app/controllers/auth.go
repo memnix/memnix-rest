@@ -3,11 +3,12 @@ package controllers
 import (
 	"fmt"
 	"github.com/memnix/memnixrest/app/auth"
-	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/queries"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/utils"
+	"github.com/memnix/memnixrest/viewmodels"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,7 +29,7 @@ import (
 // @Failure 403 "Forbidden"
 // @Router /v1/register [post]
 func Register(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	var data models.RegisterStruct // Data object
 
@@ -75,7 +76,7 @@ func Register(c *fiber.Ctx) error {
 // @Failure 500 "Internal error"
 // @Router /v1/login [post]
 func Login(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	var data models.LoginStruct // Data object
 
@@ -161,7 +162,7 @@ func User(c *fiber.Ctx) error {
 
 	user.Set(&localUser) // Set user
 
-	responseUser := models.ResponsePublicAuth{
+	responseUser := viewmodels.ResponsePublicAuth{
 		Success: true,
 		Message: "User is connected",
 		User:    *user,

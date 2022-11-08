@@ -1,14 +1,14 @@
 package core
 
 import (
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"strings"
 )
 
 // UpdateMemSelfEvaluated computes self evaluated mem
 func UpdateMemSelfEvaluated(r *models.Mem, training bool, quality uint) {
-	db := database.DBConn
+	db := infrastructures.GetDBConn()
 
 	mem := new(models.Mem)
 
@@ -31,7 +31,7 @@ func UpdateMemSelfEvaluated(r *models.Mem, training bool, quality uint) {
 
 // UpdateMemDate computes NextDate and set it
 func UpdateMemDate(mem *models.Mem) (*models.MemDate, error) {
-	db := database.DBConn
+	db := infrastructures.GetDBConn()
 	memDate := new(models.MemDate)
 
 	if err := db.Joins("Card").Joins("User").Joins("Deck").Where("mem_dates.user_id = ? AND mem_dates.card_id = ?",
@@ -50,7 +50,7 @@ func UpdateMemDate(mem *models.Mem) (*models.MemDate, error) {
 
 // UpdateMemTraining computes and set mem values
 func UpdateMemTraining(r *models.Mem, validation bool) {
-	db := database.DBConn
+	db := infrastructures.GetDBConn()
 
 	mem := new(models.Mem)
 
@@ -73,7 +73,7 @@ func UpdateMemTraining(r *models.Mem, validation bool) {
 
 // UpdateMem computes and set mem values
 func UpdateMem(r *models.Mem, validation bool) (*models.MemDate, error) {
-	db := database.DBConn
+	db := infrastructures.GetDBConn()
 
 	mem := new(models.Mem)
 

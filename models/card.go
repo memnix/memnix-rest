@@ -3,9 +3,9 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/data/infrastructures"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/utils"
 	"gorm.io/gorm"
 	"math/rand"
 )
@@ -47,7 +47,7 @@ func (card *Card) NotValidate() bool {
 
 // ValidateMCQ makes sure that the mcq attached to a card is correct
 func (card *Card) ValidateMCQ(user *User) (*Mcq, bool) {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	mcq := new(Mcq)
 
 	if card.McqID.Int32 != 0 {
@@ -85,7 +85,7 @@ func (s CardType) ToString() string {
 
 // GetMCQAnswers returns mcq's answers
 func (card *Card) GetMCQAnswers() []string {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	var answers []string
 

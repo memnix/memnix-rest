@@ -3,11 +3,13 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/interfaces"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/models"
-	queries2 "github.com/memnix/memnixrest/pkg/queries"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/pkg/queries"
+	"github.com/memnix/memnixrest/utils"
+	"github.com/memnix/memnixrest/viewmodels"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
@@ -16,6 +18,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
+
+type UserController struct {
+	interfaces.IUserService
+}
 
 // GET
 
@@ -28,16 +34,16 @@ import (
 // @Security Admin
 // @Deprecated
 // @Router /v1/users [get]
-func GetAllUsers(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+func (u *UserController) GetAllUsers(c *fiber.Ctx) error {
+	db := infrastructures.GetDBConn() // DB Conn
 
 	var users []models.User
 
 	if res := db.Find(&users); res.Error != nil {
-		return queries2.RequestError(c, http.StatusInternalServerError, res.Error.Error())
+		return queries.RequestError(c, http.StatusInternalServerError, res.Error.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Get all users",
 		Data:    users,
@@ -54,8 +60,8 @@ func GetAllUsers(c *fiber.Ctx) error {
 // @Success 200 {object} models.User
 // @Security Admin
 // @Router /v1/users/id/{id} [get]
-func GetUserByID(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+func (u *UserController) GetUserByID(c *fiber.Ctx) error {
+	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
 	id := c.Params("id")
@@ -63,10 +69,10 @@ func GetUserByID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.First(&user, id).Error; err != nil {
-		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success get user by ID.",
 		Data:    *user,
@@ -84,45 +90,45 @@ func GetUserByID(c *fiber.Ctx) error {
 // @Param config body models.DeckConfig true "Deck Config"
 // @Success 200
 // @Router /v1/users/settings/{deckId}/today [post]
-func SetTodayConfig(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+func (u *UserController) SetTodayConfig(c *fiber.Ctx) error {
+	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
-		return queries2.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
+		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
 	// Params
 	deckID := c.Params("deckID")
 	deckidInt, _ := strconv.ParseUint(deckID, 10, 32)
 
-	deckConfig := new(models.DeckConfig)
+	deckConfig := new(viewmodels.DeckConfig)
 
 	if err := c.BodyParser(&deckConfig); err != nil {
 		log := logger.CreateLog(fmt.Sprintf("Error on SetTodayConfig: %s from %s", err.Error(), user.Email), logger.LogBodyParserError).SetType(logger.LogTypeError).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
-		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	access := new(models.Access)
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", user.ID, deckID).Find(&access).Error; err != nil {
 		log := logger.CreateLog(fmt.Sprintf("Forbidden from %s on deck %d - SetTodayConfig", user.Email, deckidInt), logger.LogDeckCardLimit).SetType(logger.LogTypeWarning).AttachIDs(user.ID, uint(deckidInt), 0)
 		_ = log.SendLog()
-		return queries2.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
+		return queries.RequestError(c, http.StatusBadRequest, utils.ErrorNotSub)
 	}
 
 	if access.Permission == 0 {
-		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorNotSub)
 	}
 
 	access.ToggleToday = deckConfig.TodaySetting
 	db.Save(access)
 	if deckConfig.TodaySetting {
-		_, _ = queries2.FetchTodayMemDateByDeck(user.ID, uint(deckidInt), true)
+		_, _ = queries.FetchTodayMemDateByDeck(user.ID, uint(deckidInt), true)
 	} else {
-		_ = queries2.ClearCacheByUserID(user.ID)
+		_ = queries.ClearCacheByUserID(user.ID)
 	}
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success updated deck config",
 		Data:    nil,
@@ -139,31 +145,31 @@ func SetTodayConfig(c *fiber.Ctx) error {
 // @Param config body string true "Email"
 // @Success 200
 // @Router /v1/users/resetpassword [post]
-func ResetPassword(c *fiber.Ctx) error {
-	db := database.DBConn
+func (u *UserController) ResetPassword(c *fiber.Ctx) error {
+	db := infrastructures.GetDBConn()
 
 	var body struct {
 		Email string `json:"email"`
 	}
 
 	if err := c.BodyParser(&body); err != nil {
-		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	email := strings.ToLower(body.Email)
 	email = strings.TrimSpace(email)
 
 	if err := db.Where("email = ?", email).First(&models.User{}).Error; err != nil {
-		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
-	_, found := database.Cache.Get(email)
+	_, found := infrastructures.Cache.Get(email)
 	if found {
-		return queries2.RequestError(c, http.StatusBadRequest, "A password reset has already been sent to this email address. Please check your email for the link.")
+		return queries.RequestError(c, http.StatusBadRequest, "A password reset has already been sent to this email address. Please check your email for the link.")
 	}
 
 	token := utils.GenerateSecretCode(3)
-	database.Cache.Set(email, token, time.Minute*10)
+	infrastructures.Cache.Set(email, token, time.Minute*10)
 
 	// Send email
 	go func() {
@@ -177,7 +183,7 @@ func ResetPassword(c *fiber.Ctx) error {
 	log := logger.CreateLog(fmt.Sprintf("Password reset request for %s", email), logger.LogUserPasswordReset).SetType(logger.LogTypeInfo).AttachIDs(0, 0, 0)
 	_ = log.SendLog()
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success sent password reset email",
 		Data:    nil,
@@ -194,37 +200,37 @@ func ResetPassword(c *fiber.Ctx) error {
 // @Param config body models.PasswordResetConfirm true "Password reset"
 // @Success 200
 // @Router /v1/users/confirmpassword [post]
-func ResetPasswordConfirm(c *fiber.Ctx) error {
-	db := database.DBConn
+func (u *UserController) ResetPasswordConfirm(c *fiber.Ctx) error {
+	db := infrastructures.GetDBConn()
 
 	var body models.PasswordResetConfirm
 
 	if err := c.BodyParser(&body); err != nil {
-		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	email := strings.ToLower(body.Email)
 	email = strings.TrimSpace(email)
 
-	token, found := database.Cache.Get(email)
+	token, found := infrastructures.Cache.Get(email)
 	if !found {
-		return queries2.RequestError(c, http.StatusBadRequest, "Your password reset code has expired. Please request a new one.")
+		return queries.RequestError(c, http.StatusBadRequest, "Your password reset code has expired. Please request a new one.")
 	}
 
 	if token != body.Code {
-		return queries2.RequestError(c, http.StatusBadRequest, "Invalid password reset code.")
+		return queries.RequestError(c, http.StatusBadRequest, "Invalid password reset code.")
 	}
 
 	user := new(models.User)
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		return queries2.RequestError(c, http.StatusBadRequest, err.Error())
+		return queries.RequestError(c, http.StatusBadRequest, err.Error())
 	}
 
 	// Register checks
 	if len(body.Pass) > utils.MaxPasswordLen {
 		log := logger.CreateLog(fmt.Sprintf("Error on reset password: %s - %s", user.Username, user.Email), logger.LogBadRequest).SetType(logger.LogTypeWarning).AttachIDs(user.ID, 0, 0)
 		_ = log.SendLog()
-		return queries2.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
+		return queries.RequestError(c, http.StatusForbidden, utils.ErrorRequestFailed)
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(body.Pass), 10) // Hash password
@@ -232,12 +238,12 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 	user.Password = password
 	db.Save(user)
 
-	database.Cache.Delete(email)
+	infrastructures.Cache.Delete(email)
 
 	log := logger.CreateLog(fmt.Sprintf("Password reset for %s", email), logger.LogUserPasswordChanged).SetType(logger.LogTypeInfo).AttachIDs(user.ID, 0, 0)
 	_ = log.SendLog()
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success updated password",
 		Data:    nil,
@@ -256,8 +262,8 @@ func ResetPasswordConfirm(c *fiber.Ctx) error {
 // @Param config body models.User true "User"
 // @Success 200
 // @Router /v1/users/id/{id} [put]
-func UpdateUserByID(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+func (u *UserController) UpdateUserByID(c *fiber.Ctx) error {
+	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
 	id := c.Params("id")
@@ -265,14 +271,14 @@ func UpdateUserByID(c *fiber.Ctx) error {
 	user := new(models.User)
 
 	if err := db.First(&user, id).Error; err != nil {
-		return queries2.RequestError(c, http.StatusInternalServerError, err.Error())
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	if res := UpdateUser(c, user); !res.Success {
-		return queries2.RequestError(c, http.StatusInternalServerError, res.Message)
+		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success update user by ID",
 		Data:    *user,
@@ -281,24 +287,24 @@ func UpdateUserByID(c *fiber.Ctx) error {
 }
 
 // UpdateUser function
-func UpdateUser(c *fiber.Ctx, u *models.User) *models.ResponseHTTP {
-	db := database.DBConn
+func UpdateUser(c *fiber.Ctx, user *models.User) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn()
 
-	email, password, permissions := u.Email, u.Password, u.Permissions
+	email, password, permissions := user.Email, user.Password, user.Permissions
 
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
-	if err := c.BodyParser(&u); err != nil {
+	if err := c.BodyParser(&user); err != nil {
 		res.GenerateError(err.Error())
 		return res
 	}
 
-	if u.Email != email || !bytes.Equal(u.Password, password) || u.Permissions != permissions {
+	if user.Email != email || !bytes.Equal(user.Password, password) || user.Permissions != permissions {
 		res.GenerateError(utils.ErrorBreak)
 		return res
 	}
 
-	db.Save(u)
+	db.Save(user)
 
 	res.GenerateSuccess("Success update user", nil, 0)
 	return res

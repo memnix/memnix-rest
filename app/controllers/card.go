@@ -3,12 +3,13 @@ package controllers
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/core"
-	"github.com/memnix/memnixrest/pkg/database"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/queries"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/utils"
+	"github.com/memnix/memnixrest/viewmodels"
 	"net/http"
 	"strconv"
 )
@@ -22,7 +23,7 @@ import (
 // @Security Beaver
 // @Router /v1/cards/today [get]
 func GetAllTodayCard(c *fiber.Ctx) error {
-	var res *models.ResponseHTTP
+	var res *viewmodels.ResponseHTTP
 
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
@@ -35,7 +36,7 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Get today's cards",
 		Data:    res.Data,
@@ -53,7 +54,7 @@ func GetAllTodayCard(c *fiber.Ctx) error {
 // @Security Beaver
 // @Router /v1/cards/{deckID}/training [get]
 func GetTrainingCardsByDeck(c *fiber.Ctx) error {
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
@@ -76,7 +77,7 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, res.Message)
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Get today's card",
 		Data:    res.Data,
@@ -94,14 +95,14 @@ func GetTrainingCardsByDeck(c *fiber.Ctx) error {
 // @Router /v1/cards/ [get]
 // @Deprecated
 func GetAllCards(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	var cards []models.Card
 
 	if res := db.Joins("Deck").Find(&cards); res.Error != nil {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Get All cards",
 		Data:    cards,
@@ -119,7 +120,7 @@ func GetAllCards(c *fiber.Ctx) error {
 // @Success 200 {object} models.Card
 // @Router /v1/cards/id/{id} [get]
 func GetCardByID(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
 	id := c.Params("id")
@@ -130,7 +131,7 @@ func GetCardByID(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success get card by ID.",
 		Data:    *card,
@@ -148,7 +149,7 @@ func GetCardByID(c *fiber.Ctx) error {
 // @Success 200 {array} models.Card
 // @Router /v1/cards/deck/{deckID} [get]
 func GetCardsFromDeck(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
 	id := c.Params("deckID")
@@ -173,7 +174,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success get cards from deck.",
 		Data:    cards,
@@ -194,7 +195,7 @@ func GetCardsFromDeck(c *fiber.Ctx) error {
 // @Success 200
 // @Router /v1/cards/new [post]
 func CreateNewCard(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	card := new(models.Card)
 
 	user, ok := c.Locals("user").(models.User)
@@ -240,7 +241,7 @@ func CreateNewCard(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusInternalServerError, utils.ErrorRequestFailed)
 	}
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success register a card",
 		Data:    *card,
@@ -259,14 +260,14 @@ func CreateNewCard(c *fiber.Ctx) error {
 // @Success 200
 // @Router /v1/cards/selfresponse [post]
 func PostSelfEvaluateResponse(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
 		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
-	response := new(models.CardSelfResponse)
+	response := new(viewmodels.CardSelfResponse)
 	card := new(models.Card)
 
 	if err := c.BodyParser(&response); err != nil {
@@ -297,7 +298,7 @@ func PostSelfEvaluateResponse(c *fiber.Ctx) error {
 	//TODO: Add error handling
 	_ = queries.PostSelfEvaluatedMem(&user, card, response.Quality, response.Training)
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success post response",
 		Data:    nil,
@@ -316,14 +317,14 @@ func PostSelfEvaluateResponse(c *fiber.Ctx) error {
 // @Success 200 {object} models.CardResponseValidation
 // @Router /v1/cards/response [post]
 func PostResponse(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	user, ok := c.Locals("user").(models.User)
 	if !ok {
 		return queries.RequestError(c, http.StatusUnauthorized, utils.ErrorForbidden)
 	}
 
-	response := new(models.CardResponse)
+	response := new(viewmodels.CardResponse)
 	card := new(models.Card)
 
 	if err := c.BodyParser(&response); err != nil {
@@ -345,7 +346,7 @@ func PostResponse(c *fiber.Ctx) error {
 		return queries.RequestError(c, http.StatusForbidden, utils.ErrorForbidden)
 	}
 
-	validation := new(models.CardResponseValidation)
+	validation := new(viewmodels.CardResponseValidation)
 
 	if core.ValidateAnswer(response.Response, card) {
 		validation.SetCorrect()
@@ -358,7 +359,7 @@ func PostResponse(c *fiber.Ctx) error {
 
 	validation.Answer = card.Answer
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success post response",
 		Data:    *validation,
@@ -380,7 +381,7 @@ func PostResponse(c *fiber.Ctx) error {
 // @Param id path int true "card id"
 // @Router /v1/cards/{cardID}/edit [put]
 func UpdateCardByID(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	// Params
 	id := c.Params("id")
@@ -413,7 +414,7 @@ func UpdateCardByID(c *fiber.Ctx) error {
 	log := logger.CreateLog(fmt.Sprintf("Edited: %d - %s", card.ID, card.Question), logger.LogCardEdited).SetType(logger.LogTypeInfo).AttachIDs(user.ID, card.DeckID, card.ID)
 	_ = log.SendLog()
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success update card by ID",
 		Data:    *card,
@@ -422,12 +423,12 @@ func UpdateCardByID(c *fiber.Ctx) error {
 }
 
 // UpdateCard function
-func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.ResponseHTTP {
-	db := database.DBConn
+func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn()
 
 	deckID := card.DeckID
 
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
 	if err := c.BodyParser(&card); err != nil {
 		res.GenerateError(err.Error())
@@ -457,7 +458,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.Resp
 	db.Save(card)
 
 	if shouldUpdateMcq {
-		mcq.UpdateLinkedAnswers()
+		viewmodels.UpdateLinkedAnswers(mcq)
 	}
 
 	res.GenerateSuccess("Success update card", nil, 0)
@@ -474,7 +475,7 @@ func UpdateCard(c *fiber.Ctx, card *models.Card, user *models.User) *models.Resp
 // @Success 200
 // @Router /v1/cards/{cardID} [delete]
 func DeleteCardByID(c *fiber.Ctx) error {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	id := c.Params("id")
 	cardID, _ := strconv.ParseUint(id, 10, 32)
 
@@ -511,7 +512,7 @@ func DeleteCardByID(c *fiber.Ctx) error {
 	log := logger.CreateLog(fmt.Sprintf("Deleted: %d - %s", card.ID, card.Question), logger.LogCardDeleted).SetType(logger.LogTypeInfo).AttachIDs(user.ID, card.DeckID, card.ID)
 	_ = log.SendLog()
 
-	return c.Status(http.StatusOK).JSON(models.ResponseHTTP{
+	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
 		Success: true,
 		Message: "Success delete card by ID",
 		Data:    *card,

@@ -2,18 +2,19 @@ package queries
 
 import (
 	"errors"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/core"
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/models"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/utils"
+	"github.com/memnix/memnixrest/viewmodels"
 	"gorm.io/gorm"
 	"time"
 )
 
 // PostSelfEvaluatedMem updates Mem & MemDate
-func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, training bool) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
+func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, training bool) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn() // DB Conn
+	res := new(viewmodels.ResponseHTTP)
 
 	memDate := new(models.MemDate)
 
@@ -36,9 +37,9 @@ func PostSelfEvaluatedMem(user *models.User, card *models.Card, quality uint, tr
 }
 
 // PostMem updates MemDate & Mem
-func PostMem(user *models.User, card *models.Card, validation *models.CardResponseValidation, training bool) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
+func PostMem(user *models.User, card *models.Card, validation *viewmodels.CardResponseValidation, training bool) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn() // DB Conn
+	res := new(viewmodels.ResponseHTTP)
 
 	memDate := new(models.MemDate)
 
@@ -81,7 +82,7 @@ func PostMem(user *models.User, card *models.Card, validation *models.CardRespon
 
 // FetchMem returns last mem of a user on a given card
 func FetchMem(cardID, userID uint) *models.Mem {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 
 	mem := new(models.Mem)
 	if err := db.Joins("Card").Where("mems.card_id = ? AND mems.user_id = ?", cardID, userID).Order("id desc").First(&mem).Error; err != nil {

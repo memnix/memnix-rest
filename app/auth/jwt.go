@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
-	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/viewmodels"
 	"os"
 	"strings"
 )
@@ -36,16 +37,16 @@ func jwtKeyFunc(_ *jwt.Token) (interface{}, error) {
 }
 
 // IsConnected function to check if user is connected
-func IsConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
-	db := database.DBConn          // DB Conn
-	tokenString := extractToken(c) // Extract token
-	var user models.User           // User object
+func IsConnected(c *fiber.Ctx) (int, viewmodels.ResponseAuth) {
+	db := infrastructures.GetDBConn() // DB Conn
+	tokenString := extractToken(c)    // Extract token
+	var user models.User              // User object
 
 	// Parse token
 	token, err := jwt.Parse(tokenString, jwtKeyFunc)
 	if err != nil {
 		// Return error
-		return fiber.StatusForbidden, models.ResponseAuth{
+		return fiber.StatusForbidden, viewmodels.ResponseAuth{
 			Success: false,
 			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
 			User:    user,
@@ -61,7 +62,7 @@ func IsConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
 		_ = log.SendLog()                         // Send log
 		c.Status(fiber.StatusInternalServerError) // InternalServerError Status
 		// return error
-		return fiber.StatusInternalServerError, models.ResponseAuth{
+		return fiber.StatusInternalServerError, viewmodels.ResponseAuth{
 			Success: false,
 			Message: "Failed to get the user. Try to logout/login. Otherwise, contact the support",
 			User:    user,
@@ -69,7 +70,7 @@ func IsConnected(c *fiber.Ctx) (int, models.ResponseAuth) {
 	}
 
 	// User is connected
-	return fiber.StatusOK, models.ResponseAuth{
+	return fiber.StatusOK, viewmodels.ResponseAuth{
 		Success: true,
 		Message: "User is connected",
 		User:    user,

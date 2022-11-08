@@ -1,47 +1,49 @@
 package routes
 
 import (
-	"github.com/memnix/memnixrest/app/controllers"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/models"
+	"github.com/memnix/memnixrest/services"
 )
 
 func registerUserRoutes() {
+	u := services.GetServiceContainer().InjectUserController()
+
 	// Get
 	routesMap["/users"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetAllUsers,
+		Handler:    u.GetAllUsers,
 		Permission: models.PermAdmin,
 	}
 
 	routesMap["/users/id/:id"] = routeStruct{
 		Method:     "GET",
-		Handler:    controllers.GetUserByID,
+		Handler:    u.GetUserByID,
 		Permission: models.PermAdmin,
 	}
 
 	// Post
 	routesMap["/users/settings/:deckID/today"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.SetTodayConfig,
+		Handler:    u.SetTodayConfig,
 		Permission: models.PermUser,
 	}
 
 	routesMap["/users/settings/resetpassword"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.ResetPassword,
+		Handler:    u.ResetPassword,
 		Permission: models.PermUser,
 	}
 
 	routesMap["/users/settings/confirmpassword"] = routeStruct{
 		Method:     "POST",
-		Handler:    controllers.ResetPasswordConfirm,
+		Handler:    u.ResetPasswordConfirm,
 		Permission: models.PermUser,
 	}
 
 	// Put
 	routesMap["/users/id/:id"] = routeStruct{
 		Method:     "PUT",
-		Handler:    controllers.UpdateUserByID,
+		Handler:    u.UpdateUserByID,
 		Permission: models.PermAdmin,
 	}
 

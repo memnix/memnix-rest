@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/routes"
-	"github.com/memnix/memnixrest/pkg/database"
+	infrastructures2 "github.com/memnix/memnixrest/data/infrastructures"
 	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/queries"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -32,13 +32,13 @@ func TestSetup(t *testing.T) {
 }
 
 func Setup() (*fiber.App, error) {
-	// Try to connect to the database
-	if err := database.Connect(); err != nil {
-		log.Panic("Can't connect database:", err.Error())
+	// Try to connect to the infrastructures
+	if err := infrastructures2.Connect(); err != nil {
+		log.Panic("Can't connect infrastructures:", err.Error())
 	}
 
 	// Connect to RabbitMQ
-	if _, err := database.Rabbit(); err != nil {
+	if _, err := infrastructures2.Rabbit(); err != nil {
 		log.Panic("Can't connect to rabbitMq: ", err)
 	}
 
@@ -46,12 +46,12 @@ func Setup() (*fiber.App, error) {
 	defer func(conn *amqp.Connection) {
 		_ = conn.Close()
 		fmt.Println("Disconnected to RabbitMQ")
-	}(database.RabbitMqConn)
+	}(infrastructures2.RabbitMqConn)
 
 	// Close RabbitMQ channel
 	defer func(ch *amqp.Channel) {
 		_ = ch.Close()
-	}(database.RabbitMqChan)
+	}(infrastructures2.RabbitMqChan)
 
 	// Models to migrate
 	var migrates []interface{}
@@ -60,7 +60,7 @@ func Setup() (*fiber.App, error) {
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {
-		err := database.DBConn.AutoMigrate(&migrates[i])
+		err := infrastructures2.DBConn.AutoMigrate(&migrates[i])
 		if err != nil {
 			log.Panic("Can't auto migrate models:", err.Error())
 		}

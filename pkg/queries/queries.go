@@ -3,10 +3,11 @@ package queries
 import (
 	"errors"
 	"fmt"
-	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/models"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/utils"
+	"github.com/memnix/memnixrest/viewmodels"
 	"gorm.io/gorm"
 	"math/rand"
 	"sort"
@@ -15,7 +16,7 @@ import (
 // UpdateSubUsers generates MemDate for sub users
 func UpdateSubUsers(card *models.Card, user *models.User) error {
 	var users []models.User
-	var result *models.ResponseHTTP
+	var result *viewmodels.ResponseHTTP
 
 	if result = GetSubUsers(card.DeckID); !result.Success {
 		log := logger.CreateLog(fmt.Sprintf("Error from %s on deck %d - CreateNewCard: %s", user.Email, card.DeckID, result.Message),
@@ -40,10 +41,10 @@ func UpdateSubUsers(card *models.Card, user *models.User) error {
 
 // FillResponseDeck returns a filled models.ResponseDeck
 // This function might become a method of models.ResponseDeck
-func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) models.ResponseDeck {
-	db := database.DBConn
+func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, toggleToday bool) viewmodels.ResponseDeck {
+	db := infrastructures.GetDBConn()
 
-	deckResponse := models.ResponseDeck{
+	deckResponse := viewmodels.ResponseDeck{
 		Deck:        *deck,
 		DeckID:      deck.ID,
 		Permission:  permission,
@@ -71,11 +72,11 @@ func FillResponseDeck(deck *models.Deck, permission models.AccessPermission, tog
 }
 
 // GenerateCreatorAccess sets an user as a deck creator
-func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
-	db := database.DBConn
+func GenerateCreatorAccess(user *models.User, deck *models.Deck) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn()
 	// TODO: Change models.User & models.Deck to uint
 	access := new(models.Access)
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
 	access.Set(user.ID, deck.ID, models.AccessOwner)
 	db.Create(access)
@@ -85,9 +86,9 @@ func GenerateCreatorAccess(user *models.User, deck *models.Deck) *models.Respons
 }
 
 // GenerateAccess sets a default student access to a deck for a given user
-func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
-	db := database.DBConn
-	res := new(models.ResponseHTTP)
+func GenerateAccess(user *models.User, deck *models.Deck) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn()
+	res := new(viewmodels.ResponseHTTP)
 
 	if deck.Status != models.DeckPublic && user.Permissions != models.PermAdmin {
 		res.GenerateError(utils.ErrorForbidden)
@@ -115,11 +116,11 @@ func GenerateAccess(user *models.User, deck *models.Deck) *models.ResponseHTTP {
 }
 
 // CheckAccess verifies if a given user as the right models.Permission to perform an action on a deck
-func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
+func CheckAccess(userID, deckID uint, perm models.AccessPermission) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn() // DB Conn
 
 	access := new(models.Access)
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
 	if err := db.Joins("User").Joins("Deck").Where("accesses.user_id = ? AND accesses.deck_id = ?", userID, deckID).First(&access).Error; err != nil {
 		access.Permission = models.AccessNone
@@ -136,7 +137,7 @@ func CheckAccess(userID, deckID uint, perm models.AccessPermission) *models.Resp
 
 // CheckCardLimit verifies that a deck can handle more cards
 func CheckCardLimit(permission models.Permission, deckID uint) bool {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	var count int64
 
 	if err := db.Table("cards").Where("cards.deck_id = ? AND cards.deleted_at IS NULL", deckID).Count(&count).Error; err != nil {
@@ -153,7 +154,7 @@ func CheckCardLimit(permission models.Permission, deckID uint) bool {
 
 // CheckCode prevents deck code from being duplicated
 func CheckCode(key, code string) bool {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	var count int64
 
 	if err := db.Table("decks").Where("decks.key = ? AND decks.code = ? AND decks.deleted_at IS NULL", key, code).Count(&count).Error; err != nil {
@@ -170,7 +171,7 @@ func CheckCode(key, code string) bool {
 
 // CheckDeckLimit verifies that the user hasn't reached the limit
 func CheckDeckLimit(user *models.User) bool {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	var count int64
 
 	if err := db.Table("accesses").Where("accesses.user_id = ? AND accesses.permission = ? AND accesses.deleted_at IS NULL", user.ID, models.AccessOwner).Count(&count).Error; err != nil {
@@ -187,10 +188,10 @@ func CheckDeckLimit(user *models.User) bool {
 
 // PopulateMemDate with default value for a given user & deck
 // This is used on deck sub
-func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
+func PopulateMemDate(user *models.User, deck *models.Deck) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn() // DB Conn
 	var cards []models.Card
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
 	if err := db.Joins("Deck").Where("cards.deck_id = ?", deck.ID).Find(&cards).Error; err != nil {
 		res.GenerateError(err.Error()) // MemDate not found
@@ -205,10 +206,10 @@ func PopulateMemDate(user *models.User, deck *models.Deck) *models.ResponseHTTP 
 }
 
 // GetSubUsers returns a list of users sub to a deck
-func GetSubUsers(deckID uint) *models.ResponseHTTP {
-	res := new(models.ResponseHTTP)
+func GetSubUsers(deckID uint) *viewmodels.ResponseHTTP {
+	res := new(viewmodels.ResponseHTTP)
 
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	var users []models.User
 
 	if err := db.Joins("left join accesses ON users.id = accesses.user_id AND accesses.deck_id = ?", deckID).Where("accesses.permission > ?", models.AccessNone).Find(&users).Error; err != nil {
@@ -237,9 +238,9 @@ func GenerateMCQ(memDate *models.MemDate, userID uint) []string {
 }
 
 // FetchTrainingCards returns training cards
-func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
-	res := new(models.ResponseHTTP)
-	db := database.DBConn // DB Conn
+func FetchTrainingCards(userID, deckID uint) *viewmodels.ResponseHTTP {
+	res := new(viewmodels.ResponseHTTP)
+	db := infrastructures.GetDBConn() // DB Conn
 
 	var memDates []models.MemDate
 
@@ -247,10 +248,10 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 		res.GenerateError(err.Error())
 		return res
 	}
-	responseCard := new(models.ResponseCard)
+	responseCard := new(viewmodels.ResponseCard)
 	var answersList []string
 
-	result := make([]models.ResponseCard, len(memDates))
+	result := make([]viewmodels.ResponseCard, len(memDates))
 
 	for i := range memDates {
 		answersList = GenerateMCQ(&memDates[i], userID)
@@ -265,10 +266,10 @@ func FetchTrainingCards(userID, deckID uint) *models.ResponseHTTP {
 }
 
 // FetchTodayCard return today cards
-func FetchTodayCard(userID uint) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
+func FetchTodayCard(userID uint) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn() // DB Conn
 
-	res := new(models.ResponseHTTP)
+	res := new(viewmodels.ResponseHTTP)
 
 	memDates, err := FetchTodayMemDate(userID)
 	if err != nil {
@@ -282,12 +283,12 @@ func FetchTodayCard(userID uint) *models.ResponseHTTP {
 		return res
 	}
 
-	todayResponse := new(models.TodayResponse)
+	todayResponse := new(viewmodels.TodayResponse)
 
 	for key := range m {
 		deck := new(models.Deck)
 		_ = db.First(&deck, key).Error
-		deckResponse := models.DeckResponse{
+		deckResponse := viewmodels.DeckResponse{
 			DeckID: key,
 			Cards:  m[key],
 			Count:  len(m[key]),

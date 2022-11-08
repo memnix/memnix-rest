@@ -1,11 +1,19 @@
 package models
 
 import (
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/utils"
 	"gorm.io/gorm"
 	"strings"
 )
+
+// Answer structure
+type Answer struct {
+	gorm.Model
+	CardID uint `json:"card_id" example:"1"`
+	Card   Card
+	Answer string `json:"answer" example:"42"`
+}
 
 type Mcq struct {
 	gorm.Model `swaggerignore:"true"`
@@ -30,7 +38,7 @@ func (mcq *Mcq) GetAnswers() []string {
 	if mcq.Type == McqLinked {
 		answers := mcq.QueryLinkedAnswers()
 		if len(answers) != len(answersList) {
-			mcq.UpdateLinkedAnswers()
+			//TODO: FIX THIS viewmodels.UpdateLinkedAnswers(mcq)
 			return answers
 		}
 	}
@@ -50,7 +58,7 @@ func (mcq *Mcq) SetAnswers(answers []string) {
 
 // QueryLinkedAnswers returns linked answers
 func (mcq *Mcq) QueryLinkedAnswers() []string {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	var cards []Card
 
 	if err := db.Joins("Mcq").Where("cards.mcq_id = ?", mcq.ID).Find(&cards).Error; err != nil {
@@ -69,38 +77,4 @@ func (mcq *Mcq) QueryLinkedAnswers() []string {
 // NotValidate performs validation of the mcq
 func (mcq *Mcq) NotValidate() bool {
 	return mcq.Type == McqStandalone && (len(mcq.Answers) < utils.MinMcqAnswersLen || len(mcq.Answers) > utils.MaxMcqAnswersLen) || len(mcq.Name) > utils.MaxMcqName || mcq.Name == ""
-}
-
-// FillWithLinkedAnswers method
-func (mcq *Mcq) FillWithLinkedAnswers() *ResponseHTTP {
-	res := new(ResponseHTTP)
-
-	answers := mcq.QueryLinkedAnswers()
-	if len(answers) == 0 {
-		res.GenerateError("Couldn't query linked answers")
-		return res
-	}
-	mcq.SetAnswers(answers)
-
-	res.GenerateSuccess("Success fill mcq with linked answers", answers, len(answers))
-	return res
-}
-
-// UpdateLinkedAnswers method to update the db
-func (mcq *Mcq) UpdateLinkedAnswers() *ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(ResponseHTTP)
-
-	if err := mcq.FillWithLinkedAnswers(); !err.Success {
-		res.GenerateError(err.Message)
-		return res
-	}
-
-	if err := db.Save(mcq).Error; err != nil {
-		res.GenerateError(err.Error())
-		return res
-	}
-
-	res.GenerateSuccess("Success update mcq with linked answers", nil, 0)
-	return res
 }

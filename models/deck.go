@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/utils"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/utils"
 	"gorm.io/gorm"
 	"math/rand"
 	"strconv"
@@ -70,7 +70,7 @@ func (deck *Deck) GenerateCode() {
 
 // GetOwner returns the deck Owner
 func (deck *Deck) GetOwner() User {
-	db := database.DBConn
+	db := infrastructures.GetDBConn()
 
 	access := new(Access)
 

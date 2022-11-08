@@ -2,7 +2,7 @@ package cache
 
 import (
 	"fmt"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/models"
 	"github.com/robfig/cron/v3"
 	"sync"
 )

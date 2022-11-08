@@ -3,7 +3,7 @@ package logger
 import (
 	"fmt"
 	"github.com/bytedance/sonic"
-	"github.com/memnix/memnixrest/pkg/database"
+	"github.com/memnix/memnixrest/data/infrastructures"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func (l *Log) SendLog() error {
 	jsonObject, _ := l.ToJSON()
 	key := fmt.Sprintf("%s.%s", l.Type, l.Event)
 
-	err := database.SendMessageToChannel(database.RabbitMqChan, jsonObject, key)
+	err := infrastructures.SendMessageToChannel(infrastructures.RabbitMQ.Channel, jsonObject, key)
 	return err
 }
 

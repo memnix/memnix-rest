@@ -2,9 +2,10 @@ package queries
 
 import (
 	"errors"
+	"github.com/memnix/memnixrest/data/infrastructures"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/cache"
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/models"
+	"github.com/memnix/memnixrest/viewmodels"
 	"gorm.io/gorm"
 	"sync"
 	"time"
@@ -33,9 +34,9 @@ func ClearCacheByUserID(userID uint) error {
 }
 
 // GenerateMemDate with default nextDate
-func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
-	db := database.DBConn // DB Conn
-	res := new(models.ResponseHTTP)
+func GenerateMemDate(userID, cardID, deckID uint) *viewmodels.ResponseHTTP {
+	db := infrastructures.GetDBConn() // DB Conn
+	res := new(viewmodels.ResponseHTTP)
 
 	memDate := new(models.MemDate)
 
@@ -53,7 +54,7 @@ func GenerateMemDate(userID, cardID, deckID uint) *models.ResponseHTTP {
 }
 
 func FetchTodayMemDateByDeck(userID, deckID uint, skipCache bool) ([]models.MemDate, error) {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	t := time.Now()
 
 	if !skipCache {
@@ -79,7 +80,7 @@ func FetchTodayMemDateByDeck(userID, deckID uint, skipCache bool) ([]models.MemD
 }
 
 func FetchTodayMemDate(userID uint) ([]models.MemDate, error) {
-	db := database.DBConn // DB Conn
+	db := infrastructures.GetDBConn() // DB Conn
 	t := time.Now()
 
 	// Check if cache exists
@@ -105,11 +106,11 @@ func FetchTodayMemDate(userID uint) ([]models.MemDate, error) {
 	return memDates, nil
 }
 
-func GenerateResponseCardMap(memDates []models.MemDate, userID uint) (map[uint][]models.ResponseCard, error) {
-	m := make(map[uint][]models.ResponseCard)
+func GenerateResponseCardMap(memDates []models.MemDate, userID uint) (map[uint][]viewmodels.ResponseCard, error) {
+	m := make(map[uint][]viewmodels.ResponseCard)
 
 	wg := new(sync.WaitGroup)
-	responseCard := new(models.ResponseCard)
+	responseCard := new(viewmodels.ResponseCard)
 
 	M := 12 // Number of handle per goroutine. Benchmark this value to optimize performance. (12 has been doing well)
 
@@ -124,7 +125,7 @@ func GenerateResponseCardMap(memDates []models.MemDate, userID uint) (map[uint][
 
 	wg.Add(workers)
 
-	ch := make(chan models.ResponseCard, len(memDates))
+	ch := make(chan viewmodels.ResponseCard, len(memDates))
 
 	var mutex = &sync.Mutex{}
 

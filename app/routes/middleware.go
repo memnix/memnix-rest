@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnixrest/app/auth"
+	"github.com/memnix/memnixrest/models"
 	"github.com/memnix/memnixrest/pkg/logger"
-	"github.com/memnix/memnixrest/pkg/models"
 	"github.com/memnix/memnixrest/pkg/queries"
+	"github.com/memnix/memnixrest/viewmodels"
 	"strings"
 )
 
@@ -40,7 +41,7 @@ func IsConnectedMiddleware() func(c *fiber.Ctx) error {
 			_ = log.SendLog()                  // Send log
 			c.Status(fiber.StatusUnauthorized) // Unauthorized Status
 			// Return response
-			return queries.AuthError(c, &models.ResponseAuth{
+			return queries.AuthError(c, &viewmodels.ResponseAuth{
 				Success: false,
 				Message: "You don't have the right permissions to perform this request.",
 			})

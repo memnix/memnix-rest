@@ -1,4 +1,4 @@
-package database
+package infrastructures
 
 import (
 	"context"
@@ -7,11 +7,22 @@ import (
 	"log"
 )
 
-var RabbitMqConn *amqp.Connection
-var RabbitMqChan *amqp.Channel
+type RabbitMq struct {
+	Channel     *amqp.Channel
+	Connection  *amqp.Connection
+	rabbitMqUrl string
+}
+
+var (
+	// RabbitMQ is the rabbitmq connection handler
+	RabbitMQ RabbitMq
+)
 
 func Rabbit() (*amqp.Channel, error) {
-	conn, err := amqp.Dial(rabbitMQ)
+
+	RabbitMQ = loadRabbitMQVar()
+
+	conn, err := amqp.Dial(RabbitMQ.rabbitMqUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to RabbitMQ: %w", err)
 	}
@@ -36,10 +47,11 @@ func Rabbit() (*amqp.Channel, error) {
 		return nil, fmt.Errorf("failed to declare an exchange: %w", err)
 	}
 
-	RabbitMqChan, RabbitMqConn = ch, conn
+	RabbitMQ.Channel, RabbitMQ.Connection = ch, conn
 
 	return ch, nil
 }
+
 func SendMessageToChannel(ch *amqp.Channel, body []byte, key string) error {
 	err := ch.PublishWithContext(
 		context.Background(),

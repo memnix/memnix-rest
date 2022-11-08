@@ -1,21 +1,13 @@
-package models
+package viewmodels
 
 import (
-	"gorm.io/gorm"
+	"github.com/memnix/memnixrest/models"
 )
-
-// Answer structure
-type Answer struct {
-	gorm.Model
-	CardID uint `json:"card_id" example:"1"`
-	Card   Card
-	Answer string `json:"answer" example:"42"`
-}
 
 // DeckResponse structure
 type DeckResponse struct {
 	DeckID uint           `json:"deck_id"`
-	Deck   Deck           `json:"deck"`
+	Deck   models.Deck    `json:"deck"`
 	Cards  []ResponseCard `json:"cards"`
 	Count  int            `json:"count"`
 }

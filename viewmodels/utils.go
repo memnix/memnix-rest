@@ -1,4 +1,6 @@
-package models
+package viewmodels
+
+import "github.com/memnix/memnixrest/models"
 
 // ResponseHTTP structure to format API answers
 type ResponseHTTP struct {
@@ -35,17 +37,17 @@ type DeckConfig struct {
 
 // CardResponse struct
 type CardResponse struct {
-	CardID   uint   `json:"card_id" example:"1"`
-	Card     Card   `json:"-" swaggerignore:"true"`
-	Response string `json:"response" example:"42"`
-	Training bool   `json:"training" example:"false"`
+	CardID   uint        `json:"card_id" example:"1"`
+	Card     models.Card `json:"-" swaggerignore:"true"`
+	Response string      `json:"response" example:"42"`
+	Training bool        `json:"training" example:"false"`
 }
 
 type CardSelfResponse struct {
 	Training bool `json:"training" example:"false"`
 	Quality  uint `json:"quality" example:"3"` // Min 0 - Max 4
 	CardID   uint `json:"card_id" example:"1"`
-	Card     Card
+	Card     models.Card
 }
 
 // CardResponseValidation struct
@@ -67,13 +69,13 @@ func (validation *CardResponseValidation) SetIncorrect() {
 
 // ResponseCard struct
 type ResponseCard struct {
-	Card          Card
+	Card          models.Card
 	Answers       []string
-	LearningStage LearningStage `json:"learning_stage"`
+	LearningStage models.LearningStage `json:"learning_stage"`
 }
 
 // Set ResponseCard values
-func (responseCard *ResponseCard) Set(memdate *MemDate, answers []string) {
+func (responseCard *ResponseCard) Set(memdate *models.MemDate, answers []string) {
 	responseCard.Answers = answers
 	responseCard.Card = memdate.Card
 	responseCard.LearningStage = memdate.LearningStage
@@ -81,24 +83,24 @@ func (responseCard *ResponseCard) Set(memdate *MemDate, answers []string) {
 
 // ResponseAuth struct
 type ResponseAuth struct {
-	Success bool   `json:"success"`
-	User    User   `json:"user"`
-	Message string `json:"message"`
+	Success bool        `json:"success"`
+	User    models.User `json:"user"`
+	Message string      `json:"message"`
 }
 
 type ResponsePublicAuth struct {
-	Success bool       `json:"success"`
-	User    PublicUser `json:"user"`
-	Message string     `json:"message"`
+	Success bool              `json:"success"`
+	User    models.PublicUser `json:"user"`
+	Message string            `json:"message"`
 }
 
 // ResponseDeck struct
 type ResponseDeck struct {
-	DeckID      uint             `json:"deck_id" example:"1"`
-	Permission  AccessPermission `json:"permission" example:"1"`
-	CardCount   uint16           `json:"card_count" example:"42"`
-	ToggleToday bool             `json:"settings_today" `
-	OwnerID     uint             `json:"owner_id" example:"6"`
-	Owner       PublicUser       `swaggerignore:"true" json:"Owner,omitempty"`
-	Deck        Deck             `json:"Deck,omitempty"`
+	DeckID      uint                    `json:"deck_id" example:"1"`
+	Permission  models.AccessPermission `json:"permission" example:"1"`
+	CardCount   uint16                  `json:"card_count" example:"42"`
+	ToggleToday bool                    `json:"settings_today" `
+	OwnerID     uint                    `json:"owner_id" example:"6"`
+	Owner       models.PublicUser       `swaggerignore:"true" json:"Owner,omitempty"`
+	Deck        models.Deck             `json:"Deck,omitempty"`
 }
