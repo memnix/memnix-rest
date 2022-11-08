@@ -12,7 +12,7 @@ func registerUserRoutes() {
 	routesMap["/users"] = routeStruct{
 		Method:     "GET",
 		Handler:    u.GetAllUsers,
-		Permission: models.PermAdmin,
+		Permission: models.PermNone,
 	}
 
 	routesMap["/users/id/:id"] = routeStruct{

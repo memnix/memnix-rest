@@ -35,12 +35,9 @@ type UserController struct {
 // @Deprecated
 // @Router /v1/users [get]
 func (u *UserController) GetAllUsers(c *fiber.Ctx) error {
-	db := infrastructures.GetDBConn() // DB Conn
-
-	var users []models.User
-
-	if res := db.Find(&users); res.Error != nil {
-		return queries.RequestError(c, http.StatusInternalServerError, res.Error.Error())
+	users, err := u.GetAll()
+	if err != nil {
+		return queries.RequestError(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(http.StatusOK).JSON(viewmodels.ResponseHTTP{
