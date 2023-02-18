@@ -1,93 +1,60 @@
 package main
 
 import (
-	cryptoRand "crypto/rand"
-	"encoding/binary"
-	"fmt"
-	_ "github.com/arsmn/fiber-swagger/v2"
-	"github.com/memnix/memnixrest/app/auth"
-	"github.com/memnix/memnixrest/app/routes"
-	"github.com/memnix/memnixrest/pkg/database"
-	"github.com/memnix/memnixrest/pkg/models"
-	"github.com/memnix/memnixrest/pkg/queries"
-	amqp "github.com/rabbitmq/amqp091-go"
-	"log"
-	"math/rand"
+	"github.com/joho/godotenv"
+	"github.com/memnix/memnix-rest/app/http"
+	"github.com/memnix/memnix-rest/domain"
+	"github.com/memnix/memnix-rest/infrastructures"
+	"github.com/memnix/memnix-rest/pkg/logger"
+	"github.com/rs/zerolog/log"
 )
 
-func init() {
-	var b [8]byte
-	_, err := cryptoRand.Read(b[:])
-	if err != nil {
-		panic("cannot seed math/rand package with cryptographically secure random number generator")
-	}
-	rand.Seed(int64(binary.LittleEndian.Uint64(b[:])))
-}
-
-// @title Memnix
-// @version 1.0
-// @description Memnix API
-// @securityDefinitions.apikey Beaver
-// @in header
-// @name Authorization
-// @securityDefinitions.apikey Admin
-// @in header
-// @name Authorization
-// @termsOfService https://github.com/memnix/memnix/blob/main/PRIVACY.md
-// @contact.name API Support
-// @contact.email contact@memnix.app
-// @license.name BSD 3-Clause License
-// @license.url https://github.com/memnix/memnix-rest/blob/main/LICENSE
-// @host http://192.168.1.151:1813/
-// @BasePath /v1
 func main() {
-	// Try to connect to the database
-	if err := database.Connect(); err != nil {
-		log.Panic("Can't connect database:", err.Error())
+	logger.CreateLogger()
+
+	// Load the .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error loading .env file")
 	}
 
-	// Create cache session
-	if err := database.CreateCache(); err != nil {
-		log.Panic("Can't create cache session:", err.Error())
+	err = infrastructures.ConnectDB()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error connecting to database")
 	}
+	defer func() {
+		err = infrastructures.CloseDB()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error closing database connection")
+		}
+	}()
 
-	// Connect to RabbitMQ
-	if _, err := database.Rabbit(); err != nil {
-		log.Panic("Can't connect to rabbitMq: ", err)
+	err = infrastructures.ConnectRedis()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error connecting to redis")
 	}
-
-	// Init the secret key
-	auth.Init()
-
-	// Disconnect from RabbitMQ*
-	defer func(conn *amqp.Connection) {
-		_ = conn.Close()
-		fmt.Println("Disconnected to RabbitMQ")
-	}(database.RabbitMqConn)
-
-	// Close RabbitMQ channel
-	defer func(ch *amqp.Channel) {
-		_ = ch.Close()
-	}(database.RabbitMqChan)
+	defer func() {
+		err = infrastructures.CloseRedis()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error closing redis connection")
+		}
+	}()
 
 	// Models to migrate
 	var migrates []interface{}
-	migrates = append(migrates, models.Access{}, models.Card{}, models.Deck{},
-		models.User{}, models.Mem{}, models.Answer{}, models.MemDate{}, models.Mcq{})
+	migrates = append(migrates, domain.Barista{})
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {
-		err := database.DBConn.AutoMigrate(&migrates[i])
+		err = infrastructures.GetDBConn().AutoMigrate(&migrates[i])
 		if err != nil {
-			log.Panic("Can't auto migrate models:", err.Error())
+			log.Panic().Err(err).Msg("Can't auto migrate models")
 		}
 	}
 
-	// Create queries cache for the first time
-	queries.InitCache()
-
 	// Create the app
-	app := routes.New()
+	app := http.New()
 	// Listen to port 1812
-	log.Panic(app.Listen(":1813"))
+	log.Fatal().Err(app.Listen(":1815")).Msg("Error listening to port 1815")
+
 }
