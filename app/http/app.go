@@ -15,6 +15,7 @@ import (
 // New returns a new Fiber instance
 func New() *fiber.App {
 	// Create new app
+
 	app := fiber.New(
 		fiber.Config{
 			Prefork:     false,

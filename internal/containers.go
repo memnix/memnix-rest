@@ -6,14 +6,14 @@ import (
 )
 
 type ServiceContainer interface {
-	GetBarista() controllers.BaristaController
+	GetUser() controllers.UserController
 	GetKliento() controllers.KlientoController
 }
 
 type kernel struct{}
 
-func (k kernel) GetBarista() controllers.BaristaController {
-	return InitializeBarista()
+func (k kernel) GetUser() controllers.UserController {
+	return InitializeUser()
 }
 
 func (k kernel) GetKliento() controllers.KlientoController {
