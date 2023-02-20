@@ -1,15 +1,15 @@
 package http
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnix-rest/config"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
+	"github.com/memnix/memnix-rest/config"
 )
 
 // New returns a new Fiber instance

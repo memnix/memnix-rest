@@ -21,5 +21,7 @@ memnixrest
 # Env
 .env
 
+.fleet
+
 # Docker compose files
 docker-*

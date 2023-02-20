@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"github.com/golang-jwt/jwt/v4"
+	"strconv"
+	"time"
+
 	"github.com/memnix/memnix-rest/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"strconv"
-	"time"
 )
 
 // ConvertStrToUInt converts a string to an unsigned integer
@@ -34,8 +36,8 @@ func ConvertStrToInt(str string) (int, error) {
 }
 
 // GetExpirationTime returns the expiration time
-func GetExpirationTime() int64 {
-	return time.Now().Add(time.Hour * config.ExpirationTimeInHours).Unix()
+func GetExpirationTime() *jwt.NumericDate {
+	return jwt.NewNumericDate(time.Now().Add(time.Hour * config.ExpirationTimeInHours))
 }
 
 // GetSecretKey returns the secret key

@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"github.com/memnix/memnix-rest/app/http/controllers"
 	"sync"
+
+	"github.com/memnix/memnix-rest/app/http/controllers"
 )
 
 type ServiceContainer interface {

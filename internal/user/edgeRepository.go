@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/edgedb/edgedb-go"
 	"github.com/rs/zerolog/log"
 )

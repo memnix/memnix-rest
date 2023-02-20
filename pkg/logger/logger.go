@@ -2,16 +2,16 @@ package logger
 
 import (
 	"fmt"
-	"github.com/memnix/memnix-rest/config"
-	"gopkg.in/natefinch/lumberjack.v2"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/diode"
-	"github.com/rs/zerolog/log"
 	"io"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/memnix/memnix-rest/config"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/diode"
+	"github.com/rs/zerolog/log"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func prettyLogger() zerolog.ConsoleWriter {

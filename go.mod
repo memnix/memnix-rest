@@ -1,23 +1,21 @@
 module github.com/memnix/memnix-rest
 
-go 1.20
+go 1.19
 
 require (
-	github.com/bytedance/sonic v1.8.0
+	github.com/bytedance/sonic v1.8.1
 	github.com/corentings/kafejo v0.0.0-20230131174905-b53f2a28d6ed
 	github.com/edgedb/edgedb-go v0.13.5
 	github.com/go-playground/validator/v10 v10.11.2
-	github.com/go-redis/redis/v8 v8.11.5
 	github.com/goccy/go-json v0.10.0
 	github.com/gofiber/fiber/v2 v2.42.0
 	github.com/gofiber/swagger v0.1.9
-	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/rs/zerolog v1.29.0
-	github.com/swaggo/swag v1.8.10
 	golang.org/x/crypto v0.6.0
 	golang.org/x/net v0.7.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -51,6 +49,7 @@ require (
 	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/sigurn/crc16 v0.0.0-20211026045750-20ab5afb07e3 // indirect
 	github.com/swaggo/files v1.0.0 // indirect
+	github.com/swaggo/swag v1.8.10 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

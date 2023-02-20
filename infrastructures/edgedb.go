@@ -2,10 +2,10 @@ package infrastructures
 
 import (
 	"context"
+
+	"github.com/edgedb/edgedb-go"
 	"github.com/rs/zerolog/log"
 )
-
-import "github.com/edgedb/edgedb-go"
 
 var (
 	edgeDBClient *edgedb.Client

@@ -1,10 +1,11 @@
 package jwt
 
 import (
-	"github.com/golang-jwt/jwt"
+	"strings"
+
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/utils"
-	"strings"
 )
 
 // GenerateToken generates a jwt token from a user id
@@ -16,7 +17,7 @@ import (
 // see: utils/config.go for more information
 func GenerateToken(userID uint) (string, error) {
 	// Create the Claims for the token
-	claims := jwt.NewWithClaims(config.JwtSigningMethod, jwt.StandardClaims{
+	claims := jwt.NewWithClaims(config.JwtSigningMethod, jwt.RegisteredClaims{
 		Issuer:    utils.ConvertUIntToStr(userID), // Issuer is the user id
 		ExpiresAt: utils.GetExpirationTime(),      // ExpiresAt is the expiration time
 	})
