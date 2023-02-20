@@ -11,6 +11,7 @@ require (
 	github.com/goccy/go-json v0.10.0
 	github.com/gofiber/fiber/v2 v2.42.0
 	github.com/gofiber/swagger v0.1.9
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
@@ -18,6 +19,7 @@ require (
 	github.com/rs/zerolog v1.29.0
 	github.com/swaggo/swag v1.8.10
 	golang.org/x/crypto v0.6.0
+	golang.org/x/net v0.7.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -58,7 +60,6 @@ require (
 	github.com/xdg/stringprep v1.0.3 // indirect
 	golang.org/x/arch v0.2.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect

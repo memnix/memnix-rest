@@ -1,8 +1,14 @@
 package config
 
-import "github.com/memnix/memnix-rest/pkg/json"
+import (
+	"github.com/golang-jwt/jwt"
+	"github.com/memnix/memnix-rest/pkg/env"
+	"github.com/memnix/memnix-rest/pkg/json"
+)
 
 var JSONHelper = json.NewJSON(&json.GoJson{})
+
+var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
 	Argon2IDThreads  = 1 // Number of threads to use for Argon2ID
@@ -13,6 +19,12 @@ const (
 	BCryptCost       = 12 // Cost to use for BCrypt
 	Argon2HashLength = 6  // Argon2HashLength is the argon2 hash length
 
+	ExpirationTimeInHours = 24 // Expiration time in hours
+
+)
+
+var (
+	JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT
 )
 
 // PasswordConfigStruct is the struct for the password config

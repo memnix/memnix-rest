@@ -15,4 +15,9 @@ const (
 	RedisHost         = ":6379"
 
 	MB = 1024 * 1024
+
+	Base10  = 10 // Base10 is the base 10
+	BitSize = 32 // BitSize is the bit size
+
+	JwtTokenHeaderLen = 2 // JwtTokenHeaderLen is the jwt token header length
 )
