@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/memnix/memnix-rest/pkg/env"
 	"github.com/memnix/memnix-rest/pkg/json"
 )
@@ -10,8 +11,12 @@ var JSONHelper = json.NewJSON(&json.GoJson{})
 
 var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
+var CryptoHelper = crypto.BcryptCrypto{}
+
 const (
 	ExpirationTimeInHours = 24 // Expiration time in hours
+
+	BCryptCost = 11 // Cost to use for BCrypt
 )
 
 var (

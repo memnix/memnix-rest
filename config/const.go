@@ -20,4 +20,7 @@ const (
 	BitSize = 32 // BitSize is the bit size
 
 	JwtTokenHeaderLen = 2 // JwtTokenHeaderLen is the jwt token header length
+
+	MaxPasswordLength = 72 // Max password length based on bcrypt limit
+	MinPasswordLength = 8  // Min password length
 )

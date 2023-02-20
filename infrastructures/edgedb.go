@@ -31,7 +31,7 @@ func GetEdgeDBClient() *edgedb.Client {
 // CreateEdgeDBConnection Returns new EdgeDB client
 func CreateEdgeDBConnection() *edgedb.Client {
 	ctx := context.Background()
-	client, err := edgedb.CreateClientDSN(ctx, "memnix_edgedb", edgedb.Options{
+	client, err := edgedb.CreateClientDSN(ctx, "memnix", edgedb.Options{
 		TLSOptions: edgedb.TLSOptions{
 			SecurityMode: edgedb.TLSModeInsecure,
 		},

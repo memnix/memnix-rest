@@ -9,6 +9,7 @@ import (
 type ServiceContainer interface {
 	GetUser() controllers.UserController
 	GetKliento() controllers.KlientoController
+	GetAuth() controllers.AuthController
 }
 
 type kernel struct{}
@@ -19,6 +20,10 @@ func (k kernel) GetUser() controllers.UserController {
 
 func (k kernel) GetKliento() controllers.KlientoController {
 	return InitializeKliento()
+}
+
+func (k kernel) GetAuth() controllers.AuthController {
+	return InitializeAuth()
 }
 
 var (

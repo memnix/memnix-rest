@@ -17,16 +17,14 @@ func main() {
 
 	logger.CreateLogger()
 
+	// Connect to database
+	log.Debug().Msg("Connecting to database")
+
 	err = infrastructures.ConnectEdgeDB()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to database")
 	}
-	defer func() {
-		err = infrastructures.CloseEdgeDB()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error closing database connection")
-		}
-	}()
+	defer infrastructures.CloseEdgeDB()
 
 	/*
 		err = infrastructures.ConnectRedis()
