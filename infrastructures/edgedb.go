@@ -40,22 +40,6 @@ func CreateEdgeDBConnection() *edgedb.Client {
 		log.Fatal().Err(err).Msg("Failed to create EdgeDB client")
 	}
 
-	query := `SELECT User { username }`
-	type user struct {
-		Username string `edgedb:"username"`
-	}
-
-	var users []user
-
-	err = client.Query(
-		ctx, query, &users)
-
-	if err != nil {
-		log.Debug().Err(err).Msg("Error getting user")
-	}
-
-	log.Debug().Msg(users[0].Username)
-
 	return client
 
 }

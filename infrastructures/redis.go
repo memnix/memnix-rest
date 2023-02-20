@@ -1,8 +1,9 @@
 package infrastructures
 
 import (
-	"github.com/go-redis/redis/v8"
 	"github.com/memnix/memnix-rest/config"
+	"github.com/redis/go-redis/v9"
+	"golang.org/x/net/context"
 )
 
 var (
@@ -13,7 +14,7 @@ var (
 func ConnectRedis() error {
 	redisClient = NewRedisClient()
 
-	_, err := redisClient.Ping(redisClient.Context()).Result()
+	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
 		return err
 	}
