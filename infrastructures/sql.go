@@ -1,15 +1,16 @@
 package infrastructures
 
 import (
+	"log"
+	"os"
+	"time"
+
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/env"
 	"github.com/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
-	"os"
-	"time"
 )
 
 var DBConn *gorm.DB

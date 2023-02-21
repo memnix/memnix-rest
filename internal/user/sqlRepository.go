@@ -2,9 +2,8 @@ package user
 
 import (
 	"github.com/memnix/memnix-rest/domain"
-	"gorm.io/gorm"
-
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 )
 
 type SqlRepository struct {
@@ -21,4 +20,23 @@ func (r *SqlRepository) GetName(id uint) string {
 	r.DBConn.First(&user, id)
 	log.Info().Msgf("user: %v", user)
 	return user.Username
+}
+
+// GetByID returns the user with the given id.
+func (r *SqlRepository) GetByID(id uint) (domain.User, error) {
+	var user domain.User
+	err := r.DBConn.First(&user, id).Error
+	return user, err
+}
+
+// GetByEmail returns the user with the given email.
+func (r *SqlRepository) GetByEmail(email string) (domain.User, error) {
+	var user domain.User
+	err := r.DBConn.Where("email = ?", email).First(&user).Error
+	return user, err
+}
+
+// Create creates a new user.
+func (r *SqlRepository) Create(user *domain.User) error {
+	return r.DBConn.Create(&user).Error
 }
