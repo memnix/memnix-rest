@@ -44,29 +44,30 @@ func (a *UseCase) Login(password string, email string) (string, error) {
 
 // Register registers a new user
 // Returns an error
-func (a *UseCase) Register(user domain.User) (domain.User, error) {
-	if err := VerifyPassword(user.Password); err != nil {
+func (a *UseCase) Register(registerStruct domain.Register) (domain.User, error) {
+	if err := VerifyPassword(registerStruct.Password); err != nil {
 		return domain.User{}, errors.Wrap(err, "Verify password failed")
 	}
 
-	hash, err := GenerateEncryptedPassword(user.Password)
+	hash, err := GenerateEncryptedPassword(registerStruct.Password)
 	if err != nil {
 		return domain.User{}, errors.Wrap(err, "Generate encrypted password failed")
 	}
 
-	user.Password = string(hash)
-	user.Email = strings.ToLower(user.Email)
+	registerStruct.Password = string(hash)
+	registerStruct.Email = strings.ToLower(registerStruct.Email)
+	userModel := registerStruct.ToUser()
 
-	if err = a.Create(&user); err != nil {
-		return domain.User{}, errors.Wrap(err, "failed to create user in register")
+	if err = a.Create(&userModel); err != nil {
+		return domain.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 
-	newUser, err := a.GetByEmail(user.Email)
+	userModel, err = a.GetByEmail(registerStruct.Email)
 	if err != nil {
-		return domain.User{}, errors.Wrap(err, "failed to get user in register")
+		return domain.User{}, errors.Wrap(err, "failed to get registerStruct in register")
 	}
 
-	return newUser, nil
+	return userModel, nil
 }
 
 // Logout returns an empty string

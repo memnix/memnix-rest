@@ -5,6 +5,8 @@ import "github.com/memnix/memnix-rest/domain"
 type IUseCase interface {
 	// GetName returns the name of the user.
 	GetName(id string) string
+	// GetByID returns the user with the given id.
+	GetByID(id uint) (domain.User, error)
 }
 
 type IRepository interface {

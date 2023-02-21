@@ -1,14 +1,14 @@
 package logger
 
 import (
+	"os"
+
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/rs/zerolog"
-
 	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
 	"github.com/rs/zerolog/log"
-	"os"
 )
 
 func CreateNewRelicLogger() {
@@ -36,5 +36,4 @@ func CreateNewRelicLogger() {
 	writer.DebugLogging(true)
 
 	log.Logger = zerolog.New(writer)
-
 }

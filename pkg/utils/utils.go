@@ -4,8 +4,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/domain"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -43,4 +45,8 @@ func GetExpirationTime() *jwt.NumericDate {
 // GetSecretKey returns the secret key
 func GetSecretKey() string {
 	return config.EnvHelper.GetEnv("SECRET_KEY")
+}
+
+func GetUserFromContext(ctx *fiber.Ctx) domain.User {
+	return ctx.Locals("user").(domain.User)
 }

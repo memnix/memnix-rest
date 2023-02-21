@@ -26,3 +26,8 @@ func InitializeAuth() controllers.AuthController {
 	wire.Build(controllers.NewAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
 	return controllers.AuthController{}
 }
+
+func InitializeJWT() controllers.JwtController {
+	wire.Build(controllers.NewJwtController, user.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
+	return controllers.JwtController{}
+}

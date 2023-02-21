@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal"
 )
 
@@ -9,14 +10,15 @@ func registerRoutes(router *fiber.Router) {
 	userController := internal.GetServiceContainer().GetUser()
 	klientoController := internal.GetServiceContainer().GetKliento()
 	authController := internal.GetServiceContainer().GetAuth()
+	jwtController := internal.GetServiceContainer().GetJwt()
 
 	(*router).Add("GET", "/user/:uuid", userController.GetName)
 
 	(*router).Add("GET", "/kliento", klientoController.GetName)
 	(*router).Add("GET", "/kliento/:name", klientoController.SetName)
 
-	(*router).Add("POST", "/auth/login", authController.Login)
-	(*router).Add("POST", "/auth/register", authController.Register)
-	(*router).Add("POST", "/auth/logout", authController.Logout)
-	(*router).Add("POST", "/auth/refresh", authController.RefreshToken)
+	(*router).Add("POST", "/security/login", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Login)
+	(*router).Add("POST", "/security/register", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Register)
+	(*router).Add("POST", "/security/logout", jwtController.IsConnectedMiddleware(domain.PermissionUser), authController.Logout)
+	(*router).Add("POST", "/security/refresh", jwtController.IsConnectedMiddleware(domain.PermissionUser), authController.RefreshToken)
 }
