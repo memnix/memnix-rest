@@ -3,7 +3,6 @@ package http
 import (
 	"time"
 
-	"github.com/gofiber/contrib/fibersentry"
 	"github.com/gofiber/contrib/fibernewrelic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -68,12 +67,6 @@ func registerMiddlewares(app *fiber.App) {
 	}))
 
 	app.Use(pprof.New())
-
-
-	app.Use(fibersentry.New(fibersentry.Config{
-		Repanic:         true,
-		WaitForDelivery: true,
-	}))
 
 	cfg := fibernewrelic.Config{
 		Application: infrastructures.GetRelicApp(),

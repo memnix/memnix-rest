@@ -6,6 +6,7 @@ import (
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
+	"github.com/pkg/errors"
 )
 
 type AuthController struct {
@@ -40,7 +41,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 
 	newUser, err := a.auth.Register(registerStruct)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(errors.New("error creating user")))
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(auth.NewRegisterVM("user created", newUser.ToPublicUser()))

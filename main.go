@@ -1,14 +1,12 @@
 package main
 
 import (
-	"github.com/getsentry/sentry-go"
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/rs/zerolog/log"
-	"time"
 )
 
 func main() {
@@ -26,14 +24,6 @@ func main() {
 
 	// Create logger
 	logger.CreateNewRelicLogger()
-
-	err = infrastructures.ConnectSentry()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Error initializing sentry")
-	}
-
-	// Flush buffered events before the program terminates.
-	defer sentry.Flush(2 * time.Second)
 
 	// Connect to database
 	log.Debug().Msg("Connecting to database")

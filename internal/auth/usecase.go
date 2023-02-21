@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/rs/zerolog/log"
 	"strings"
 
 	"github.com/memnix/memnix-rest/domain"
@@ -59,6 +60,7 @@ func (a *UseCase) Register(registerStruct domain.Register) (domain.User, error) 
 	userModel := registerStruct.ToUser()
 
 	if err = a.Create(&userModel); err != nil {
+		log.Warn().Err(err).Msg("failed to create user in register")
 		return domain.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 
