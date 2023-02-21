@@ -1,8 +1,10 @@
 package http
 
 import (
+	"github.com/memnix/memnix-rest/infrastructures"
 	"time"
 
+	"github.com/gofiber/contrib/fibernewrelic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -25,6 +27,10 @@ func New() *fiber.App {
 
 	// Register middlewares
 	registerMiddlewares(app)
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World 👋!")
+	})
 
 	// Use monitor middleware
 	app.Get("/metrics", monitor.New(monitor.Config{
@@ -61,4 +67,10 @@ func registerMiddlewares(app *fiber.App) {
 	}))
 
 	app.Use(pprof.New())
+
+	cfg := fibernewrelic.Config{
+		Application: infrastructures.GetRelicApp(),
+	}
+
+	app.Use(fibernewrelic.New(cfg))
 }
