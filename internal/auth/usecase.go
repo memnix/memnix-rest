@@ -5,7 +5,9 @@ import (
 
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/user"
+	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UseCase struct {
@@ -19,30 +21,25 @@ func NewUseCase(repo user.IRepository) IUseCase {
 // Login logs in a user
 // Returns a token and error
 func (a *UseCase) Login(password string, email string) (string, error) {
-	/*
-		userModel, err := a.GetByEmail(email)
-		if err != nil {
-			return "", config.ErrUserNotFound
-		}
+	userModel, err := a.GetByEmail(email)
+	if err != nil {
+		return "", errors.New("user not found")
+	}
 
-		ok, err := ComparePasswords(password, []byte(userModel.Password))
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) || !ok {
-			return "", config.ErrInvalidPassword
-		}
-		if err != nil {
-			return "", err
-		}
+	ok, err := ComparePasswords(password, []byte(userModel.Password))
+	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) || !ok {
+		return "", errors.New("invalid password")
+	}
+	if err != nil {
+		return "", err
+	}
 
-		token, err := jwt.GenerateToken(userModel.ID)
-		if err != nil {
-			return "", err
-		}
+	token, err := jwt.GenerateToken(userModel.ID)
+	if err != nil {
+		return "", err
+	}
 
-		return token, nil
-
-	*/
-
-	return "", nil
+	return token, nil
 }
 
 // Register registers a new user
@@ -80,15 +77,10 @@ func (a *UseCase) Logout() (string, error) {
 
 // RefreshToken refreshes a token
 func (a *UseCase) RefreshToken(user domain.User) (string, error) {
-	/*
-		token, err := jwt.GenerateToken(user.ID)
-		if err != nil {
-			return "", err
-		}
+	token, err := jwt.GenerateToken(user.ID)
+	if err != nil {
+		return "", err
+	}
 
-		return token, nil
-
-	*/
-
-	return "", nil
+	return token, nil
 }
