@@ -16,7 +16,14 @@ func main() {
 		log.Fatal().Err(err).Msg("Error loading .env file")
 	}
 
-	logger.CreateLogger()
+	// Create new relic app
+	err = infrastructures.NewRelic()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error creating new relic app")
+	}
+
+	// Create logger
+	logger.CreateNewRelicLogger()
 
 	// Connect to database
 	log.Debug().Msg("Connecting to database")
