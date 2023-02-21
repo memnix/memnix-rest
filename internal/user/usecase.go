@@ -1,21 +1,19 @@
 package user
 
-import "github.com/edgedb/edgedb-go"
+import (
+	"github.com/memnix/memnix-rest/pkg/utils"
+)
 
 type UseCase struct {
-	IEdgeRepository
+	IRepository
 }
 
 func (u UseCase) GetName(id string) string {
-	// Convert uuid to edgedb.UUID
-	uuidEdge, err := edgedb.ParseUUID(id)
-	if err != nil {
-		return ""
-	}
+	uintID, _ := utils.ConvertStrToUInt(id)
 
-	return u.IEdgeRepository.GetName(uuidEdge)
+	return u.IRepository.GetName(uintID)
 }
 
-func NewUseCase(edgeRepo IEdgeRepository) IUseCase {
-	return &UseCase{IEdgeRepository: edgeRepo}
+func NewUseCase(repo IRepository) IUseCase {
+	return &UseCase{IRepository: repo}
 }

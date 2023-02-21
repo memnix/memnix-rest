@@ -15,6 +15,8 @@ var CryptoHelper = crypto.BcryptCrypto{}
 
 const (
 	ExpirationTimeInHours = 24 // Expiration time in hours
+	SQLMaxOpenConns       = 50 // Max number of open connections to the database
+	SQLMaxIdleConns       = 10 // Max number of connections in the idle connection pool
 
 	BCryptCost = 11 // Cost to use for BCrypt
 )

@@ -6,11 +6,11 @@ import (
 )
 
 type UseCase struct {
-	user.IEdgeRepository
+	user.IRepository
 }
 
-func NewUseCase(edgeRepo user.IEdgeRepository) IUseCase {
-	return &UseCase{IEdgeRepository: edgeRepo}
+func NewUseCase(repo user.IRepository) IUseCase {
+	return &UseCase{IRepository: repo}
 }
 
 // Login logs in a user

@@ -18,11 +18,11 @@ func InitializeKliento() controllers.KlientoController {
 }
 
 func InitializeUser() controllers.UserController {
-	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewEdgeRepository, infrastructures.GetEdgeDBClient)
+	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
 	return controllers.UserController{}
 }
 
 func InitializeAuth() controllers.AuthController {
-	wire.Build(controllers.NewAuthController, auth.NewUseCase, user.NewEdgeRepository, infrastructures.GetEdgeDBClient)
+	wire.Build(controllers.NewAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
 	return controllers.AuthController{}
 }

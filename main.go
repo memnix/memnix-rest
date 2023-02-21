@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
+	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/rs/zerolog/log"
@@ -20,24 +21,37 @@ func main() {
 	// Connect to database
 	log.Debug().Msg("Connecting to database")
 
-	err = infrastructures.ConnectEdgeDB()
+	err = infrastructures.ConnectDB()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to database")
 	}
-	defer infrastructures.CloseEdgeDB()
+	defer infrastructures.DisconnectDB()
 
-	/*
-		err = infrastructures.ConnectRedis()
+	// Connect to redis
+	err = infrastructures.ConnectRedis()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error connecting to redis")
+	}
+	defer func() {
+		err = infrastructures.CloseRedis()
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error connecting to redis")
+			log.Fatal().Err(err).Msg("Error closing redis connection")
 		}
-		defer func() {
-			err = infrastructures.CloseRedis()
-			if err != nil {
-				log.Fatal().Err(err).Msg("Error closing redis connection")
-			}
-		}()
-	*/
+	}()
+
+	// Models to migrate
+	migrates := []interface{}{
+		// Add models here
+		domain.User{},
+	}
+
+	// AutoMigrate models
+	for i := 0; i < len(migrates); i++ {
+		err = infrastructures.GetDBConn().AutoMigrate(&migrates[i])
+		if err != nil {
+			log.Error().Err(err).Msg("Can't auto migrate models")
+		}
+	}
 
 	log.Debug().Msg("Starting server")
 	// Create the app
