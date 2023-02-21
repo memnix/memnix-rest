@@ -1,13 +1,13 @@
 package utils
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/memnix/memnix-rest/domain"
 	"strconv"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/domain"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )

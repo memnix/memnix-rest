@@ -1,7 +1,6 @@
 package http
 
 import (
-	"github.com/memnix/memnix-rest/infrastructures"
 	"time"
 
 	"github.com/gofiber/contrib/fibernewrelic"
@@ -12,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/infrastructures"
 )
 
 // New returns a new Fiber instance

@@ -34,11 +34,11 @@ func (u *User) HasPermission(permission Permission) bool {
 }
 
 type PublicUser struct {
-	ID         uint       `json:"id"`         // ID of the user
-	Username   string     `json:"username"`   // Username of the user
-	Email      string     `json:"email"`      // Email of the user
-	Avatar     string     `json:"avatar"`     // Avatar of the user
-	Permission Permission `json:"permission"` // Permission of the user
+	Username   string     `json:"username"`
+	Email      string     `json:"email"`
+	Avatar     string     `json:"avatar"`
+	ID         uint       `json:"id"`
+	Permission Permission `json:"permission"`
 }
 
 type Login struct {
