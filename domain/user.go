@@ -14,6 +14,6 @@ type User struct {
 }
 
 func (u *User) Validate() error {
-	var validate = validator.New()
+	validate := validator.New()
 	return validate.Struct(u)
 }

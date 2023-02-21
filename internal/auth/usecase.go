@@ -48,7 +48,6 @@ func (a *UseCase) Login(password string, email string) (string, error) {
 // Register registers a new user
 // Returns an error
 func (a *UseCase) Register(user domain.User) (domain.User, error) {
-
 	if err := VerifyPassword(user.Password); err != nil {
 		return domain.User{}, errors.Wrap(err, "Verify password failed")
 	}

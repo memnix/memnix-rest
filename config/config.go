@@ -21,9 +21,7 @@ const (
 	BCryptCost = 11 // Cost to use for BCrypt
 )
 
-var (
-	JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT
-)
+var JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT
 
 // PasswordConfigStruct is the struct for the password config
 type PasswordConfigStruct struct {

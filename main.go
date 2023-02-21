@@ -25,7 +25,12 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to database")
 	}
-	defer infrastructures.DisconnectDB()
+	defer func() {
+		err = infrastructures.DisconnectDB()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error disconnecting from database")
+		}
+	}()
 
 	// Connect to redis
 	err = infrastructures.ConnectRedis()
@@ -58,5 +63,4 @@ func main() {
 	app := http.New()
 	// Listen to port 1815
 	log.Fatal().Err(app.Listen(":1815")).Msg("Error listening to port 1815")
-
 }

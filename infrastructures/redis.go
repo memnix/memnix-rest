@@ -6,9 +6,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-var (
-	redisClient *redis.Client
-)
+var redisClient *redis.Client
 
 // ConnectRedis Connects to redis
 func ConnectRedis() error {
