@@ -4,8 +4,8 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"time"
 
-	"github.com/gofiber/contrib/fibersentry"
 	"github.com/gofiber/contrib/fibernewrelic"
+	"github.com/gofiber/contrib/fibersentry"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -68,7 +68,6 @@ func registerMiddlewares(app *fiber.App) {
 	}))
 
 	app.Use(pprof.New())
-
 
 	app.Use(fibersentry.New(fibersentry.Config{
 		Repanic:         true,
