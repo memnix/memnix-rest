@@ -10,6 +10,7 @@ type ServiceContainer interface {
 	GetUser() controllers.UserController
 	GetKliento() controllers.KlientoController
 	GetAuth() controllers.AuthController
+	GetJwt() controllers.JwtController
 }
 
 type kernel struct{}
@@ -24,6 +25,10 @@ func (k kernel) GetKliento() controllers.KlientoController {
 
 func (k kernel) GetAuth() controllers.AuthController {
 	return InitializeAuth()
+}
+
+func (k kernel) GetJwt() controllers.JwtController {
+	return InitializeJWT()
 }
 
 var (

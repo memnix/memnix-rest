@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnix-rest/domain"
 	"strconv"
 	"time"
 
@@ -43,4 +45,8 @@ func GetExpirationTime() *jwt.NumericDate {
 // GetSecretKey returns the secret key
 func GetSecretKey() string {
 	return config.EnvHelper.GetEnv("SECRET_KEY")
+}
+
+func GetUserFromContext(ctx *fiber.Ctx) domain.User {
+	return ctx.Locals("user").(domain.User)
 }
