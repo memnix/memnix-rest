@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"github.com/golang-jwt/jwt/v4"
 	"strconv"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
