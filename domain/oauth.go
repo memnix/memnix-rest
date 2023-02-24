@@ -2,12 +2,9 @@ package domain
 
 import (
 	"strconv"
-
-	"gorm.io/gorm"
 )
 
 type GithubLogin struct {
-	gorm.DB
 	Login      string `json:"login"`
 	NodeID     string `json:"node_id"`
 	AvatarURL  string `json:"avatar_url"`
@@ -27,5 +24,24 @@ func (g *GithubLogin) ToUser() User {
 		Oauth:         true,
 		OauthProvider: "github",
 		OauthID:       strconv.Itoa(g.ID),
+	}
+}
+
+type DiscordLogin struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+	Email    string `json:"email"`
+}
+
+func (d *DiscordLogin) ToUser() User {
+	return User{
+		Username:      d.Username,
+		Email:         d.Email,
+		Permission:    PermissionUser,
+		Avatar:        "https://cdn.discordapp.com/avatars/" + d.ID + "/" + d.Avatar + ".png",
+		Oauth:         true,
+		OauthProvider: "discord",
+		OauthID:       d.ID,
 	}
 }

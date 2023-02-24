@@ -25,4 +25,7 @@ func registerRoutes(router *fiber.Router) {
 
 	(*router).Add("GET", "/security/github", oauthController.GithubLogin)
 	(*router).Add("GET", "/security/github_callback", oauthController.GithubCallback)
+
+	(*router).Add("GET", "/security/discord", oauthController.DiscordLogin)
+	(*router).Add("GET", "/security/discord_callback", oauthController.DiscordCallback)
 }

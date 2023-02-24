@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/memnix/memnix-rest/pkg/env"
@@ -19,6 +21,11 @@ const (
 	SQLMaxIdleConns       = 10 // Max number of connections in the idle connection pool
 
 	BCryptCost = 11 // Cost to use for BCrypt
+
+	CleaningInterval = 5 * time.Minute
+
+	OauthStateLength   = 16               // Length of the state for oauth
+	OauthStateDuration = 10 * time.Minute // Duration of the state for oauth
 )
 
 var JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT
