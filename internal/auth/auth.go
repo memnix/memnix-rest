@@ -7,4 +7,6 @@ type IUseCase interface {
 	Register(registerStruct domain.Register) (domain.User, error)
 	Logout() (string, error)
 	RefreshToken(user domain.User) (string, error)
+	RegisterOauth(user domain.User) error
+	LoginOauth(user domain.User) (string, error)
 }

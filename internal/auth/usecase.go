@@ -1,14 +1,15 @@
 package auth
 
 import (
-	"github.com/rs/zerolog/log"
 	"strings"
 
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UseCase struct {
@@ -86,4 +87,21 @@ func (a *UseCase) RefreshToken(user domain.User) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (a *UseCase) RegisterOauth(user domain.User) error {
+	return a.Create(&user)
+}
+
+func (a *UseCase) LoginOauth(user domain.User) (string, error) {
+	userModel, err := a.GetByOauthID(user.OauthID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			_ = a.RegisterOauth(user)
+		} else {
+			return "", err
+		}
+	}
+
+	return jwt.GenerateToken(userModel.ID)
 }

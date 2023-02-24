@@ -65,6 +65,9 @@ func main() {
 		}
 	}
 
+	// Init oauth
+	infrastructures.InitOauth()
+
 	log.Debug().Msg("Starting server")
 	// Create the app
 	app := http.New()

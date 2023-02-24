@@ -18,4 +18,10 @@ type IRepository interface {
 	GetByEmail(email string) (domain.User, error)
 	// Create creates a new user.
 	Create(user *domain.User) error
+	// Update updates the user with the given id.
+	Update(user *domain.User) error
+	// Delete deletes the user with the given id.
+	Delete(id uint) error
+	// GetByOauthID returns the user with the given oauth id.
+	GetByOauthID(id string) (domain.User, error)
 }

@@ -6,12 +6,15 @@ import (
 )
 
 type User struct {
-	gorm.Model `swaggerignore:"true"`
-	Username   string     `json:"username"`                             // Username of the user
-	Email      string     `json:"email" validate:"email" gorm:"unique"` // Email of the user
-	Password   string     `json:"-"`                                    // Password of the user
-	Avatar     string     `json:"avatar"`                               // Avatar of the user
-	Permission Permission `json:"permission"`                           // Permission of the user
+	gorm.Model    `swaggerignore:"true"`
+	Username      string     `json:"username"`
+	Email         string     `json:"email" validate:"email" gorm:"unique"`
+	Password      string     `json:"-"`
+	Avatar        string     `json:"avatar"`
+	OauthProvider string     `json:"oauth_provider" `
+	OauthID       string     `json:"oauth_id" gorm:"unique"`
+	Permission    Permission `json:"permission"`
+	Oauth         bool       `json:"oauth" gorm:"default:false"`
 }
 
 func (u *User) ToPublicUser() PublicUser {

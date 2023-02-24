@@ -1,4 +1,4 @@
-package auth
+package views
 
 import "github.com/memnix/memnix-rest/domain"
 

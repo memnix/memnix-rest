@@ -40,3 +40,17 @@ func (r *SqlRepository) GetByEmail(email string) (domain.User, error) {
 func (r *SqlRepository) Create(user *domain.User) error {
 	return r.DBConn.Create(&user).Error
 }
+
+func (r *SqlRepository) Update(user *domain.User) error {
+	return r.DBConn.Save(&user).Error
+}
+
+func (r *SqlRepository) Delete(id uint) error {
+	return r.DBConn.Delete(&domain.User{}, id).Error
+}
+
+func (r *SqlRepository) GetByOauthID(id string) (domain.User, error) {
+	var user domain.User
+	err := r.DBConn.Where("oauth_id = ?", id).First(&user).Error
+	return user, err
+}
