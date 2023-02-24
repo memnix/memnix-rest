@@ -1,7 +1,7 @@
 package crypto
 
 import (
-	"github.com/corentings/kafejo/config"
+	"github.com/memnix/memnix-rest/config"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )

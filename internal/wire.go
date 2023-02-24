@@ -10,6 +10,7 @@ import (
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/kliento"
 	"github.com/memnix/memnix-rest/internal/user"
+	"github.com/memnix/memnix-rest/pkg/cacheset"
 )
 
 func InitializeKliento() controllers.KlientoController {
@@ -30,4 +31,9 @@ func InitializeAuth() controllers.AuthController {
 func InitializeJWT() controllers.JwtController {
 	wire.Build(controllers.NewJwtController, user.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
 	return controllers.JwtController{}
+}
+
+func InitializeOAuth() controllers.OAuthController {
+	wire.Build(controllers.NewOAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn, cacheset.New)
+	return controllers.OAuthController{}
 }
