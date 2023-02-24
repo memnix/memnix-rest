@@ -1,339 +1,295 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "contact": {}
-    },
-    "paths": {
-        "/v2/security/github": {
-            "get": {
-                "description": "Redirects the user to the github login page",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth"
-                ],
-                "summary": "Redirects the user to the github login page",
-                "responses": {
-                    "302": {
-                        "description": "redirecting to github login",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
+  "swagger": "2.0",
+  "info": {
+    "contact": {}
+  },
+  "paths": {
+    "/v2/security/github": {
+      "get": {
+        "description": "Redirects the user to the github login page",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
+        "summary": "Redirects the user to the github login page",
+        "responses": {
+          "302": {
+            "description": "redirecting to github login",
+            "schema": {
+              "type": "string"
             }
-        },
-        "/v2/security/github_callback": {
-            "get": {
-                "description": "Handles the callback from github",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth"
-                ],
-                "summary": "Handles the callback from github",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "code from github",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "login token",
-                        "schema": {
-                            "$ref": "#/definitions/views.LoginTokenVM"
-                        }
-                    },
-                    "401": {
-                        "description": "invalid credentials",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    },
-                    "500": {
-                        "description": "internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
             }
-        },
-        "/v2/security/login": {
-            "post": {
-                "description": "Login",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Login",
-                "parameters": [
-                    {
-                        "description": "Login",
-                        "name": "login",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.Login"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/views.LoginTokenVM"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/security/logout": {
-            "post": {
-                "description": "Logout",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Logout",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/views.LoginTokenVM"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/security/refresh": {
-            "post": {
-                "description": "Refresh token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Refresh token",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/views.LoginTokenVM"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/security/register": {
-            "post": {
-                "description": "Register",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Register",
-                "parameters": [
-                    {
-                        "description": "Register",
-                        "name": "register",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.Register"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/views.RegisterVM"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
-            }
+          }
         }
+      }
     },
-    "definitions": {
-        "domain.Login": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "description": "Email of the user",
-                    "type": "string"
-                },
-                "password": {
-                    "description": "Password of the user",
-                    "type": "string"
-                }
+    "/v2/security/github_callback": {
+      "get": {
+        "description": "Handles the callback from github",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
+        "summary": "Handles the callback from github",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "code from github",
+            "name": "code",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "login token",
+            "schema": {
+              "$ref": "#/definitions/views.LoginTokenVM"
             }
-        },
-        "domain.Permission": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3
-            ],
-            "x-enum-varnames": [
-                "PermissionNone",
-                "PermissionUser",
-                "PermissionVip",
-                "PermissionAdmin"
-            ]
-        },
-        "domain.PublicUser": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "permission": {
-                    "$ref": "#/definitions/domain.Permission"
-                },
-                "username": {
-                    "type": "string"
-                }
+          },
+          "401": {
+            "description": "invalid credentials",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
             }
-        },
-        "domain.Register": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "description": "Email of the user",
-                    "type": "string"
-                },
-                "password": {
-                    "description": "Password of the user",
-                    "type": "string"
-                },
-                "username": {
-                    "description": "Username of the user",
-                    "type": "string"
-                }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
             }
-        },
-        "views.HTTPResponseVM": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "views.LoginTokenVM": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "views.RegisterVM": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/domain.PublicUser"
-                }
-            }
+          }
         }
+      }
+    },
+    "/v2/security/login": {
+      "post": {
+        "description": "Login",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Login",
+        "parameters": [
+          {
+            "description": "Login",
+            "name": "login",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/domain.Login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/views.LoginTokenVM"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          }
+        }
+      }
+    },
+    "/v2/security/logout": {
+      "post": {
+        "description": "Logout",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/views.LoginTokenVM"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          }
+        }
+      }
+    },
+    "/v2/security/refresh": {
+      "post": {
+        "description": "Refresh token",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Refresh token",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/views.LoginTokenVM"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          }
+        }
+      }
+    },
+    "/v2/security/register": {
+      "post": {
+        "description": "Register",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Register",
+        "parameters": [
+          {
+            "description": "Register",
+            "name": "register",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/domain.Register"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/views.RegisterVM"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/views.HTTPResponseVM"
+            }
+          }
+        }
+      }
     }
+  },
+  "definitions": {
+    "domain.Login": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "Email of the user",
+          "type": "string"
+        },
+        "password": {
+          "description": "Password of the user",
+          "type": "string"
+        }
+      }
+    },
+    "domain.Permission": {
+      "type": "integer",
+      "enum": [0, 1, 2, 3],
+      "x-enum-varnames": [
+        "PermissionNone",
+        "PermissionUser",
+        "PermissionVip",
+        "PermissionAdmin"
+      ]
+    },
+    "domain.PublicUser": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "permission": {
+          "$ref": "#/definitions/domain.Permission"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
+    "domain.Register": {
+      "type": "object",
+      "required": ["password", "username"],
+      "properties": {
+        "email": {
+          "description": "Email of the user",
+          "type": "string"
+        },
+        "password": {
+          "description": "Password of the user",
+          "type": "string"
+        },
+        "username": {
+          "description": "Username of the user",
+          "type": "string"
+        }
+      }
+    },
+    "views.HTTPResponseVM": {
+      "type": "object",
+      "properties": {
+        "data": {},
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "views.LoginTokenVM": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "views.RegisterVM": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/domain.PublicUser"
+        }
+      }
+    }
+  }
 }
