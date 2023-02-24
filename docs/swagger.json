@@ -7,15 +7,9 @@
     "/v2/security/github": {
       "get": {
         "description": "Redirects the user to the github login page",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "OAuth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
         "summary": "Redirects the user to the github login page",
         "responses": {
           "302": {
@@ -36,15 +30,9 @@
     "/v2/security/github_callback": {
       "get": {
         "description": "Handles the callback from github",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "OAuth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
         "summary": "Handles the callback from github",
         "parameters": [
           {
@@ -80,15 +68,9 @@
     "/v2/security/login": {
       "post": {
         "description": "Login",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Login",
         "parameters": [
           {
@@ -126,15 +108,9 @@
     "/v2/security/logout": {
       "post": {
         "description": "Logout",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Logout",
         "responses": {
           "200": {
@@ -155,15 +131,9 @@
     "/v2/security/refresh": {
       "post": {
         "description": "Refresh token",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Refresh token",
         "responses": {
           "200": {
@@ -190,15 +160,9 @@
     "/v2/security/register": {
       "post": {
         "description": "Register",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Register",
         "parameters": [
           {
@@ -250,12 +214,7 @@
     },
     "domain.Permission": {
       "type": "integer",
-      "enum": [
-        0,
-        1,
-        2,
-        3
-      ],
+      "enum": [0, 1, 2, 3],
       "x-enum-varnames": [
         "PermissionNone",
         "PermissionUser",
@@ -285,10 +244,7 @@
     },
     "domain.Register": {
       "type": "object",
-      "required": [
-        "password",
-        "username"
-      ],
+      "required": ["password", "username"],
       "properties": {
         "email": {
           "description": "Email of the user",
