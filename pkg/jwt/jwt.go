@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -35,14 +36,17 @@ func GenerateToken(userID uint) (string, error) {
 // and returns the user id and an error
 func VerifyToken(token *jwt.Token) (uint, error) {
 	// claims is of type jwt.MapClaims
-	claims := token.Claims.(jwt.MapClaims)
-	// Get the issuer from the claims and convert it to uint
-	userID, err := utils.ConvertStrToUInt(claims["iss"].(string))
-	if err != nil {
-		return 0, err
+	if claims, ok := token.Claims.(jwt.MapClaims); token.Valid && ok {
+		// Get the issuer from the claims and convert it to uint
+		userID, err := utils.ConvertStrToUInt(claims["iss"].(string))
+		if err != nil {
+			return 0, err
+		}
+
+		return userID, nil
 	}
 
-	return userID, nil
+	return 0, errors.New("invalid token")
 }
 
 // GetToken gets a jwt.Token token from a string
@@ -50,6 +54,9 @@ func VerifyToken(token *jwt.Token) (uint, error) {
 func GetToken(token string) (*jwt.Token, error) {
 	// Parse takes the token string and a function for looking up the key.
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
 		return []byte(utils.GetSecretKey()), nil // Return the secret key as the signing key
 	})
 }

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
@@ -109,7 +108,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	// Delete the state from the cache
 	a.cacheSet.Delete(state)
 
-	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM(jwtToken, ""))
+	return c.Redirect("http://localhost:3000/callback/"+jwtToken, fiber.StatusSeeOther)
 }
 
 // DiscordLogin redirects the user to the discord login page
@@ -188,5 +187,5 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 
 	a.cacheSet.Delete(state)
 
-	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM(jwtToken, ""))
+	return c.Redirect("http://localhost:3000/callback/"+jwtToken, fiber.StatusSeeOther)
 }
