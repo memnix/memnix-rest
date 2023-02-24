@@ -1,5 +1,7 @@
 package crypto
 
+var CryptoHelper = BcryptCrypto{}
+
 // ICrypto is the interface for the crypto methods
 // It's used to abstract the crypto methods used in the application
 // so that they can be easily swapped out if needed

@@ -2,12 +2,13 @@ package auth
 
 import (
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/pkg/errors"
 )
 
 // GenerateEncryptedPassword generates a password hash using the crypto helper
 func GenerateEncryptedPassword(password string) ([]byte, error) {
-	hash, err := config.CryptoHelper.Hash(password)
+	hash, err := crypto.CryptoHelper.Hash(password)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +23,7 @@ func GenerateEncryptedPassword(password string) ([]byte, error) {
 // Returns true if the password matches, false if it does not.
 // Returns nil on success, or an error on failure.
 func ComparePasswords(password string, hash []byte) (bool, error) {
-	return config.CryptoHelper.Verify(password, hash)
+	return crypto.CryptoHelper.Verify(password, hash)
 }
 
 // VerifyPassword verifies a password
