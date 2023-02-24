@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
-	github.com/bytedance/sonic v1.8.1
+	github.com/bytedance/sonic v1.8.2
 	github.com/gofiber/fiber/v2 v2.42.0
 	github.com/gofiber/swagger v0.1.9
 	github.com/joho/godotenv v1.5.1
