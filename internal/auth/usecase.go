@@ -97,9 +97,14 @@ func (a *UseCase) LoginOauth(user domain.User) (string, error) {
 	userModel, err := a.GetByOauthID(user.OauthID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			_ = a.RegisterOauth(user)
+			err = a.RegisterOauth(user)
+			if err != nil {
+				log.Error().Err(err).Msg("failed to register user")
+				return "", errors.New("failed to register user")
+			}
 		} else {
-			return "", err
+			log.Error().Err(err).Msg("failed to get user")
+			return "", errors.New("failed to get user")
 		}
 	}
 
