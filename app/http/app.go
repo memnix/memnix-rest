@@ -7,9 +7,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
+	"github.com/memnix/memnix-rest/app/misc"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
 )
@@ -73,4 +75,13 @@ func registerMiddlewares(app *fiber.App) {
 	}
 
 	app.Use(fibernewrelic.New(cfg))
+
+	// User logging middleware
+	app.Use(logger.New(logger.Config{
+		Format:     "[${time}] - [${ip}]:${port} - ${latency} ${method} ${path} - ${status}\n",
+		TimeFormat: "Jan 02 | 15:04:05",
+		Output:     misc.LogWriter{},
+	}))
+
+	app.Use(pprof.New())
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/memnix/memnix-rest/pkg/jwt"
+	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/rs/zerolog/log"
 )
@@ -41,7 +42,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		tokenHeader := c.Get("Authorization")
 		// if the token is empty, the userModel is not connected, and we return an error
 		if tokenHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("invalid token")))
+			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not authorized")))
 		}
 
 		// get the userModel from the token
@@ -60,7 +61,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 
 		// if the userModel has the required permissions, we set the userModel in the locals and call the next middleware
 		if j.VerifyPermissions(userModel, p) {
-			c.Locals("user", userModel) // Set userModel in locals
+			utils.SetUserToContext(c, &userModel) // Set userModel in locals
 			return c.Next()
 		}
 

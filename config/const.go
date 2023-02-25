@@ -8,6 +8,7 @@ const (
 
 	MaxBackupLogFiles = 5
 	MaxSizeLogFiles   = 50 // megabytes
+	LogChannelSize    = 200
 
 	RedisMinIdleConns = 200
 	RedisPoolSize     = 12000

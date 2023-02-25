@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
+	"github.com/memnix/memnix-rest/app/misc"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/logger"
@@ -67,6 +68,9 @@ func main() {
 
 	// Init oauth
 	infrastructures.InitOauth()
+
+	// Create logger workers
+	go misc.CreateLogger()
 
 	log.Debug().Msg("Starting server")
 	// Create the app
