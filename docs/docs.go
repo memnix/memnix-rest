@@ -16,6 +16,79 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v2/security/discord": {
+            "get": {
+                "description": "Redirects the user to the discord login page",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Redirects the user to the discord login page",
+                "responses": {
+                    "302": {
+                        "description": "redirecting to github login",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/security/discord_callback": {
+            "get": {
+                "description": "Handles the callback from discord",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Handles the callback from discord",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "code from discord",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "login token",
+                        "schema": {
+                            "$ref": "#/definitions/views.LoginTokenVM"
+                        }
+                    },
+                    "401": {
+                        "description": "invalid credentials",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/security/github": {
             "get": {
                 "description": "Redirects the user to the github login page",

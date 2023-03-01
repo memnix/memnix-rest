@@ -10,16 +10,16 @@ definitions:
     type: object
   domain.Permission:
     enum:
-      - 0
-      - 1
-      - 2
-      - 3
+    - 0
+    - 1
+    - 2
+    - 3
     type: integer
     x-enum-varnames:
-      - PermissionNone
-      - PermissionUser
-      - PermissionVip
-      - PermissionAdmin
+    - PermissionNone
+    - PermissionUser
+    - PermissionVip
+    - PermissionAdmin
   domain.PublicUser:
     properties:
       avatar:
@@ -29,7 +29,7 @@ definitions:
       id:
         type: integer
       permission:
-        $ref: "#/definitions/domain.Permission"
+        $ref: '#/definitions/domain.Permission'
       username:
         type: string
     type: object
@@ -45,8 +45,8 @@ definitions:
         description: Username of the user
         type: string
     required:
-      - password
-      - username
+    - password
+    - username
     type: object
   views.HTTPResponseVM:
     properties:
@@ -66,18 +66,18 @@ definitions:
       message:
         type: string
       user:
-        $ref: "#/definitions/domain.PublicUser"
+        $ref: '#/definitions/domain.PublicUser'
     type: object
 info:
   contact: {}
 paths:
-  /v2/security/github:
+  /v2/security/discord:
     get:
       consumes:
-        - application/json
-      description: Redirects the user to the github login page
+      - application/json
+      description: Redirects the user to the discord login page
       produces:
-        - application/json
+      - application/json
       responses:
         "302":
           description: redirecting to github login
@@ -86,139 +86,187 @@ paths:
         "500":
           description: internal server error
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
-      summary: Redirects the user to the github login page
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Redirects the user to the discord login page
       tags:
-        - OAuth
-  /v2/security/github_callback:
+      - OAuth
+  /v2/security/discord_callback:
     get:
       consumes:
-        - application/json
-      description: Handles the callback from github
+      - application/json
+      description: Handles the callback from discord
       parameters:
-        - description: code from github
-          in: query
-          name: code
-          required: true
-          type: string
+      - description: code from discord
+        in: query
+        name: code
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: login token
           schema:
-            $ref: "#/definitions/views.LoginTokenVM"
+            $ref: '#/definitions/views.LoginTokenVM'
         "401":
           description: invalid credentials
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
         "500":
           description: internal server error
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Handles the callback from discord
+      tags:
+      - OAuth
+  /v2/security/github:
+    get:
+      consumes:
+      - application/json
+      description: Redirects the user to the github login page
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: redirecting to github login
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Redirects the user to the github login page
+      tags:
+      - OAuth
+  /v2/security/github_callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles the callback from github
+      parameters:
+      - description: code from github
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: login token
+          schema:
+            $ref: '#/definitions/views.LoginTokenVM'
+        "401":
+          description: invalid credentials
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
       summary: Handles the callback from github
       tags:
-        - OAuth
+      - OAuth
   /v2/security/login:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Login
       parameters:
-        - description: Login
-          in: body
-          name: login
-          required: true
-          schema:
-            $ref: "#/definitions/domain.Login"
+      - description: Login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Login'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/views.LoginTokenVM"
+            $ref: '#/definitions/views.LoginTokenVM'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
       summary: Login
       tags:
-        - Auth
+      - Auth
   /v2/security/logout:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Logout
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/views.LoginTokenVM"
+            $ref: '#/definitions/views.LoginTokenVM'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
       summary: Logout
       tags:
-        - Auth
+      - Auth
   /v2/security/refresh:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Refresh token
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/views.LoginTokenVM"
+            $ref: '#/definitions/views.LoginTokenVM'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
       summary: Refresh token
       tags:
-        - Auth
+      - Auth
   /v2/security/register:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Register
       parameters:
-        - description: Register
-          in: body
-          name: register
-          required: true
-          schema:
-            $ref: "#/definitions/domain.Register"
+      - description: Register
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Register'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: "#/definitions/views.RegisterVM"
+            $ref: '#/definitions/views.RegisterVM'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/views.HTTPResponseVM"
+            $ref: '#/definitions/views.HTTPResponseVM'
       summary: Register
       tags:
-        - Auth
+      - Auth
 swagger: "2.0"
