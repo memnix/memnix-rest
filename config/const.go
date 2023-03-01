@@ -13,7 +13,7 @@ const (
 	RedisMinIdleConns = 200
 	RedisPoolSize     = 12000
 	RedisPoolTimeout  = 240 * time.Second
-	RedisHost         = ":6379"
+	RedisHost         = "redis:6379"
 
 	MB = 1024 * 1024
 

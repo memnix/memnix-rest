@@ -40,18 +40,6 @@ func main() {
 		}
 	}()
 
-	// Connect to redis
-	err = infrastructures.ConnectRedis()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Error connecting to redis")
-	}
-	defer func() {
-		err = infrastructures.CloseRedis()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error closing redis connection")
-		}
-	}()
-
 	// Models to migrate
 	migrates := []interface{}{
 		// Add models here

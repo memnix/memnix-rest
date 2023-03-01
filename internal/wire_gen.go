@@ -10,20 +10,11 @@ import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
-	"github.com/memnix/memnix-rest/internal/kliento"
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/memnix/memnix-rest/pkg/cacheset"
 )
 
 // Injectors from wire.go:
-
-func InitializeKliento() controllers.KlientoController {
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := kliento.NewRedisRepository(client)
-	iUseCase := kliento.NewUseCase(iRedisRepository)
-	klientoController := controllers.NewKlientoController(iUseCase)
-	return klientoController
-}
 
 func InitializeUser() controllers.UserController {
 	db := infrastructures.GetDBConn()

@@ -8,15 +8,9 @@ import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
-	"github.com/memnix/memnix-rest/internal/kliento"
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/memnix/memnix-rest/pkg/cacheset"
 )
-
-func InitializeKliento() controllers.KlientoController {
-	wire.Build(controllers.NewKlientoController, kliento.NewUseCase, kliento.NewRedisRepository, infrastructures.GetRedisClient)
-	return controllers.KlientoController{}
-}
 
 func InitializeUser() controllers.UserController {
 	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewRepository, infrastructures.GetDBConn)

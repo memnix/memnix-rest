@@ -3,6 +3,7 @@ package http
 import (
 	"time"
 
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/contrib/fibernewrelic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -35,8 +36,8 @@ func New() *fiber.App {
 	})
 
 	// Use monitor middleware
-	app.Get("/metrics", monitor.New(monitor.Config{
-		Title:   "Kafejo API",
+	app.Get("/monitor", monitor.New(monitor.Config{
+		Title:   "Memnix API",
 		Refresh: time.Second * 5,
 	}))
 
@@ -83,5 +84,7 @@ func registerMiddlewares(app *fiber.App) {
 		Output:     misc.LogWriter{},
 	}))
 
-	app.Use(pprof.New())
+	prometheus := fiberprometheus.New("memnix")
+	prometheus.RegisterAt(app, "/metrics")
+	app.Use(prometheus.Middleware)
 }

@@ -8,16 +8,12 @@ import (
 
 func registerRoutes(router *fiber.Router) {
 	userController := internal.GetServiceContainer().GetUser()
-	klientoController := internal.GetServiceContainer().GetKliento()
 	authController := internal.GetServiceContainer().GetAuth()
 	jwtController := internal.GetServiceContainer().GetJwt()
 	oauthController := internal.GetServiceContainer().GetOAuth()
 
 	(*router).Add("GET", "/user/me", jwtController.IsConnectedMiddleware(domain.PermissionUser), userController.GetMe)
 	(*router).Add("GET", "/user/:uuid", userController.GetName)
-
-	(*router).Add("GET", "/kliento", klientoController.GetName)
-	(*router).Add("GET", "/kliento/:name", klientoController.SetName)
 
 	(*router).Add("POST", "/security/login", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Login)
 	(*router).Add("POST", "/security/register", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Register)

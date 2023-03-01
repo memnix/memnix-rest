@@ -25,3 +25,4 @@ memnixrest
 
 # Docker compose files
 docker-*
+/prometheus/*
