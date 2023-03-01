@@ -62,10 +62,7 @@ func registerMiddlewares(app *fiber.App) {
 		CacheControl: true,
 		Next: func(c *fiber.Ctx) bool {
 			// Do not cache /metrics endpoint
-			if c.Path() == "/metrics" {
-				return true
-			}
-			return false
+			return c.Path() == "/metrics"
 		},
 	}))
 
