@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
 	"github.com/memnix/memnix-rest/app/misc"
@@ -26,9 +27,6 @@ func main() {
 	// Create logger
 	logger.CreateNewRelicLogger()
 
-	// Connect to database
-	log.Debug().Msg("Connecting to database")
-
 	err = infrastructures.ConnectDB()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to database")
@@ -40,27 +38,43 @@ func main() {
 		}
 	}()
 
-	// Models to migrate
-	migrates := []interface{}{
-		// Add models here
-		domain.User{},
-	}
+	if !fiber.IsChild() {
+		// Models to migrate
+		migrates := []interface{}{
+			// Add models here
+			domain.User{},
+		}
 
-	// AutoMigrate models
-	for i := 0; i < len(migrates); i++ {
-		err = infrastructures.GetDBConn().AutoMigrate(&migrates[i])
-		if err != nil {
-			log.Error().Err(err).Msg("Can't auto migrate models")
+		// AutoMigrate models
+		for i := 0; i < len(migrates); i++ {
+			err = infrastructures.GetDBConn().AutoMigrate(&migrates[i])
+			if err != nil {
+				log.Error().Err(err).Msg("Can't auto migrate models")
+			}
 		}
 	}
 
 	// Init oauth
 	infrastructures.InitOauth()
 
+	// Redis connection
+	err = infrastructures.ConnectRedis()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error connecting to redis")
+	}
+	defer func() {
+		err := infrastructures.CloseRedis()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error closing redis connection")
+		}
+	}()
+
 	// Create logger workers
 	go misc.CreateLogger()
 
-	log.Debug().Msg("Starting server")
+	if !fiber.IsChild() {
+		log.Debug().Msg("Starting server")
+	}
 	// Create the app
 	app := http.New()
 	// Listen to port 1815

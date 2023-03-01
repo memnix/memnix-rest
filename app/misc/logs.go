@@ -25,8 +25,7 @@ func (e LogWriter) Write(p []byte) (int, error) {
 
 // LogWorker is the worker that will process the logsChan channel
 func LogWorker(logs <-chan string, wg *sync.WaitGroup) {
-	log.Debug().Msg("Log worker started") // debug log
-	defer wg.Done()                       // signal that we are done
+	defer wg.Done() // signal that we are done
 	// Infinite loop
 	for {
 		logContent := <-logs                                 // read from channel

@@ -31,4 +31,6 @@ COPY --from=builder /build/.env /app/.env
 
 EXPOSE 1815
 
+RUN apk add dumb-init
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/app/memnixrest"]

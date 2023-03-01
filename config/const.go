@@ -7,13 +7,8 @@ const (
 	DiodeLoggerTime = 10 * time.Millisecond
 
 	MaxBackupLogFiles = 5
-	MaxSizeLogFiles   = 50 // megabytes
+	MaxSizeLogFiles   = 20 // megabytes
 	LogChannelSize    = 200
-
-	RedisMinIdleConns = 200
-	RedisPoolSize     = 12000
-	RedisPoolTimeout  = 240 * time.Second
-	RedisHost         = "redis:6379"
 
 	MB = 1024 * 1024
 

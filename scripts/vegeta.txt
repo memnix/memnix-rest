@@ -1,0 +1,1 @@
+GET http://localhost:1815/v2/user/me

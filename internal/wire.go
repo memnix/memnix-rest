@@ -13,7 +13,7 @@ import (
 )
 
 func InitializeUser() controllers.UserController {
-	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
+	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewRedisRepository, infrastructures.GetRedisClient, user.NewRepository, infrastructures.GetDBConn)
 	return controllers.UserController{}
 }
 
@@ -23,7 +23,7 @@ func InitializeAuth() controllers.AuthController {
 }
 
 func InitializeJWT() controllers.JwtController {
-	wire.Build(controllers.NewJwtController, user.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
+	wire.Build(controllers.NewJwtController, user.NewUseCase, user.NewRedisRepository, infrastructures.GetRedisClient, user.NewRepository, infrastructures.GetDBConn)
 	return controllers.JwtController{}
 }
 

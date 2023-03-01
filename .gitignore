@@ -26,3 +26,6 @@ memnixrest
 # Docker compose files
 docker-*
 /prometheus/*
+
+/scripts/*.html
+/scripts/*.bin

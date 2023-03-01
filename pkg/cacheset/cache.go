@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/memnix/memnix-rest/config"
-	"github.com/rs/zerolog/log"
 )
 
 // Cache is a thread-safe map with expiration times.
@@ -33,8 +32,6 @@ func New() *Cache {
 			select {
 			case <-ticker.C:
 				now := time.Now().UnixNano()
-
-				log.Debug().Msgf("Cleaning cache...")
 
 				for k, v := range cache.c {
 					if v > 0 && v < now {

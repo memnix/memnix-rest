@@ -19,7 +19,9 @@ import (
 func InitializeUser() controllers.UserController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
-	iUseCase := user.NewUseCase(iRepository)
+	client := infrastructures.GetRedisClient()
+	iRedisRepository := user.NewRedisRepository(client)
+	iUseCase := user.NewUseCase(iRepository, iRedisRepository)
 	userController := controllers.NewUserController(iUseCase)
 	return userController
 }
@@ -35,7 +37,9 @@ func InitializeAuth() controllers.AuthController {
 func InitializeJWT() controllers.JwtController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
-	iUseCase := user.NewUseCase(iRepository)
+	client := infrastructures.GetRedisClient()
+	iRedisRepository := user.NewRedisRepository(client)
+	iUseCase := user.NewUseCase(iRepository, iRedisRepository)
 	jwtController := controllers.NewJwtController(iUseCase)
 	return jwtController
 }

@@ -19,10 +19,15 @@ const (
 
 	BCryptCost = 11 // Cost to use for BCrypt
 
-	CleaningInterval = 5 * time.Minute
+	CleaningInterval = 15 * time.Minute
 
 	OauthStateLength   = 16               // Length of the state for oauth
 	OauthStateDuration = 10 * time.Minute // Duration of the state for oauth
+
+	RedisMinIdleConns      = 200
+	RedisPoolSize          = 12000
+	RedisPoolTimeout       = 240 * time.Second
+	RedisDefaultExpireTime = 6 * time.Hour
 )
 
 var JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT

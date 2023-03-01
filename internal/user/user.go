@@ -25,3 +25,10 @@ type IRepository interface {
 	// GetByOauthID returns the user with the given oauth id.
 	GetByOauthID(id string) (domain.User, error)
 }
+
+type IRedisRepository interface {
+	// Get returns the value of the given key.
+	Get(id uint) (string, error)
+	// Set sets the value of the given key.
+	Set(id uint, value string) error
+}
