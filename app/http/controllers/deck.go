@@ -42,11 +42,11 @@ func (d *DeckController) GetByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	if deckObject.Status == domain.DeckStatusPrivate && !deckObject.IsOwner(utils.GetUserFromContext(c).ID) {
+	if !deckObject.IsOwner(utils.GetUserFromContext(c).ID) && utils.GetUserFromContext(c).Permission != domain.PermissionAdmin {
 		return c.Status(fiber.StatusForbidden).JSON(views.NewHTTPResponseVMFromError(errors.New("deck is private")))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("deck found", deckObject.ToPublicDeck()))
+	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("deck found", deckObject))
 }
 
 // Create is the controller for the create deck route

@@ -44,6 +44,12 @@ func (r *SqlRepository) GetByLearner(user domain.User) ([]domain.Deck, error) {
 	return decks, err
 }
 
+func (r *SqlRepository) GetPublic() ([]domain.Deck, error) {
+	var decks []domain.Deck
+	err := r.DBConn.Where("status = ?", domain.DeckStatusPublic).Find(&decks).Error
+	return decks, err
+}
+
 func NewRepository(dbConn *gorm.DB) IRepository {
 	return &SqlRepository{DBConn: dbConn}
 }

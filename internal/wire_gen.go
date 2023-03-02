@@ -8,6 +8,7 @@ package internal
 
 import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
+	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/deck"
@@ -60,4 +61,12 @@ func InitializeDeck() controllers.DeckController {
 	iUseCase := deck.NewUseCase(iRepository)
 	deckController := controllers.NewDeckController(iUseCase)
 	return deckController
+}
+
+func InitializeMeiliSearch() meilisearch.MeiliSearch {
+	db := infrastructures.GetDBConn()
+	iRepository := deck.NewRepository(db)
+	iUseCase := deck.NewUseCase(iRepository)
+	meiliSearch := meilisearch.NewMeiliSearch(iUseCase)
+	return meiliSearch
 }

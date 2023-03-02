@@ -4,9 +4,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
+	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/app/misc"
+	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
+	"github.com/memnix/memnix-rest/internal"
 	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/rs/zerolog/log"
 )
@@ -72,8 +75,17 @@ func main() {
 	// Create logger workers
 	go misc.CreateLogger()
 
+	// Connect MeiliSearch
+	infrastructures.ConnectMeiliSearch(config.EnvHelper)
+
 	if !fiber.IsChild() {
 		log.Debug().Msg("Starting server")
+
+		// Init MeiliSearch
+		err = meilisearch.InitMeiliSearch(internal.InitializeMeiliSearch())
+		if err != nil {
+			log.Error().Err(err).Msg("Can't init MeiliSearch")
+		}
 	}
 	// Create the app
 	app := http.New()

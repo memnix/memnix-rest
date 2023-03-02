@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
+	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
@@ -105,4 +106,25 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM(newToken, ""))
+}
+
+// SearchKey function to search the key
+//
+//	@Description	Search the key
+//	@Summary		searches the key
+//	@Tags			security
+//	@Produce		json
+//	@Success		200	{object}	viewmodels.HTTPResponseVM
+//	@Failure		401	{object}	viewmodels.HTTPResponseVM
+//	@Router			/v2/security/key [get]
+//	@Security		Beaver
+func (a *AuthController) SearchKey(c *fiber.Ctx) error {
+	// Search the key
+	key, err := infrastructures.GetSearchKey()
+	if err != nil {
+		return err
+	}
+
+	// Return the keys
+	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM(key.Key, ""))
 }

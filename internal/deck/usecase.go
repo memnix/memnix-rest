@@ -32,3 +32,8 @@ func (u *UseCase) GetByUser(user domain.User) ([]domain.Deck, error) {
 func (u *UseCase) GetByLearner(user domain.User) ([]domain.Deck, error) {
 	return u.IRepository.GetByLearner(user)
 }
+
+// GetPublic returns the public decks.
+func (u *UseCase) GetPublic() ([]domain.Deck, error) {
+	return u.IRepository.GetPublic()
+}

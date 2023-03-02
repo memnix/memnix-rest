@@ -47,8 +47,8 @@ func (d *Deck) IsOwner(id uint) bool {
 
 type CreateDeck struct {
 	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
-	Lang        string `json:"lang" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Lang        string `json:"lang" validate:"required,iso3166_1_alpha2"`
 }
 
 func (c *CreateDeck) Validate() error {
@@ -66,3 +66,5 @@ func (c *CreateDeck) ToDeck() Deck {
 		Key:         key,
 	}
 }
+
+type DeckIndex map[string]interface{}

@@ -14,7 +14,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
-	github.com/memnix/memnixrest v1.0.1
+	github.com/meilisearch/meilisearch-go v0.23.0
 	github.com/newrelic/go-agent/v3 v3.20.3
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter v1.0.2
 	github.com/pkg/errors v0.9.1

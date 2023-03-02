@@ -13,6 +13,8 @@ type IUseCase interface {
 	GetByUser(user domain.User) ([]domain.Deck, error)
 	// GetByLearner returns the decks of the given learner.
 	GetByLearner(user domain.User) ([]domain.Deck, error)
+	// GetPublic returns the public decks.
+	GetPublic() ([]domain.Deck, error)
 }
 
 type IRepository interface {
@@ -30,4 +32,6 @@ type IRepository interface {
 	GetByUser(user domain.User) ([]domain.Deck, error)
 	// GetByLearner returns the decks of the given learner.
 	GetByLearner(user domain.User) ([]domain.Deck, error)
+	// GetPublic returns the public decks.
+	GetPublic() ([]domain.Deck, error)
 }

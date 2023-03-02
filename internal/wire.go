@@ -6,6 +6,7 @@ package internal
 import (
 	"github.com/google/wire"
 	"github.com/memnix/memnix-rest/app/http/controllers"
+	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/deck"
@@ -35,4 +36,9 @@ func InitializeOAuth() controllers.OAuthController {
 func InitializeDeck() controllers.DeckController {
 	wire.Build(controllers.NewDeckController, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn)
 	return controllers.DeckController{}
+}
+
+func InitializeMeiliSearch() meilisearch.MeiliSearch {
+	wire.Build(meilisearch.NewMeiliSearch, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn)
+	return meilisearch.MeiliSearch{}
 }
