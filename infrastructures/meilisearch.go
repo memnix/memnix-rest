@@ -1,9 +1,10 @@
 package infrastructures
 
 import (
+	"time"
+
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/memnix/memnix-rest/pkg/env"
-	"time"
 )
 
 var (
