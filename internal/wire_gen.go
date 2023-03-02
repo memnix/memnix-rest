@@ -10,6 +10,7 @@ import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
+	"github.com/memnix/memnix-rest/internal/deck"
 	"github.com/memnix/memnix-rest/internal/user"
 )
 
@@ -51,4 +52,12 @@ func InitializeOAuth() controllers.OAuthController {
 	iAuthRedisRepository := auth.NewRedisRepository(client)
 	oAuthController := controllers.NewOAuthController(iUseCase, iAuthRedisRepository)
 	return oAuthController
+}
+
+func InitializeDeck() controllers.DeckController {
+	db := infrastructures.GetDBConn()
+	iRepository := deck.NewRepository(db)
+	iUseCase := deck.NewUseCase(iRepository)
+	deckController := controllers.NewDeckController(iUseCase)
+	return deckController
 }

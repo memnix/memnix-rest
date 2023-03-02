@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/memnix/memnix-rest/domain"
-	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +17,6 @@ func NewRepository(dbConn *gorm.DB) IRepository {
 func (r *SqlRepository) GetName(id uint) string {
 	var user domain.User
 	r.DBConn.First(&user, id)
-	log.Info().Msgf("user: %v", user)
 	return user.Username
 }
 

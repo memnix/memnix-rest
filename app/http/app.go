@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/swagger"
 	"github.com/memnix/memnix-rest/app/misc"
 	"github.com/memnix/memnix-rest/config"
+	_ "github.com/memnix/memnix-rest/docs" // Side effect import
 	"github.com/memnix/memnix-rest/infrastructures"
 )
 

@@ -8,6 +8,7 @@ import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
+	"github.com/memnix/memnix-rest/internal/deck"
 	"github.com/memnix/memnix-rest/internal/user"
 )
 
@@ -29,4 +30,9 @@ func InitializeJWT() controllers.JwtController {
 func InitializeOAuth() controllers.OAuthController {
 	wire.Build(controllers.NewOAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn, auth.NewRedisRepository, infrastructures.GetRedisClient)
 	return controllers.OAuthController{}
+}
+
+func InitializeDeck() controllers.DeckController {
+	wire.Build(controllers.NewDeckController, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn)
+	return controllers.DeckController{}
 }

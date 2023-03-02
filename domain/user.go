@@ -13,6 +13,8 @@ type User struct {
 	Avatar        string     `json:"avatar"`
 	OauthProvider string     `json:"oauth_provider" `
 	OauthID       string     `json:"oauth_id" gorm:"unique"`
+	Learning      []*Deck    `json:"learning" gorm:"many2many:user_decks;"`
+	OwnDecks      []Deck     `json:"own_decks" gorm:"foreignKey:OwnerID"`
 	Permission    Permission `json:"permission"`
 	Oauth         bool       `json:"oauth" gorm:"default:false"`
 }

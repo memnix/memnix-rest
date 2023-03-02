@@ -11,6 +11,7 @@ type ServiceContainer interface {
 	GetAuth() controllers.AuthController
 	GetJwt() controllers.JwtController
 	GetOAuth() controllers.OAuthController
+	GetDeck() controllers.DeckController
 }
 
 type kernel struct{}
@@ -29,6 +30,10 @@ func (k kernel) GetJwt() controllers.JwtController {
 
 func (k kernel) GetOAuth() controllers.OAuthController {
 	return InitializeOAuth()
+}
+
+func (k kernel) GetDeck() controllers.DeckController {
+	return InitializeDeck()
 }
 
 var (

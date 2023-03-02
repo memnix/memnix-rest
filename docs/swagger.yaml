@@ -71,6 +71,41 @@ definitions:
 info:
   contact: {}
 paths:
+  /v2/deck/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get deck by id
+      parameters:
+      - description: Deck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Bearer: []
+      summary: Get deck by id
+      tags:
+      - Deck
   /v2/security/discord:
     get:
       consumes:

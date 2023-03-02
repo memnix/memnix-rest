@@ -11,6 +11,7 @@ func registerRoutes(router *fiber.Router) {
 	authController := internal.GetServiceContainer().GetAuth()
 	jwtController := internal.GetServiceContainer().GetJwt()
 	oauthController := internal.GetServiceContainer().GetOAuth()
+	deckController := internal.GetServiceContainer().GetDeck()
 
 	(*router).Add("GET", "/user/me", jwtController.IsConnectedMiddleware(domain.PermissionUser), userController.GetMe)
 	(*router).Add("GET", "/user/:uuid", userController.GetName)
@@ -25,4 +26,9 @@ func registerRoutes(router *fiber.Router) {
 
 	(*router).Add("GET", "/security/discord", oauthController.DiscordLogin)
 	(*router).Add("GET", "/security/discord_callback", oauthController.DiscordCallback)
+
+	(*router).Add("GET", "/deck/owned", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetOwned)
+	(*router).Add("GET", "/deck/learning", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetLearning)
+	(*router).Add("GET", "/deck/:id", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetByID)
+	(*router).Add("POST", "/deck", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.Create)
 }
