@@ -17,7 +17,7 @@ func NewMeiliSearch(deck deck.IUseCase) MeiliSearch {
 }
 
 func (m *MeiliSearch) CreateSearchIndex() error {
-	decks, err := m.GetByUser(domain.User{})
+	decks, err := m.GetPublic()
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (m *MeiliSearch) CreateSearchIndex() error {
 		}
 	}
 
-	_, err = infrastructures.GetMeiliSearchClient().Index("offers").AddDocuments(decksIndex)
+	_, err = infrastructures.GetMeiliSearchClient().Index("decks").AddDocuments(decksIndex)
 	if err != nil {
 		return err
 	}
