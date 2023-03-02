@@ -8,7 +8,6 @@ import (
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
-	"github.com/memnix/memnix-rest/pkg/cacheset"
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/memnix/memnix-rest/pkg/random"
 	"github.com/memnix/memnix-rest/views"
@@ -18,13 +17,13 @@ import (
 
 // OAuthController is the controller for the OAuth routes
 type OAuthController struct {
-	auth     auth.IUseCase   // auth usecase
-	cacheSet *cacheset.Cache // cache set
+	auth auth.IUseCase // auth usecase
+	auth.IAuthRedisRepository
 }
 
 // NewOAuthController creates a new OAuthController
-func NewOAuthController(auth auth.IUseCase, cacheSet *cacheset.Cache) OAuthController {
-	return OAuthController{auth: auth, cacheSet: cacheSet}
+func NewOAuthController(auth auth.IUseCase, redisRepository auth.IAuthRedisRepository) OAuthController {
+	return OAuthController{auth: auth, IAuthRedisRepository: redisRepository}
 }
 
 // GithubLogin redirects the user to the github login page
@@ -47,9 +46,10 @@ func (a *OAuthController) GithubLogin(c *fiber.Ctx) error {
 		state,
 	)
 	// Save the state in the cache
-	a.cacheSet.Set(state, config.OauthStateDuration)
-	err := c.Redirect(redirectURL, fiber.StatusSeeOther)
-	if err != nil {
+	if err := a.IAuthRedisRepository.SetState(state); err != nil {
+		return err
+	}
+	if err := c.Redirect(redirectURL, fiber.StatusSeeOther); err != nil {
 		return err
 	}
 	return c.JSON(fiber.Map{"message": "redirecting to github login", "redirect_url": redirectURL})
@@ -73,7 +73,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	state := c.Query("state")
 
 	// check if the state is valid
-	if !a.cacheSet.Exists(state) {
+	if ok, _ := a.IAuthRedisRepository.HasState(state); !ok {
 		log.Debug().Msg("invalid state")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
@@ -107,7 +107,9 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	}
 
 	// Delete the state from the cache
-	a.cacheSet.Delete(state)
+	if err = a.IAuthRedisRepository.DeleteState(state); err != nil {
+		log.Debug().Err(err).Msg("can't delete state from cache")
+	}
 
 	return c.Redirect("http://localhost:3000/callback/"+jwtToken, fiber.StatusSeeOther)
 }
@@ -125,7 +127,9 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 	// Create the dynamic redirect URL for login
 	state, _ := random.GenerateSecretCode(config.OauthStateLength)
-	a.cacheSet.Set(state, config.OauthStateDuration)
+	if err := a.IAuthRedisRepository.SetState(state); err != nil {
+		return err
+	}
 
 	redirectURL := infrastructures.AppConfig.DiscordConfig.URL + "&state=" + state
 
@@ -153,7 +157,7 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
 	state := c.Query("state")
 
-	if !a.cacheSet.Exists(state) {
+	if ok, _ := a.IAuthRedisRepository.HasState(state); !ok {
 		log.Debug().Err(errors.New("invalid state")).Msg("invalid state")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
@@ -186,7 +190,9 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
 
-	a.cacheSet.Delete(state)
+	if err = a.IAuthRedisRepository.DeleteState(state); err != nil {
+		log.Debug().Err(err).Msg("can't delete state from cache")
+	}
 
 	return c.Redirect("http://localhost:3000/callback/"+jwtToken, fiber.StatusSeeOther)
 }

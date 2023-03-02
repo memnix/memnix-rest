@@ -9,7 +9,6 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/user"
-	"github.com/memnix/memnix-rest/pkg/cacheset"
 )
 
 func InitializeUser() controllers.UserController {
@@ -28,6 +27,6 @@ func InitializeJWT() controllers.JwtController {
 }
 
 func InitializeOAuth() controllers.OAuthController {
-	wire.Build(controllers.NewOAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn, cacheset.New)
+	wire.Build(controllers.NewOAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn, auth.NewRedisRepository, infrastructures.GetRedisClient)
 	return controllers.OAuthController{}
 }

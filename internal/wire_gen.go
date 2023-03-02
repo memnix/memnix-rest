@@ -11,7 +11,6 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/user"
-	"github.com/memnix/memnix-rest/pkg/cacheset"
 )
 
 // Injectors from wire.go:
@@ -48,7 +47,8 @@ func InitializeOAuth() controllers.OAuthController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
 	iUseCase := auth.NewUseCase(iRepository)
-	cache := cacheset.New()
-	oAuthController := controllers.NewOAuthController(iUseCase, cache)
+	client := infrastructures.GetRedisClient()
+	iAuthRedisRepository := auth.NewRedisRepository(client)
+	oAuthController := controllers.NewOAuthController(iUseCase, iAuthRedisRepository)
 	return oAuthController
 }

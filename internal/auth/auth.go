@@ -10,3 +10,9 @@ type IUseCase interface {
 	RegisterOauth(user domain.User) error
 	LoginOauth(user domain.User) (string, error)
 }
+
+type IAuthRedisRepository interface {
+	HasState(state string) (bool, error)
+	SetState(state string) error
+	DeleteState(state string) error
+}
