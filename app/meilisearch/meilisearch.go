@@ -27,9 +27,10 @@ func (m *MeiliSearch) CreateSearchIndex() error {
 	for idx, deckModel := range decks {
 		decksIndex[idx] = domain.DeckIndex{
 			"id":          deckModel.ID,
-			"title":       deckModel.Name,
+			"name":        deckModel.Name,
 			"description": deckModel.Description,
 			"lang":        deckModel.Lang,
+			"banner":      deckModel.Banner,
 		}
 	}
 

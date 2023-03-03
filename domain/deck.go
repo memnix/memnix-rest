@@ -12,6 +12,7 @@ type Deck struct {
 	Description string     `json:"description"`
 	Lang        string     `json:"lang"`
 	Key         string     `json:"key"`
+	Banner      string     `json:"banner"`
 	Learners    []*User    ` json:"-" gorm:"many2many:user_decks;"`
 	OwnerID     uint       `json:"owner_id"`
 	Status      DeckStatus `json:"status"`
@@ -29,6 +30,7 @@ type PublicDeck struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Lang        string `json:"lang"`
+	Banner      string `json:"banner"`
 	ID          uint   `json:"id"`
 }
 
@@ -38,6 +40,7 @@ func (d *Deck) ToPublicDeck() PublicDeck {
 		Name:        d.Name,
 		Description: d.Description,
 		Lang:        d.Lang,
+		Banner:      d.Banner,
 	}
 }
 
@@ -48,7 +51,8 @@ func (d *Deck) IsOwner(id uint) bool {
 type CreateDeck struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
-	Lang        string `json:"lang" validate:"required,iso3166_1_alpha2"`
+	Lang        string `json:"lang" validate:"required,len=2,alpha"`
+	Banner      string `json:"banner" validate:"required,uri"`
 }
 
 func (c *CreateDeck) Validate() error {
