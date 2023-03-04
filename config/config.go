@@ -28,6 +28,7 @@ const (
 	RedisPoolSize          = 12000
 	RedisPoolTimeout       = 240 * time.Second
 	RedisDefaultExpireTime = 6 * time.Hour
+	RedisOwnedExpireTime   = 2 * time.Hour
 )
 
 var JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT

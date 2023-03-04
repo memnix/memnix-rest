@@ -35,3 +35,24 @@ type IRepository interface {
 	// GetPublic returns the public decks.
 	GetPublic() ([]domain.Deck, error)
 }
+
+type IRedisRepository interface {
+	// GetByID returns the deck with the given id.
+	GetByID(id uint) (string, error)
+	// SetByID sets the deck with the given id.
+	SetByID(id uint, deck string) error
+	// DeleteByID deletes the deck with the given id.
+	DeleteByID(id uint) error
+	// SetOwnedByUser sets the deck with the given id as owned by the given user.
+	SetOwnedByUser(userID uint, decks string) error
+	// GetOwnedByUser returns the decks owned by the given user.
+	GetOwnedByUser(userID uint) (string, error)
+	// DeleteOwnedByUser deletes the decks owned by the given user.
+	DeleteOwnedByUser(userID uint) error
+	// SetLearningByUser sets the deck with the given id as learnt by the given user.
+	SetLearningByUser(userID uint, decks string) error
+	// GetLearningByUser returns the decks learnt by the given user.
+	GetLearningByUser(userID uint) (string, error)
+	// DeleteLearningByUser deletes the decks learnt by the given user.
+	DeleteLearningByUser(userID uint) error
+}

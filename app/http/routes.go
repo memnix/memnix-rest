@@ -30,6 +30,7 @@ func registerRoutes(router *fiber.Router) {
 	(*router).Add("GET", "/security/key", authController.SearchKey)
 
 	(*router).Add("GET", "/deck/owned", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetOwned)
+	(*router).Add("GET", "/deck/public", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetPublic)
 	(*router).Add("GET", "/deck/learning", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetLearning)
 	(*router).Add("GET", "/deck/:id", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetByID)
 	(*router).Add("POST", "/deck", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.Create)

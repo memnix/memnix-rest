@@ -58,7 +58,9 @@ func InitializeOAuth() controllers.OAuthController {
 func InitializeDeck() controllers.DeckController {
 	db := infrastructures.GetDBConn()
 	iRepository := deck.NewRepository(db)
-	iUseCase := deck.NewUseCase(iRepository)
+	client := infrastructures.GetRedisClient()
+	iRedisRepository := deck.NewRedisRepository(client)
+	iUseCase := deck.NewUseCase(iRepository, iRedisRepository)
 	deckController := controllers.NewDeckController(iUseCase)
 	return deckController
 }
@@ -66,7 +68,9 @@ func InitializeDeck() controllers.DeckController {
 func InitializeMeiliSearch() meilisearch.MeiliSearch {
 	db := infrastructures.GetDBConn()
 	iRepository := deck.NewRepository(db)
-	iUseCase := deck.NewUseCase(iRepository)
+	client := infrastructures.GetRedisClient()
+	iRedisRepository := deck.NewRedisRepository(client)
+	iUseCase := deck.NewUseCase(iRepository, iRedisRepository)
 	meiliSearch := meilisearch.NewMeiliSearch(iUseCase)
 	return meiliSearch
 }

@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 
+	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -22,5 +23,5 @@ func (r *RedisRepository) Get(id uint) (string, error) {
 }
 
 func (r *RedisRepository) Set(id uint, value string) error {
-	return r.RedisConn.Set(context.Background(), "user:"+utils.ConvertUIntToStr(id), value, 0).Err()
+	return r.RedisConn.Set(context.Background(), "user:"+utils.ConvertUIntToStr(id), value, config.RedisDefaultExpireTime).Err()
 }

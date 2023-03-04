@@ -122,3 +122,24 @@ func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("decks found", deck.ConvertToPublic(deckObjects)))
 }
+
+// GetPublic is the controller for the get public decks route
+//
+//	@Summary		Get public decks
+//	@Description	Get public decks
+//	@Tags			Deck
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	views.HTTPResponseVM
+//	@Failure		400	{object}	views.HTTPResponseVM
+//	@Failure		404	{object}	views.HTTPResponseVM
+//	@Router			/v2/deck/public [get]
+//	@Security		Bearer
+func (d *DeckController) GetPublic(c *fiber.Ctx) error {
+	deckObjects, err := d.IUseCase.GetPublic()
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("decks found", deckObjects))
+}

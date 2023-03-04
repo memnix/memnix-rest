@@ -34,11 +34,11 @@ func InitializeOAuth() controllers.OAuthController {
 }
 
 func InitializeDeck() controllers.DeckController {
-	wire.Build(controllers.NewDeckController, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn)
+	wire.Build(controllers.NewDeckController, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn, deck.NewRedisRepository, infrastructures.GetRedisClient)
 	return controllers.DeckController{}
 }
 
 func InitializeMeiliSearch() meilisearch.MeiliSearch {
-	wire.Build(meilisearch.NewMeiliSearch, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn)
+	wire.Build(meilisearch.NewMeiliSearch, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn, deck.NewRedisRepository, infrastructures.GetRedisClient)
 	return meilisearch.MeiliSearch{}
 }
