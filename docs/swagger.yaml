@@ -1,4 +1,31 @@
 definitions:
+  domain.Deck:
+    properties:
+      banner:
+        type: string
+      description:
+        type: string
+      key:
+        type: string
+      lang:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: integer
+      status:
+        $ref: '#/definitions/domain.DeckStatus'
+    type: object
+  domain.DeckStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - DeckStatusPrivate
+    - DeckStatusToReview
+    - DeckStatusPublic
   domain.Login:
     properties:
       email:
@@ -71,6 +98,34 @@ definitions:
 info:
   contact: {}
 paths:
+  /v2/deck:
+    post:
+      consumes:
+      - application/json
+      description: Create deck
+      parameters:
+      - description: Deck object
+        in: body
+        name: deck
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Deck'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Bearer: []
+      summary: Create deck
+      tags:
+      - Deck
   /v2/deck/{id}:
     get:
       consumes:
@@ -93,17 +148,67 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/views.HTTPResponseVM'
-        "404":
-          description: Not Found
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/views.HTTPResponseVM'
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/views.HTTPResponseVM'
       security:
       - Bearer: []
       summary: Get deck by id
+      tags:
+      - Deck
+  /v2/deck/learning:
+    get:
+      consumes:
+      - application/json
+      description: Get learning decks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Bearer: []
+      summary: Get learning decks
+      tags:
+      - Deck
+  /v2/deck/owned:
+    get:
+      consumes:
+      - application/json
+      description: Get owned decks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Bearer: []
+      summary: Get owned decks
       tags:
       - Deck
   /v2/security/discord:
@@ -202,6 +307,25 @@ paths:
       summary: Handles the callback from github
       tags:
       - OAuth
+  /v2/security/key:
+    get:
+      description: Search the key
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Beaver: []
+      summary: searches the key
+      tags:
+      - security
   /v2/security/login:
     post:
       consumes:

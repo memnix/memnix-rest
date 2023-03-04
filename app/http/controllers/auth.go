@@ -114,8 +114,8 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 //	@Summary		searches the key
 //	@Tags			security
 //	@Produce		json
-//	@Success		200	{object}	viewmodels.HTTPResponseVM
-//	@Failure		401	{object}	viewmodels.HTTPResponseVM
+//	@Success		200	{object}	views.HTTPResponseVM
+//	@Failure		401	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/key [get]
 //	@Security		Beaver
 func (a *AuthController) SearchKey(c *fiber.Ctx) error {

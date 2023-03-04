@@ -4,6 +4,131 @@
         "contact": {}
     },
     "paths": {
+        "/v2/deck": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "Create deck",
+                "parameters": [
+                    {
+                        "description": "Deck object",
+                        "name": "deck",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Deck"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/deck/learning": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get learning decks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "Get learning decks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/deck/owned": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get owned decks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "Get owned decks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/deck/{id}": {
             "get": {
                 "security": [
@@ -44,14 +169,14 @@
                             "$ref": "#/definitions/views.HTTPResponseVM"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/views.HTTPResponseVM"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/views.HTTPResponseVM"
                         }
@@ -198,6 +323,37 @@
                     },
                     "500": {
                         "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/security/key": {
+            "get": {
+                "security": [
+                    {
+                        "Beaver": []
+                    }
+                ],
+                "description": "Search the key",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "security"
+                ],
+                "summary": "searches the key",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/views.HTTPResponseVM"
                         }
@@ -363,6 +519,45 @@
         }
     },
     "definitions": {
+        "domain.Deck": {
+            "type": "object",
+            "properties": {
+                "banner": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.DeckStatus"
+                }
+            }
+        },
+        "domain.DeckStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "DeckStatusPrivate",
+                "DeckStatusToReview",
+                "DeckStatusPublic"
+            ]
+        },
         "domain.Login": {
             "type": "object",
             "properties": {

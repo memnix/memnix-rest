@@ -19,18 +19,18 @@ func NewDeckController(useCase deck.IUseCase) DeckController {
 
 // GetByID is the controller for the get deck by id route
 //
-// @Summary Get deck by id
-// @Description Get deck by id
-// @Tags Deck
-// @Accept json
-// @Produce json
-// @Param id path uint true "Deck ID"
-// @Success 200 {object} views.HTTPResponseVM
-// @Failure 400 {object} views.HTTPResponseVM
-// @Failure 403 {object} views.HTTPResponseVM
-// @Failure 404 {object} views.HTTPResponseVM
-// @Router /v2/deck/{id} [get]
-// @Security Bearer
+//	@Summary		Get deck by id
+//	@Description	Get deck by id
+//	@Tags			Deck
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		uint	true	"Deck ID"
+//	@Success		200	{object}	views.HTTPResponseVM
+//	@Failure		400	{object}	views.HTTPResponseVM
+//	@Failure		403	{object}	views.HTTPResponseVM
+//	@Failure		404	{object}	views.HTTPResponseVM
+//	@Router			/v2/deck/{id} [get]
+//	@Security		Bearer
 func (d *DeckController) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	uintID, err := utils.ConvertStrToUInt(id)
@@ -51,16 +51,16 @@ func (d *DeckController) GetByID(c *fiber.Ctx) error {
 
 // Create is the controller for the create deck route
 //
-// @Summary Create deck
-// @Description Create deck
-// @Tags Deck
-// @Accept json
-// @Produce json
-// @Param deck body domain.Deck true "Deck object"
-// @Success 201 {object} views.HTTPResponseVM
-// @Failure 400 {object} views.HTTPResponseVM
-// @Router /v2/deck [post]
-// @Security Bearer
+//	@Summary		Create deck
+//	@Description	Create deck
+//	@Tags			Deck
+//	@Accept			json
+//	@Produce		json
+//	@Param			deck	body		domain.Deck	true	"Deck object"
+//	@Success		201		{object}	views.HTTPResponseVM
+//	@Failure		400		{object}	views.HTTPResponseVM
+//	@Router			/v2/deck [post]
+//	@Security		Bearer
 func (d *DeckController) Create(c *fiber.Ctx) error {
 	var createDeck domain.CreateDeck
 	err := c.BodyParser(&createDeck)
@@ -83,16 +83,16 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 
 // GetOwned is the controller for the get owned decks route
 //
-// @Summary Get owned decks
-// @Description Get owned decks
-// @Tags Deck
-// @Accept json
-// @Produce json
-// @Success 200 {object} views.HTTPResponseVM
-// @Failure 400 {object} views.HTTPResponseVM
-// @Failure 404 {object} views.HTTPResponseVM
-// @Router /v2/deck/owned [get]
-// @Security Bearer
+//	@Summary		Get owned decks
+//	@Description	Get owned decks
+//	@Tags			Deck
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	views.HTTPResponseVM
+//	@Failure		400	{object}	views.HTTPResponseVM
+//	@Failure		404	{object}	views.HTTPResponseVM
+//	@Router			/v2/deck/owned [get]
+//	@Security		Bearer
 func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 	deckObjects, err := d.IUseCase.GetByUser(*utils.GetUserFromContext(c))
 	if err != nil {
@@ -104,16 +104,16 @@ func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 
 // GetLearning is the controller for the get learning decks route
 //
-// @Summary Get learning decks
-// @Description Get learning decks
-// @Tags Deck
-// @Accept json
-// @Produce json
-// @Success 200 {object} views.HTTPResponseVM
-// @Failure 400 {object} views.HTTPResponseVM
-// @Failure 404 {object} views.HTTPResponseVM
-// @Router /v2/deck/learning [get]
-// @Security Bearer
+//	@Summary		Get learning decks
+//	@Description	Get learning decks
+//	@Tags			Deck
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	views.HTTPResponseVM
+//	@Failure		400	{object}	views.HTTPResponseVM
+//	@Failure		404	{object}	views.HTTPResponseVM
+//	@Router			/v2/deck/learning [get]
+//	@Security		Bearer
 func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 	deckObjects, err := d.IUseCase.GetByLearner(*utils.GetUserFromContext(c))
 	if err != nil {
