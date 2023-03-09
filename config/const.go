@@ -22,6 +22,9 @@ const (
 
 	Localhost = "http://localhost:1815"
 	ApiHost   = "https://beta.memnix.app"
+
+	FrontHost      = "https://memnix.corentings.dev"
+	FrontHostLocal = "http://localhost:3000"
 )
 
 func GetCurrentURL() string {
@@ -30,4 +33,12 @@ func GetCurrentURL() string {
 	}
 
 	return Localhost
+}
+
+func GetFrontURL() string {
+	if IsProduction() {
+		return FrontHost
+	}
+
+	return FrontHostLocal
 }

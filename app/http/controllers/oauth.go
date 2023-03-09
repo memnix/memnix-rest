@@ -111,7 +111,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 		log.Debug().Err(err).Msg("can't delete state from cache")
 	}
 
-	return c.Redirect(config.GetCurrentURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
+	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
 }
 
 // DiscordLogin redirects the user to the discord login page
@@ -194,5 +194,5 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 		log.Debug().Err(err).Msg("can't delete state from cache")
 	}
 
-	return c.Redirect(config.GetCurrentURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
+	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
 }
