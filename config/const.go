@@ -19,4 +19,15 @@ const (
 
 	MaxPasswordLength = 72 // Max password length based on bcrypt limit
 	MinPasswordLength = 8  // Min password length
+
+	Localhost = "http://localhost:1815"
+	ApiHost   = "https://beta.memnix.app"
 )
+
+func GetCurrentURL() string {
+	if IsProduction() {
+		return ApiHost
+	}
+
+	return Localhost
+}

@@ -34,7 +34,7 @@ func GetRedisClient() *redis.Client {
 // NewRedisClient Returns new redis client
 func NewRedisClient() *redis.Client {
 	var redisHost string
-	if config.EnvHelper.GetEnv("APP_ENV") == "dev" {
+	if config.IsDevelopment() {
 		redisHost = config.EnvHelper.GetEnv("DEBUG_REDIS_URL")
 	} else {
 		redisHost = config.EnvHelper.GetEnv("REDIS_URL")

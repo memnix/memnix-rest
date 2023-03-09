@@ -41,3 +41,11 @@ type PasswordConfigStruct struct {
 	KeyLen     uint32 // Key length to use for Argon2ID
 	SaltLen    uint32 // Salt length to use for Argon2ID
 }
+
+func IsProduction() bool {
+	return EnvHelper.GetEnv("APP_ENV") != "dev"
+}
+
+func IsDevelopment() bool {
+	return EnvHelper.GetEnv("APP_ENV") == "dev"
+}

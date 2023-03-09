@@ -26,7 +26,7 @@ func getDSN(env *env.Env) string {
 	var dsn string
 
 	// Get database configuration from environment variables
-	if env.GetEnv("APP_ENV") == "dev" {
+	if config.IsDevelopment() {
 		dsn = env.GetEnv("DEBUG_DB_DSN")
 	} else {
 		dsn = env.GetEnv("DB_DSN")

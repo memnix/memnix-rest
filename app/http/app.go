@@ -23,7 +23,7 @@ func New() *fiber.App {
 
 	app := fiber.New(
 		fiber.Config{
-			Prefork:     true,
+			Prefork:     false,
 			JSONDecoder: config.JSONHelper.Unmarshal,
 			JSONEncoder: config.JSONHelper.Marshal,
 		})

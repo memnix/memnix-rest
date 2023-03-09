@@ -1,6 +1,7 @@
 package infrastructures
 
 import (
+	"github.com/memnix/memnix-rest/config"
 	"time"
 
 	"github.com/meilisearch/meilisearch-go"
@@ -14,7 +15,7 @@ var (
 
 func ConnectMeiliSearch(env env.IEnv) {
 	var host string
-	if env.GetEnv("APP_ENV") == "dev" {
+	if config.IsDevelopment() {
 		host = env.GetEnv("DEBUG_MEILISEARCH_HOST")
 	} else {
 		host = env.GetEnv("MEILISEARCH_HOST")
