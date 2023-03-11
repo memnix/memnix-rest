@@ -1,10 +1,10 @@
 package infrastructures
 
 import (
-	"github.com/memnix/memnix-rest/config"
 	"time"
 
 	"github.com/meilisearch/meilisearch-go"
+	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/env"
 )
 
