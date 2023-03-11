@@ -16,7 +16,7 @@ func GetDiscordAccessToken(code string) (string, error) {
 		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s&scope=identify,email",
 		infrastructures.AppConfig.DiscordConfig.ClientID,
 		infrastructures.AppConfig.DiscordConfig.ClientSecret,
-		"http://localhost:1815/v2/security/discord_callback",
+		config.GetCurrentURL()+"/v2/security/discord_callback",
 		code,
 	)))
 
