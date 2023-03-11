@@ -183,6 +183,11 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
 
+	if discordUser == (domain.DiscordLogin{}) {
+		log.Debug().Err(err).Msg("invalid discord user")
+		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
+	}
+
 	// log the user
 	jwtToken, err := a.auth.LoginOauth(discordUser.ToUser())
 	if err != nil {
