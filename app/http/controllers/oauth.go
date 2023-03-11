@@ -42,7 +42,7 @@ func (a *OAuthController) GithubLogin(c *fiber.Ctx) error {
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&state=%s",
 		infrastructures.AppConfig.GithubConfig.ClientID,
-		"http://localhost:1815/v2/security/github_callback",
+		config.GetCurrentURL()+"/v2/security/github_callback",
 		state,
 	)
 	// Save the state in the cache
