@@ -16,23 +16,23 @@ type ServiceContainer interface {
 
 type kernel struct{}
 
-func (k kernel) GetUser() controllers.UserController {
+func (kernel) GetUser() controllers.UserController {
 	return InitializeUser()
 }
 
-func (k kernel) GetAuth() controllers.AuthController {
+func (kernel) GetAuth() controllers.AuthController {
 	return InitializeAuth()
 }
 
-func (k kernel) GetJwt() controllers.JwtController {
+func (kernel) GetJwt() controllers.JwtController {
 	return InitializeJWT()
 }
 
-func (k kernel) GetOAuth() controllers.OAuthController {
+func (kernel) GetOAuth() controllers.OAuthController {
 	return InitializeOAuth()
 }
 
-func (k kernel) GetDeck() controllers.DeckController {
+func (kernel) GetDeck() controllers.DeckController {
 	return InitializeDeck()
 }
 

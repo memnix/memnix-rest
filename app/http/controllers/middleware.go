@@ -21,7 +21,7 @@ func NewJwtController(user user.IUseCase) JwtController {
 }
 
 // VerifyPermissions checks if the user has the required permissions
-func (j *JwtController) VerifyPermissions(user domain.User, p domain.Permission) bool {
+func (*JwtController) VerifyPermissions(user domain.User, p domain.Permission) bool {
 	return user.HasPermission(p)
 }
 

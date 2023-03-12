@@ -25,10 +25,10 @@ func (j *JSON) Unmarshal(data []byte, v interface{}) error {
 
 type NativeJSON struct{}
 
-func (n *NativeJSON) Marshal(v interface{}) ([]byte, error) {
+func (*NativeJSON) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func (n *NativeJSON) Unmarshal(data []byte, v interface{}) error {
+func (*NativeJSON) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }

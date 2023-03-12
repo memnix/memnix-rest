@@ -18,7 +18,7 @@ type LogWriter struct{}
 
 // Write is the implementation of the io.Writer interface
 // It writes the log to the logsChan channel to be processed by the LogWorker
-func (e LogWriter) Write(p []byte) (int, error) {
+func (LogWriter) Write(p []byte) (int, error) {
 	logsChan <- string(p) // write to channel
 	return 0, nil
 }
