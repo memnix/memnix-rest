@@ -8,7 +8,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/go-playground/validator/v10 v10.11.2
 	github.com/goccy/go-json v0.10.0
-	github.com/gofiber/contrib/fibernewrelic v1.0.2
+	github.com/gofiber/contrib/fibernewrelic v1.1.0
 	github.com/gofiber/fiber/v2 v2.42.0
 	github.com/gofiber/swagger v0.1.9
 	github.com/golang-jwt/jwt/v4 v4.5.0
