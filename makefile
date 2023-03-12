@@ -20,4 +20,3 @@ release:
 
 clean:
 	rm -rf bin/*
-
