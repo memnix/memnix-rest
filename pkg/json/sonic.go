@@ -6,10 +6,10 @@ import (
 
 type SonicJSON struct{}
 
-func (s *SonicJSON) Marshal(v interface{}) ([]byte, error) {
+func (*SonicJSON) Marshal(v interface{}) ([]byte, error) {
 	return sonic.Marshal(v)
 }
 
-func (s *SonicJSON) Unmarshal(data []byte, v interface{}) error {
+func (*SonicJSON) Unmarshal(data []byte, v interface{}) error {
 	return sonic.Unmarshal(data, v)
 }
