@@ -1,83 +1,59 @@
 package utils
 
 import (
-	"crypto/rand"
-	"crypto/tls"
-	"encoding/hex"
-	"fmt"
-	"github.com/joho/godotenv"
-	gomail "gopkg.in/mail.v2"
-	"log"
-	"math/big"
-	"os"
 	"strconv"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/domain"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
-// GenerateSecretCode generates a secret code
-func GenerateSecretCode(length int) string {
-	// Generate a random string of letters and digits
-	b := make([]byte, length)
-	if _, err := rand.Read(b); err != nil {
-		return ""
-	}
-	return hex.EncodeToString(b)
-}
-
-// GenerateRandomDigit GetRandomNumber returns a random number between min and max
-func GenerateRandomDigit(min, max int64) (string, error) {
-	// Set max and min value
-	randomNumber, err := rand.Int(rand.Reader, big.NewInt(max-min))
+// ConvertStrToUInt converts a string to an unsigned integer
+func ConvertStrToUInt(str string) (uint, error) {
+	number, err := strconv.ParseUint(str, config.Base10, config.BitSize)
 	if err != nil {
-		return "0", err
+		log.Debug().Err(err).Msgf("Error while converting string to uint: %s", err)
+		return 0, errors.New("Error while converting string to uint")
 	}
-
-	return strconv.FormatInt(randomNumber.Int64()+min, 10), nil
+	return uint(number), nil
 }
 
-// GetSmtpConfig returns a gomail.Dialer and gomail.Message
-func getSMTPConfig() (*gomail.Dialer, *gomail.Message) {
-	// Load the .env file
-	err := godotenv.Load()
+// ConvertUIntToStr converts an unsigned integer to a string
+func ConvertUIntToStr(number uint) string {
+	return strconv.FormatUint(uint64(number), config.Base10)
+}
+
+// ConvertStrToInt converts a string to an integer
+func ConvertStrToInt(str string) (int, error) {
+	number, err := strconv.ParseInt(str, config.Base10, config.BitSize)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Debug().Err(err).Msgf("Error while converting string to int: %s", err)
+		return 0, errors.New("Error while converting string to int")
 	}
-	password := os.Getenv("SMTP_PASSWORD")
-	host := os.Getenv("SMTP_HOST")
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	from := os.Getenv("SMTP_USER")
-
-	// Settings for SMTP server
-	d := gomail.NewDialer(host, port, from, password)
-	d.TLSConfig = &tls.Config{
-		InsecureSkipVerify: false,
-		MinVersion:         tls.VersionTLS12,
-		MaxVersion:         0,
-		ServerName:         host,
-	}
-	m := gomail.NewMessage()
-	m.SetHeader("From", from)
-	return d, m
+	return int(number), nil
 }
 
-// SendEmail sends an email to the given address
-func SendEmail(email, subject, body string) error {
-	// Send email
+// GetExpirationTime returns the expiration time
+func GetExpirationTime() *jwt.NumericDate {
+	return jwt.NewNumericDate(time.Now().Add(time.Hour * config.ExpirationTimeInHours))
+}
 
-	d, m := getSMTPConfig()
+// GetSecretKey returns the secret key
+func GetSecretKey() string {
+	return config.EnvHelper.GetEnv("SECRET_KEY")
+}
 
-	// Set E-Mail receivers
-	m.SetHeader("To", email)
-
-	// Set E-Mail subject
-	m.SetHeader("Subject", subject)
-
-	// Set E-Mail body. You can set plain text or html with text/html
-	m.SetBody("text/plain", body)
-
-	// Now send E-Mail
-	if err := d.DialAndSend(m); err != nil {
-		fmt.Println(err)
-		panic(err)
+func GetUserFromContext(ctx *fiber.Ctx) *domain.User {
+	if ctx.Locals("user") == nil {
+		return nil
 	}
-	return nil
+	return ctx.Locals("user").(*domain.User)
+}
+
+func SetUserToContext(ctx *fiber.Ctx, user *domain.User) {
+	ctx.Locals("user", user)
 }

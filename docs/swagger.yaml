@@ -1,681 +1,243 @@
-basePath: /v1
 definitions:
-  models.Card:
+  domain.Deck:
     properties:
-      card_answer:
-        example: "42"
+      banner:
         type: string
-      card_case:
-        type: boolean
-      card_explication:
+      description:
         type: string
-      card_explication_image:
+      key:
         type: string
-      card_format:
-        example: Date / Name / Country
+      lang:
         type: string
-      card_image:
-        description: Should be an url
+      name:
         type: string
-      card_question:
-        example: What's the answer to life ?
-        type: string
-      card_spaces:
-        type: boolean
-      card_type:
-        example: 0
+      owner_id:
         type: integer
-      deck_id:
-        example: 1
-        type: integer
+      status:
+        $ref: '#/definitions/domain.DeckStatus'
     type: object
-  models.CardResponse:
+  domain.DeckStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - DeckStatusPrivate
+    - DeckStatusToReview
+    - DeckStatusPublic
+  domain.Login:
     properties:
-      card_id:
-        example: 1
-        type: integer
-      response:
-        example: "42"
+      email:
+        description: Email of the user
         type: string
-      training:
-        example: false
-        type: boolean
+      password:
+        description: Password of the user
+        type: string
     type: object
-  models.CardResponseValidation:
+  domain.Permission:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - PermissionNone
+    - PermissionUser
+    - PermissionVip
+    - PermissionAdmin
+  domain.PublicUser:
     properties:
-      correct_answer:
-        example: "42"
+      avatar:
         type: string
+      email:
+        type: string
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/domain.Permission'
+      username:
+        type: string
+    type: object
+  domain.Register:
+    properties:
+      email:
+        description: Email of the user
+        type: string
+      password:
+        description: Password of the user
+        type: string
+      username:
+        description: Username of the user
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  views.HTTPResponseVM:
+    properties:
+      data: {}
       message:
-        example: Correct answer
         type: string
-      validate:
-        example: true
-        type: boolean
     type: object
-  models.CardSelfResponse:
-    properties:
-      card:
-        $ref: '#/definitions/models.Card'
-      card_id:
-        example: 1
-        type: integer
-      quality:
-        description: Min 0 - Max 4
-        example: 3
-        type: integer
-      training:
-        example: false
-        type: boolean
-    type: object
-  models.Deck:
-    properties:
-      deck_banner:
-        example: A banner url
-        type: string
-      deck_code:
-        example: "6452"
-        type: string
-      deck_description:
-        example: A simple demo deck
-        type: string
-      deck_key:
-        example: MEM
-        type: string
-      deck_lang:
-        type: string
-      deck_name:
-        example: First Deck
-        type: string
-      deck_share:
-        example: true
-        type: boolean
-      deck_status:
-        description: '1: Draft - 2: Private - 3: Published'
-        example: 2
-        type: integer
-    type: object
-  models.DeckConfig:
-    properties:
-      settings_today:
-        type: boolean
-    type: object
-  models.DeckResponse:
-    properties:
-      cards:
-        items:
-          $ref: '#/definitions/models.ResponseCard'
-        type: array
-      count:
-        type: integer
-      deck:
-        $ref: '#/definitions/models.Deck'
-      deck_id:
-        type: integer
-    type: object
-  models.LoginResponse:
+  views.LoginTokenVM:
     properties:
       message:
         type: string
       token:
         type: string
     type: object
-  models.LoginStruct:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  models.Mcq:
-    properties:
-      deck_id:
-        example: 1
-        type: integer
-      mcq_answers:
-        type: string
-      mcq_name:
-        type: string
-      mcq_type:
-        type: integer
-    type: object
-  models.PasswordResetConfirm:
-    properties:
-      code:
-        type: string
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  models.RegisterStruct:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      username:
-        type: string
-    type: object
-  models.ResponseAuth:
+  views.RegisterVM:
     properties:
       message:
         type: string
-      success:
-        type: boolean
       user:
-        $ref: '#/definitions/models.User'
+        $ref: '#/definitions/domain.PublicUser'
     type: object
-  models.ResponseCard:
-    properties:
-      answers:
-        items:
-          type: string
-        type: array
-      card:
-        $ref: '#/definitions/models.Card'
-      learning_stage:
-        type: integer
-    type: object
-  models.ResponseDeck:
-    properties:
-      Deck:
-        $ref: '#/definitions/models.Deck'
-      card_count:
-        example: 42
-        type: integer
-      deck_id:
-        example: 1
-        type: integer
-      owner_id:
-        example: 6
-        type: integer
-      permission:
-        example: 1
-        type: integer
-      settings_today:
-        type: boolean
-    type: object
-  models.TodayResponse:
-    properties:
-      count:
-        type: integer
-      decks_responses:
-        items:
-          $ref: '#/definitions/models.DeckResponse'
-        type: array
-    type: object
-  models.User:
-    properties:
-      email:
-        type: string
-      user_avatar:
-        example: avatar url
-        type: string
-      user_bio:
-        example: A simple demo bio
-        type: string
-      user_name:
-        description: This should be unique
-        example: Yume
-        type: string
-      user_permissions:
-        description: '0: None 1: User; 2: Mod; 3: Admin'
-        example: 0
-        type: integer
-    type: object
-host: http://192.168.1.151:1813/
 info:
-  contact:
-    email: contact@memnix.app
-    name: API Support
-  description: Memnix API
-  license:
-    name: BSD 3-Clause License
-    url: https://github.com/memnix/memnix-rest/blob/main/LICENSE
-  termsOfService: https://github.com/memnix/memnix/blob/main/PRIVACY.md
-  title: Memnix
-  version: "1.0"
+  contact: {}
 paths:
-  /v1/cards/:
-    get:
-      deprecated: true
-      description: Get every card. Shouldn't really be used
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      security:
-      - Admin: []
-      summary: gets all cards
-      tags:
-      - Card
-  /v1/cards/{cardID}:
-    delete:
-      description: Delete a card (must be a deck owner)
-      parameters:
-      - description: card id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: deletes a card
-      tags:
-      - Card
-  /v1/cards/{cardID}/edit:
-    put:
-      consumes:
-      - application/json
-      description: Edit a card
-      parameters:
-      - description: card to edit
-        in: body
-        name: card
-        required: true
-        schema:
-          $ref: '#/definitions/models.Card'
-      - description: card id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Card'
-      security:
-      - Beaver: []
-      summary: edits a card
-      tags:
-      - Card
-  /v1/cards/{deckID}/training:
-    get:
-      description: Get training cards from a deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of cards
-      tags:
-      - Card
-  /v1/cards/deck/{deckID}:
-    get:
-      description: Get every card from a deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Card'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of card
-      tags:
-      - Card
-  /v1/cards/id/{id}:
-    get:
-      description: Get a card by id
-      parameters:
-      - description: Card ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Card'
-      security:
-      - Admin: []
-      summary: gets a card
-      tags:
-      - Card
-  /v1/cards/new:
+  /v2/deck:
     post:
       consumes:
       - application/json
-      description: Create a new card (must be a deck editor)
+      description: Create deck
       parameters:
-      - description: Card to create
-        in: body
-        name: card
-        required: true
-        schema:
-          $ref: '#/definitions/models.Card'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: creates a card
-      tags:
-      - Card
-  /v1/cards/response:
-    post:
-      consumes:
-      - application/json
-      description: Post a response and check it
-      parameters:
-      - description: Response
-        in: body
-        name: card
-        required: true
-        schema:
-          $ref: '#/definitions/models.CardResponse'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.CardResponseValidation'
-      security:
-      - Beaver: []
-      summary: posts a response
-      tags:
-      - Card
-  /v1/cards/selfresponse:
-    post:
-      consumes:
-      - application/json
-      description: Post a self evaluated response
-      parameters:
-      - description: Self response
-        in: body
-        name: card
-        required: true
-        schema:
-          $ref: '#/definitions/models.CardSelfResponse'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: posts a response
-      tags:
-      - Card
-  /v1/cards/today:
-    get:
-      description: Get all today card
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.TodayResponse'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of card
-      tags:
-      - Card
-  /v1/decks:
-    get:
-      deprecated: true
-      description: Get every deck. Shouldn't really be used !
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Deck'
-            type: array
-      security:
-      - Admin: []
-      summary: gets all decks
-      tags:
-      - Deck
-  /v1/decks/{deckID}:
-    delete:
-      description: Delete a deck (must be deck owner)
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: delete a deck
-      tags:
-      - Deck
-    get:
-      description: Get a deck by ID
-      parameters:
-      - description: Deck ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: model
-      security:
-      - Admin: []
-      summary: get a deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/edit:
-    put:
-      consumes:
-      - application/json
-      description: Edit a deck
-      parameters:
-      - description: Deck to edit
+      - description: Deck object
         in: body
         name: deck
         required: true
         schema:
-          $ref: '#/definitions/models.Deck'
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: string
+          $ref: '#/definitions/domain.Deck'
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: edits a deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/publish:
-    post:
-      description: Request to publish deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: publishes a deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/subscribe:
-    post:
-      description: Subscribe to a deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: sub deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/unsubscribe:
-    post:
-      description: Unsubscribe to a deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: unsub deck
-      tags:
-      - Deck
-  /v1/decks/{deckID}/users:
-    get:
-      description: Get all the sub users to a deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
-      security:
-      - Admin: []
-      summary: gets a list of users
-      tags:
-      - Deck
-  /v1/decks/available:
-    get:
-      description: Get all public deck that you are not sub to
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
           schema:
-            items:
-              $ref: '#/definitions/models.ResponseDeck'
-            type: array
+            $ref: '#/definitions/views.HTTPResponseVM'
       security:
-      - Beaver: []
-      summary: get a list of deck
+      - Bearer: []
+      summary: Create deck
       tags:
       - Deck
-  /v1/decks/editor:
+  /v2/deck/{id}:
     get:
-      description: Get decks the user is an editor
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ResponseDeck'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of deck
-      tags:
-      - Deck
-  /v1/decks/new:
-    post:
       consumes:
       - application/json
-      description: Create a new deck
+      description: Get deck by id
       parameters:
-      - description: Deck to create
-        in: body
-        name: deck
+      - description: Deck ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/models.Deck'
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Deck'
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
       security:
-      - Beaver: []
-      summary: creates a deck
+      - Bearer: []
+      summary: Get deck by id
       tags:
       - Deck
-  /v1/decks/private/{key}/{code}/subscribe:
-    post:
-      description: Subscribe to a private deck
+  /v2/deck/learning:
+    get:
+      consumes:
+      - application/json
+      description: Get learning decks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Bearer: []
+      summary: Get learning decks
+      tags:
+      - Deck
+  /v2/deck/owned:
+    get:
+      consumes:
+      - application/json
+      description: Get owned decks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      security:
+      - Bearer: []
+      summary: Get owned decks
+      tags:
+      - Deck
+  /v2/security/discord:
+    get:
+      consumes:
+      - application/json
+      description: Redirects the user to the discord login page
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: redirecting to github login
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Redirects the user to the discord login page
+      tags:
+      - OAuth
+  /v2/security/discord_callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles the callback from discord
       parameters:
-      - description: Deck unique Key
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: Deck unique Code
-        in: path
+      - description: code from discord
+        in: query
         name: code
         required: true
         type: string
@@ -683,343 +245,187 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: sub deck
-      tags:
-      - Deck
-  /v1/decks/public:
-    get:
-      description: Get all public deck
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
+          description: login token
           schema:
-            items:
-              $ref: '#/definitions/models.Deck'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of deck
-      tags:
-      - Deck
-  /v1/decks/sub:
-    get:
-      description: Get decks a user is sub to
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
+            $ref: '#/definitions/views.LoginTokenVM'
+        "401":
+          description: invalid credentials
           schema:
-            items:
-              $ref: '#/definitions/models.ResponseDeck'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of deck
-      tags:
-      - Deck
-  /v1/login:
-    post:
-      description: Login the user and return a fresh token
-      parameters:
-      - description: Credentials
-        in: body
-        name: credentials
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginStruct'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.LoginResponse'
-        "400":
-          description: Incorrect password or email
+            $ref: '#/definitions/views.HTTPResponseVM'
         "500":
-          description: Internal error
-      summary: logins user and return a fresh token
+          description: internal server error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Handles the callback from discord
       tags:
-      - Auth
-  /v1/logout:
-    post:
-      description: Logout the user and create a record in the log
+      - OAuth
+  /v2/security/github:
+    get:
+      consumes:
+      - application/json
+      description: Redirects the user to the github login page
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: redirecting to github login
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Redirects the user to the github login page
+      tags:
+      - OAuth
+  /v2/security/github_callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles the callback from github
+      parameters:
+      - description: code from github
+        in: query
+        name: code
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Success
+          description: login token
+          schema:
+            $ref: '#/definitions/views.LoginTokenVM'
         "401":
-          description: Forbidden
-      security:
-      - Beaver: []
-      summary: logouts the user
+          description: invalid credentials
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Handles the callback from github
       tags:
-      - Auth
-  /v1/mcqs/{deckID}:
+      - OAuth
+  /v2/security/key:
     get:
-      description: Get mcqs linked to the deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckID
-        required: true
-        type: string
+      description: Search the key
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Mcq'
-            type: array
-      security:
-      - Beaver: []
-      summary: gets a list of mcqs
-      tags:
-      - Mcq
-  /v1/mcqs/{mcqID}:
-    delete:
-      description: Delete a mcq
-      parameters:
-      - description: MCQ ID
-        in: path
-        name: mcqID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: deletes a mcq
-      tags:
-      - Mcq
-  /v1/mcqs/{mcqID}/edit:
-    put:
-      consumes:
-      - application/json
-      description: Edit a mcq
-      parameters:
-      - description: MCQ to edit
-        in: body
-        name: mcq
-        required: true
-        schema:
-          $ref: '#/definitions/models.Mcq'
-      - description: MCQ ID
-        in: path
-        name: mcqID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: edits a mcq
-      tags:
-      - Mcq
-  /v1/mcqs/new:
-    post:
-      consumes:
-      - application/json
-      description: Create a new mcq
-      parameters:
-      - description: Mcq to create
-        in: body
-        name: mcq
-        required: true
-        schema:
-          $ref: '#/definitions/models.Mcq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      security:
-      - Beaver: []
-      summary: creates a mcq
-      tags:
-      - Mcq
-  /v1/register:
-    post:
-      description: Create a new user
-      parameters:
-      - description: Credentials
-        in: body
-        name: credentials
-        required: true
-        schema:
-          $ref: '#/definitions/models.RegisterStruct'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "403":
-          description: Forbidden
-      summary: creates a new user
-      tags:
-      - Auth
-  /v1/user:
-    get:
-      description: Get connected user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ResponseAuth'
+            $ref: '#/definitions/views.HTTPResponseVM'
         "401":
-          description: Forbidden
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
       security:
       - Beaver: []
-      summary: gets connected user
+      summary: searches the key
+      tags:
+      - security
+  /v2/security/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/views.LoginTokenVM'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Login
       tags:
       - Auth
-  /v1/users:
-    get:
-      deprecated: true
-      description: Get all users.  Shouldn't really be used
+  /v2/security/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
-      security:
-      - Admin: []
-      summary: gets a list of user
+            $ref: '#/definitions/views.LoginTokenVM'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Logout
       tags:
-      - User
-  /v1/users/confirmpassword:
+      - Auth
+  /v2/security/refresh:
     post:
       consumes:
       - application/json
-      description: Confirm a password reset
-      parameters:
-      - description: Password reset
-        in: body
-        name: config
-        required: true
-        schema:
-          $ref: '#/definitions/models.PasswordResetConfirm'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: reset a password
-      tags:
-      - User
-  /v1/users/id/{id}:
-    get:
-      description: Get a user by ID.
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
+      description: Refresh token
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
-      security:
-      - Admin: []
-      summary: gets a user
+            $ref: '#/definitions/views.LoginTokenVM'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Refresh token
       tags:
-      - User
-    put:
-      consumes:
-      - application/json
-      description: Update a user by ID
-      parameters:
-      - description: User
-        in: body
-        name: config
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: updates a user by ID
-      tags:
-      - User
-  /v1/users/resetpassword:
+      - Auth
+  /v2/security/register:
     post:
       consumes:
       - application/json
-      description: Request a password reset
+      description: Register
       parameters:
-      - description: Email
+      - description: Register
         in: body
-        name: config
+        name: register
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/domain.Register'
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
-      summary: gets a code to reset a password
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/views.RegisterVM'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.HTTPResponseVM'
+      summary: Register
       tags:
-      - User
-  /v1/users/settings/{deckId}/today:
-    post:
-      consumes:
-      - application/json
-      description: Set the today config for a deck
-      parameters:
-      - description: Deck ID
-        in: path
-        name: deckId
-        required: true
-        type: integer
-      - description: Deck Config
-        in: body
-        name: config
-        required: true
-        schema:
-          $ref: '#/definitions/models.DeckConfig'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: sets the today config for a deck
-      tags:
-      - User
-securityDefinitions:
-  Admin:
-    in: header
-    name: Authorization
-    type: apiKey
-  Beaver:
-    in: header
-    name: Authorization
-    type: apiKey
+      - Auth
 swagger: "2.0"
