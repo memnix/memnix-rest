@@ -4,17 +4,17 @@ go 1.19
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.0
-	github.com/bytedance/sonic v1.8.3
+	github.com/bytedance/sonic v1.8.5
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/go-playground/validator/v10 v10.11.2
-	github.com/goccy/go-json v0.10.0
+	github.com/goccy/go-json v0.10.1
 	github.com/gofiber/contrib/fibernewrelic v1.1.0
 	github.com/gofiber/fiber/v2 v2.42.0
 	github.com/gofiber/swagger v0.1.9
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
-	github.com/meilisearch/meilisearch-go v0.23.0
+	github.com/meilisearch/meilisearch-go v0.23.1
 	github.com/newrelic/go-agent/v3 v3.20.4
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter v1.0.2
 	github.com/pkg/errors v0.9.1
