@@ -6,10 +6,10 @@ import (
 
 type GoJson struct{}
 
-func (g *GoJson) Marshal(v interface{}) ([]byte, error) {
+func (*GoJson) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func (g *GoJson) Unmarshal(data []byte, v interface{}) error {
+func (*GoJson) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }

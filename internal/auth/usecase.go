@@ -75,12 +75,12 @@ func (a *UseCase) Register(registerStruct domain.Register) (domain.User, error) 
 
 // Logout returns an empty string
 // It might be used to invalidate a token in the future
-func (a *UseCase) Logout() (string, error) {
+func (*UseCase) Logout() (string, error) {
 	return "", nil
 }
 
 // RefreshToken refreshes a token
-func (a *UseCase) RefreshToken(user domain.User) (string, error) {
+func (*UseCase) RefreshToken(user domain.User) (string, error) {
 	token, err := jwt.GenerateToken(user.ID)
 	if err != nil {
 		return "", err

@@ -21,7 +21,7 @@ func (u *UserController) GetName(c *fiber.Ctx) error {
 	return c.SendString(u.IUseCase.GetName(uuid))
 }
 
-func (u *UserController) GetMe(c *fiber.Ctx) error {
+func (*UserController) GetMe(c *fiber.Ctx) error {
 	userCtx := utils.GetUserFromContext(c)
 	if userCtx == nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVM("User not found", nil))

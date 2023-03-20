@@ -84,7 +84,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 //	@Success		200	{object}	views.LoginTokenVM
 //	@Failure		500	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/logout [post]
-func (a *AuthController) Logout(c *fiber.Ctx) error {
+func (*AuthController) Logout(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM("", "logged out"))
 }
 
@@ -118,7 +118,7 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 //	@Failure		401	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/key [get]
 //	@Security		Beaver
-func (a *AuthController) SearchKey(c *fiber.Ctx) error {
+func (*AuthController) SearchKey(c *fiber.Ctx) error {
 	// Search the key
 	key, err := infrastructures.GetSearchKey()
 	if err != nil {
