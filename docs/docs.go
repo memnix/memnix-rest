@@ -141,6 +141,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/v2/deck/public": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get public decks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deck"
+                ],
+                "summary": "Get public decks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.HTTPResponseVM"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/deck/{id}": {
             "get": {
                 "security": [
@@ -535,25 +575,36 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "banner": {
+                    "description": "Banner of the deck",
                     "type": "string"
                 },
                 "description": {
+                    "description": "Description of the deck",
                     "type": "string"
                 },
                 "key": {
+                    "description": "Key of the deck",
                     "type": "string"
                 },
                 "lang": {
+                    "description": "Lang of the deck",
                     "type": "string"
                 },
                 "name": {
+                    "description": "Name of the deck",
                     "type": "string"
                 },
                 "owner_id": {
+                    "description": "OwnerID of the deck",
                     "type": "integer"
                 },
                 "status": {
-                    "$ref": "#/definitions/domain.DeckStatus"
+                    "description": "Status of the deck",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.DeckStatus"
+                        }
+                    ]
                 }
             }
         },
@@ -564,6 +615,11 @@ const docTemplate = `{
                 1,
                 2
             ],
+            "x-enum-comments": {
+                "DeckStatusPrivate": "DeckStatusPrivate is the private status of the deck",
+                "DeckStatusPublic": "DeckStatusPublic is the public status of the deck",
+                "DeckStatusToReview": "DeckStatusToReview is the to review status of the deck"
+            },
             "x-enum-varnames": [
                 "DeckStatusPrivate",
                 "DeckStatusToReview",
@@ -602,18 +658,27 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avatar": {
+                    "description": "Avatar of the user",
                     "type": "string"
                 },
                 "email": {
+                    "description": "Email of the user",
                     "type": "string"
                 },
                 "id": {
+                    "description": "ID of the user",
                     "type": "integer"
                 },
                 "permission": {
-                    "$ref": "#/definitions/domain.Permission"
+                    "description": "Permission of the user",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Permission"
+                        }
+                    ]
                 },
                 "username": {
+                    "description": "Username of the user",
                     "type": "string"
                 }
             }
