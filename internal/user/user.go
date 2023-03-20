@@ -2,6 +2,7 @@ package user
 
 import "github.com/memnix/memnix-rest/domain"
 
+// IUseCase is the user use case interface.
 type IUseCase interface {
 	// GetName returns the name of the user.
 	GetName(id string) string
@@ -9,6 +10,7 @@ type IUseCase interface {
 	GetByID(id uint) (domain.User, error)
 }
 
+// IRepository is the user repository interface.
 type IRepository interface {
 	// GetName returns the name of the user.
 	GetName(id uint) string
@@ -26,6 +28,7 @@ type IRepository interface {
 	GetByOauthID(id string) (domain.User, error)
 }
 
+// IRedisRepository is the user redis repository interface.
 type IRedisRepository interface {
 	// Get returns the value of the given key.
 	Get(id uint) (string, error)

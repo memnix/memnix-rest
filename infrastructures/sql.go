@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+// DBConn is the database connection object
 var DBConn *gorm.DB
 
 // GetDBConn returns the database connection object
@@ -72,6 +73,7 @@ func ConnectDB() error {
 	return nil
 }
 
+// DisconnectDB closes the database connection
 func DisconnectDB() error {
 	sqlDB, err := GetDBConn().DB() // Get sql.DB object from gorm.DB
 	if err != nil {

@@ -3,14 +3,14 @@ package config
 import "time"
 
 const (
-	DiodeLoggerSize = 1000
-	DiodeLoggerTime = 10 * time.Millisecond
+	DiodeLoggerSize = 1000                  // DiodeLoggerSize is the size of the diode logger
+	DiodeLoggerTime = 10 * time.Millisecond // DiodeLoggerTime is the time of the diode logger
 
-	MaxBackupLogFiles = 5
-	MaxSizeLogFiles   = 20 // megabytes
-	LogChannelSize    = 200
+	MaxBackupLogFiles = 5   // MaxBackupLogFiles is the max number of backup log files
+	MaxSizeLogFiles   = 20  // MaxSizeLogFiles is the max size of log files in MB
+	LogChannelSize    = 200 // LogChannelSize is the size of the log channel
 
-	MB = 1024 * 1024
+	MB = 1024 * 1024 // MB is the number of bytes in a megabyte
 
 	Base10  = 10 // Base10 is the base 10
 	BitSize = 32 // BitSize is the bit size
@@ -20,21 +20,23 @@ const (
 	MaxPasswordLength = 72 // Max password length based on bcrypt limit
 	MinPasswordLength = 8  // Min password length
 
-	Localhost = "http://localhost:1815"
-	ApiHost   = "https://beta.memnix.app"
+	Localhost = "http://localhost:1815"   // Localhost is the localhost url
+	APIHost   = "https://beta.memnix.app" // APIHost is the api host url
 
-	FrontHost      = "https://memnix.corentings.dev"
-	FrontHostLocal = "http://localhost:3000"
+	FrontHost      = "https://memnix.corentings.dev" // FrontHost is the front host url
+	FrontHostLocal = "http://localhost:3000"         // FrontHostLocal is the front host url for local development
 )
 
+// GetCurrentURL returns the current url
 func GetCurrentURL() string {
 	if IsProduction() {
-		return ApiHost
+		return APIHost
 	}
 
 	return Localhost
 }
 
+// GetFrontURL returns the front url
 func GetFrontURL() string {
 	if IsProduction() {
 		return FrontHost

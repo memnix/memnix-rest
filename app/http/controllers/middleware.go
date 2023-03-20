@@ -12,10 +12,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// JwtController is the controller for the jwt routes
 type JwtController struct {
 	user.IUseCase
 }
 
+// NewJwtController creates a new jwt controller
 func NewJwtController(user user.IUseCase) JwtController {
 	return JwtController{IUseCase: user}
 }

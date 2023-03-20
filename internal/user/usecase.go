@@ -6,17 +6,20 @@ import (
 	"github.com/memnix/memnix-rest/pkg/utils"
 )
 
+// UseCase is the user use case.
 type UseCase struct {
 	IRepository
 	IRedisRepository
 }
 
+// GetName returns the name of the user with the given id.
 func (u UseCase) GetName(id string) string {
 	uintID, _ := utils.ConvertStrToUInt(id)
 
 	return u.IRepository.GetName(uintID)
 }
 
+// GetByID returns the user with the given id.
 func (u UseCase) GetByID(id uint) (domain.User, error) {
 	var userObject domain.User
 
@@ -36,6 +39,7 @@ func (u UseCase) GetByID(id uint) (domain.User, error) {
 	return userObject, nil
 }
 
+// NewUseCase returns a new user use case.
 func NewUseCase(repo IRepository, redis IRedisRepository) IUseCase {
 	return &UseCase{IRepository: repo, IRedisRepository: redis}
 }

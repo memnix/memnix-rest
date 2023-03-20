@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// GetDiscordAccessToken gets the access token from Discord
 func GetDiscordAccessToken(code string) (string, error) {
 	reqBody := bytes.NewBuffer([]byte(fmt.Sprintf(
 		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s&scope=identify,email",
@@ -62,6 +63,7 @@ func GetDiscordAccessToken(code string) (string, error) {
 	return ghresp.AccessToken, nil
 }
 
+// GetDiscordData gets the user data from Discord
 func GetDiscordData(accessToken string) (string, error) {
 	req, reqerr := http.NewRequest(
 		"GET",

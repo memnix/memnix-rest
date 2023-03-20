@@ -47,6 +47,7 @@ func GetSecretKey() string {
 	return config.EnvHelper.GetEnv("SECRET_KEY")
 }
 
+// GetUserFromContext gets the user from the context
 func GetUserFromContext(ctx *fiber.Ctx) *domain.User {
 	if ctx.Locals("user") == nil {
 		return nil
@@ -54,6 +55,7 @@ func GetUserFromContext(ctx *fiber.Ctx) *domain.User {
 	return ctx.Locals("user").(*domain.User)
 }
 
+// SetUserToContext sets the user to the context
 func SetUserToContext(ctx *fiber.Ctx, user *domain.User) {
 	ctx.Locals("user", user)
 }

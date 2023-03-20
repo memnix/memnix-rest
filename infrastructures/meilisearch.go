@@ -9,10 +9,11 @@ import (
 )
 
 var (
-	client    *meilisearch.Client
-	searchKey *meilisearch.Key
+	client    *meilisearch.Client // client is the MeiliSearch client.
+	searchKey *meilisearch.Key    // searchKey is the MeiliSearch search key.
 )
 
+// ConnectMeiliSearch connects to MeiliSearch.
 func ConnectMeiliSearch(env env.IEnv) {
 	var host string
 	if config.IsDevelopment() {
@@ -26,6 +27,7 @@ func ConnectMeiliSearch(env env.IEnv) {
 	})
 }
 
+// CreateSearchKey creates a new search key.
 func CreateSearchKey() error {
 	key, err := client.CreateKey(&meilisearch.Key{
 		Description: "Api search key",
@@ -41,6 +43,7 @@ func CreateSearchKey() error {
 	return nil
 }
 
+// GetSearchKey returns the search key.
 func GetSearchKey() (meilisearch.Key, error) {
 	if searchKey != nil {
 		return *searchKey, nil
@@ -52,6 +55,7 @@ func GetSearchKey() (meilisearch.Key, error) {
 	return *searchKey, nil
 }
 
+// GetMeiliSearchClient returns the MeiliSearch client.
 func GetMeiliSearchClient() *meilisearch.Client {
 	return client
 }

@@ -6,32 +6,38 @@ import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
 )
 
+// ServiceContainer is the service container interface.
 type ServiceContainer interface {
-	GetUser() controllers.UserController
-	GetAuth() controllers.AuthController
-	GetJwt() controllers.JwtController
-	GetOAuth() controllers.OAuthController
-	GetDeck() controllers.DeckController
+	GetUser() controllers.UserController   // GetUser returns the user controller.
+	GetAuth() controllers.AuthController   // GetAuth returns the auth controller.
+	GetJwt() controllers.JwtController     // GetJwt returns the jwt controller.
+	GetOAuth() controllers.OAuthController // GetOAuth returns the oauth controller.
+	GetDeck() controllers.DeckController   // GetDeck returns the deck controller.
 }
 
 type kernel struct{}
 
+// GetUser returns the user controller.
 func (kernel) GetUser() controllers.UserController {
 	return InitializeUser()
 }
 
+// GetAuth returns the auth controller.
 func (kernel) GetAuth() controllers.AuthController {
 	return InitializeAuth()
 }
 
+// GetJwt returns the jwt controller.
 func (kernel) GetJwt() controllers.JwtController {
 	return InitializeJWT()
 }
 
+// GetOAuth returns the oauth controller.
 func (kernel) GetOAuth() controllers.OAuthController {
 	return InitializeOAuth()
 }
 
+// GetDeck returns the deck controller.
 func (kernel) GetDeck() controllers.DeckController {
 	return InitializeDeck()
 }

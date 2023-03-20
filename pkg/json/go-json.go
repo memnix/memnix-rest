@@ -4,12 +4,15 @@ import (
 	"github.com/goccy/go-json"
 )
 
-type GoJson struct{}
+// GoJSON is a wrapper for goccy/go-json.
+type GoJSON struct{}
 
-func (*GoJson) Marshal(v interface{}) ([]byte, error) {
+// Marshal marshals the given value to JSON.
+func (*GoJSON) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func (*GoJson) Unmarshal(data []byte, v interface{}) error {
+// Unmarshal unmarshals the given JSON to the given value.
+func (*GoJSON) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
