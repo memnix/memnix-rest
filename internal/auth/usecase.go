@@ -102,6 +102,12 @@ func (a *UseCase) LoginOauth(user domain.User) (string, error) {
 				log.Error().Err(err).Msg("failed to register user")
 				return "", errors.New("failed to register user")
 			}
+
+			userModel, err = a.GetByEmail(user.Email)
+			if err != nil {
+				log.Error().Err(err).Msg("failed to get user")
+				return "", errors.New("failed to get user")
+			}
 		} else {
 			log.Error().Err(err).Msg("failed to get user")
 			return "", errors.New("failed to get user")

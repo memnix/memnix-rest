@@ -4,17 +4,17 @@ go 1.19
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.0
-	github.com/bytedance/sonic v1.8.3
+	github.com/bytedance/sonic v1.8.5
 	github.com/fxamacker/cbor/v2 v2.4.0
-	github.com/go-playground/validator/v10 v10.11.2
-	github.com/goccy/go-json v0.10.0
-	github.com/gofiber/contrib/fibernewrelic v1.0.2
+	github.com/go-playground/validator/v10 v10.12.0
+	github.com/goccy/go-json v0.10.2
+	github.com/gofiber/contrib/fibernewrelic v1.1.0
 	github.com/gofiber/fiber/v2 v2.42.0
 	github.com/gofiber/swagger v0.1.9
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
-	github.com/meilisearch/meilisearch-go v0.23.0
+	github.com/meilisearch/meilisearch-go v0.23.1
 	github.com/newrelic/go-agent/v3 v3.20.4
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter v1.0.2
 	github.com/pkg/errors v0.9.1
@@ -47,7 +47,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.16.0 // indirect
+	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -68,7 +68,7 @@ require (
 	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.44.0 // indirect
+	github.com/valyala/fasthttp v1.45.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/arch v0.3.0 // indirect
@@ -78,6 +78,6 @@ require (
 	golang.org/x/tools v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 	google.golang.org/grpc v1.53.0 // indirect
-	google.golang.org/protobuf v1.29.0 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
