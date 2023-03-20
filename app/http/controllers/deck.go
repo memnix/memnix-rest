@@ -9,10 +9,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// DeckController is the controller for the deck routes
 type DeckController struct {
 	deck.IUseCase
 }
 
+// NewDeckController returns a new deck controller
 func NewDeckController(useCase deck.IUseCase) DeckController {
 	return DeckController{IUseCase: useCase}
 }

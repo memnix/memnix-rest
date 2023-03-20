@@ -8,8 +8,10 @@ import (
 	"github.com/memnix/memnix-rest/pkg/json"
 )
 
-var JSONHelper = json.NewJSON(&json.GoJson{})
+// JSONHelper is the helper for JSON operations
+var JSONHelper = json.NewJSON(&json.GoJSON{})
 
+// EnvHelper is the helper for environment variables
 var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
@@ -19,19 +21,20 @@ const (
 
 	BCryptCost = 11 // Cost to use for BCrypt
 
-	CleaningInterval = 15 * time.Minute
+	CleaningInterval = 15 * time.Minute // Interval for cleaning the cache
 
 	OauthStateLength   = 16               // Length of the state for oauth
 	OauthStateDuration = 10 * time.Minute // Duration of the state for oauth
 
-	RedisMinIdleConns      = 200
-	RedisPoolSize          = 12000
-	RedisPoolTimeout       = 240 * time.Second
-	RedisDefaultExpireTime = 6 * time.Hour
-	RedisOwnedExpireTime   = 2 * time.Hour
+	RedisMinIdleConns      = 200               // Min number of idle connections in the pool
+	RedisPoolSize          = 12000             // Max number of connections in the pool
+	RedisPoolTimeout       = 240 * time.Second // Timeout for getting a connection from the pool
+	RedisDefaultExpireTime = 6 * time.Hour     // Default expiration time for redis keys
+	RedisOwnedExpireTime   = 2 * time.Hour     // Expiration time for owned keys
 )
 
-var JwtSigningMethod = jwt.SigningMethodHS256 // JWTSigningMethod is the signing method for JWT
+// JwtSigningMethod is the signing method for JWT
+var JwtSigningMethod = jwt.SigningMethodHS256
 
 // PasswordConfigStruct is the struct for the password config
 type PasswordConfigStruct struct {
@@ -42,10 +45,12 @@ type PasswordConfigStruct struct {
 	SaltLen    uint32 // Salt length to use for Argon2ID
 }
 
+// IsProduction returns true if the app is in production
 func IsProduction() bool {
 	return EnvHelper.GetEnv("APP_ENV") != "dev"
 }
 
+// IsDevelopment returns true if the app is in development
 func IsDevelopment() bool {
 	return EnvHelper.GetEnv("APP_ENV") == "dev"
 }

@@ -19,7 +19,7 @@ vendor/
 memnixrest
 
 # Env
-.env
+.env*
 
 .fleet
 

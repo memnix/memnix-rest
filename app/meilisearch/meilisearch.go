@@ -6,16 +6,19 @@ import (
 	"github.com/memnix/memnix-rest/internal/deck"
 )
 
+// MeiliSearch is a struct that implements the deck.IUseCase interface.
 type MeiliSearch struct {
 	deck.IUseCase
 }
 
+// NewMeiliSearch creates a new MeiliSearch instance.
 func NewMeiliSearch(deck deck.IUseCase) MeiliSearch {
 	return MeiliSearch{
 		IUseCase: deck,
 	}
 }
 
+// CreateSearchIndex creates a new index in MeiliSearch.
 func (m *MeiliSearch) CreateSearchIndex() error {
 	decks, err := m.GetPublic()
 	if err != nil {
@@ -42,6 +45,7 @@ func (m *MeiliSearch) CreateSearchIndex() error {
 	return nil
 }
 
+// InitMeiliSearch initializes the MeiliSearch instance.
 func InitMeiliSearch(meiliSearch MeiliSearch) error {
 	err := meiliSearch.CreateSearchIndex()
 	if err != nil {

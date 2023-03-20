@@ -76,6 +76,7 @@ func extractToken(token string) string {
 	return "" // Return empty string
 }
 
+// GetConnectedUserID gets the user id from a jwt token
 func GetConnectedUserID(tokenHeader string) (uint, error) {
 	// Get the token from the Authorization header
 	tokenString := extractToken(tokenHeader)

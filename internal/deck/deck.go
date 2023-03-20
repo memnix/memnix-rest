@@ -2,6 +2,7 @@ package deck
 
 import "github.com/memnix/memnix-rest/domain"
 
+// IUseCase is the interface for the deck use case.
 type IUseCase interface {
 	// GetByID returns the deck with the given id.
 	GetByID(id uint) (domain.Deck, error)
@@ -17,6 +18,7 @@ type IUseCase interface {
 	GetPublic() ([]domain.Deck, error)
 }
 
+// IRepository is the interface for the deck repository.
 type IRepository interface {
 	// GetByID returns the deck with the given id.
 	GetByID(id uint) (domain.Deck, error)
@@ -36,6 +38,7 @@ type IRepository interface {
 	GetPublic() ([]domain.Deck, error)
 }
 
+// IRedisRepository is the interface for the deck redis repository.
 type IRedisRepository interface {
 	// GetByID returns the deck with the given id.
 	GetByID(id uint) (string, error)

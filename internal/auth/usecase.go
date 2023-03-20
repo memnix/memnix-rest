@@ -12,10 +12,12 @@ import (
 	"gorm.io/gorm"
 )
 
+// UseCase is the auth use case
 type UseCase struct {
 	user.IRepository
 }
 
+// NewUseCase creates a new auth use case
 func NewUseCase(repo user.IRepository) IUseCase {
 	return &UseCase{IRepository: repo}
 }
@@ -89,10 +91,12 @@ func (*UseCase) RefreshToken(user domain.User) (string, error) {
 	return token, nil
 }
 
+// RegisterOauth registers a new user with oauth
 func (a *UseCase) RegisterOauth(user domain.User) error {
 	return a.Create(&user)
 }
 
+// LoginOauth logs in a user with oauth
 func (a *UseCase) LoginOauth(user domain.User) (string, error) {
 	userModel, err := a.GetByEmail(user.Email)
 	if err != nil {

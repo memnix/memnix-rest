@@ -5,11 +5,13 @@ import (
 	"github.com/memnix/memnix-rest/domain"
 )
 
+// UseCase is the deck use case.
 type UseCase struct {
 	IRepository
 	IRedisRepository
 }
 
+// NewUseCase returns a new deck use case.
 func NewUseCase(repo IRepository, redis IRedisRepository) IUseCase {
 	return &UseCase{IRepository: repo, IRedisRepository: redis}
 }
@@ -36,6 +38,7 @@ func (u *UseCase) GetByID(id uint) (domain.Deck, error) {
 	return deckObject, nil
 }
 
+// Create creates a new deck.
 func (u *UseCase) Create(deck *domain.Deck) error {
 	if marshalledDeck, err := cbor.Marshal(deck); err == nil {
 		_ = u.IRedisRepository.SetByID(deck.ID, string(marshalledDeck))
@@ -43,6 +46,7 @@ func (u *UseCase) Create(deck *domain.Deck) error {
 	return u.IRepository.Create(deck)
 }
 
+// CreateFromUser creates a new deck from the given user.
 func (u *UseCase) CreateFromUser(user domain.User, deck *domain.Deck) error {
 	if marshalledDeck, err := cbor.Marshal(deck); err == nil {
 		_ = u.IRedisRepository.SetByID(deck.ID, string(marshalledDeck))

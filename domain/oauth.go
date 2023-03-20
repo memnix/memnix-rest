@@ -4,6 +4,7 @@ import (
 	"strconv"
 )
 
+// GithubLogin is a struct that represents the Github login response.
 type GithubLogin struct {
 	Login      string `json:"login"`
 	NodeID     string `json:"node_id"`
@@ -15,6 +16,7 @@ type GithubLogin struct {
 	ID         int    `json:"id"`
 }
 
+// ToUser converts the GithubLogin to a User.
 func (g *GithubLogin) ToUser() User {
 	return User{
 		Username:      g.Login,
@@ -27,6 +29,7 @@ func (g *GithubLogin) ToUser() User {
 	}
 }
 
+// DiscordLogin is a struct that represents the Discord login response.
 type DiscordLogin struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
@@ -34,6 +37,7 @@ type DiscordLogin struct {
 	Email    string `json:"email"`
 }
 
+// ToUser converts the DiscordLogin to a User.
 func (d *DiscordLogin) ToUser() User {
 	return User{
 		Username:      d.Username,

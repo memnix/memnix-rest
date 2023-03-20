@@ -17,6 +17,7 @@ import (
 
 // Injectors from wire.go:
 
+// InitializeUser initializes the user controller.
 func InitializeUser() controllers.UserController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
@@ -27,6 +28,7 @@ func InitializeUser() controllers.UserController {
 	return userController
 }
 
+// InitializeAuth initializes the auth controller.
 func InitializeAuth() controllers.AuthController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
@@ -35,6 +37,7 @@ func InitializeAuth() controllers.AuthController {
 	return authController
 }
 
+// InitializeJWT initializes the jwt controller.
 func InitializeJWT() controllers.JwtController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
@@ -45,6 +48,7 @@ func InitializeJWT() controllers.JwtController {
 	return jwtController
 }
 
+// InitializeOAuth initializes the oauth controller.
 func InitializeOAuth() controllers.OAuthController {
 	db := infrastructures.GetDBConn()
 	iRepository := user.NewRepository(db)
@@ -55,6 +59,7 @@ func InitializeOAuth() controllers.OAuthController {
 	return oAuthController
 }
 
+// InitializeDeck initializes the deck controller.
 func InitializeDeck() controllers.DeckController {
 	db := infrastructures.GetDBConn()
 	iRepository := deck.NewRepository(db)
@@ -65,6 +70,7 @@ func InitializeDeck() controllers.DeckController {
 	return deckController
 }
 
+// InitializeMeiliSearch initializes the meilisearch.
 func InitializeMeiliSearch() meilisearch.MeiliSearch {
 	db := infrastructures.GetDBConn()
 	iRepository := deck.NewRepository(db)
