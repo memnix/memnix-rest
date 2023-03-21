@@ -12,15 +12,9 @@
           }
         ],
         "description": "Create deck",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Deck"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Deck"],
         "summary": "Create deck",
         "parameters": [
           {
@@ -57,15 +51,9 @@
           }
         ],
         "description": "Get learning decks",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Deck"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Deck"],
         "summary": "Get learning decks",
         "responses": {
           "200": {
@@ -97,15 +85,9 @@
           }
         ],
         "description": "Get owned decks",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Deck"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Deck"],
         "summary": "Get owned decks",
         "responses": {
           "200": {
@@ -137,15 +119,9 @@
           }
         ],
         "description": "Get public decks",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Deck"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Deck"],
         "summary": "Get public decks",
         "responses": {
           "200": {
@@ -177,15 +153,9 @@
           }
         ],
         "description": "Get deck by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Deck"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Deck"],
         "summary": "Get deck by id",
         "parameters": [
           {
@@ -227,15 +197,9 @@
     "/v2/security/discord": {
       "get": {
         "description": "Redirects the user to the discord login page",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "OAuth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
         "summary": "Redirects the user to the discord login page",
         "responses": {
           "302": {
@@ -256,15 +220,9 @@
     "/v2/security/discord_callback": {
       "get": {
         "description": "Handles the callback from discord",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "OAuth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
         "summary": "Handles the callback from discord",
         "parameters": [
           {
@@ -300,15 +258,9 @@
     "/v2/security/github": {
       "get": {
         "description": "Redirects the user to the github login page",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "OAuth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
         "summary": "Redirects the user to the github login page",
         "responses": {
           "302": {
@@ -329,15 +281,9 @@
     "/v2/security/github_callback": {
       "get": {
         "description": "Handles the callback from github",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "OAuth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["OAuth"],
         "summary": "Handles the callback from github",
         "parameters": [
           {
@@ -378,12 +324,8 @@
           }
         ],
         "description": "Search the key",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "security"
-        ],
+        "produces": ["application/json"],
+        "tags": ["security"],
         "summary": "searches the key",
         "responses": {
           "200": {
@@ -404,15 +346,9 @@
     "/v2/security/login": {
       "post": {
         "description": "Login",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Login",
         "parameters": [
           {
@@ -450,15 +386,9 @@
     "/v2/security/logout": {
       "post": {
         "description": "Logout",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Logout",
         "responses": {
           "200": {
@@ -479,15 +409,9 @@
     "/v2/security/refresh": {
       "post": {
         "description": "Refresh token",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Refresh token",
         "responses": {
           "200": {
@@ -514,15 +438,9 @@
     "/v2/security/register": {
       "post": {
         "description": "Register",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Auth"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
         "summary": "Register",
         "parameters": [
           {
@@ -598,11 +516,7 @@
     },
     "domain.DeckStatus": {
       "type": "integer",
-      "enum": [
-        0,
-        1,
-        2
-      ],
+      "enum": [0, 1, 2],
       "x-enum-comments": {
         "DeckStatusPrivate": "DeckStatusPrivate is the private status of the deck",
         "DeckStatusPublic": "DeckStatusPublic is the public status of the deck",
@@ -629,12 +543,7 @@
     },
     "domain.Permission": {
       "type": "integer",
-      "enum": [
-        0,
-        1,
-        2,
-        3
-      ],
+      "enum": [0, 1, 2, 3],
       "x-enum-varnames": [
         "PermissionNone",
         "PermissionUser",
@@ -673,10 +582,7 @@
     },
     "domain.Register": {
       "type": "object",
-      "required": [
-        "password",
-        "username"
-      ],
+      "required": ["password", "username"],
       "properties": {
         "email": {
           "description": "Email of the user",
