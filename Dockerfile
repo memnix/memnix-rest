@@ -28,6 +28,8 @@ WORKDIR /app
 
 COPY --from=builder /app/memnixrest /app/memnixrest
 COPY --from=builder /build/.env /app/.env
+COPY --from=builder /build/favicon.ico /app/favicon.ico
+
 
 EXPOSE 1815
 

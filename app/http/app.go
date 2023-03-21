@@ -1,13 +1,13 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/contrib/fibernewrelic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
-	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
@@ -58,6 +58,12 @@ func registerMiddlewares(app *fiber.App) {
 		AllowCredentials: true,
 	}))
 
+	// Provide a minimal config
+	app.Use(favicon.New(favicon.Config{
+		File: "./favicon.ico",
+		URL:  "/favicon.ico",
+	}))
+
 	app.Use(cache.New(cache.Config{
 		Expiration:   5 * time.Second,
 		CacheControl: true,
@@ -67,16 +73,15 @@ func registerMiddlewares(app *fiber.App) {
 		},
 	}))
 
-	// Use compress middleware
-	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestSpeed, // 1
-	}))
-
 	cfg := fibernewrelic.Config{
 		Application: infrastructures.GetRelicApp(),
 	}
 
 	app.Use(fibernewrelic.New(cfg))
+
+	prometheus := fiberprometheus.New("memnix")
+	prometheus.RegisterAt(app, "/metrics")
+	app.Use(prometheus.Middleware)
 
 	// User logging middleware
 	app.Use(logger.New(logger.Config{
@@ -84,8 +89,4 @@ func registerMiddlewares(app *fiber.App) {
 		TimeFormat: "Jan 02 | 15:04:05",
 		Output:     misc.LogWriter{},
 	}))
-
-	prometheus := fiberprometheus.New("memnix")
-	prometheus.RegisterAt(app, "/metrics")
-	app.Use(prometheus.Middleware)
 }

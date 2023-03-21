@@ -87,6 +87,7 @@ func main() {
 			log.Error().Err(err).Msg("Can't init MeiliSearch")
 		}
 	}
+
 	// Create the app
 	app := http.New()
 	// Listen to port 1815
