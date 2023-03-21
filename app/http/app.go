@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
@@ -8,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 	"github.com/memnix/memnix-rest/app/misc"
@@ -58,6 +58,12 @@ func registerMiddlewares(app *fiber.App) {
 		AllowCredentials: true,
 	}))
 
+	// Provide a minimal config
+	app.Use(favicon.New(favicon.Config{
+		File: "./favicon.ico",
+		URL:  "/favicon.ico",
+	}))
+
 	app.Use(cache.New(cache.Config{
 		Expiration:   5 * time.Second,
 		CacheControl: true,
@@ -76,12 +82,6 @@ func registerMiddlewares(app *fiber.App) {
 	prometheus := fiberprometheus.New("memnix")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
-
-	// Provide a minimal config
-	app.Use(favicon.New(favicon.Config{
-		File: "./favicon.ico",
-		URL:  "/favicon.ico",
-	}))
 
 	// User logging middleware
 	app.Use(logger.New(logger.Config{
