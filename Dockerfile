@@ -27,7 +27,7 @@ ENV TZ Europe/Paris
 WORKDIR /app
 
 COPY --from=builder /app/memnixrest /app/memnixrest
-COPY --from=builder /build/.env /app/.env
+COPY --from=builder /build/.env* /app/.
 COPY --from=builder /build/favicon.ico /app/favicon.ico
 
 
