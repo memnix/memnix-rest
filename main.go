@@ -12,6 +12,9 @@ import (
 	"github.com/memnix/memnix-rest/internal"
 	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/rs/zerolog/log"
+	_ "net/http/pprof"
+	"runtime"
+	"time"
 )
 
 func main() {
@@ -87,6 +90,15 @@ func main() {
 			log.Error().Err(err).Msg("Can't init MeiliSearch")
 		}
 	}
+
+	// display the number of goroutines every 5 seconds
+	go func() {
+		for {
+			log.Debug().Msgf("Number of goroutines: %d", runtime.NumGoroutine())
+			time.Sleep(10 * time.Second)
+		}
+	}()
+
 	// Create the app
 	app := http.New()
 	// Listen to port 1815

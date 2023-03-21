@@ -8,7 +8,7 @@ const (
 
 	MaxBackupLogFiles = 5   // MaxBackupLogFiles is the max number of backup log files
 	MaxSizeLogFiles   = 20  // MaxSizeLogFiles is the max size of log files in MB
-	LogChannelSize    = 200 // LogChannelSize is the size of the log channel
+	LogChannelSize    = 100 // LogChannelSize is the size of the log channel
 
 	MB = 1024 * 1024 // MB is the number of bytes in a megabyte
 
