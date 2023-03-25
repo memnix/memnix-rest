@@ -86,12 +86,12 @@ func registerMiddlewares(app *fiber.App) {
 
 	app.Use(pprof.New())
 
+	app.Use(loggerMiddleware())
+
 }
 
 func loggerMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-
-		start := time.Now()
 		// Continue stack
 		chainErr := c.Next()
 
@@ -101,15 +101,12 @@ func loggerMiddleware() fiber.Handler {
 			}
 		}
 
-		stop := time.Now()
-
 		// Do something with response
 		p := influxdb2.NewPointWithMeasurement("fiber").
 			AddField("ip", c.IP()).
 			AddField("method", c.Method()).
 			AddField("path", c.Path()).
 			AddField("status", c.Response().StatusCode()).
-			AddField("latency", stop.Sub(start).Round(time.Millisecond).Milliseconds()).
 			SetTime(time.Now())
 
 		misc.LogWriter{}.Write(*p)
