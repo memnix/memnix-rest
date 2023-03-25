@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var logsChan = make(chan write.Point, 1) // buffered channel
+var logsChan = make(chan write.Point, 100) // buffered channel
 
 // LogWriter is a custom writer for logs to be used
 // It implements the io.Writer interface
