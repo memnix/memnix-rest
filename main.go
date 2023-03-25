@@ -45,7 +45,7 @@ func main() {
 		// Models to migrate
 		migrates := []interface{}{
 			// Add models here
-			domain.User{},
+			domain.User{}, domain.Deck{},
 		}
 
 		// AutoMigrate models

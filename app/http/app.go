@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gofiber/fiber/v2/middleware/favicon"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
@@ -83,10 +84,13 @@ func registerMiddlewares(app *fiber.App) {
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
 
+	app.Use(pprof.New())
+
 	// User logging middleware
 	app.Use(logger.New(logger.Config{
 		Format:     "[${time}] - [${ip}]:${port} - ${latency} ${method} ${path} - ${status}\n",
 		TimeFormat: "Jan 02 | 15:04:05",
 		Output:     misc.LogWriter{},
 	}))
+
 }
