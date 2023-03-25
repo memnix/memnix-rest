@@ -1,8 +1,6 @@
 package http
 
 import (
-	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
@@ -10,7 +8,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
 	"github.com/memnix/memnix-rest/app/misc"
 	"github.com/memnix/memnix-rest/config"
@@ -92,5 +92,4 @@ func registerMiddlewares(app *fiber.App) {
 		TimeFormat: "Jan 02 | 15:04:05",
 		Output:     misc.LogWriter{},
 	}))
-
 }
