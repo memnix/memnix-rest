@@ -9,7 +9,6 @@ import (
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/diode"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -26,9 +25,7 @@ func prettyLogger() zerolog.ConsoleWriter {
 
 // CreateLogger creates a logger
 func CreateLogger() {
-	wr := diode.NewWriter(newRollingFile(), config.DiodeLoggerSize, config.DiodeLoggerTime, func(missed int) {
-		log.Printf("Logger Dropped %d messages", missed)
-	})
+	wr := newRollingFile()
 	switch os.Getenv("LOG_LEVEL") {
 	case "debug":
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)

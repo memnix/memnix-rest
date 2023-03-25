@@ -72,6 +72,19 @@ func main() {
 		}
 	}()
 
+	// Connect to influxDB
+	err = infrastructures.ConnectInfluxDB(config.EnvHelper)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error connecting to influxDB")
+	}
+
+	defer func() {
+		err = infrastructures.DisconnectInfluxDB()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error disconnecting from influxDB")
+		}
+	}()
+
 	// Create logger workers
 	go misc.CreateLogger()
 
@@ -92,4 +105,6 @@ func main() {
 	app := http.New()
 	// Listen to port 1815
 	log.Fatal().Err(app.Listen(":1815")).Msg("Error listening to port 1815")
+
+	log.Info().Msg("Server stopped")
 }

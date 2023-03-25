@@ -1,6 +1,7 @@
 package http
 
 import (
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
@@ -9,7 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
 	"github.com/memnix/memnix-rest/app/misc"
@@ -86,10 +86,35 @@ func registerMiddlewares(app *fiber.App) {
 
 	app.Use(pprof.New())
 
-	// User logging middleware
-	app.Use(logger.New(logger.Config{
-		Format:     "[${time}] - [${ip}]:${port} - ${latency} ${method} ${path} - ${status}\n",
-		TimeFormat: "Jan 02 | 15:04:05",
-		Output:     misc.LogWriter{},
-	}))
+}
+
+func loggerMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		start := time.Now()
+		// Continue stack
+		chainErr := c.Next()
+
+		if chainErr != nil {
+			if err := c.App().ErrorHandler(c, chainErr); err != nil {
+				_ = c.SendStatus(fiber.StatusInternalServerError) //nolint:errcheck // TODO: Explain why we ignore the error here
+			}
+		}
+
+		stop := time.Now()
+
+		// Do something with response
+		p := influxdb2.NewPointWithMeasurement("fiber").
+			AddField("ip", c.IP()).
+			AddField("method", c.Method()).
+			AddField("path", c.Path()).
+			AddField("status", c.Response().StatusCode()).
+			AddField("latency", stop.Sub(start).Round(time.Millisecond).Milliseconds()).
+			SetTime(time.Now())
+
+		misc.LogWriter{}.Write(*p)
+
+		return nil
+
+	}
 }
