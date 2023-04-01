@@ -1,10 +1,11 @@
 package misc
 
 import (
-	"github.com/influxdata/influxdb-client-go/v2/api/write"
-	"github.com/memnix/memnix-rest/infrastructures"
 	"sync"
 	"time"
+
+	"github.com/influxdata/influxdb-client-go/v2/api/write"
+	"github.com/memnix/memnix-rest/infrastructures"
 )
 
 var logsChan = make(chan write.Point, 100) // buffered channel

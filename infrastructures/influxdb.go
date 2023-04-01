@@ -2,14 +2,13 @@ package infrastructures
 
 import (
 	"context"
+
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/env"
 )
 
-var (
-	influxClient *influxdb2.Client
-)
+var influxClient *influxdb2.Client
 
 func ConnectInfluxDB(env env.IEnv) error {
 	var host string
@@ -27,7 +26,6 @@ func ConnectInfluxDB(env env.IEnv) error {
 	_, err := client.Health(context.Background())
 
 	return err
-
 }
 
 func DisconnectInfluxDB() error {

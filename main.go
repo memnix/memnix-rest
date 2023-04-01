@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bytedance/gopkg/util/gctuner"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
@@ -100,6 +101,12 @@ func main() {
 			log.Error().Err(err).Msg("Can't init MeiliSearch")
 		}
 	}
+
+	var limit float64 = 4 * 1024 * 1024 * 1024
+	// Set the GC threshold to 70% of the limit
+	threshold := uint64(limit * 0.7)
+
+	gctuner.Tuning(threshold)
 
 	// Create the app
 	app := http.New()

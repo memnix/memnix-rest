@@ -25,6 +25,8 @@ RUN apk update --no-cache && apk add --no-cache ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 
+ENV GOMEMLIMIT 4000MiB
+
 WORKDIR /app
 
 COPY --from=builder /app/memnixrest /app/memnixrest
