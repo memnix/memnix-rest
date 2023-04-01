@@ -8,7 +8,6 @@ require (
 	github.com/bytedance/sonic v1.8.6
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/go-playground/validator/v10 v10.12.0
-	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/contrib/fibernewrelic v1.1.1
 	github.com/gofiber/fiber/v2 v2.43.0
 	github.com/gofiber/swagger v0.1.10
