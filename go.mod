@@ -13,6 +13,7 @@ require (
 	github.com/gofiber/swagger v0.1.9
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
+	github.com/influxdata/influxdb-client-go/v2 v2.12.2
 	github.com/joho/godotenv v1.5.1
 	github.com/meilisearch/meilisearch-go v0.23.1
 	github.com/newrelic/go-agent/v3 v3.20.4
@@ -45,7 +46,6 @@ require (
 	github.com/gofiber/adaptor/v2 v2.1.32 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/influxdata/influxdb-client-go/v2 v2.12.2 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

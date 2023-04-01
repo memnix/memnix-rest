@@ -28,7 +28,7 @@ func LogWorker(logs <-chan write.Point, wg *sync.WaitGroup) {
 
 	go func() {
 		// Flush every 5s
-		for range time.Tick(5 * time.Second) {
+		for range time.Tick(10 * time.Second) {
 			writeAPI.Flush()
 		}
 	}()

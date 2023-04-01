@@ -11,11 +11,12 @@ WORKDIR /build
 
 COPY go.mod .
 COPY go.sum .
+COPY default.pgo .
 RUN go mod download
 
 COPY . .
 RUN go get -d -v
-RUN go build -ldflags="-s -w" -o /app/memnixrest .
+RUN go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .
 RUN upx /app/memnixrest
 
 FROM alpine:3.17
