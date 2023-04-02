@@ -9,7 +9,7 @@ import (
 )
 
 // JSONHelper is the helper for JSON operations
-var JSONHelper = json.NewJSON(&json.GoJSON{})
+var JSONHelper = json.NewJSON(&json.SonicJSON{})
 
 // EnvHelper is the helper for environment variables
 var EnvHelper = env.NewMyEnv(&env.OsEnv{})

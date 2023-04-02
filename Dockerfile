@@ -11,11 +11,12 @@ WORKDIR /build
 
 COPY go.mod .
 COPY go.sum .
+COPY default.pgo .
 RUN go mod download
 
 COPY . .
 RUN go get -d -v
-RUN go build -ldflags="-s -w" -o /app/memnixrest .
+RUN go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .
 RUN upx /app/memnixrest
 
 FROM alpine:3.17
@@ -24,10 +25,12 @@ RUN apk update --no-cache && apk add --no-cache ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 
+ENV GOMEMLIMIT 4000MiB
+
 WORKDIR /app
 
 COPY --from=builder /app/memnixrest /app/memnixrest
-COPY --from=builder /build/.env /app/.env
+COPY --from=builder /build/.env* /app/.
 COPY --from=builder /build/favicon.ico /app/favicon.ico
 
 

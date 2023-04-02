@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bytedance/gopkg/util/gctuner"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
@@ -45,7 +46,7 @@ func main() {
 		// Models to migrate
 		migrates := []interface{}{
 			// Add models here
-			domain.User{},
+			domain.User{}, domain.Deck{},
 		}
 
 		// AutoMigrate models
@@ -72,6 +73,19 @@ func main() {
 		}
 	}()
 
+	// Connect to influxDB
+	err = infrastructures.ConnectInfluxDB(config.EnvHelper)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error connecting to influxDB")
+	}
+
+	defer func() {
+		err = infrastructures.DisconnectInfluxDB()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error disconnecting from influxDB")
+		}
+	}()
+
 	// Create logger workers
 	go misc.CreateLogger()
 
@@ -88,8 +102,16 @@ func main() {
 		}
 	}
 
+	var limit float64 = 4 * 1024 * 1024 * 1024
+	// Set the GC threshold to 70% of the limit
+	threshold := uint64(limit * 0.7)
+
+	gctuner.Tuning(threshold)
+
 	// Create the app
 	app := http.New()
 	// Listen to port 1815
 	log.Fatal().Err(app.Listen(":1815")).Msg("Error listening to port 1815")
+
+	log.Info().Msg("Server stopped")
 }
