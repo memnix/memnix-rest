@@ -11,8 +11,7 @@ require (
 	github.com/gofiber/contrib/fibernewrelic v1.1.1
 	github.com/gofiber/fiber/v2 v2.43.0
 	github.com/gofiber/swagger v0.1.10
-
-	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/wire v0.5.0
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/joho/godotenv v1.5.1
@@ -28,6 +27,8 @@ require (
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gorm v1.24.6
 )
+
+require github.com/golang-jwt/jwt/v4 v4.5.0
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
