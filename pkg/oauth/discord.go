@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,8 +23,8 @@ func GetDiscordAccessToken(code string) (string, error) {
 	)))
 
 	// POST request to set URL
-	req, reqerr := http.NewRequest(
-		"POST",
+	req, reqerr := http.NewRequestWithContext(context.Background(),
+		http.MethodPost,
 		"https://discord.com/api/oauth2/token",
 		reqBody,
 	)
@@ -38,6 +39,13 @@ func GetDiscordAccessToken(code string) (string, error) {
 	if resperr != nil {
 		log.Info().Msg("Response failed")
 	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Info().Msg("Body close failed")
+		}
+	}(resp.Body)
 
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
@@ -65,11 +73,18 @@ func GetDiscordAccessToken(code string) (string, error) {
 
 // GetDiscordData gets the user data from Discord
 func GetDiscordData(accessToken string) (string, error) {
-	req, reqerr := http.NewRequest(
-		"GET",
+	req, reqerr := http.NewRequestWithContext(context.Background(),
+		http.MethodGet,
 		"https://discord.com/api/users/@me",
 		nil,
 	)
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Info().Msg("Body close failed")
+		}
+	}(req.Body)
 	if reqerr != nil {
 		log.Info().Msg("Request failed")
 	}

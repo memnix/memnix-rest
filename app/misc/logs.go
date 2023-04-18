@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/influxdata/influxdb-client-go/v2/api/write"
+	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
 )
 
-var logsChan = make(chan write.Point, 100) // buffered channel
+var logsChan = make(chan write.Point, config.LogChannelSize) // buffered channel
 
 // LogWriter is a custom writer for logs to be used
 // It implements the io.Writer interface
@@ -28,8 +29,8 @@ func LogWorker(logs <-chan write.Point, wg *sync.WaitGroup) {
 	writeAPI := (*infrastructures.GetInfluxDBClient()).WriteAPI("memnix", "logs") // get writeAPI
 
 	go func() {
-		// Flush every 5s
-		for range time.Tick(10 * time.Second) {
+		// Flush every 10s
+		for range time.Tick(config.InfluxDBFreq) {
 			writeAPI.Flush()
 		}
 	}()

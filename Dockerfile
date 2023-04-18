@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 RUN go get -d -v
 RUN go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .
-RUN upx /app/memnixrest
+RUN upx -9 --best /app/memnixrest
 
 FROM alpine:3.17
 

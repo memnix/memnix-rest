@@ -31,6 +31,13 @@ const (
 	RedisPoolTimeout       = 240 * time.Second // Timeout for getting a connection from the pool
 	RedisDefaultExpireTime = 6 * time.Hour     // Default expiration time for redis keys
 	RedisOwnedExpireTime   = 2 * time.Hour     // Expiration time for owned keys
+
+	CacheExpireTime = 10 * time.Second // Expiration time for cache
+	InfluxDBFreq    = 10 * time.Second // Frequency for sending data to influxdb
+
+	DeckSecretCodeLength = 10 // Length of the secret code for decks
+
+	GCThresholdPercent = 0.7 // Threshold for garbage collection
 )
 
 // JwtSigningMethod is the signing method for JWT
