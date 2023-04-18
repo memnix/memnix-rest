@@ -4,14 +4,13 @@ go 1.19
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.0
-	github.com/bytedance/gopkg v0.0.0-20230324090325-a00d8057bef9
+	github.com/bytedance/gopkg v0.0.0-20230418090422-343ae5fedd5f
 	github.com/bytedance/sonic v1.8.7
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/go-playground/validator/v10 v10.12.0
-	github.com/gofiber/contrib/fibernewrelic v1.1.1
+	github.com/gofiber/contrib/fibernewrelic v1.1.2
 	github.com/gofiber/fiber/v2 v2.44.0
-	github.com/gofiber/swagger v0.1.10
-
+	github.com/gofiber/swagger v0.1.11
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
@@ -22,7 +21,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.0.3
 	github.com/rs/zerolog v1.29.1
-	github.com/swaggo/swag v1.8.12
+	github.com/swaggo/swag v1.16.1
 	golang.org/x/crypto v0.8.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.5.0
@@ -45,14 +44,14 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
-	github.com/gofiber/adaptor/v2 v2.2.0 // indirect
+	github.com/gofiber/adaptor/v2 v2.2.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.16.4 // indirect
+	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.3 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
