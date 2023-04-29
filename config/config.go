@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/pkg/env"
 	"github.com/memnix/memnix-rest/pkg/json"
 )
