@@ -67,7 +67,7 @@ func registerMiddlewares(app *fiber.App) {
 	}))
 
 	app.Use(cache.New(cache.Config{
-		Expiration:   5 * time.Second,
+		Expiration:   config.CacheExpireTime,
 		CacheControl: true,
 		Next: func(c *fiber.Ctx) bool {
 			// Do not cache /metrics endpoint
@@ -97,7 +97,7 @@ func loggerMiddleware() fiber.Handler {
 
 		if chainErr != nil {
 			if err := c.App().ErrorHandler(c, chainErr); err != nil {
-				_ = c.SendStatus(fiber.StatusInternalServerError) //nolint:errcheck // TODO: Explain why we ignore the error here
+				_ = c.SendStatus(fiber.StatusInternalServerError) // TODO: Explain why we ignore the error here
 			}
 		}
 

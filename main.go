@@ -104,7 +104,7 @@ func main() {
 
 	var limit float64 = 4 * 1024 * 1024 * 1024
 	// Set the GC threshold to 70% of the limit
-	threshold := uint64(limit * 0.7)
+	threshold := uint64(limit * config.GCThresholdPercent)
 
 	gctuner.Tuning(threshold)
 

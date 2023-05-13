@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/utils"
 )

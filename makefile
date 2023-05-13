@@ -16,7 +16,7 @@ run:
 
 release:
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o $(OUTPUT_DIR)/$(APP_NAME) -v .
-	upx $(OUTPUT_DIR)/$(APP_NAME)
+	upx -9 --best $(OUTPUT_DIR)/$(APP_NAME)
 
 clean:
 	rm -rf bin/*

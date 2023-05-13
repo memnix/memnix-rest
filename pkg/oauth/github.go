@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,8 +23,8 @@ func GetGithubAccessToken(code string) (string, error) {
 	requestJSON, _ := config.JSONHelper.Marshal(requestBodyMap)
 
 	// POST request to set URL
-	req, reqerr := http.NewRequest(
-		"POST",
+	req, reqerr := http.NewRequestWithContext(context.Background(),
+		http.MethodPost,
 		"https://github.com/login/oauth/access_token",
 		bytes.NewBuffer(requestJSON),
 	)
@@ -38,6 +39,13 @@ func GetGithubAccessToken(code string) (string, error) {
 	if resperr != nil {
 		log.Info().Msg("Response failed")
 	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Info().Msg("Body close failed")
+		}
+	}(resp.Body)
 
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
@@ -64,8 +72,8 @@ func GetGithubAccessToken(code string) (string, error) {
 // GetGithubData gets the user data from Github using the access token
 func GetGithubData(accessToken string) (string, error) {
 	// Get request to a set URL
-	req, err := http.NewRequest(
-		"GET",
+	req, err := http.NewRequestWithContext(context.Background(),
+		http.MethodGet,
 		"https://api.github.com/user",
 		nil,
 	)
@@ -73,6 +81,13 @@ func GetGithubData(accessToken string) (string, error) {
 		log.Info().Msg("Request failed")
 		return "", err
 	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Info().Msg("Body close failed")
+		}
+	}(req.Body)
 
 	// Set the Authorization header before sending the request
 	// Authorization: token XXXXXXXXXXXXXXXXXXXXXXXXXXX

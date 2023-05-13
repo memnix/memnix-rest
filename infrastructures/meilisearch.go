@@ -16,14 +16,17 @@ var (
 // ConnectMeiliSearch connects to MeiliSearch.
 func ConnectMeiliSearch(env env.IEnv) {
 	var host string
+	var apiKey string
 	if config.IsDevelopment() {
 		host = env.GetEnv("DEBUG_MEILISEARCH_HOST")
+		apiKey = env.GetEnv("DEBUG_MEILISEARCH_API_KEY")
 	} else {
 		host = env.GetEnv("MEILISEARCH_HOST")
+		apiKey = env.GetEnv("MEILISEARCH_API_KEY")
 	}
 	client = meilisearch.NewClient(meilisearch.ClientConfig{
 		Host:   host,
-		APIKey: env.GetEnv("MEILISEARCH_API_KEY"),
+		APIKey: apiKey,
 	})
 }
 
