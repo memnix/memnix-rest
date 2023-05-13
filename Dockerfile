@@ -15,15 +15,16 @@ COPY default.pgo .
 RUN go mod download
 
 COPY . .
-RUN go get -d -v
-RUN go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .
-RUN upx /app/memnixrest
+
+RUN go get -d -v \
+    && go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .\
+    && upx /app/memnixrest
 
 FROM alpine:3.18
 
-RUN addgroup -S memnix && adduser -S memnix -G memnix
+RUN addgroup -S memnix && adduser -S memnix -G memnix \
+    && apk update --no-cache && apk add --no-cache ca-certificates \
 
-RUN apk update --no-cache && apk add --no-cache ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 

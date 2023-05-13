@@ -15,29 +15,26 @@ var JSONHelper = json.NewJSON(&json.SonicJSON{})
 var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
-	ExpirationTimeInHours = 24 // Expiration time in hours
-	SQLMaxOpenConns       = 50 // Max number of open connections to the database
-	SQLMaxIdleConns       = 10 // Max number of connections in the idle connection pool
+	ExpirationTimeInHours = 24 // ExpirationTimeInHours is the expiration time for the JWT token
+	SQLMaxOpenConns       = 50 // SQLMaxOpenConns is the max number of connections in the open connection pool
+	SQLMaxIdleConns       = 10 // SQLMaxIdleConns is the max number of connections in the idle connection pool
 
-	BCryptCost = 11 // Cost to use for BCrypt
+	BCryptCost = 11 // BCryptCost is the cost for bcrypt
 
-	CleaningInterval = 15 * time.Minute // Interval for cleaning the cache
+	OauthStateLength   = 16               // OauthStateLength is the length of the state for oauth
+	OauthStateDuration = 10 * time.Minute // OauthStateDuration is the duration for the state for oauth
 
-	OauthStateLength   = 16               // Length of the state for oauth
-	OauthStateDuration = 10 * time.Minute // Duration of the state for oauth
+	RedisMinIdleConns      = 200               // RedisMinIdleConns is the minimum number of idle connections in the pool
+	RedisPoolSize          = 12000             // RedisPoolSize is the maximum number of connections allocated by the pool at a given time
+	RedisPoolTimeout       = 240 * time.Second // RedisPoolTimeout is the amount of time a connection can be used before being closed
+	RedisDefaultExpireTime = 6 * time.Hour     // RedisDefaultExpireTime is the default expiration time for keys
+	RedisOwnedExpireTime   = 2 * time.Hour     // RedisOwnedExpireTime is the expiration time for owned keys
 
-	RedisMinIdleConns      = 200               // Min number of idle connections in the pool
-	RedisPoolSize          = 12000             // Max number of connections in the pool
-	RedisPoolTimeout       = 240 * time.Second // Timeout for getting a connection from the pool
-	RedisDefaultExpireTime = 6 * time.Hour     // Default expiration time for redis keys
-	RedisOwnedExpireTime   = 2 * time.Hour     // Expiration time for owned keys
+	CacheExpireTime = 10 * time.Second // CacheExpireTime is the expiration time for the cache
+	InfluxDBFreq    = 10 * time.Second // InfluxDBFreq is the frequency for writing to InfluxDB
 
-	CacheExpireTime = 10 * time.Second // Expiration time for cache
-	InfluxDBFreq    = 10 * time.Second // Frequency for sending data to influxdb
-
-	DeckSecretCodeLength = 10 // Length of the secret code for decks
-
-	GCThresholdPercent = 0.7 // Threshold for garbage collection
+	DeckSecretCodeLength = 10  //DeckSecretCodeLength is the length of the secret code for decks
+	GCThresholdPercent   = 0.7 // GCThresholdPercent is the threshold for garbage collection
 )
 
 // JwtSigningMethod is the signing method for JWT
