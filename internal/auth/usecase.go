@@ -103,23 +103,23 @@ func (a *UseCase) LoginOauth(user domain.User) (string, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = a.RegisterOauth(user)
 			if err != nil {
-				log.Error().Err(err).Msg("failed to register user")
-				return "", errors.New("failed to register user")
+				log.Error().Err(err)
+				return "", errors.Wrap(err, "failed to register user")
 			}
 
 			userModel, err = a.GetByEmail(user.Email)
 			if err != nil {
-				log.Error().Err(err).Msg("failed to get user")
+				log.Error().Err(err)
 				return "", errors.New("failed to get user")
 			}
 		} else {
-			log.Error().Err(err).Msg("failed to get user")
-			return "", errors.New("failed to get user")
+			log.Error().Err(err)
+			return "", err
 		}
 	}
 
 	if userModel.OauthProvider != user.OauthProvider && userModel.OauthProvider != "" {
-		log.Error().Err(err).Msg("user is already registered with another provider")
+		log.Debug().Msg("user is already registered with another provider")
 		return "", errors.New("user is already registered with another provider")
 	}
 
@@ -132,8 +132,8 @@ func (a *UseCase) LoginOauth(user domain.User) (string, error) {
 		}
 		err = a.Update(&userModel)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to update user")
-			return "", errors.New("failed to update user")
+			log.Error().Err(err)
+			return "", errors.Wrap(err, "failed to update user")
 		}
 	}
 

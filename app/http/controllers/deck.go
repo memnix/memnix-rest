@@ -101,7 +101,7 @@ func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("decks found", deckObjects))
+	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("owned decks found", deckObjects))
 }
 
 // GetLearning is the controller for the get learning decks route
@@ -122,7 +122,7 @@ func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("decks found", deck.ConvertToPublic(deckObjects)))
+	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("learning decks found", deck.ConvertToPublic(deckObjects)))
 }
 
 // GetPublic is the controller for the get public decks route
@@ -143,5 +143,5 @@ func (d *DeckController) GetPublic(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("decks found", deckObjects))
+	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("public decks found", deckObjects))
 }
