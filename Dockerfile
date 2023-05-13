@@ -19,7 +19,7 @@ RUN go get -d -v
 RUN go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .
 RUN upx /app/memnixrest
 
-FROM alpine:3.17
+FROM alpine:3.18
 
 RUN addgroup -S memnix && adduser -S memnix -G memnix
 
