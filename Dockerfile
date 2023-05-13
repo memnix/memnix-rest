@@ -21,6 +21,8 @@ RUN upx /app/memnixrest
 
 FROM alpine:3.17
 
+RUN addgroup -S memnix && adduser -S memnix -G memnix
+
 RUN apk update --no-cache && apk add --no-cache ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
@@ -33,9 +35,12 @@ COPY --from=builder /app/memnixrest /app/memnixrest
 COPY --from=builder /build/.env* /app/.
 COPY --from=builder /build/favicon.ico /app/favicon.ico
 
+# Change ownership of the app directory to the non-root user
+RUN chown -R memnix:memnix /app
 
 EXPOSE 1815
 
 RUN apk add --no-cache dumb-init
+USER memnix
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/app/memnixrest"]
