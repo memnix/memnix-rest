@@ -31,7 +31,7 @@ func GetGithubAccessToken(code string) (string, error) {
 	)
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
 		log.Debug().Err(reqerr).Msg("github.go: GetGithubAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
-		return "", errors.Wrap(reqerr, "github.go: GetGithubAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
+		return "", errors.Wrap(reqerr, "get github access token request failed")
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -40,7 +40,7 @@ func GetGithubAccessToken(code string) (string, error) {
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
 		log.Debug().Err(resperr).Msg("github.go: GetGithubAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
-		return "", errors.Wrap(reqerr, "github.go: GetGithubAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
+		return "", errors.Wrap(reqerr, "get github access token response failed")
 	}
 
 	// Response body converted to stringified JSON
