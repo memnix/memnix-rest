@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/memnix/memnix-rest/views"
 	"io"
 	"net/http"
 
@@ -31,7 +32,7 @@ func GetDiscordAccessToken(code string) (string, error) {
 	)
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
 		log.Debug().Err(reqerr).Msg("discord.go: GetDiscordAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
-		return "", errors.Wrap(reqerr, "get discord access token request failed")
+		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
@@ -40,7 +41,7 @@ func GetDiscordAccessToken(code string) (string, error) {
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
 		log.Debug().Err(resperr).Msg("discord.go: GetDiscordAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
-		return "", errors.Wrap(resperr, "get discord access token response failed")
+		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
 
 	// Response body converted to stringified JSON
@@ -77,7 +78,7 @@ func GetDiscordData(accessToken string) (string, error) {
 
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
 		log.Debug().Err(reqerr).Msg("discord.go: GetDiscordData: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
-		return "", errors.Wrap(reqerr, "get discord data request failed")
+		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
@@ -85,7 +86,7 @@ func GetDiscordData(accessToken string) (string, error) {
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
 		log.Debug().Err(resperr).Msg("discord.go: GetDiscordData: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
-		return "", errors.Wrap(resperr, "get discord data response failed")
+		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
 
 	// Response body converted to stringified JSON

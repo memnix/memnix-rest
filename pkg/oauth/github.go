@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/memnix/memnix-rest/views"
 	"io"
 	"net/http"
 
@@ -31,7 +32,7 @@ func GetGithubAccessToken(code string) (string, error) {
 	)
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
 		log.Debug().Err(reqerr).Msg("github.go: GetGithubAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
-		return "", errors.Wrap(reqerr, "get github access token request failed")
+		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -40,7 +41,7 @@ func GetGithubAccessToken(code string) (string, error) {
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
 		log.Debug().Err(resperr).Msg("github.go: GetGithubAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
-		return "", errors.Wrap(reqerr, "get github access token response failed")
+		return "", errors.Wrap(reqerr, views.ResponseFailed)
 	}
 
 	// Response body converted to stringified JSON
@@ -74,7 +75,7 @@ func GetGithubData(accessToken string) (string, error) {
 		nil,
 	)
 	if err != nil {
-		log.Info().Msg("Request failed")
+		log.Info().Msg(views.RequestFailed)
 		return "", err
 	}
 
@@ -86,7 +87,7 @@ func GetGithubData(accessToken string) (string, error) {
 	// Make the request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Info().Msg("Response failed")
+		log.Info().Msg(views.ResponseFailed)
 		return "", err
 	}
 
