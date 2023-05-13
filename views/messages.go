@@ -1,5 +1,6 @@
 package views
 
 const (
-	InvalidCredentials = "invalid credentials"
+	// InvalidCredentials is the message for invalid credentials.
+	InvalidCredentials = "invalid credentials" //nolint:gosec
 )
