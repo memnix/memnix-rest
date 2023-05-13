@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/memnix/memnix-rest/views"
 	"io"
 	"net/http"
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
+	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
