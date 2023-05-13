@@ -40,13 +40,6 @@ func GetDiscordAccessToken(code string) (string, error) {
 		log.Info().Msg("Response failed")
 	}
 
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Info().Msg("Body close failed")
-		}
-	}(resp.Body)
-
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
 
@@ -79,12 +72,6 @@ func GetDiscordData(accessToken string) (string, error) {
 		nil,
 	)
 
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Info().Msg("Body close failed")
-		}
-	}(req.Body)
 	if reqerr != nil {
 		log.Info().Msg("Request failed")
 	}

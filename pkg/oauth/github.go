@@ -40,13 +40,6 @@ func GetGithubAccessToken(code string) (string, error) {
 		log.Info().Msg("Response failed")
 	}
 
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Info().Msg("Body close failed")
-		}
-	}(resp.Body)
-
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
 
@@ -81,13 +74,6 @@ func GetGithubData(accessToken string) (string, error) {
 		log.Info().Msg("Request failed")
 		return "", err
 	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Info().Msg("Body close failed")
-		}
-	}(req.Body)
 
 	// Set the Authorization header before sending the request
 	// Authorization: token XXXXXXXXXXXXXXXXXXXXXXXXXXX
