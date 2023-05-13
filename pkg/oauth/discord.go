@@ -9,6 +9,7 @@ import (
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,16 +29,18 @@ func GetDiscordAccessToken(code string) (string, error) {
 		"https://discord.com/api/oauth2/token",
 		reqBody,
 	)
-	if reqerr != nil {
-		log.Info().Msg("Request failed")
+	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
+		log.Debug().Err(reqerr).Msg("discord.go: GetDiscordAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
+		return "", errors.Wrap(reqerr, "discord.go: GetDiscordAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil {
-		log.Info().Msg("Response failed")
+	if resperr != nil || resp == nil || resp.Body == nil {
+		log.Debug().Err(resperr).Msg("discord.go: GetDiscordAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
+		return "", errors.Wrap(resperr, "discord.go: GetDiscordAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
 	}
 
 	// Response body converted to stringified JSON
@@ -72,15 +75,17 @@ func GetDiscordData(accessToken string) (string, error) {
 		nil,
 	)
 
-	if reqerr != nil {
-		log.Info().Msg("Request failed")
+	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
+		log.Debug().Err(reqerr).Msg("discord.go: GetDiscordData: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
+		return "", errors.Wrap(reqerr, "discord.go: GetDiscordData: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil {
-		log.Info().Msg("Response failed")
+	if resperr != nil || resp == nil || resp.Body == nil {
+		log.Debug().Err(resperr).Msg("discord.go: GetDiscordData: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
+		return "", errors.Wrap(resperr, "discord.go: GetDiscordData: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
 	}
 
 	// Response body converted to stringified JSON
