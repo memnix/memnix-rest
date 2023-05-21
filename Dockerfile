@@ -23,7 +23,7 @@ RUN go get -d -v \
 FROM alpine:3.18
 
 RUN addgroup -S memnix && adduser -S memnix -G memnix \
-    && apk update --no-cache && apk add --no-cache ca-certificates \
+    && apk update --no-cache && apk add --no-cache ca-certificates
 
 COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
