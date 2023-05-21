@@ -33,7 +33,7 @@ const (
 	CacheExpireTime = 10 * time.Second // CacheExpireTime is the expiration time for the cache
 	InfluxDBFreq    = 10 * time.Second // InfluxDBFreq is the frequency for writing to InfluxDB
 
-	DeckSecretCodeLength = 10  //DeckSecretCodeLength is the length of the secret code for decks
+	DeckSecretCodeLength = 10  // DeckSecretCodeLength is the length of the secret code for decks
 	GCThresholdPercent   = 0.7 // GCThresholdPercent is the threshold for garbage collection
 )
 
