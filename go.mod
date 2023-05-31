@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.0
-	github.com/bytedance/gopkg v0.0.0-20230512060433-7f5f1dee0b1e
+	github.com/bytedance/gopkg v0.0.0-20230531144706-a12972768317
 	github.com/bytedance/sonic v1.8.8
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/go-playground/validator/v10 v10.13.0
