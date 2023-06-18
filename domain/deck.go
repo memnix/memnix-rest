@@ -9,15 +9,16 @@ import (
 
 // Deck is the domain model for a deck
 type Deck struct {
-	gorm.Model  `swaggerignore:"true"` // ignore this field when generating swagger docs
-	Name        string                 `json:"name"`                           // Name of the deck
-	Description string                 `json:"description"`                    // Description of the deck
-	Lang        string                 `json:"lang"`                           // Lang of the deck
-	Key         string                 `json:"key"`                            // Key of the deck
-	Banner      string                 `json:"banner"`                         // Banner of the deck
-	Learners    []*User                `json:"-" gorm:"many2many:user_decks;"` // Learners of the deck
-	OwnerID     uint                   `json:"owner_id"`                       // OwnerID of the deck
-	Status      DeckStatus             `json:"status"`                         // Status of the deck
+	gorm.Model  `swaggerignore:"true"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Lang        string     `json:"lang"`
+	Key         string     `json:"key"`
+	Banner      string     `json:"banner"`
+	Learners    []*User    `json:"-" gorm:"many2many:user_decks;"`
+	Cards       []Card     `json:"cards" gorm:"foreignKey:DeckID"`
+	OwnerID     uint       `json:"owner_id"`
+	Status      DeckStatus `json:"status"`
 }
 
 // DeckStatus is the status of the deck

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/ansrivas/fiberprometheus/v2"
-	"github.com/gofiber/contrib/fibernewrelic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -15,7 +14,6 @@ import (
 	"github.com/memnix/memnix-rest/app/misc"
 	"github.com/memnix/memnix-rest/config"
 	_ "github.com/memnix/memnix-rest/docs" // Side effect import
-	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/rs/zerolog/log"
 )
 
@@ -75,12 +73,6 @@ func registerMiddlewares(app *fiber.App) {
 		},
 	}))
 
-	cfg := fibernewrelic.Config{
-		Application: infrastructures.GetRelicApp(),
-	}
-
-	app.Use(fibernewrelic.New(cfg))
-
 	prometheus := fiberprometheus.New("memnix")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
@@ -97,15 +89,15 @@ func loggerMiddleware() fiber.Handler {
 
 		if chainErr != nil {
 			if err := c.App().ErrorHandler(c, chainErr); err != nil {
-				_ = c.SendStatus(fiber.StatusInternalServerError) // TODO: Explain why we ignore the error here
+				_ = c.SendStatus(fiber.StatusInternalServerError)
 			}
 		}
 
 		// Do something with response
 		p := influxdb2.NewPointWithMeasurement("fiber").
 			AddField("ip", c.IP()).
-			AddField("method", c.Method()).
-			AddField("path", c.Path()).
+			AddTag("method", c.Method()).
+			AddTag("path", c.Path()).
 			AddField("status", c.Response().StatusCode()).
 			SetTime(time.Now())
 

@@ -22,15 +22,6 @@ func main() {
 		log.Fatal().Err(err).Msg("Error loading .env file")
 	}
 
-	// Create new relic app
-	err = infrastructures.NewRelic()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Error creating new relic app")
-	}
-
-	// Create logger
-	logger.CreateNewRelicLogger()
-
 	err = infrastructures.ConnectDB()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to database")
@@ -46,14 +37,14 @@ func main() {
 		// Models to migrate
 		migrates := []interface{}{
 			// Add models here
-			domain.User{}, domain.Deck{},
+			domain.User{}, domain.Deck{}, domain.Card{}, domain.Mcq{},
 		}
 
 		// AutoMigrate models
 		for i := 0; i < len(migrates); i++ {
 			err = infrastructures.GetDBConn().AutoMigrate(&migrates[i])
 			if err != nil {
-				log.Error().Err(err).Msg("Can't auto migrate models")
+				log.Error().Err(err).Int("model", i).Msg("Can't auto migrate models")
 			}
 		}
 	}
@@ -85,6 +76,8 @@ func main() {
 			log.Fatal().Err(err).Msg("Error disconnecting from influxDB")
 		}
 	}()
+
+	logger.CreateLogger()
 
 	// Create logger workers
 	go misc.CreateLogger()

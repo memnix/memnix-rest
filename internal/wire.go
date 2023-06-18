@@ -9,7 +9,9 @@ import (
 	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
+	"github.com/memnix/memnix-rest/internal/card"
 	"github.com/memnix/memnix-rest/internal/deck"
+	"github.com/memnix/memnix-rest/internal/mcq"
 	"github.com/memnix/memnix-rest/internal/user"
 )
 
@@ -41,6 +43,18 @@ func InitializeOAuth() controllers.OAuthController {
 func InitializeDeck() controllers.DeckController {
 	wire.Build(controllers.NewDeckController, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn, deck.NewRedisRepository, infrastructures.GetRedisClient)
 	return controllers.DeckController{}
+}
+
+// InitializeCard initializes the card controller.
+func InitializeCard() controllers.CardController {
+	wire.Build(controllers.NewCardController, card.NewUseCase, card.NewRepository, infrastructures.GetDBConn, card.NewRedisRepository, infrastructures.GetRedisClient)
+	return controllers.CardController{}
+}
+
+// InitializeMcq initializes the mcq controller.
+func InitializeMcq() controllers.McqController {
+	wire.Build(controllers.NewMcqController, mcq.NewUseCase, mcq.NewRepository, infrastructures.GetDBConn, mcq.NewRedisRepository, infrastructures.GetRedisClient)
+	return controllers.McqController{}
 }
 
 // InitializeMeiliSearch initializes the meilisearch.

@@ -8,7 +8,6 @@ require (
 	github.com/bytedance/sonic v1.8.8
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/go-playground/validator/v10 v10.13.0
-	github.com/gofiber/contrib/fibernewrelic v1.1.2
 	github.com/gofiber/fiber/v2 v2.45.0
 	github.com/gofiber/swagger v0.1.11
 	github.com/golang-jwt/jwt/v5 v5.0.0
@@ -16,8 +15,6 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/joho/godotenv v1.5.1
 	github.com/meilisearch/meilisearch-go v0.24.0
-	github.com/newrelic/go-agent/v3 v3.21.1
-	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/zerologWriter v1.0.2
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.0.4
 	github.com/rs/zerolog v1.29.1
@@ -25,7 +22,7 @@ require (
 	golang.org/x/crypto v0.9.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.5.0
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.0
 )
 
 require (
@@ -60,7 +57,6 @@ require (
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
-	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrwriter v1.0.0 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/prometheus/client_golang v1.15.1 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
@@ -81,8 +77,6 @@ require (
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/tools v0.9.1 // indirect
-	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
-	google.golang.org/grpc v1.55.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

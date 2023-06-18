@@ -11,7 +11,9 @@ import (
 	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
+	"github.com/memnix/memnix-rest/internal/card"
 	"github.com/memnix/memnix-rest/internal/deck"
+	"github.com/memnix/memnix-rest/internal/mcq"
 	"github.com/memnix/memnix-rest/internal/user"
 )
 
@@ -68,6 +70,28 @@ func InitializeDeck() controllers.DeckController {
 	iUseCase := deck.NewUseCase(iRepository, iRedisRepository)
 	deckController := controllers.NewDeckController(iUseCase)
 	return deckController
+}
+
+// InitializeCard initializes the card controller.
+func InitializeCard() controllers.CardController {
+	db := infrastructures.GetDBConn()
+	iRepository := card.NewRepository(db)
+	client := infrastructures.GetRedisClient()
+	iRedisRepository := card.NewRedisRepository(client)
+	iUseCase := card.NewUseCase(iRepository, iRedisRepository)
+	cardController := controllers.NewCardController(iUseCase)
+	return cardController
+}
+
+// InitializeMcq initializes the mcq controller.
+func InitializeMcq() controllers.McqController {
+	db := infrastructures.GetDBConn()
+	iRepository := mcq.NewRepository(db)
+	client := infrastructures.GetRedisClient()
+	iRedisRepository := mcq.NewRedisRepository(client)
+	iUseCase := mcq.NewUseCase(iRepository, iRedisRepository)
+	mcqController := controllers.NewMcqController(iUseCase)
+	return mcqController
 }
 
 // InitializeMeiliSearch initializes the meilisearch.
