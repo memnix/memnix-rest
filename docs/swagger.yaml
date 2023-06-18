@@ -1,28 +1,64 @@
 definitions:
+  domain.Card:
+    properties:
+      answer:
+        type: string
+      card_type:
+        $ref: '#/definitions/domain.CardType'
+      deck_id:
+        type: integer
+      mcq:
+        $ref: '#/definitions/domain.Mcq'
+      mcq_id:
+        type: integer
+      question:
+        type: string
+    type: object
+  domain.CardType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    type: integer
+    x-enum-comments:
+      CardTypeBlankMCQ: CardTypeBlankMCQ is the blank mcq type of the card
+      CardTypeBlankOnly: CardTypeBlankOnly is the blank only type of the card
+      CardTypeBlankProgressive: CardTypeBlankProgressive is the blank progressive
+        type of the card
+      CardTypeMCQOnly: CardTypeMCQOnly is the mcq only type of the card
+      CardTypeQAOnly: CardTypeQAOnly is the qa only type of the card
+      CardTypeQAProgressive: CardTypeQAProgressive is the qa progressive type of the
+        card
+    x-enum-varnames:
+    - CardTypeQAOnly
+    - CardTypeMCQOnly
+    - CardTypeQAProgressive
+    - CardTypeBlankOnly
+    - CardTypeBlankProgressive
+    - CardTypeBlankMCQ
   domain.Deck:
     properties:
       banner:
-        description: Banner of the deck
         type: string
+      cards:
+        items:
+          $ref: '#/definitions/domain.Card'
+        type: array
       description:
-        description: Description of the deck
         type: string
       key:
-        description: Key of the deck
         type: string
       lang:
-        description: Lang of the deck
         type: string
       name:
-        description: Name of the deck
         type: string
       owner_id:
-        description: OwnerID of the deck
         type: integer
       status:
-        allOf:
-        - $ref: '#/definitions/domain.DeckStatus'
-        description: Status of the deck
+        $ref: '#/definitions/domain.DeckStatus'
     type: object
   domain.DeckStatus:
     enum:
@@ -47,6 +83,13 @@ definitions:
         description: Password of the user
         type: string
     type: object
+  domain.Mcq:
+    properties:
+      answers:
+        type: string
+      linked:
+        type: boolean
+    type: object
   domain.Permission:
     enum:
     - 0
@@ -54,6 +97,11 @@ definitions:
     - 2
     - 3
     type: integer
+    x-enum-comments:
+      PermissionAdmin: PermissionAdmin is the permission level of an admin.
+      PermissionNone: PermissionNone is the default permission level.
+      PermissionUser: PermissionUser is the permission level of a user.
+      PermissionVip: PermissionVip is the permission level of a vip.
     x-enum-varnames:
     - PermissionNone
     - PermissionUser

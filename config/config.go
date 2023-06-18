@@ -42,11 +42,11 @@ var JwtSigningMethod = jwt.SigningMethodHS256
 
 // PasswordConfigStruct is the struct for the password config
 type PasswordConfigStruct struct {
-	Iterations uint32 // Number of iterations to use for Argon2ID
+	Iterations uint32 // Iterations to use for Argon2ID
 	Memory     uint32 // Memory to use for Argon2ID
-	Threads    uint8  // Number of threads to use for Argon2ID
-	KeyLen     uint32 // Key length to use for Argon2ID
-	SaltLen    uint32 // Salt length to use for Argon2ID
+	Threads    uint8  // Threads to use for Argon2ID
+	KeyLen     uint32 // KeyLen to use for Argon2ID
+	SaltLen    uint32 // SaltLen to use for Argon2ID
 }
 
 // IsProduction returns true if the app is in production
