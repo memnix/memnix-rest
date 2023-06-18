@@ -11,8 +11,8 @@ import (
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/memnix/memnix-rest/pkg/random"
 	"github.com/memnix/memnix-rest/views"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 // OAuthController is the controller for the OAuth routes
@@ -74,41 +74,36 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 
 	// check if the state is valid
 	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
-		log.Debug().Msg("invalid state")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the access token from github
 	accessToken, err := oauth.GetGithubAccessToken(code)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid github access token")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from github
 	user, err := oauth.GetGithubData(accessToken)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid github user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var githubUser domain.GithubLogin
 	err = config.JSONHelper.Unmarshal([]byte(user), &githubUser)
 	if err != nil {
-		log.Debug().Err(err).Msg("can't unmarshal github user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
 	jwtToken, err := a.auth.LoginOauth(c.UserContext(), githubUser.ToUser())
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid credentials")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// Delete the state from the cache
 	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
-		log.Debug().Err(err).Msg("can't delete state from cache")
+		otelzap.Ctx(c.UserContext()).Error("failed to delete state from cache", zap.Error(err))
 	}
 
 	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
@@ -158,45 +153,39 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	state := c.Query("state")
 
 	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
-		log.Debug().Err(errors.New("invalid state")).Msg("DiscordCallback - invalid state in redis cache")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the access token from discord
 	accessToken, err := oauth.GetDiscordAccessToken(code)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid discord access token")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from discord
 	user, err := oauth.GetDiscordData(accessToken)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid discord user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var discordUser domain.DiscordLogin
 	err = config.JSONHelper.Unmarshal([]byte(user), &discordUser)
 	if err != nil {
-		log.Debug().Err(err).Msg("can't unmarshal discord user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if discordUser == (domain.DiscordLogin{}) {
-		log.Debug().Msg("invalid discord user - user: " + user)
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
 	jwtToken, err := a.auth.LoginOauth(c.UserContext(), discordUser.ToUser())
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid credentials")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
-		log.Debug().Err(err).Msg("can't delete state from cache")
+		otelzap.Ctx(c.UserContext()).Error("error deleting state", zap.Error(err))
 	}
 
 	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)

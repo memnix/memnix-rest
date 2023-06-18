@@ -76,5 +76,4 @@ func registerMiddlewares(app *fiber.App) {
 	app.Use(pprof.New())
 
 	app.Use(otelfiber.Middleware())
-
 }

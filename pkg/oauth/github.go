@@ -11,7 +11,6 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 // GetGithubAccessToken gets the access token from Github using the code
@@ -31,7 +30,6 @@ func GetGithubAccessToken(code string) (string, error) {
 		bytes.NewBuffer(requestJSON),
 	)
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
-		log.Debug().Err(reqerr).Msg("github.go: GetGithubAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
 		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -40,7 +38,6 @@ func GetGithubAccessToken(code string) (string, error) {
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
-		log.Debug().Err(resperr).Msg("github.go: GetGithubAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
 		return "", errors.Wrap(reqerr, views.ResponseFailed)
 	}
 
@@ -75,7 +72,6 @@ func GetGithubData(accessToken string) (string, error) {
 		nil,
 	)
 	if err != nil {
-		log.Info().Msg(views.RequestFailed)
 		return "", err
 	}
 
@@ -87,7 +83,6 @@ func GetGithubData(accessToken string) (string, error) {
 	// Make the request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Info().Msg(views.ResponseFailed)
 		return "", err
 	}
 

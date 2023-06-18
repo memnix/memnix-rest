@@ -8,7 +8,8 @@ import (
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -64,7 +65,7 @@ func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) 
 	userModel := registerStruct.ToUser()
 
 	if err = a.Create(ctx, &userModel); err != nil {
-		log.Warn().Err(err).Msg("failed to create user in register")
+		otelzap.Ctx(ctx).Error("failed to create registerStruct in register", zap.Error(err))
 		return domain.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 
@@ -104,23 +105,23 @@ func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, err
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = a.RegisterOauth(ctx, user)
 			if err != nil {
-				log.Error().Err(err)
+				otelzap.Ctx(ctx).Error("failed to register user", zap.Error(err))
 				return "", errors.Wrap(err, "failed to register user")
 			}
 
 			userModel, err = a.GetByEmail(ctx, user.Email)
 			if err != nil {
-				log.Error().Err(err)
+				otelzap.Ctx(ctx).Error("failed to get user", zap.Error(err))
 				return "", errors.New("failed to get user")
 			}
 		} else {
-			log.Error().Err(err)
+			otelzap.Ctx(ctx).Error("failed to get user", zap.Error(err))
 			return "", err
 		}
 	}
 
 	if userModel.OauthProvider != user.OauthProvider && userModel.OauthProvider != "" {
-		log.Debug().Msg("user is already registered with another provider")
+		otelzap.Ctx(ctx).Warn("user is already registered with another provider")
 		return "", errors.New("user is already registered with another provider")
 	}
 
@@ -133,7 +134,7 @@ func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, err
 		}
 		err = a.Update(ctx, &userModel)
 		if err != nil {
-			log.Error().Err(err)
+			otelzap.Ctx(ctx).Error("failed to update user", zap.Error(err))
 			return "", errors.Wrap(err, "failed to update user")
 		}
 	}

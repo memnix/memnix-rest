@@ -11,7 +11,6 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 // GetDiscordAccessToken gets the access token from Discord
@@ -31,7 +30,6 @@ func GetDiscordAccessToken(code string) (string, error) {
 		reqBody,
 	)
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
-		log.Debug().Err(reqerr).Msg("discord.go: GetDiscordAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
 		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -40,7 +38,6 @@ func GetDiscordAccessToken(code string) (string, error) {
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
-		log.Debug().Err(resperr).Msg("discord.go: GetDiscordAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
 		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
 
@@ -77,7 +74,6 @@ func GetDiscordData(accessToken string) (string, error) {
 	)
 
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
-		log.Debug().Err(reqerr).Msg("discord.go: GetDiscordData: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
 		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
@@ -85,7 +81,6 @@ func GetDiscordData(accessToken string) (string, error) {
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
-		log.Debug().Err(resperr).Msg("discord.go: GetDiscordData: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
 		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
 

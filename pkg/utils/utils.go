@@ -9,14 +9,15 @@ import (
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 // ConvertStrToUInt converts a string to an unsigned integer
 func ConvertStrToUInt(str string) (uint, error) {
 	number, err := strconv.ParseUint(str, config.Base10, config.BitSize)
 	if err != nil {
-		log.Debug().Err(err).Msgf("Error while converting string to uint: %s", err)
+		otelzap.L().Error("Error while converting string to uint", zap.Error(err))
 		return 0, errors.New("Error while converting string to uint")
 	}
 	return uint(number), nil
@@ -31,7 +32,7 @@ func ConvertUIntToStr(number uint) string {
 func ConvertStrToInt(str string) (int, error) {
 	number, err := strconv.ParseInt(str, config.Base10, config.BitSize)
 	if err != nil {
-		log.Debug().Err(err).Msgf("Error while converting string to int: %s", err)
+		otelzap.L().Error("Error while converting string to int", zap.Error(err))
 		return 0, errors.New("Error while converting string to int")
 	}
 	return int(number), nil

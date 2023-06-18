@@ -3,11 +3,11 @@ package jwt
 import (
 	"context"
 	"errors"
-	"github.com/memnix/memnix-rest/infrastructures"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
 )
 
@@ -19,7 +19,7 @@ import (
 // It's secret key is defined in the environment variable SECRET_KEY
 // see: utils/config.go for more information
 func GenerateToken(ctx context.Context, userID uint) (string, error) {
-	ctx, span := infrastructures.GetFiberTracer().Start(ctx, "GenerateToken")
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GenerateToken")
 	defer span.End()
 	// Create the Claims for the token
 	claims := jwt.NewWithClaims(config.JwtSigningMethod, jwt.RegisteredClaims{

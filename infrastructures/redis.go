@@ -6,7 +6,8 @@ import (
 	"github.com/memnix/memnix-rest/config"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 var redisClient *redis.Client
@@ -50,7 +51,7 @@ func NewRedisClient() *redis.Client {
 	})
 
 	if err := redisotel.InstrumentTracing(client); err != nil {
-		log.Error().Err(err).Msg("Failed to instrument redis")
+		otelzap.L().Error("failed to instrument redis", zap.Error(err))
 	}
 
 	return client

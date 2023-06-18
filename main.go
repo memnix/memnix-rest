@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,10 +16,14 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal"
 	"github.com/memnix/memnix-rest/pkg/logger"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 func main() {
+	// Setup the logger
+	zapLogger, undo := logger.CreateZapLogger()
+
 	// Setup the environment variables
 	setupEnv()
 
@@ -35,11 +40,11 @@ func main() {
 		// Init MeiliSearch
 		err := meilisearch.InitMeiliSearch(internal.InitializeMeiliSearch())
 		if err != nil {
-			log.Error().Err(err).Msg("Can't init MeiliSearch")
+			zapLogger.Error("error initializing meilisearch", zap.Error(err))
 		}
 	}
 
-	log.Debug().Msg("Starting server...")
+	zapLogger.Info("starting server")
 
 	// Create the app
 	app := http.New()
@@ -47,7 +52,7 @@ func main() {
 	// Listen from a different goroutine
 	go func() {
 		if err := app.Listen(":1815"); err != nil {
-			log.Panic().Err(err).Msg("Error listening to port 1815")
+			zapLogger.Panic("error starting server", zap.Error(err))
 		}
 	}()
 
@@ -58,34 +63,39 @@ func main() {
 
 	shutdown(app)
 
-	log.Info().Msg("Server stopped")
+	zapLogger.Info("server stopped")
+
+	if err := zapLogger.Sync(); err != nil {
+		return // can't even log, just exit
+	}
+	undo()
 }
 
 func shutdown(app *fiber.App) {
-	log.Info().Msg("🔒 Server shutting down...")
+	otelzap.L().Info("🔒 Server shutting down...")
 	_ = app.Shutdown()
 
-	log.Info().Msg("🧹 Running cleanup tasks...")
+	otelzap.L().Info("🧹 Running cleanup tasks...")
 
 	err := infrastructures.DisconnectDB()
 	if err != nil {
-		log.Error().Err(err).Msg("❌ Error disconnecting from database")
+		otelzap.L().Error("❌ Error closing database connection")
 	} else {
-		log.Info().Msg("✅ Disconnected from database")
+		otelzap.L().Info("✅ Disconnected from database")
 	}
 
 	err = infrastructures.CloseRedis()
 	if err != nil {
-		log.Error().Err(err).Msg("❌ Error closing Redis connection")
+		otelzap.L().Error("❌ Error closing Redis connection")
 	} else {
-		log.Info().Msg("✅ Disconnected from Redis")
+		otelzap.L().Info("✅ Disconnected from Redis")
 	}
 
 	err = infrastructures.ShutdownTracer()
 	if err != nil {
-		log.Error().Err(err).Msg("❌ Error closing Tracer")
+		otelzap.L().Error("❌ Error closing Tracer connection")
 	} else {
-		log.Info().Msg("✅ Disconnected from Tracer")
+		otelzap.L().Info("✅ Disconnected from Tracer")
 	}
 }
 
@@ -95,30 +105,28 @@ func migrate() {
 		&domain.User{}, &domain.Card{}, &domain.Deck{}, &domain.Mcq{},
 	}
 
-	log.Info().Msg("⚙️ Starting database migration...")
+	otelzap.L().Info("⚙️ Starting database migration...")
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {
 		step := i + 1
 		err := infrastructures.GetDBConn().AutoMigrate(&migrates[i])
 		if err != nil {
-			log.Error().Err(err).Int("model", step).Msg("❌ Can't auto migrate models")
+			otelzap.L().Error(fmt.Sprintf("❌ Error migrating model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
 		} else {
-			log.Info().Msgf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates))
+			otelzap.L().Info(fmt.Sprintf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
 		}
 	}
 
-	log.Info().Msg("✅ Database migration completed!")
+	otelzap.L().Info("✅ Database migration completed!")
 }
 
 func setupEnv() {
 	// Load the .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error loading .env file")
+		otelzap.L().Fatal("❌ Error loading .env file")
 	}
-
-	logger.CreateLogger()
 
 	// Init oauth
 	infrastructures.InitOauth()
@@ -127,33 +135,33 @@ func setupEnv() {
 func setupInfrastructures() {
 	err := infrastructures.ConnectDB()
 	if err != nil {
-		log.Fatal().Err(err).Msg("❌ Error connecting to database")
+		otelzap.L().Fatal("❌ Error connecting to database")
 	} else {
-		log.Info().Msg("✅ Connected to database")
+		otelzap.L().Info("✅ Connected to database")
 	}
 
 	// Redis connection
 	err = infrastructures.ConnectRedis()
 	if err != nil {
-		log.Fatal().Err(err).Msg("❌ Error connecting to Redis")
+		otelzap.L().Fatal("❌ Error connecting to Redis")
 	} else {
-		log.Info().Msg("✅ Connected to Redis")
+		otelzap.L().Info("✅ Connected to Redis")
 	}
 
 	// Connect MeiliSearch
 	err = infrastructures.ConnectMeiliSearch(config.EnvHelper)
 	if err != nil {
-		log.Error().Err(err).Msg("❌ Error connecting to MeiliSearch")
+		otelzap.L().Fatal("❌ Error connecting to MeiliSearch")
 	} else {
-		log.Info().Msg("✅ Connected to MeiliSearch")
+		otelzap.L().Info("✅ Connected to MeiliSearch")
 	}
 
 	// Connect to the tracer
 	err = infrastructures.InitTracer()
 	if err != nil {
-		log.Error().Err(err).Msg("❌ Error connecting to the tracer")
+		otelzap.L().Fatal("❌ Error connecting to the tracer")
 	} else {
-		log.Info().Msg("✅ Connected to the tracer")
+		otelzap.L().Info("✅ Connected to the tracer")
 	}
 }
 
@@ -164,13 +172,12 @@ func gcTuning() {
 
 	gctuner.Tuning(threshold)
 
-	log.Debug().
-		Msgf("🔧 GC Tuning - Limit: %.2f GB, Threshold: %d bytes, GC Percent: %d, Min GC Percent: %d, Max GC Percent: %d",
-			limit/(config.GCLimit),
-			threshold,
-			gctuner.GetGCPercent(),
-			gctuner.GetMinGCPercent(),
-			gctuner.GetMaxGCPercent())
+	otelzap.L().Info(fmt.Sprintf("🔧 GC Tuning - Limit: %.2f GB, Threshold: %d bytes, GC Percent: %d, Min GC Percent: %d, Max GC Percent: %d",
+		limit/(config.GCLimit),
+		threshold,
+		gctuner.GetGCPercent(),
+		gctuner.GetMinGCPercent(),
+		gctuner.GetMaxGCPercent()))
 
-	log.Debug().Msg("✅ GC Tuning completed.")
+	otelzap.L().Info("✅ GC Tuning completed!")
 }

@@ -9,7 +9,8 @@ import (
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 // JwtController is the controller for the jwt routes
@@ -57,7 +58,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		// get the userModel from the database
 		userModel, err := j.IUseCase.GetByID(c.UserContext(), userID)
 		if err != nil {
-			log.Warn().Err(err).Msg("user not found")
+			otelzap.Ctx(c.UserContext()).Error("error getting user", zap.Error(err))
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not connected")))
 		}
 
