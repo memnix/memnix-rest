@@ -39,7 +39,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	jwtToken, err := a.auth.Login(loginStruct.Password, loginStruct.Email)
+	jwtToken, err := a.auth.Login(c.UserContext(), loginStruct.Password, loginStruct.Email)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
@@ -66,7 +66,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	newUser, err := a.auth.Register(registerStruct)
+	newUser, err := a.auth.Register(c.UserContext(), registerStruct)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(errors.New("error creating user")))
 	}
@@ -100,7 +100,7 @@ func (*AuthController) Logout(c *fiber.Ctx) error {
 //	@Failure		500	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/refresh [post]
 func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
-	newToken, err := a.auth.RefreshToken(*utils.GetUserFromContext(c))
+	newToken, err := a.auth.RefreshToken(c.UserContext(), *utils.GetUserFromContext(c))
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(err))
 	}

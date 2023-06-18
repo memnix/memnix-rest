@@ -55,7 +55,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		}
 
 		// get the userModel from the database
-		userModel, err := j.IUseCase.GetByID(userID)
+		userModel, err := j.IUseCase.GetByID(c.UserContext(), userID)
 		if err != nil {
 			log.Warn().Err(err).Msg("user not found")
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not connected")))

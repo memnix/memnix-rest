@@ -1,6 +1,8 @@
 package meilisearch
 
 import (
+	"context"
+
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/deck"
@@ -20,7 +22,7 @@ func NewMeiliSearch(deck deck.IUseCase) MeiliSearch {
 
 // CreateSearchIndex creates a new index in MeiliSearch.
 func (m *MeiliSearch) CreateSearchIndex() error {
-	decks, err := m.GetPublic()
+	decks, err := m.GetPublic(context.Background())
 	if err != nil {
 		return err
 	}

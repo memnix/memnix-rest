@@ -21,7 +21,7 @@ func NewUserController(useCase user.IUseCase) UserController {
 func (u *UserController) GetName(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 
-	return c.SendString(u.IUseCase.GetName(uuid))
+	return c.SendString(u.IUseCase.GetName(c.UserContext(), uuid))
 }
 
 // GetMe returns the user from the context

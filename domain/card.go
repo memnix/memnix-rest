@@ -14,6 +14,10 @@ type Card struct {
 	CardType   CardType `json:"card_type"`
 }
 
+func (c *Card) TableName() string {
+	return "cards"
+}
+
 // String returns the string representation of the card.
 func (c *Card) String() string {
 	return c.Question + " " + c.Answer

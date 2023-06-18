@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"strings"
 
 	"github.com/memnix/memnix-rest/domain"
@@ -24,13 +25,13 @@ func NewUseCase(repo user.IRepository) IUseCase {
 
 // Login logs in a user
 // Returns a token and error
-func (a *UseCase) Login(password string, email string) (string, error) {
-	userModel, err := a.GetByEmail(email)
+func (a *UseCase) Login(ctx context.Context, password string, email string) (string, error) {
+	userModel, err := a.GetByEmail(ctx, email)
 	if err != nil {
 		return "", errors.New("user not found")
 	}
 
-	ok, err := ComparePasswords(password, []byte(userModel.Password))
+	ok, err := ComparePasswords(ctx, password, []byte(userModel.Password))
 	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) || !ok {
 		return "", errors.New("invalid password")
 	}
@@ -38,7 +39,7 @@ func (a *UseCase) Login(password string, email string) (string, error) {
 		return "", err
 	}
 
-	token, err := jwt.GenerateToken(userModel.ID)
+	token, err := jwt.GenerateToken(ctx, userModel.ID)
 	if err != nil {
 		return "", err
 	}
@@ -48,12 +49,12 @@ func (a *UseCase) Login(password string, email string) (string, error) {
 
 // Register registers a new user
 // Returns an error
-func (a *UseCase) Register(registerStruct domain.Register) (domain.User, error) {
+func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) (domain.User, error) {
 	if err := VerifyPassword(registerStruct.Password); err != nil {
 		return domain.User{}, errors.Wrap(err, "Verify password failed")
 	}
 
-	hash, err := GenerateEncryptedPassword(registerStruct.Password)
+	hash, err := GenerateEncryptedPassword(ctx, registerStruct.Password)
 	if err != nil {
 		return domain.User{}, errors.Wrap(err, "Generate encrypted password failed")
 	}
@@ -62,12 +63,12 @@ func (a *UseCase) Register(registerStruct domain.Register) (domain.User, error) 
 	registerStruct.Email = strings.ToLower(registerStruct.Email)
 	userModel := registerStruct.ToUser()
 
-	if err = a.Create(&userModel); err != nil {
+	if err = a.Create(ctx, &userModel); err != nil {
 		log.Warn().Err(err).Msg("failed to create user in register")
 		return domain.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 
-	userModel, err = a.GetByEmail(registerStruct.Email)
+	userModel, err = a.GetByEmail(ctx, registerStruct.Email)
 	if err != nil {
 		return domain.User{}, errors.Wrap(err, "failed to get registerStruct in register")
 	}
@@ -77,13 +78,13 @@ func (a *UseCase) Register(registerStruct domain.Register) (domain.User, error) 
 
 // Logout returns an empty string
 // It might be used to invalidate a token in the future
-func (*UseCase) Logout() (string, error) {
+func (*UseCase) Logout(ctx context.Context) (string, error) {
 	return "", nil
 }
 
 // RefreshToken refreshes a token
-func (*UseCase) RefreshToken(user domain.User) (string, error) {
-	token, err := jwt.GenerateToken(user.ID)
+func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, error) {
+	token, err := jwt.GenerateToken(ctx, user.ID)
 	if err != nil {
 		return "", err
 	}
@@ -92,22 +93,22 @@ func (*UseCase) RefreshToken(user domain.User) (string, error) {
 }
 
 // RegisterOauth registers a new user with oauth
-func (a *UseCase) RegisterOauth(user domain.User) error {
-	return a.Create(&user)
+func (a *UseCase) RegisterOauth(ctx context.Context, user domain.User) error {
+	return a.Create(ctx, &user)
 }
 
 // LoginOauth logs in a user with oauth
-func (a *UseCase) LoginOauth(user domain.User) (string, error) {
-	userModel, err := a.GetByEmail(user.Email)
+func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, error) {
+	userModel, err := a.GetByEmail(ctx, user.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = a.RegisterOauth(user)
+			err = a.RegisterOauth(ctx, user)
 			if err != nil {
 				log.Error().Err(err)
 				return "", errors.Wrap(err, "failed to register user")
 			}
 
-			userModel, err = a.GetByEmail(user.Email)
+			userModel, err = a.GetByEmail(ctx, user.Email)
 			if err != nil {
 				log.Error().Err(err)
 				return "", errors.New("failed to get user")
@@ -130,12 +131,12 @@ func (a *UseCase) LoginOauth(user domain.User) (string, error) {
 		if user.Avatar != "" {
 			userModel.Avatar = user.Avatar
 		}
-		err = a.Update(&userModel)
+		err = a.Update(ctx, &userModel)
 		if err != nil {
 			log.Error().Err(err)
 			return "", errors.Wrap(err, "failed to update user")
 		}
 	}
 
-	return jwt.GenerateToken(userModel.ID)
+	return jwt.GenerateToken(ctx, userModel.ID)
 }

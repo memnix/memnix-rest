@@ -1,6 +1,8 @@
 package deck
 
 import (
+	"context"
+
 	"github.com/memnix/memnix-rest/domain"
 	"gorm.io/gorm"
 )
@@ -11,50 +13,50 @@ type SQLRepository struct {
 }
 
 // Create creates a new deck.
-func (r *SQLRepository) Create(deck *domain.Deck) error {
-	return r.DBConn.Create(&deck).Error
+func (r *SQLRepository) Create(ctx context.Context, deck *domain.Deck) error {
+	return r.DBConn.WithContext(ctx).Create(&deck).Error
 }
 
 // Update updates the deck with the given id.
-func (r *SQLRepository) Update(deck *domain.Deck) error {
-	return r.DBConn.Save(&deck).Error
+func (r *SQLRepository) Update(ctx context.Context, deck *domain.Deck) error {
+	return r.DBConn.WithContext(ctx).Save(&deck).Error
 }
 
 // Delete deletes the deck with the given id.
-func (r *SQLRepository) Delete(id uint) error {
-	return r.DBConn.Delete(&domain.Deck{}, id).Error
+func (r *SQLRepository) Delete(ctx context.Context, id uint) error {
+	return r.DBConn.WithContext(ctx).Delete(&domain.Deck{}, id).Error
 }
 
 // CreateFromUser creates a new deck from the given user.
-func (r *SQLRepository) CreateFromUser(user domain.User, deck *domain.Deck) error {
-	return r.DBConn.Model(&user).Association("OwnDecks").Append(deck)
+func (r *SQLRepository) CreateFromUser(ctx context.Context, user domain.User, deck *domain.Deck) error {
+	return r.DBConn.WithContext(ctx).Model(&user).Association("OwnDecks").Append(deck)
 }
 
 // GetByID returns the deck with the given id.
-func (r *SQLRepository) GetByID(id uint) (domain.Deck, error) {
+func (r *SQLRepository) GetByID(ctx context.Context, id uint) (domain.Deck, error) {
 	var deck domain.Deck
-	err := r.DBConn.Preload("Learners").First(&deck, id).Error
+	err := r.DBConn.WithContext(ctx).Preload("Learners").First(&deck, id).Error
 	return deck, err
 }
 
 // GetByUser returns the decks of the given user.
-func (r *SQLRepository) GetByUser(user domain.User) ([]domain.Deck, error) {
+func (r *SQLRepository) GetByUser(ctx context.Context, user domain.User) ([]domain.Deck, error) {
 	var decks []domain.Deck
-	err := r.DBConn.Model(&user).Association("OwnDecks").Find(&decks)
+	err := r.DBConn.WithContext(ctx).Model(&user).Association("OwnDecks").Find(&decks)
 	return decks, err
 }
 
 // GetByLearner returns the decks of the given learner.
-func (r *SQLRepository) GetByLearner(user domain.User) ([]domain.Deck, error) {
+func (r *SQLRepository) GetByLearner(ctx context.Context, user domain.User) ([]domain.Deck, error) {
 	var decks []domain.Deck
-	err := r.DBConn.Model(&user).Association("Learning").Find(&decks)
+	err := r.DBConn.WithContext(ctx).Model(&user).Association("Learning").Find(&decks)
 	return decks, err
 }
 
 // GetPublic returns the public decks.
-func (r *SQLRepository) GetPublic() ([]domain.Deck, error) {
+func (r *SQLRepository) GetPublic(ctx context.Context) ([]domain.Deck, error) {
 	var decks []domain.Deck
-	err := r.DBConn.Where("status = ?", domain.DeckStatusPublic).Find(&decks).Error
+	err := r.DBConn.WithContext(ctx).Where("status = ?", domain.DeckStatusPublic).Find(&decks).Error
 	return decks, err
 }
 

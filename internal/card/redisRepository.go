@@ -2,6 +2,7 @@ package card
 
 import (
 	"context"
+
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -22,6 +23,6 @@ func NewRedisRepository(redisConn *redis.Client) IRedisRepository {
 	return &RedisRepository{RedisConn: redisConn}
 }
 
-func (r RedisRepository) GetByID(id uint) (string, error) {
-	return r.RedisConn.Get(context.Background(), withID(getBaseKey, id)).Result()
+func (r RedisRepository) GetByID(ctx context.Context, id uint) (string, error) {
+	return r.RedisConn.Get(ctx, withID(getBaseKey, id)).Result()
 }

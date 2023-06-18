@@ -35,6 +35,11 @@ const (
 
 	DeckSecretCodeLength = 10  // DeckSecretCodeLength is the length of the secret code for decks
 	GCThresholdPercent   = 0.7 // GCThresholdPercent is the threshold for garbage collection
+
+	GCLimit = 1024 * 1024 * 1024 // GCLimit is the limit for garbage collection
+
+	GormPrometheusRefreshInterval = 15 // GormPrometheusRefreshInterval is the refresh interval for gorm prometheus
+
 )
 
 // JwtSigningMethod is the signing method for JWT

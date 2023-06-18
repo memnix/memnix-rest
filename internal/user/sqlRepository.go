@@ -1,6 +1,8 @@
 package user
 
 import (
+	"context"
+
 	"github.com/memnix/memnix-rest/domain"
 	"gorm.io/gorm"
 )
@@ -16,44 +18,44 @@ func NewRepository(dbConn *gorm.DB) IRepository {
 }
 
 // GetName returns the name of the user.
-func (r *SQLRepository) GetName(id uint) string {
+func (r *SQLRepository) GetName(ctx context.Context, id uint) string {
 	var user domain.User
-	r.DBConn.First(&user, id)
+	r.DBConn.WithContext(ctx).First(&user, id)
 	return user.Username
 }
 
 // GetByID returns the user with the given id.
-func (r *SQLRepository) GetByID(id uint) (domain.User, error) {
+func (r *SQLRepository) GetByID(ctx context.Context, id uint) (domain.User, error) {
 	var user domain.User
-	err := r.DBConn.First(&user, id).Error
+	err := r.DBConn.WithContext(ctx).First(&user, id).Error
 	return user, err
 }
 
 // GetByEmail returns the user with the given email.
-func (r *SQLRepository) GetByEmail(email string) (domain.User, error) {
+func (r *SQLRepository) GetByEmail(ctx context.Context, email string) (domain.User, error) {
 	var user domain.User
-	err := r.DBConn.Where("email = ?", email).First(&user).Error
+	err := r.DBConn.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	return user, err
 }
 
 // Create creates a new user.
-func (r *SQLRepository) Create(user *domain.User) error {
-	return r.DBConn.Create(&user).Error
+func (r *SQLRepository) Create(ctx context.Context, user *domain.User) error {
+	return r.DBConn.WithContext(ctx).Create(&user).Error
 }
 
 // Update updates the user with the given id.
-func (r *SQLRepository) Update(user *domain.User) error {
-	return r.DBConn.Save(&user).Error
+func (r *SQLRepository) Update(ctx context.Context, user *domain.User) error {
+	return r.DBConn.WithContext(ctx).Save(&user).Error
 }
 
 // Delete deletes the user with the given id.
-func (r *SQLRepository) Delete(id uint) error {
-	return r.DBConn.Delete(&domain.User{}, id).Error
+func (r *SQLRepository) Delete(ctx context.Context, id uint) error {
+	return r.DBConn.WithContext(ctx).Delete(&domain.User{}, id).Error
 }
 
 // GetByOauthID returns the user with the given oauth id.
-func (r *SQLRepository) GetByOauthID(id string) (domain.User, error) {
+func (r *SQLRepository) GetByOauthID(ctx context.Context, id string) (domain.User, error) {
 	var user domain.User
-	err := r.DBConn.Where("oauth_id = ?", id).First(&user).Error
+	err := r.DBConn.WithContext(ctx).Where("oauth_id = ?", id).First(&user).Error
 	return user, err
 }

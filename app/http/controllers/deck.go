@@ -39,7 +39,7 @@ func (d *DeckController) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
-	deckObject, err := d.IUseCase.GetByID(uintID)
+	deckObject, err := d.IUseCase.GetByID(c.UserContext(), uintID)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -76,7 +76,7 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 
 	deckObject := createDeck.ToDeck()
 
-	if err := d.IUseCase.CreateFromUser(*utils.GetUserFromContext(c), &deckObject); err != nil {
+	if err := d.IUseCase.CreateFromUser(c.UserContext(), *utils.GetUserFromContext(c), &deckObject); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
@@ -96,7 +96,7 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 //	@Router			/v2/deck/owned [get]
 //	@Security		Bearer
 func (d *DeckController) GetOwned(c *fiber.Ctx) error {
-	deckObjects, err := d.IUseCase.GetByUser(*utils.GetUserFromContext(c))
+	deckObjects, err := d.IUseCase.GetByUser(c.UserContext(), *utils.GetUserFromContext(c))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -117,7 +117,7 @@ func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 //	@Router			/v2/deck/learning [get]
 //	@Security		Bearer
 func (d *DeckController) GetLearning(c *fiber.Ctx) error {
-	deckObjects, err := d.IUseCase.GetByLearner(*utils.GetUserFromContext(c))
+	deckObjects, err := d.IUseCase.GetByLearner(c.UserContext(), *utils.GetUserFromContext(c))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -138,7 +138,7 @@ func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 //	@Router			/v2/deck/public [get]
 //	@Security		Bearer
 func (d *DeckController) GetPublic(c *fiber.Ctx) error {
-	deckObjects, err := d.IUseCase.GetPublic()
+	deckObjects, err := d.IUseCase.GetPublic(c.UserContext())
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}

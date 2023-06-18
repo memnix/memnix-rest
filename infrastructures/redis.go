@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/memnix/memnix-rest/config"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog/log"
 )
 
 var redisClient *redis.Client
@@ -46,6 +48,10 @@ func NewRedisClient() *redis.Client {
 		PoolSize:     config.RedisPoolSize,
 		PoolTimeout:  config.RedisPoolTimeout,
 	})
+
+	if err := redisotel.InstrumentTracing(client); err != nil {
+		log.Error().Err(err).Msg("Failed to instrument redis")
+	}
 
 	return client
 }

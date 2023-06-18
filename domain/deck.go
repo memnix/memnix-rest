@@ -21,6 +21,11 @@ type Deck struct {
 	Status      DeckStatus `json:"status"`
 }
 
+// TableName returns the table name for the deck model
+func (d *Deck) TableName() string {
+	return "decks"
+}
+
 // DeckStatus is the status of the deck
 type DeckStatus int64
 

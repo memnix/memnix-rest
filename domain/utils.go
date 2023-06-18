@@ -19,3 +19,7 @@ type Route struct {
 	Method     string                   // Method is the method of the route.
 	Permission Permission               // Permission is the permission level of the route.
 }
+
+type Model interface {
+	TableName() string
+}

@@ -46,7 +46,7 @@ func (a *OAuthController) GithubLogin(c *fiber.Ctx) error {
 		state,
 	)
 	// Save the state in the cache
-	if err := a.IAuthRedisRepository.SetState(state); err != nil {
+	if err := a.IAuthRedisRepository.SetState(c.UserContext(), state); err != nil {
 		return err
 	}
 	if err := c.Redirect(redirectURL, fiber.StatusSeeOther); err != nil {
@@ -73,7 +73,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	state := c.Query("state")
 
 	// check if the state is valid
-	if ok, _ := a.IAuthRedisRepository.HasState(state); !ok {
+	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
 		log.Debug().Msg("invalid state")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
@@ -100,14 +100,14 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	}
 
 	// log the user
-	jwtToken, err := a.auth.LoginOauth(githubUser.ToUser())
+	jwtToken, err := a.auth.LoginOauth(c.UserContext(), githubUser.ToUser())
 	if err != nil {
 		log.Debug().Err(err).Msg("invalid credentials")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// Delete the state from the cache
-	if err = a.IAuthRedisRepository.DeleteState(state); err != nil {
+	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
 		log.Debug().Err(err).Msg("can't delete state from cache")
 	}
 
@@ -127,7 +127,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 	// Create the dynamic redirect URL for login
 	state, _ := random.GenerateSecretCode(config.OauthStateLength)
-	if err := a.IAuthRedisRepository.SetState(state); err != nil {
+	if err := a.IAuthRedisRepository.SetState(c.UserContext(), state); err != nil {
 		return err
 	}
 
@@ -157,7 +157,7 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
 	state := c.Query("state")
 
-	if ok, _ := a.IAuthRedisRepository.HasState(state); !ok {
+	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
 		log.Debug().Err(errors.New("invalid state")).Msg("DiscordCallback - invalid state in redis cache")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
@@ -189,13 +189,13 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	}
 
 	// log the user
-	jwtToken, err := a.auth.LoginOauth(discordUser.ToUser())
+	jwtToken, err := a.auth.LoginOauth(c.UserContext(), discordUser.ToUser())
 	if err != nil {
 		log.Debug().Err(err).Msg("invalid credentials")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
-	if err = a.IAuthRedisRepository.DeleteState(state); err != nil {
+	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
 		log.Debug().Err(err).Msg("can't delete state from cache")
 	}
 
