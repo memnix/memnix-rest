@@ -8,7 +8,7 @@ import (
 func CreateZapLogger() (*otelzap.Logger, func()) {
 	zapLogger, _ := zap.NewProduction()
 
-	logger := otelzap.New(zapLogger)
+	logger := otelzap.New(zapLogger, otelzap.WithTraceIDField(true))
 	undo := otelzap.ReplaceGlobals(logger)
 
 	return logger, undo

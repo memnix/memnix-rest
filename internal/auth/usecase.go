@@ -29,6 +29,7 @@ func NewUseCase(repo user.IRepository) IUseCase {
 func (a *UseCase) Login(ctx context.Context, password string, email string) (string, error) {
 	userModel, err := a.GetByEmail(ctx, email)
 	if err != nil {
+		otelzap.Ctx(ctx).Error("user not found", zap.Error(err), zap.String("email", email))
 		return "", errors.New("user not found")
 	}
 
