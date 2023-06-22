@@ -163,6 +163,12 @@ func setupInfrastructures() {
 	} else {
 		otelzap.L().Info("✅ Connected to the tracer")
 	}
+
+	if err = infrastructures.CreateRistrettoCache(); err != nil {
+		otelzap.L().Fatal("❌ Error creating Ristretto cache")
+	} else {
+		otelzap.L().Info("✅ Created Ristretto cache")
+	}
 }
 
 func gcTuning() {

@@ -68,7 +68,7 @@ func ConnectDB() error {
 	}
 	sqlDB.SetMaxIdleConns(config.SQLMaxIdleConns) // Set max idle connections
 	sqlDB.SetMaxOpenConns(config.SQLMaxOpenConns) // Set max open connections
-	sqlDB.SetConnMaxLifetime(time.Hour)           // Set max connection lifetime
+	sqlDB.SetConnMaxLifetime(time.Second)         // Set max connection lifetime
 
 	if err = conn.Use(prometheus.New(prometheus.Config{
 		DBName:          "db1",                                // `DBName` as metrics label

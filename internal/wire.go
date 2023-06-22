@@ -17,7 +17,7 @@ import (
 
 // InitializeUser initializes the user controller.
 func InitializeUser() controllers.UserController {
-	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewRedisRepository, infrastructures.GetRedisClient, user.NewRepository, infrastructures.GetDBConn)
+	wire.Build(controllers.NewUserController, user.NewUseCase, user.NewRedisRepository, infrastructures.GetRedisClient, user.NewRepository, infrastructures.GetDBConn, user.NewRistrettoCache, infrastructures.GetRistrettoCache)
 	return controllers.UserController{}
 }
 
@@ -29,7 +29,7 @@ func InitializeAuth() controllers.AuthController {
 
 // InitializeJWT initializes the jwt controller.
 func InitializeJWT() controllers.JwtController {
-	wire.Build(controllers.NewJwtController, user.NewUseCase, user.NewRedisRepository, infrastructures.GetRedisClient, user.NewRepository, infrastructures.GetDBConn)
+	wire.Build(controllers.NewJwtController, user.NewUseCase, user.NewRedisRepository, infrastructures.GetRedisClient, user.NewRepository, infrastructures.GetDBConn, user.NewRistrettoCache, infrastructures.GetRistrettoCache)
 	return controllers.JwtController{}
 }
 

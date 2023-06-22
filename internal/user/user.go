@@ -39,3 +39,12 @@ type IRedisRepository interface {
 	// Set sets the value of the given key.
 	Set(ctx context.Context, id uint, value string) error
 }
+
+type IRistrettoRepository interface {
+	// Get returns the value of the given key
+	Get(ctx context.Context, id uint) (domain.User, error)
+	// Set sets the value of the given key
+	Set(ctx context.Context, user domain.User) error
+	// Delete deletes the value of the given key
+	Delete(ctx context.Context, id uint) error
+}

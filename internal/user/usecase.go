@@ -2,9 +2,8 @@ package user
 
 import (
 	"context"
-
-	"github.com/fxamacker/cbor/v2"
 	"github.com/memnix/memnix-rest/domain"
+	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
 )
 
@@ -12,6 +11,7 @@ import (
 type UseCase struct {
 	IRepository
 	IRedisRepository
+	IRistrettoRepository
 }
 
 // GetName returns the name of the user with the given id.
@@ -23,25 +23,26 @@ func (u UseCase) GetName(ctx context.Context, id string) string {
 
 // GetByID returns the user with the given id.
 func (u UseCase) GetByID(ctx context.Context, id uint) (domain.User, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetUserByID")
+	defer span.End()
+
 	var userObject domain.User
 
-	if cacheHit, _ := u.IRedisRepository.Get(ctx, id); cacheHit != "" {
-		if err := cbor.Unmarshal([]byte(cacheHit), &userObject); err == nil {
-			return userObject, nil
-		}
+	if risrettoHit, err := u.IRistrettoRepository.Get(ctx, id); err == nil {
+		return risrettoHit, nil
 	}
 
 	userObject, err := u.IRepository.GetByID(ctx, id)
 	if err != nil {
 		return domain.User{}, err
 	}
-	if marshalledUser, err := cbor.Marshal(userObject); err == nil {
-		_ = u.IRedisRepository.Set(ctx, id, string(marshalledUser))
-	}
+
+	_ = u.IRistrettoRepository.Set(ctx, userObject)
+
 	return userObject, nil
 }
 
 // NewUseCase returns a new user use case.
-func NewUseCase(repo IRepository, redis IRedisRepository) IUseCase {
-	return &UseCase{IRepository: repo, IRedisRepository: redis}
+func NewUseCase(repo IRepository, redis IRedisRepository, ristretto IRistrettoRepository) IUseCase {
+	return &UseCase{IRepository: repo, IRedisRepository: redis, IRistrettoRepository: ristretto}
 }

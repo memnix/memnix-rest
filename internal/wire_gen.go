@@ -25,7 +25,9 @@ func InitializeUser() controllers.UserController {
 	iRepository := user.NewRepository(db)
 	client := infrastructures.GetRedisClient()
 	iRedisRepository := user.NewRedisRepository(client)
-	iUseCase := user.NewUseCase(iRepository, iRedisRepository)
+	cache := infrastructures.GetRistrettoCache()
+	iRistrettoRepository := user.NewRistrettoCache(cache)
+	iUseCase := user.NewUseCase(iRepository, iRedisRepository, iRistrettoRepository)
 	userController := controllers.NewUserController(iUseCase)
 	return userController
 }
@@ -45,7 +47,9 @@ func InitializeJWT() controllers.JwtController {
 	iRepository := user.NewRepository(db)
 	client := infrastructures.GetRedisClient()
 	iRedisRepository := user.NewRedisRepository(client)
-	iUseCase := user.NewUseCase(iRepository, iRedisRepository)
+	cache := infrastructures.GetRistrettoCache()
+	iRistrettoRepository := user.NewRistrettoCache(cache)
+	iUseCase := user.NewUseCase(iRepository, iRedisRepository, iRistrettoRepository)
 	jwtController := controllers.NewJwtController(iUseCase)
 	return jwtController
 }

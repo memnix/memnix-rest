@@ -16,8 +16,8 @@ var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
 	ExpirationTimeInHours = 24 // ExpirationTimeInHours is the expiration time for the JWT token
-	SQLMaxOpenConns       = 50 // SQLMaxOpenConns is the max number of connections in the open connection pool
-	SQLMaxIdleConns       = 10 // SQLMaxIdleConns is the max number of connections in the idle connection pool
+	SQLMaxOpenConns       = 20 // SQLMaxOpenConns is the max number of connections in the open connection pool
+	SQLMaxIdleConns       = 5  // SQLMaxIdleConns is the max number of connections in the idle connection pool
 
 	BCryptCost = 11 // BCryptCost is the cost for bcrypt
 
@@ -40,6 +40,8 @@ const (
 
 	GormPrometheusRefreshInterval = 15 // GormPrometheusRefreshInterval is the refresh interval for gorm prometheus
 
+	RistrettoMaxCost     = 5 * MB // RistrettoMaxCost is the maximum cost
+	RistrettoBufferItems = 32     // RistrettoBufferItems is the number of items per get buffer
 )
 
 // JwtSigningMethod is the signing method for JWT
