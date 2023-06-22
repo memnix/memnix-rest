@@ -49,14 +49,15 @@ func GetSecretKey() string {
 }
 
 // GetUserFromContext gets the user from the context
-func GetUserFromContext(ctx *fiber.Ctx) *domain.User {
+func GetUserFromContext(ctx *fiber.Ctx) (domain.User, error) {
 	if ctx.Locals("user") == nil {
-		return nil
+		otelzap.Ctx(ctx.UserContext()).Error("User not found in context")
+		return domain.User{}, errors.New("User is not initialized")
 	}
-	return ctx.Locals("user").(*domain.User)
+	return ctx.Locals("user").(domain.User), nil
 }
 
 // SetUserToContext sets the user to the context
-func SetUserToContext(ctx *fiber.Ctx, user *domain.User) {
+func SetUserToContext(ctx *fiber.Ctx, user domain.User) {
 	ctx.Locals("user", user)
 }

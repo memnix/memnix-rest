@@ -100,7 +100,11 @@ func (*AuthController) Logout(c *fiber.Ctx) error {
 //	@Failure		500	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/refresh [post]
 func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
-	newToken, err := a.auth.RefreshToken(c.UserContext(), *utils.GetUserFromContext(c))
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		return errors.Wrap(err, "user not found in RefreshToken")
+	}
+	newToken, err := a.auth.RefreshToken(c.UserContext(), user)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(err))
 	}

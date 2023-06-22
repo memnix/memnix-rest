@@ -14,7 +14,9 @@ import (
 )
 
 // GetGithubAccessToken gets the access token from Github using the code
-func GetGithubAccessToken(code string) (string, error) {
+func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubAccessToken")
+	defer span.End()
 	// Set us the request body as JSON
 	requestBodyMap := map[string]string{
 		"client_id":     infrastructures.GetAppConfig().GithubConfig.ClientID,
@@ -24,7 +26,7 @@ func GetGithubAccessToken(code string) (string, error) {
 	requestJSON, _ := config.JSONHelper.Marshal(requestBodyMap)
 
 	// POST request to set URL
-	req, reqerr := http.NewRequestWithContext(context.Background(),
+	req, reqerr := http.NewRequestWithContext(ctx,
 		http.MethodPost,
 		"https://github.com/login/oauth/access_token",
 		bytes.NewBuffer(requestJSON),
@@ -64,9 +66,11 @@ func GetGithubAccessToken(code string) (string, error) {
 }
 
 // GetGithubData gets the user data from Github using the access token
-func GetGithubData(accessToken string) (string, error) {
+func GetGithubData(ctx context.Context, accessToken string) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubData")
+	defer span.End()
 	// Get request to a set URL
-	req, err := http.NewRequestWithContext(context.Background(),
+	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,
 		"https://api.github.com/user",
 		nil,

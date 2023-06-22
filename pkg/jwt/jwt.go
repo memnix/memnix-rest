@@ -81,7 +81,9 @@ func extractToken(token string) string {
 }
 
 // GetConnectedUserID gets the user id from a jwt token
-func GetConnectedUserID(tokenHeader string) (uint, error) {
+func GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetConnectedUserID")
+	defer span.End()
 	// Get the token from the Authorization header
 	tokenString := extractToken(tokenHeader)
 

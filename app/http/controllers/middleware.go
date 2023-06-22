@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/memnix/memnix-rest/infrastructures"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
@@ -41,6 +42,9 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 			return c.Next()
 		}
 
+		_, span := infrastructures.GetFiberTracer().Start(c.UserContext(), "IsConnectedMiddleware")
+		defer span.End()
+
 		// get the token from the request header
 		tokenHeader := c.Get("Authorization")
 		// if the token is empty, the userModel is not connected, and we return an error
@@ -50,7 +54,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 
 		// get the userModel from the token
 		// if the token is invalid, we return an error
-		userID, err := jwt.GetConnectedUserID(tokenHeader)
+		userID, err := jwt.GetConnectedUserID(c.UserContext(), tokenHeader)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not connected")))
 		}
@@ -58,17 +62,19 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		// get the userModel from the database
 		userModel, err := j.IUseCase.GetByID(c.UserContext(), userID)
 		if err != nil {
-			otelzap.Ctx(c.UserContext()).Error("error getting user", zap.Error(err))
+			otelzap.Ctx(c.UserContext()).Error("error getting user / not connected", zap.Error(err))
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not connected")))
 		}
 
 		// if the userModel has the required permissions, we set the userModel in the locals and call the next middleware
 		if j.VerifyPermissions(userModel, p) {
-			utils.SetUserToContext(c, &userModel) // Set userModel in locals
+			utils.SetUserToContext(c, userModel) // Set userModel in locals
+			span.End()
 			return c.Next()
 		}
 
 		// if the userModel does not have the required permissions, we return an error
+		otelzap.Ctx(c.UserContext()).Warn("not authorized", zap.Error(errors.New("not authorized")))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not authorized")))
 	}
 }

@@ -60,6 +60,8 @@ func registerMiddlewares(app *fiber.App) {
 		URL:  "/favicon.ico",
 	}))
 
+	app.Use(otelfiber.Middleware())
+
 	app.Use(cache.New(cache.Config{
 		Expiration:   config.CacheExpireTime,
 		CacheControl: true,
@@ -75,5 +77,4 @@ func registerMiddlewares(app *fiber.App) {
 
 	app.Use(pprof.New())
 
-	app.Use(otelfiber.Middleware())
 }

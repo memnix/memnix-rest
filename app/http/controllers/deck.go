@@ -43,8 +43,11 @@ func (d *DeckController) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
-
-	if !deckObject.IsOwner(utils.GetUserFromContext(c).ID) && utils.GetUserFromContext(c).Permission != domain.PermissionAdmin {
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+	}
+	if !deckObject.IsOwner(user.ID) && user.Permission != domain.PermissionAdmin {
 		return c.Status(fiber.StatusForbidden).JSON(views.NewHTTPResponseVMFromError(errors.New("deck is private")))
 	}
 
@@ -76,7 +79,12 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 
 	deckObject := createDeck.ToDeck()
 
-	if err := d.IUseCase.CreateFromUser(c.UserContext(), *utils.GetUserFromContext(c), &deckObject); err != nil {
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+	}
+
+	if err := d.IUseCase.CreateFromUser(c.UserContext(), user, &deckObject); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
@@ -96,7 +104,11 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 //	@Router			/v2/deck/owned [get]
 //	@Security		Bearer
 func (d *DeckController) GetOwned(c *fiber.Ctx) error {
-	deckObjects, err := d.IUseCase.GetByUser(c.UserContext(), *utils.GetUserFromContext(c))
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+	}
+	deckObjects, err := d.IUseCase.GetByUser(c.UserContext(), user)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -117,7 +129,11 @@ func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 //	@Router			/v2/deck/learning [get]
 //	@Security		Bearer
 func (d *DeckController) GetLearning(c *fiber.Ctx) error {
-	deckObjects, err := d.IUseCase.GetByLearner(c.UserContext(), *utils.GetUserFromContext(c))
+	user, err := utils.GetUserFromContext(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+	}
+	deckObjects, err := d.IUseCase.GetByLearner(c.UserContext(), user)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}

@@ -78,13 +78,13 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	}
 
 	// get the access token from github
-	accessToken, err := oauth.GetGithubAccessToken(code)
+	accessToken, err := oauth.GetGithubAccessToken(c.UserContext(), code)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from github
-	user, err := oauth.GetGithubData(accessToken)
+	user, err := oauth.GetGithubData(c.UserContext(), accessToken)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
@@ -157,13 +157,13 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	}
 
 	// get the access token from discord
-	accessToken, err := oauth.GetDiscordAccessToken(code)
+	accessToken, err := oauth.GetDiscordAccessToken(c.UserContext(), code)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from discord
-	user, err := oauth.GetDiscordData(accessToken)
+	user, err := oauth.GetDiscordData(c.UserContext(), accessToken)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}

@@ -14,7 +14,9 @@ import (
 )
 
 // GetDiscordAccessToken gets the access token from Discord
-func GetDiscordAccessToken(code string) (string, error) {
+func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetDiscordAccessToken")
+	defer span.End()
 	reqBody := bytes.NewBuffer([]byte(fmt.Sprintf(
 		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s&scope=identify,email",
 		infrastructures.AppConfig.DiscordConfig.ClientID,
@@ -24,7 +26,7 @@ func GetDiscordAccessToken(code string) (string, error) {
 	)))
 
 	// POST request to set URL
-	req, reqerr := http.NewRequestWithContext(context.Background(),
+	req, reqerr := http.NewRequestWithContext(ctx,
 		http.MethodPost,
 		"https://discord.com/api/oauth2/token",
 		reqBody,
@@ -66,8 +68,10 @@ func GetDiscordAccessToken(code string) (string, error) {
 }
 
 // GetDiscordData gets the user data from Discord
-func GetDiscordData(accessToken string) (string, error) {
-	req, reqerr := http.NewRequestWithContext(context.Background(),
+func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetDiscordData")
+	defer span.End()
+	req, reqerr := http.NewRequestWithContext(ctx,
 		http.MethodGet,
 		"https://discord.com/api/users/@me",
 		nil,

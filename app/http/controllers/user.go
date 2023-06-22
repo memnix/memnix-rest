@@ -26,10 +26,10 @@ func (u *UserController) GetName(c *fiber.Ctx) error {
 
 // GetMe returns the user from the context
 func (*UserController) GetMe(c *fiber.Ctx) error {
-	userCtx := utils.GetUserFromContext(c)
-	if userCtx == nil {
+	userCtx, err := utils.GetUserFromContext(c)
+	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVM("User not found", nil))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("User found", *userCtx))
+	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("User found", userCtx))
 }
