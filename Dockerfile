@@ -32,10 +32,12 @@ ENV GOMEMLIMIT 4000MiB
 
 WORKDIR /app
 
+RUN mkdir -p /app/config/keys
+
 COPY --from=builder /app/memnixrest /app/memnixrest
 COPY --from=builder /build/.env* /app/.
 COPY --from=builder /build/favicon.ico /app/favicon.ico
-COPY --from=builder /config/keys /app/config/keys
+COPY --from=builder /build/config/keys /app/config/keys
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R memnix:memnix /app
