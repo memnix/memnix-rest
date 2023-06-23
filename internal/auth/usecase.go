@@ -80,7 +80,7 @@ func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) 
 
 // Logout returns an empty string
 // It might be used to invalidate a token in the future
-func (*UseCase) Logout(ctx context.Context) (string, error) {
+func (*UseCase) Logout(_ context.Context) (string, error) {
 	return "", nil
 }
 
