@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/dgraph-io/ristretto"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
@@ -30,7 +31,6 @@ func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, er
 
 	switch ristrettoHit.(type) {
 	case domain.User:
-		span.AddEvent("got user" + utils.ConvertUIntToStr(ristrettoHit.(domain.User).ID) + " " + ristrettoHit.(domain.User).Email)
 		return ristrettoHit.(domain.User), nil
 	default:
 		return domain.User{}, errors.New("user not found")

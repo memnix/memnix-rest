@@ -2,13 +2,13 @@ package jwt
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
+	"github.com/pkg/errors"
 )
 
 // GenerateToken generates a jwt token from a user id
@@ -38,7 +38,7 @@ func GenerateToken(ctx context.Context, userID uint) (string, error) {
 
 // VerifyToken verifies a jwt token
 // and returns the user id and an error
-func VerifyToken(ctx context.Context, token *jwt.Token) (uint, error) {
+func VerifyToken(token *jwt.Token) (uint, error) {
 	// claims is of type jwt.MapClaims
 	if claims, ok := token.Claims.(jwt.MapClaims); token.Valid && ok {
 		// Get the issuer from the claims and convert it to uint
@@ -73,7 +73,7 @@ func GetExpirationTime(token *jwt.Token) int64 {
 }
 
 // extractToken function to extract token from header
-func extractToken(ctx context.Context, token string) string {
+func extractToken(token string) string {
 	// Normally Authorization HTTP header.
 	onlyToken := strings.Split(token, " ") // Split token
 	if len(onlyToken) == config.JwtTokenHeaderLen {
@@ -87,7 +87,7 @@ func GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetConnectedUserID")
 	defer span.End()
 	// Get the token from the Authorization header
-	tokenString := extractToken(ctx, tokenHeader)
+	tokenString := extractToken(tokenHeader)
 
 	token, err := GetToken(ctx, tokenString)
 	if err != nil {
@@ -95,7 +95,7 @@ func GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
 	}
 
 	// Check if the token is valid
-	userID, err := VerifyToken(ctx, token)
+	userID, err := VerifyToken(token)
 	if err != nil {
 		return 0, err
 	}

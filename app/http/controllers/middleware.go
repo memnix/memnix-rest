@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
-	"github.com/memnix/memnix-rest/infrastructures"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
+	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/pkg/utils"

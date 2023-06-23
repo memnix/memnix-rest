@@ -1,13 +1,13 @@
 package config
 
 import (
-	"golang.org/x/crypto/ed25519"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/pkg/env"
 	"github.com/memnix/memnix-rest/pkg/json"
+	"golang.org/x/crypto/ed25519"
 )
 
 // JSONHelper is the helper for JSON operations
@@ -44,6 +44,7 @@ const (
 
 	RistrettoMaxCost     = 5 * MB // RistrettoMaxCost is the maximum cost
 	RistrettoBufferItems = 32     // RistrettoBufferItems is the number of items per get buffer
+	RistrettoNumCounters = 1e4    // RistrettoNumCounters is the number of counters
 )
 
 // JwtSigningMethod is the signing method for JWT
@@ -68,8 +69,10 @@ func IsDevelopment() bool {
 	return EnvHelper.GetEnv("APP_ENV") == "dev"
 }
 
-var ed25519PrivateKey = ed25519.PrivateKey{}
-var ed25519PublicKey = ed25519.PublicKey{}
+var (
+	ed25519PrivateKey = ed25519.PrivateKey{}
+	ed25519PublicKey  = ed25519.PublicKey{}
+)
 
 // GetEd25519PrivateKey returns the ed25519 private key
 func GetEd25519PrivateKey() ed25519.PrivateKey {

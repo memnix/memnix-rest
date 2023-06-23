@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"

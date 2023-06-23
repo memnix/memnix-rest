@@ -76,5 +76,4 @@ func registerMiddlewares(app *fiber.App) {
 	app.Use(prometheus.Middleware)
 
 	app.Use(pprof.New())
-
 }
