@@ -1,6 +1,8 @@
 package config
 
 import (
+	"golang.org/x/crypto/ed25519"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -45,7 +47,7 @@ const (
 )
 
 // JwtSigningMethod is the signing method for JWT
-var JwtSigningMethod = jwt.SigningMethodHS256
+var JwtSigningMethod = jwt.SigningMethodEdDSA
 
 // PasswordConfigStruct is the struct for the password config
 type PasswordConfigStruct struct {
@@ -64,4 +66,49 @@ func IsProduction() bool {
 // IsDevelopment returns true if the app is in development
 func IsDevelopment() bool {
 	return EnvHelper.GetEnv("APP_ENV") == "dev"
+}
+
+var ed25519PrivateKey = ed25519.PrivateKey{}
+var ed25519PublicKey = ed25519.PublicKey{}
+
+// GetEd25519PrivateKey returns the ed25519 private key
+func GetEd25519PrivateKey() ed25519.PrivateKey {
+	return ed25519PrivateKey
+}
+
+// GetEd25519PublicKey returns the ed25519 public key
+func GetEd25519PublicKey() ed25519.PublicKey {
+	return ed25519PublicKey
+}
+
+// ParseEd25519PrivateKey parses the ed25519 private key
+func ParseEd25519PrivateKey() error {
+	key, err := os.ReadFile("./config/keys/ed25519_private.pem")
+	if err != nil {
+		return err
+	}
+
+	privateKey, err := jwt.ParseEdPrivateKeyFromPEM(key)
+	if err != nil {
+		return err
+	}
+
+	ed25519PrivateKey = privateKey.(ed25519.PrivateKey)
+	return nil
+}
+
+// ParseEd25519PublicKey parses the ed25519 public key
+func ParseEd25519PublicKey() error {
+	key, err := os.ReadFile("./config/keys/ed25519_public.pem")
+	if err != nil {
+		return err
+	}
+
+	publicKey, err := jwt.ParseEdPublicKeyFromPEM(key)
+	if err != nil {
+		return err
+	}
+
+	ed25519PublicKey = publicKey.(ed25519.PublicKey)
+	return nil
 }

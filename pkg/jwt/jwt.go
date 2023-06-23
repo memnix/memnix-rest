@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"context"
-	"errors"
+	"github.com/pkg/errors"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -28,9 +28,9 @@ func GenerateToken(ctx context.Context, userID uint) (string, error) {
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	token, err := claims.SignedString([]byte(utils.GetSecretKey()))
+	token, err := claims.SignedString(config.GetEd25519PrivateKey())
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "failed to sign")
 	}
 
 	return token, nil
@@ -38,7 +38,7 @@ func GenerateToken(ctx context.Context, userID uint) (string, error) {
 
 // VerifyToken verifies a jwt token
 // and returns the user id and an error
-func VerifyToken(token *jwt.Token) (uint, error) {
+func VerifyToken(ctx context.Context, token *jwt.Token) (uint, error) {
 	// claims is of type jwt.MapClaims
 	if claims, ok := token.Claims.(jwt.MapClaims); token.Valid && ok {
 		// Get the issuer from the claims and convert it to uint
@@ -55,13 +55,15 @@ func VerifyToken(token *jwt.Token) (uint, error) {
 
 // GetToken gets a jwt.Token token from a string
 // and returns the jwt.Token and an error
-func GetToken(token string) (*jwt.Token, error) {
+func GetToken(ctx context.Context, token string) (*jwt.Token, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetToken")
+	defer span.End()
 	// Parse takes the token string and a function for looking up the key.
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return []byte(utils.GetSecretKey()), nil // Return the secret key as the signing key
+		return config.GetEd25519PublicKey(), nil // Return the secret key as the signing key
 	})
 }
 
@@ -71,7 +73,7 @@ func GetExpirationTime(token *jwt.Token) int64 {
 }
 
 // extractToken function to extract token from header
-func extractToken(token string) string {
+func extractToken(ctx context.Context, token string) string {
 	// Normally Authorization HTTP header.
 	onlyToken := strings.Split(token, " ") // Split token
 	if len(onlyToken) == config.JwtTokenHeaderLen {
@@ -85,15 +87,15 @@ func GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetConnectedUserID")
 	defer span.End()
 	// Get the token from the Authorization header
-	tokenString := extractToken(tokenHeader)
+	tokenString := extractToken(ctx, tokenHeader)
 
-	token, err := GetToken(tokenString)
+	token, err := GetToken(ctx, tokenString)
 	if err != nil {
 		return 0, err
 	}
 
 	// Check if the token is valid
-	userID, err := VerifyToken(token)
+	userID, err := VerifyToken(ctx, token)
 	if err != nil {
 		return 0, err
 	}

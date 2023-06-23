@@ -30,3 +30,5 @@ docker-*
 /scripts/*.html
 /scripts/*.bin
 /scripts/vegeta*
+
+config/keys/*

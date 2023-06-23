@@ -128,6 +128,14 @@ func setupEnv() {
 		otelzap.L().Fatal("❌ Error loading .env file")
 	}
 
+	if err := config.ParseEd25519PrivateKey(); err != nil {
+		otelzap.L().Fatal("❌ Error parsing private key")
+	}
+
+	if err := config.ParseEd25519PublicKey(); err != nil {
+		otelzap.L().Fatal("❌ Error parsing public key")
+	}
+
 	// Init oauth
 	infrastructures.InitOauth()
 }

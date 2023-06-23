@@ -8,6 +8,8 @@ import (
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 // AuthController is the controller for the auth routes
@@ -41,6 +43,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 
 	jwtToken, err := a.auth.Login(c.UserContext(), loginStruct.Password, loginStruct.Email)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Warn("invalid credentials", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
 
