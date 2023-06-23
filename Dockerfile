@@ -35,6 +35,7 @@ WORKDIR /app
 COPY --from=builder /app/memnixrest /app/memnixrest
 COPY --from=builder /build/.env* /app/.
 COPY --from=builder /build/favicon.ico /app/favicon.ico
+COPY --from=builder /config/keys /app/config/keys
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R memnix:memnix /app
