@@ -17,8 +17,8 @@ const (
 
 	JwtTokenHeaderLen = 2 // JwtTokenHeaderLen is the jwt token header length
 
-	MaxPasswordLength = 72 // Max password length based on bcrypt limit
-	MinPasswordLength = 8  // Min password length
+	MaxPasswordLength = 72 // MaxPasswordLength is the max password length
+	MinPasswordLength = 8  // MinPasswordLength is the min password length
 
 	Localhost = "http://localhost:1815"   // Localhost is the localhost url
 	APIHost   = "https://beta.memnix.app" // APIHost is the api host url

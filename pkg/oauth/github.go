@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/memnix/memnix-rest/views"
 	"io"
 	"net/http"
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/infrastructures"
+	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 // GetGithubAccessToken gets the access token from Github using the code
-func GetGithubAccessToken(code string) (string, error) {
+func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubAccessToken")
+	defer span.End()
 	// Set us the request body as JSON
 	requestBodyMap := map[string]string{
 		"client_id":     infrastructures.GetAppConfig().GithubConfig.ClientID,
@@ -25,13 +26,12 @@ func GetGithubAccessToken(code string) (string, error) {
 	requestJSON, _ := config.JSONHelper.Marshal(requestBodyMap)
 
 	// POST request to set URL
-	req, reqerr := http.NewRequestWithContext(context.Background(),
+	req, reqerr := http.NewRequestWithContext(ctx,
 		http.MethodPost,
 		"https://github.com/login/oauth/access_token",
 		bytes.NewBuffer(requestJSON),
 	)
 	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
-		log.Debug().Err(reqerr).Msg("github.go: GetGithubAccessToken: Request failed (reqerr != nil || req == nil || req.Body == nil || req.Header == nil)")
 		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -40,7 +40,6 @@ func GetGithubAccessToken(code string) (string, error) {
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil || resp == nil || resp.Body == nil {
-		log.Debug().Err(resperr).Msg("github.go: GetGithubAccessToken: Response failed (resperr != nil || resp == nil || resp.Body == nil)")
 		return "", errors.Wrap(reqerr, views.ResponseFailed)
 	}
 
@@ -67,15 +66,16 @@ func GetGithubAccessToken(code string) (string, error) {
 }
 
 // GetGithubData gets the user data from Github using the access token
-func GetGithubData(accessToken string) (string, error) {
+func GetGithubData(ctx context.Context, accessToken string) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubData")
+	defer span.End()
 	// Get request to a set URL
-	req, err := http.NewRequestWithContext(context.Background(),
+	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,
 		"https://api.github.com/user",
 		nil,
 	)
 	if err != nil {
-		log.Info().Msg(views.RequestFailed)
 		return "", err
 	}
 
@@ -87,7 +87,6 @@ func GetGithubData(accessToken string) (string, error) {
 	// Make the request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Info().Msg(views.ResponseFailed)
 		return "", err
 	}
 

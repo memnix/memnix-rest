@@ -9,14 +9,15 @@ import (
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 // ConvertStrToUInt converts a string to an unsigned integer
 func ConvertStrToUInt(str string) (uint, error) {
 	number, err := strconv.ParseUint(str, config.Base10, config.BitSize)
 	if err != nil {
-		log.Debug().Err(err).Msgf("Error while converting string to uint: %s", err)
+		otelzap.L().Error("Error while converting string to uint", zap.Error(err))
 		return 0, errors.New("Error while converting string to uint")
 	}
 	return uint(number), nil
@@ -31,7 +32,7 @@ func ConvertUIntToStr(number uint) string {
 func ConvertStrToInt(str string) (int, error) {
 	number, err := strconv.ParseInt(str, config.Base10, config.BitSize)
 	if err != nil {
-		log.Debug().Err(err).Msgf("Error while converting string to int: %s", err)
+		otelzap.L().Error("Error while converting string to int", zap.Error(err))
 		return 0, errors.New("Error while converting string to int")
 	}
 	return int(number), nil
@@ -48,14 +49,15 @@ func GetSecretKey() string {
 }
 
 // GetUserFromContext gets the user from the context
-func GetUserFromContext(ctx *fiber.Ctx) *domain.User {
+func GetUserFromContext(ctx *fiber.Ctx) (domain.User, error) {
 	if ctx.Locals("user") == nil {
-		return nil
+		otelzap.Ctx(ctx.UserContext()).Error("User not found in context")
+		return domain.User{}, errors.New("User is not initialized")
 	}
-	return ctx.Locals("user").(*domain.User)
+	return ctx.Locals("user").(domain.User), nil
 }
 
 // SetUserToContext sets the user to the context
-func SetUserToContext(ctx *fiber.Ctx, user *domain.User) {
+func SetUserToContext(ctx *fiber.Ctx, user domain.User) {
 	ctx.Locals("user", user)
 }

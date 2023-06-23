@@ -42,6 +42,14 @@ func (kernel) GetDeck() controllers.DeckController {
 	return InitializeDeck()
 }
 
+func (kernel) GetCard() controllers.CardController {
+	return InitializeCard()
+}
+
+func (kernel) GetMcq() controllers.McqController {
+	return InitializeMcq()
+}
+
 var (
 	k             *kernel   // kernel is the service container
 	containerOnce sync.Once // containerOnce is used to ensure that the service container is only initialized once

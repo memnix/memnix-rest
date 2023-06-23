@@ -571,40 +571,85 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.Card": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "card_type": {
+                    "$ref": "#/definitions/domain.CardType"
+                },
+                "deck_id": {
+                    "type": "integer"
+                },
+                "mcq": {
+                    "$ref": "#/definitions/domain.Mcq"
+                },
+                "mcq_id": {
+                    "type": "integer"
+                },
+                "question": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.CardType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "x-enum-comments": {
+                "CardTypeBlankMCQ": "CardTypeBlankMCQ is the blank mcq type of the card",
+                "CardTypeBlankOnly": "CardTypeBlankOnly is the blank only type of the card",
+                "CardTypeBlankProgressive": "CardTypeBlankProgressive is the blank progressive type of the card",
+                "CardTypeMCQOnly": "CardTypeMCQOnly is the mcq only type of the card",
+                "CardTypeQAOnly": "CardTypeQAOnly is the qa only type of the card",
+                "CardTypeQAProgressive": "CardTypeQAProgressive is the qa progressive type of the card"
+            },
+            "x-enum-varnames": [
+                "CardTypeQAOnly",
+                "CardTypeMCQOnly",
+                "CardTypeQAProgressive",
+                "CardTypeBlankOnly",
+                "CardTypeBlankProgressive",
+                "CardTypeBlankMCQ"
+            ]
+        },
         "domain.Deck": {
             "type": "object",
             "properties": {
                 "banner": {
-                    "description": "Banner of the deck",
                     "type": "string"
                 },
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Card"
+                    }
+                },
                 "description": {
-                    "description": "Description of the deck",
                     "type": "string"
                 },
                 "key": {
-                    "description": "Key of the deck",
                     "type": "string"
                 },
                 "lang": {
-                    "description": "Lang of the deck",
                     "type": "string"
                 },
                 "name": {
-                    "description": "Name of the deck",
                     "type": "string"
                 },
                 "owner_id": {
-                    "description": "OwnerID of the deck",
                     "type": "integer"
                 },
                 "status": {
-                    "description": "Status of the deck",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.DeckStatus"
-                        }
-                    ]
+                    "$ref": "#/definitions/domain.DeckStatus"
                 }
             }
         },
@@ -639,6 +684,17 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Mcq": {
+            "type": "object",
+            "properties": {
+                "answers": {
+                    "type": "string"
+                },
+                "linked": {
+                    "type": "boolean"
+                }
+            }
+        },
         "domain.Permission": {
             "type": "integer",
             "enum": [
@@ -647,6 +703,12 @@ const docTemplate = `{
                 2,
                 3
             ],
+            "x-enum-comments": {
+                "PermissionAdmin": "PermissionAdmin is the permission level of an admin.",
+                "PermissionNone": "PermissionNone is the default permission level.",
+                "PermissionUser": "PermissionUser is the permission level of a user.",
+                "PermissionVip": "PermissionVip is the permission level of a vip."
+            },
             "x-enum-varnames": [
                 "PermissionNone",
                 "PermissionUser",

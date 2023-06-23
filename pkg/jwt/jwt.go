@@ -1,12 +1,14 @@
 package jwt
 
 import (
-	"errors"
+	"context"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
+	"github.com/pkg/errors"
 )
 
 // GenerateToken generates a jwt token from a user id
@@ -16,7 +18,9 @@ import (
 // It's expiration time is defined in utils.GetExpirationTime
 // It's secret key is defined in the environment variable SECRET_KEY
 // see: utils/config.go for more information
-func GenerateToken(userID uint) (string, error) {
+func GenerateToken(ctx context.Context, userID uint) (string, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GenerateToken")
+	defer span.End()
 	// Create the Claims for the token
 	claims := jwt.NewWithClaims(config.JwtSigningMethod, jwt.RegisteredClaims{
 		Issuer:    utils.ConvertUIntToStr(userID), // Issuer is the user id
@@ -24,9 +28,9 @@ func GenerateToken(userID uint) (string, error) {
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	token, err := claims.SignedString([]byte(utils.GetSecretKey()))
+	token, err := claims.SignedString(config.GetEd25519PrivateKey())
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "failed to sign")
 	}
 
 	return token, nil
@@ -51,13 +55,15 @@ func VerifyToken(token *jwt.Token) (uint, error) {
 
 // GetToken gets a jwt.Token token from a string
 // and returns the jwt.Token and an error
-func GetToken(token string) (*jwt.Token, error) {
+func GetToken(ctx context.Context, token string) (*jwt.Token, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetToken")
+	defer span.End()
 	// Parse takes the token string and a function for looking up the key.
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return []byte(utils.GetSecretKey()), nil // Return the secret key as the signing key
+		return config.GetEd25519PublicKey(), nil // Return the secret key as the signing key
 	})
 }
 
@@ -77,11 +83,13 @@ func extractToken(token string) string {
 }
 
 // GetConnectedUserID gets the user id from a jwt token
-func GetConnectedUserID(tokenHeader string) (uint, error) {
+func GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetConnectedUserID")
+	defer span.End()
 	// Get the token from the Authorization header
 	tokenString := extractToken(tokenHeader)
 
-	token, err := GetToken(tokenString)
+	token, err := GetToken(ctx, tokenString)
 	if err != nil {
 		return 0, err
 	}

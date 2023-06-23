@@ -20,6 +20,11 @@ type User struct {
 	Oauth         bool       `json:"oauth" gorm:"default:false"`
 }
 
+// TableName returns the table name for the user model
+func (u *User) TableName() string {
+	return "users"
+}
+
 // ToPublicUser converts the user to a public user
 func (u *User) ToPublicUser() PublicUser {
 	return PublicUser{

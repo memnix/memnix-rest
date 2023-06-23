@@ -30,48 +30,48 @@ type RedisRepository struct {
 }
 
 // GetByID gets the deck by id.
-func (r RedisRepository) GetByID(id uint) (string, error) {
-	return r.RedisConn.Get(context.Background(), withID(getBaseKey, id)).Result()
+func (r RedisRepository) GetByID(ctx context.Context, id uint) (string, error) {
+	return r.RedisConn.Get(ctx, withID(getBaseKey, id)).Result()
 }
 
 // SetByID sets the deck by id.
-func (r RedisRepository) SetByID(id uint, deck string) error {
-	return r.RedisConn.Set(context.Background(), withID(getBaseKey, id), deck, config.RedisDefaultExpireTime).Err()
+func (r RedisRepository) SetByID(ctx context.Context, id uint, deck string) error {
+	return r.RedisConn.Set(ctx, withID(getBaseKey, id), deck, config.RedisDefaultExpireTime).Err()
 }
 
 // DeleteByID deletes the deck by id.
-func (r RedisRepository) DeleteByID(id uint) error {
-	return r.RedisConn.Del(context.Background(), withID(getBaseKey, id)).Err()
+func (r RedisRepository) DeleteByID(ctx context.Context, id uint) error {
+	return r.RedisConn.Del(ctx, withID(getBaseKey, id)).Err()
 }
 
 // SetOwnedByUser sets the decks owned by the user.
-func (r RedisRepository) SetOwnedByUser(userID uint, decks string) error {
-	return r.RedisConn.Set(context.Background(), withID(getOwnedKey, userID), decks, config.RedisOwnedExpireTime).Err()
+func (r RedisRepository) SetOwnedByUser(ctx context.Context, userID uint, decks string) error {
+	return r.RedisConn.Set(ctx, withID(getOwnedKey, userID), decks, config.RedisOwnedExpireTime).Err()
 }
 
 // GetOwnedByUser gets the decks owned by the user.
-func (r RedisRepository) GetOwnedByUser(userID uint) (string, error) {
-	return r.RedisConn.Get(context.Background(), withID(getOwnedKey, userID)).Result()
+func (r RedisRepository) GetOwnedByUser(ctx context.Context, userID uint) (string, error) {
+	return r.RedisConn.Get(ctx, withID(getOwnedKey, userID)).Result()
 }
 
 // DeleteOwnedByUser deletes the decks owned by the user.
-func (r RedisRepository) DeleteOwnedByUser(userID uint) error {
-	return r.RedisConn.Del(context.Background(), withID(getOwnedKey, userID)).Err()
+func (r RedisRepository) DeleteOwnedByUser(ctx context.Context, userID uint) error {
+	return r.RedisConn.Del(ctx, withID(getOwnedKey, userID)).Err()
 }
 
 // SetLearningByUser sets the decks learning by the user.
-func (r RedisRepository) SetLearningByUser(userID uint, decks string) error {
-	return r.RedisConn.Set(context.Background(), withID(getLearningKey, userID), decks, config.RedisOwnedExpireTime).Err()
+func (r RedisRepository) SetLearningByUser(ctx context.Context, userID uint, decks string) error {
+	return r.RedisConn.Set(ctx, withID(getLearningKey, userID), decks, config.RedisOwnedExpireTime).Err()
 }
 
 // GetLearningByUser gets the decks learning by the user.
-func (r RedisRepository) GetLearningByUser(userID uint) (string, error) {
-	return r.RedisConn.Get(context.Background(), withID(getLearningKey, userID)).Result()
+func (r RedisRepository) GetLearningByUser(ctx context.Context, userID uint) (string, error) {
+	return r.RedisConn.Get(ctx, withID(getLearningKey, userID)).Result()
 }
 
 // DeleteLearningByUser deletes the decks learning by the user.
-func (r RedisRepository) DeleteLearningByUser(userID uint) error {
-	return r.RedisConn.Del(context.Background(), withID(getLearningKey, userID)).Err()
+func (r RedisRepository) DeleteLearningByUser(ctx context.Context, userID uint) error {
+	return r.RedisConn.Del(ctx, withID(getLearningKey, userID)).Err()
 }
 
 // NewRedisRepository returns a new redis repository.

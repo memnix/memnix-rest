@@ -1,13 +1,18 @@
 package auth
 
 import (
+	"context"
+
 	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/pkg/errors"
 )
 
 // GenerateEncryptedPassword generates a password hash using the crypto helper
-func GenerateEncryptedPassword(password string) ([]byte, error) {
+func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "GenerateEncryptedPassword")
+	defer span.End()
 	hash, err := crypto.Helper.Hash(password)
 	if err != nil {
 		return nil, err
@@ -22,7 +27,9 @@ func GenerateEncryptedPassword(password string) ([]byte, error) {
 //
 // Returns true if the password matches, false if it does not.
 // Returns nil on success, or an error on failure.
-func ComparePasswords(password string, hash []byte) (bool, error) {
+func ComparePasswords(ctx context.Context, password string, hash []byte) (bool, error) {
+	_, span := infrastructures.GetFiberTracer().Start(ctx, "ComparePasswords")
+	defer span.End()
 	return crypto.Helper.Verify(password, hash)
 }
 

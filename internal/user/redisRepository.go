@@ -21,11 +21,11 @@ func NewRedisRepository(redisConn *redis.Client) IRedisRepository {
 }
 
 // Get gets the user by id.
-func (r *RedisRepository) Get(id uint) (string, error) {
-	return r.RedisConn.Get(context.Background(), "user:"+utils.ConvertUIntToStr(id)).Result()
+func (r *RedisRepository) Get(ctx context.Context, id uint) (string, error) {
+	return r.RedisConn.Get(ctx, "user:"+utils.ConvertUIntToStr(id)).Result()
 }
 
 // Set sets the user by id.
-func (r *RedisRepository) Set(id uint, value string) error {
-	return r.RedisConn.Set(context.Background(), "user:"+utils.ConvertUIntToStr(id), value, config.RedisDefaultExpireTime).Err()
+func (r *RedisRepository) Set(ctx context.Context, id uint, value string) error {
+	return r.RedisConn.Set(ctx, "user:"+utils.ConvertUIntToStr(id), value, config.RedisDefaultExpireTime).Err()
 }

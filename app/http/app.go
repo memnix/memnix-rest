@@ -1,22 +1,16 @@
 package http
 
 import (
-	"time"
-
 	"github.com/ansrivas/fiberprometheus/v2"
-	"github.com/gofiber/contrib/fibernewrelic"
+	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
-	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"github.com/memnix/memnix-rest/app/misc"
 	"github.com/memnix/memnix-rest/config"
 	_ "github.com/memnix/memnix-rest/docs" // Side effect import
-	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/rs/zerolog/log"
 )
 
 // New returns a new Fiber instance
@@ -66,6 +60,8 @@ func registerMiddlewares(app *fiber.App) {
 		URL:  "/favicon.ico",
 	}))
 
+	app.Use(otelfiber.Middleware())
+
 	app.Use(cache.New(cache.Config{
 		Expiration:   config.CacheExpireTime,
 		CacheControl: true,
@@ -75,45 +71,9 @@ func registerMiddlewares(app *fiber.App) {
 		},
 	}))
 
-	cfg := fibernewrelic.Config{
-		Application: infrastructures.GetRelicApp(),
-	}
-
-	app.Use(fibernewrelic.New(cfg))
-
 	prometheus := fiberprometheus.New("memnix")
 	prometheus.RegisterAt(app, "/metrics")
 	app.Use(prometheus.Middleware)
 
 	app.Use(pprof.New())
-
-	app.Use(loggerMiddleware())
-}
-
-func loggerMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		// Continue stack
-		chainErr := c.Next()
-
-		if chainErr != nil {
-			if err := c.App().ErrorHandler(c, chainErr); err != nil {
-				_ = c.SendStatus(fiber.StatusInternalServerError) // TODO: Explain why we ignore the error here
-			}
-		}
-
-		// Do something with response
-		p := influxdb2.NewPointWithMeasurement("fiber").
-			AddField("ip", c.IP()).
-			AddField("method", c.Method()).
-			AddField("path", c.Path()).
-			AddField("status", c.Response().StatusCode()).
-			SetTime(time.Now())
-
-		_, err := misc.LogWriter{}.Write(*p)
-		if err != nil {
-			log.Error().Err(err).Msg("Error writing to influxdb")
-		}
-
-		return nil
-	}
 }

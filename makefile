@@ -15,9 +15,11 @@ run:
 	go run ./...
 
 release:
-	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o $(OUTPUT_DIR)/$(APP_NAME) -v .
+	GOAMD64=v3 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o $(OUTPUT_DIR)/$(APP_NAME) -v .
 	upx -9 --best $(OUTPUT_DIR)/$(APP_NAME)
 
 clean:
 	rm -rf bin/*
 
+generate_keys:
+	./scripts/keys.sh

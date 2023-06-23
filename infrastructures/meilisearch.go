@@ -6,6 +6,7 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/env"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 )
 
 // ConnectMeiliSearch connects to MeiliSearch.
-func ConnectMeiliSearch(env env.IEnv) {
+func ConnectMeiliSearch(env env.IEnv) error {
 	var host string
 	var apiKey string
 	if config.IsDevelopment() {
@@ -28,6 +29,12 @@ func ConnectMeiliSearch(env env.IEnv) {
 		Host:   host,
 		APIKey: apiKey,
 	})
+
+	if !client.IsHealthy() {
+		return errors.New("MeiliSearch is not healthy")
+	}
+
+	return nil
 }
 
 // CreateSearchKey creates a new search key.

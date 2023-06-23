@@ -11,8 +11,8 @@ import (
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/memnix/memnix-rest/pkg/random"
 	"github.com/memnix/memnix-rest/views"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.uber.org/zap"
 )
 
 // OAuthController is the controller for the OAuth routes
@@ -46,7 +46,7 @@ func (a *OAuthController) GithubLogin(c *fiber.Ctx) error {
 		state,
 	)
 	// Save the state in the cache
-	if err := a.IAuthRedisRepository.SetState(state); err != nil {
+	if err := a.IAuthRedisRepository.SetState(c.UserContext(), state); err != nil {
 		return err
 	}
 	if err := c.Redirect(redirectURL, fiber.StatusSeeOther); err != nil {
@@ -73,42 +73,37 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	state := c.Query("state")
 
 	// check if the state is valid
-	if ok, _ := a.IAuthRedisRepository.HasState(state); !ok {
-		log.Debug().Msg("invalid state")
+	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the access token from github
-	accessToken, err := oauth.GetGithubAccessToken(code)
+	accessToken, err := oauth.GetGithubAccessToken(c.UserContext(), code)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid github access token")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from github
-	user, err := oauth.GetGithubData(accessToken)
+	user, err := oauth.GetGithubData(c.UserContext(), accessToken)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid github user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var githubUser domain.GithubLogin
 	err = config.JSONHelper.Unmarshal([]byte(user), &githubUser)
 	if err != nil {
-		log.Debug().Err(err).Msg("can't unmarshal github user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
-	jwtToken, err := a.auth.LoginOauth(githubUser.ToUser())
+	jwtToken, err := a.auth.LoginOauth(c.UserContext(), githubUser.ToUser())
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid credentials")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// Delete the state from the cache
-	if err = a.IAuthRedisRepository.DeleteState(state); err != nil {
-		log.Debug().Err(err).Msg("can't delete state from cache")
+	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to delete state from cache", zap.Error(err))
 	}
 
 	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
@@ -127,7 +122,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 	// Create the dynamic redirect URL for login
 	state, _ := random.GenerateSecretCode(config.OauthStateLength)
-	if err := a.IAuthRedisRepository.SetState(state); err != nil {
+	if err := a.IAuthRedisRepository.SetState(c.UserContext(), state); err != nil {
 		return err
 	}
 
@@ -157,46 +152,40 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
 	state := c.Query("state")
 
-	if ok, _ := a.IAuthRedisRepository.HasState(state); !ok {
-		log.Debug().Err(errors.New("invalid state")).Msg("DiscordCallback - invalid state in redis cache")
+	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the access token from discord
-	accessToken, err := oauth.GetDiscordAccessToken(code)
+	accessToken, err := oauth.GetDiscordAccessToken(c.UserContext(), code)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid discord access token")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from discord
-	user, err := oauth.GetDiscordData(accessToken)
+	user, err := oauth.GetDiscordData(c.UserContext(), accessToken)
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid discord user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var discordUser domain.DiscordLogin
 	err = config.JSONHelper.Unmarshal([]byte(user), &discordUser)
 	if err != nil {
-		log.Debug().Err(err).Msg("can't unmarshal discord user")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if discordUser == (domain.DiscordLogin{}) {
-		log.Debug().Msg("invalid discord user - user: " + user)
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
-	jwtToken, err := a.auth.LoginOauth(discordUser.ToUser())
+	jwtToken, err := a.auth.LoginOauth(c.UserContext(), discordUser.ToUser())
 	if err != nil {
-		log.Debug().Err(err).Msg("invalid credentials")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
-	if err = a.IAuthRedisRepository.DeleteState(state); err != nil {
-		log.Debug().Err(err).Msg("can't delete state from cache")
+	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
+		otelzap.Ctx(c.UserContext()).Error("error deleting state", zap.Error(err))
 	}
 
 	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
