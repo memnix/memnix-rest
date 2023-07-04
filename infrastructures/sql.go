@@ -81,7 +81,7 @@ func ConnectDB() error {
 		return err
 	}
 
-	if err = conn.Use(tracing.NewPlugin()); err != nil {
+	if err = conn.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		return err
 	}
 

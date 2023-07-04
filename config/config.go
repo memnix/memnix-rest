@@ -18,8 +18,8 @@ var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
 	ExpirationTimeInHours = 24 // ExpirationTimeInHours is the expiration time for the JWT token
-	SQLMaxOpenConns       = 20 // SQLMaxOpenConns is the max number of connections in the open connection pool
-	SQLMaxIdleConns       = 5  // SQLMaxIdleConns is the max number of connections in the idle connection pool
+	SQLMaxOpenConns       = 10 // SQLMaxOpenConns is the max number of connections in the open connection pool
+	SQLMaxIdleConns       = 1  // SQLMaxIdleConns is the max number of connections in the idle connection pool
 
 	BCryptCost = 11 // BCryptCost is the cost for bcrypt
 
