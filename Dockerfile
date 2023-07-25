@@ -17,34 +17,31 @@ RUN go mod download
 COPY . .
 
 RUN go get -d -v \
-    && go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .\
+    && CGO_ENABLED=0 go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .\
     && upx /app/memnixrest
 
-FROM alpine:3.18
+RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
+RUN chmod +x /usr/local/bin/dumb-init
 
-RUN addgroup -S memnix && adduser -S memnix -G memnix \
-    && apk update --no-cache && apk add --no-cache ca-certificates
+FROM gcr.io/distroless/static:nonroot AS production
 
-COPY --from=builder /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
+COPY --from=builder --chown=nonroot /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 
 ENV GOMEMLIMIT 4000MiB
 
 WORKDIR /app
 
-RUN mkdir -p /app/config/keys
+COPY --from=builder --chown=nonroot /app/memnixrest /app/memnixrest
+COPY --from=builder --chown=nonroot /build/.env* /app/.
+COPY --from=builder --chown=nonroot /build/favicon.ico /app/favicon.ico
+COPY --from=builder --chown=nonroot /build/config /app/config
+COPY --from=builder --chown=nonroot /usr/local/bin/dumb-init /usr/bin/dumb-init
 
-COPY --from=builder /app/memnixrest /app/memnixrest
-COPY --from=builder /build/.env* /app/.
-COPY --from=builder /build/favicon.ico /app/favicon.ico
-COPY --from=builder /build/config/keys /app/config/keys
-
-# Change ownership of the app directory to the non-root user
-RUN chown -R memnix:memnix /app
 
 EXPOSE 1815
 
-RUN apk add --no-cache dumb-init
-USER memnix
+USER nonroot
+
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/app/memnixrest"]
