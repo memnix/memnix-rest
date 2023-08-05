@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 	"io"
 	"net/http"
 
@@ -13,6 +11,10 @@ import (
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 // GetDiscordAccessToken gets the access token from Discord
@@ -33,20 +35,35 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 		"https://discord.com/api/oauth2/token",
 		reqBody,
 	)
-	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
+	if reqerr != nil {
+		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(reqerr))
 		return "", errors.Wrap(reqerr, views.RequestFailed)
 	}
+
+	if req == nil || req.Body == nil || req.Header == nil {
+		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(reqerr))
+		return "", errors.New(views.RequestFailed)
+	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil || resp == nil || resp.Body == nil {
+	if resperr != nil {
+		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(resperr))
 		return "", errors.Wrap(resperr, views.ResponseFailed)
+	}
+
+	if resp == nil || resp.Body == nil {
+		otelzap.Ctx(ctx).Error("resp is empty", zap.Error(resperr))
+		return "", errors.New(views.ResponseFailed)
 	}
 
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
+
+	otelzap.Ctx(ctx).Debug("Discord access token response", zap.String("response", string(respbody)))
 
 	// Represents the response received from Github
 	type discordAccessTokenResponse struct {
@@ -81,7 +98,6 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 		"https://discord.com/api/users/@me",
 		nil,
 	)
-
 	if err != nil {
 		return "", errors.Wrap(err, views.RequestFailed)
 	}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
@@ -164,6 +165,11 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	accessToken, err := oauth.GetDiscordAccessToken(c.UserContext(), code)
 	if err != nil {
 		otelzap.Ctx(c.UserContext()).Error("failed to get access token from discord", zap.Error(err))
+		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
+	}
+
+	if accessToken == "" {
+		otelzap.Ctx(c.UserContext()).Error("access token is empty")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
