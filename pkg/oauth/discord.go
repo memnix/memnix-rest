@@ -71,20 +71,22 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetDiscordData")
 	defer span.End()
-	req, reqerr := http.NewRequestWithContext(ctx,
+
+	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,
 		"https://discord.com/api/users/@me",
 		nil,
 	)
 
-	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
-		return "", errors.Wrap(reqerr, views.RequestFailed)
+	if err != nil {
+		return "", errors.Wrap(err, views.RequestFailed)
 	}
+
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
 	// Get the response
 	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil || resp == nil || resp.Body == nil {
+	if resperr != nil {
 		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
 

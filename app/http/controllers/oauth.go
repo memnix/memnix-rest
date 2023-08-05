@@ -163,6 +163,8 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
+	otelzap.Ctx(c.UserContext()).Info("access token", zap.String("token", accessToken))
+
 	// get the user from discord
 	user, err := oauth.GetDiscordData(c.UserContext(), accessToken)
 	if err != nil {
@@ -171,6 +173,8 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	}
 
 	var discordUser domain.DiscordLogin
+	// print the user to the console
+	otelzap.Ctx(c.UserContext()).Info("discord user", zap.String("user", user))
 	err = config.JSONHelper.Unmarshal([]byte(user), &discordUser)
 	if err != nil {
 		otelzap.Ctx(c.UserContext()).Error("failed to unmarshal discord user", zap.Error(err))
