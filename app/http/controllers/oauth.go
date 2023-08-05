@@ -159,28 +159,33 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 	// get the access token from discord
 	accessToken, err := oauth.GetDiscordAccessToken(c.UserContext(), code)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to get access token from discord", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from discord
 	user, err := oauth.GetDiscordData(c.UserContext(), accessToken)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to get user from discord", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var discordUser domain.DiscordLogin
 	err = config.JSONHelper.Unmarshal([]byte(user), &discordUser)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to unmarshal discord user", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if discordUser == (domain.DiscordLogin{}) {
+		otelzap.Ctx(c.UserContext()).Error("discord user is empty")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
 	jwtToken, err := a.auth.LoginOauth(c.UserContext(), discordUser.ToUser())
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to login user", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
