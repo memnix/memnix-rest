@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"io"
 	"net/http"
 
@@ -62,6 +64,8 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 		return "", err
 	}
 
+	span.AddEvent("Discord access token received", trace.WithAttributes(attribute.String("access_token", ghresp.AccessToken)))
+
 	// Return the access token (as the rest of the
 	// details are relatively unnecessary for us)
 	return ghresp.AccessToken, nil
@@ -92,6 +96,8 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
+
+	span.AddEvent("Discord user data received", trace.WithAttributes(attribute.String("user_data", string(respbody))))
 
 	return string(respbody), nil
 }

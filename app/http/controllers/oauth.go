@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
@@ -12,6 +11,7 @@ import (
 	"github.com/memnix/memnix-rest/pkg/random"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 )
 
@@ -148,11 +148,15 @@ func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 //	@Failure		500		{object}	views.HTTPResponseVM	"internal server error"
 //	@Router			/v2/security/discord_callback [get]
 func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
+	_, span := infrastructures.GetFiberTracer().Start(c.UserContext(), "DiscordCallback")
+	defer span.End()
 	// get the code from the query string
 	code := c.Query("code")
 	state := c.Query("state")
 
+	span.SetAttributes(attribute.String("code", code), attribute.String("state", state))
 	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
+		otelzap.Ctx(c.UserContext()).Warn("state not found", zap.String("state", state))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
