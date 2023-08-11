@@ -21,7 +21,7 @@ type User struct {
 }
 
 // TableName returns the table name for the user model
-func (u *User) TableName() string {
+func (*User) TableName() string {
 	return "users"
 }
 

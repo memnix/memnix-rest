@@ -22,7 +22,7 @@ type Deck struct {
 }
 
 // TableName returns the table name for the deck model
-func (d *Deck) TableName() string {
+func (*Deck) TableName() string {
 	return "decks"
 }
 
