@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.1
-
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/bytedance/sonic v1.10.0
 	github.com/dgraph-io/ristretto v0.1.1
@@ -74,8 +73,6 @@ require (
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.0.5 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/savsgio/dictpool v0.0.0-20221023140959-7bf2e61cea94 // indirect
-	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
@@ -86,7 +83,6 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opentelemetry.io/contrib v1.17.0 // indirect
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
