@@ -17,10 +17,25 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	discordTokenURL = "https://discord.com/api/oauth2/token"
+	discordAPIURL   = "https://discord.com/api/users/@me"
+)
+
+// Represents the response received from Discord
+type discordAccessTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	Scope        string `json:"scope"`
+	Expires      int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 // GetDiscordAccessToken gets the access token from Discord
 func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetDiscordAccessToken")
 	defer span.End()
+
 	reqBody := bytes.NewBuffer([]byte(fmt.Sprintf(
 		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s&scope=identify,email",
 		infrastructures.AppConfig.DiscordConfig.ClientID,
@@ -30,18 +45,18 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	)))
 
 	// POST request to set URL
-	req, reqerr := http.NewRequestWithContext(ctx,
+	req, err := http.NewRequestWithContext(ctx,
 		http.MethodPost,
-		"https://discord.com/api/oauth2/token",
+		discordTokenURL,
 		reqBody,
 	)
-	if reqerr != nil {
-		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(reqerr))
-		return "", errors.Wrap(reqerr, views.RequestFailed)
+	if err != nil {
+		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(err))
+		return "", errors.Wrap(err, views.RequestFailed)
 	}
 
 	if req == nil || req.Body == nil || req.Header == nil {
-		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(reqerr))
+		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(err))
 		return "", errors.New(views.RequestFailed)
 	}
 
@@ -54,6 +69,7 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(resperr))
 		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
+	defer resp.Body.Close()
 
 	if resp == nil || resp.Body == nil {
 		otelzap.Ctx(ctx).Error("resp is empty", zap.Error(resperr))
@@ -61,22 +77,15 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	}
 
 	// Response body converted to stringified JSON
-	respbody, _ := io.ReadAll(resp.Body)
-
-	otelzap.Ctx(ctx).Debug("Discord access token response", zap.String("response", string(respbody)))
-
-	// Represents the response received from Github
-	type discordAccessTokenResponse struct {
-		AccessToken  string `json:"access_token"`
-		TokenType    string `json:"token_type"`
-		Scope        string `json:"scope"`
-		Expires      int    `json:"expires_in"`
-		RefreshToken string `json:"refresh_token"`
+	respbody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		otelzap.Ctx(ctx).Error("failed to read resp.body", zap.Error(err))
+		return "", err
 	}
 
 	// Convert stringified JSON to a struct object of type githubAccessTokenResponse
 	var ghresp discordAccessTokenResponse
-	err := config.JSONHelper.Unmarshal(respbody, &ghresp)
+	err = config.JSONHelper.Unmarshal(respbody, &ghresp)
 	if err != nil {
 		return "", err
 	}
@@ -95,7 +104,7 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 
 	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,
-		"https://discord.com/api/users/@me",
+		discordAPIURL,
 		nil,
 	)
 	if err != nil {
@@ -105,13 +114,18 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
 	// Get the response
-	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil {
-		return "", errors.Wrap(resperr, views.ResponseFailed)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", errors.Wrap(err, views.ResponseFailed)
 	}
 
+	defer resp.Body.Close()
+
 	// Response body converted to stringified JSON
-	respbody, _ := io.ReadAll(resp.Body)
+	respbody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 
 	span.AddEvent("Discord user data received", trace.WithAttributes(attribute.String("user_data", string(respbody))))
 

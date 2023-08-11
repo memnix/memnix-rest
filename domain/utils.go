@@ -12,6 +12,14 @@ const (
 	PermissionAdmin                   // PermissionAdmin is the permission level of an admin.
 )
 
+func (p Permission) String() string {
+	return [...]string{"none", "user", "vip", "admin"}[p]
+}
+
+func (p Permission) IsValid() bool {
+	return p >= PermissionNone && p <= PermissionAdmin
+}
+
 // Route is a route for the API
 // It contains the handler, method and permission level.
 type Route struct {

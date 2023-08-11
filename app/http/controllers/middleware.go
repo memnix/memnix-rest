@@ -37,6 +37,11 @@ func (*JwtController) VerifyPermissions(user domain.User, p domain.Permission) b
 // and calls the next middleware
 func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		// check if the permission is valid
+		if !p.IsValid() {
+			return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(errors.New("invalid permission")))
+		}
+
 		// if the route is public, we don't need to check if the userModel is connected
 		if p == domain.PermissionNone {
 			return c.Next()
@@ -49,32 +54,33 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		tokenHeader := c.Get("Authorization")
 		// if the token is empty, the userModel is not connected, and we return an error
 		if tokenHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not authorized")))
+			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: token missing")))
 		}
 
 		// get the userModel from the token
 		// if the token is invalid, we return an error
 		userID, err := jwt.GetConnectedUserID(c.UserContext(), tokenHeader)
 		if err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not connected")))
+			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid token")))
 		}
 
 		// get the userModel from the database
 		userModel, err := j.IUseCase.GetByID(c.UserContext(), userID)
 		if err != nil {
 			otelzap.Ctx(c.UserContext()).Error("error getting user / not connected", zap.Error(err))
-			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not connected")))
+			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid user")))
 		}
 
-		// if the userModel has the required permissions, we set the userModel in the locals and call the next middleware
-		if j.VerifyPermissions(userModel, p) {
-			utils.SetUserToContext(c, userModel) // Set userModel in locals
-			span.End()
-			return c.Next()
+		// Check permissions
+		if !j.VerifyPermissions(userModel, p) {
+			otelzap.Ctx(c.UserContext()).Warn("Not authorized", zap.Error(errors.New("unauthorized: insufficient permissions")))
+			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: insufficient permissions")))
 		}
 
-		// if the userModel does not have the required permissions, we return an error
-		otelzap.Ctx(c.UserContext()).Warn("not authorized", zap.Error(errors.New("not authorized")))
-		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("not authorized")))
+		// Set userModel in locals
+		utils.SetUserToContext(c, userModel)
+		span.End()
+		return c.Next()
+
 	}
 }
