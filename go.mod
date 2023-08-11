@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.1
+
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/bytedance/sonic v1.10.0
 	github.com/dgraph-io/ristretto v0.1.1
