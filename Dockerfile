@@ -25,18 +25,18 @@ RUN chmod +x /usr/local/bin/dumb-init
 
 FROM gcr.io/distroless/static:nonroot AS production
 
-COPY --from=builder --chown=nonroot /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
+COPY --from=builder  /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 
 ENV GOMEMLIMIT 4000MiB
 
 WORKDIR /app
 
-COPY --from=builder --chown=nonroot /app/memnixrest /app/memnixrest
-COPY --from=builder --chown=nonroot /build/.env* /app/.
-COPY --from=builder --chown=nonroot /build/favicon.ico /app/favicon.ico
-COPY --from=builder --chown=nonroot /build/config /app/config
-COPY --from=builder --chown=nonroot /usr/local/bin/dumb-init /usr/bin/dumb-init
+COPY --from=builder  /app/memnixrest /app/memnixrest
+COPY --from=builder  /build/.env* /app/.
+COPY --from=builder  /build/favicon.ico /app/favicon.ico
+COPY --from=builder  /build/config /app/config
+COPY --from=builder  /usr/local/bin/dumb-init /usr/bin/dumb-init
 
 
 EXPOSE 1815
