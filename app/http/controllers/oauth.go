@@ -12,6 +12,7 @@ import (
 	"github.com/memnix/memnix-rest/pkg/random"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 )
 
@@ -148,39 +149,54 @@ func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 //	@Failure		500		{object}	views.HTTPResponseVM	"internal server error"
 //	@Router			/v2/security/discord_callback [get]
 func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
+	_, span := infrastructures.GetFiberTracer().Start(c.UserContext(), "DiscordCallback")
+	defer span.End()
 	// get the code from the query string
 	code := c.Query("code")
 	state := c.Query("state")
 
+	span.SetAttributes(attribute.String("code", code), attribute.String("state", state))
 	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
+		otelzap.Ctx(c.UserContext()).Warn("state not found", zap.String("state", state))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the access token from discord
 	accessToken, err := oauth.GetDiscordAccessToken(c.UserContext(), code)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to get access token from discord", zap.Error(err))
+		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
+	}
+
+	if accessToken == "" {
+		otelzap.Ctx(c.UserContext()).Error("access token is empty")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from discord
 	user, err := oauth.GetDiscordData(c.UserContext(), accessToken)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to get user from discord", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var discordUser domain.DiscordLogin
+	// print the user to the console
 	err = config.JSONHelper.Unmarshal([]byte(user), &discordUser)
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to unmarshal discord user", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if discordUser == (domain.DiscordLogin{}) {
+		otelzap.Ctx(c.UserContext()).Error("discord user is empty")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
 	jwtToken, err := a.auth.LoginOauth(c.UserContext(), discordUser.ToUser())
 	if err != nil {
+		otelzap.Ctx(c.UserContext()).Error("failed to login user", zap.Error(err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 

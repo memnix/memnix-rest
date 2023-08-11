@@ -13,6 +13,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Represents the response received from Github
+type githubAccessTokenResponse struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	Scope       string `json:"scope"`
+}
+
+const (
+	githubAccessTokenURL = "https://github.com/login/oauth/access_token"
+	githubAPIURL         = "https://api.github.com/user"
+)
+
 // GetGithubAccessToken gets the access token from Github using the code
 func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubAccessToken")
@@ -26,36 +38,34 @@ func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 	requestJSON, _ := config.JSONHelper.Marshal(requestBodyMap)
 
 	// POST request to set URL
-	req, reqerr := http.NewRequestWithContext(ctx,
+	req, err := http.NewRequestWithContext(ctx,
 		http.MethodPost,
-		"https://github.com/login/oauth/access_token",
+		githubAccessTokenURL,
 		bytes.NewBuffer(requestJSON),
 	)
-	if reqerr != nil || req == nil || req.Body == nil || req.Header == nil {
-		return "", errors.Wrap(reqerr, views.RequestFailed)
+	if err != nil || req == nil || req.Body == nil || req.Header == nil {
+		return "", errors.Wrap(err, views.RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
 	// Get the response
-	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil || resp == nil || resp.Body == nil {
-		return "", errors.Wrap(reqerr, views.ResponseFailed)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", errors.Wrap(err, views.ResponseFailed)
 	}
 
+	defer func(resp *http.Response) {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}(resp)
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
 
-	// Represents the response received from Github
-	type githubAccessTokenResponse struct {
-		AccessToken string `json:"access_token"`
-		TokenType   string `json:"token_type"`
-		Scope       string `json:"scope"`
-	}
-
 	// Convert stringified JSON to a struct object of type githubAccessTokenResponse
 	var ghresp githubAccessTokenResponse
-	err := config.JSONHelper.Unmarshal(respbody, &ghresp)
+	err = config.JSONHelper.Unmarshal(respbody, &ghresp)
 	if err != nil {
 		return "", err
 	}
@@ -90,8 +100,16 @@ func GetGithubData(ctx context.Context, accessToken string) (string, error) {
 		return "", err
 	}
 
+	defer func(resp *http.Response) {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}(resp)
 	// Read the response as a byte slice
-	respbody, _ := io.ReadAll(resp.Body)
+	respbody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 
 	// Convert byte slice to string and return
 	return string(respbody), nil

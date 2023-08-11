@@ -14,7 +14,7 @@ type Mcq struct {
 }
 
 // TableName returns the table name for the mcq model
-func (m *Mcq) TableName() string {
+func (*Mcq) TableName() string {
 	return "mcqs"
 }
 

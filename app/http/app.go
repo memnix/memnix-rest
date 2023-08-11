@@ -60,7 +60,11 @@ func registerMiddlewares(app *fiber.App) {
 		URL:  "/favicon.ico",
 	}))
 
-	app.Use(otelfiber.Middleware())
+	app.Use(otelfiber.Middleware(otelfiber.WithNext(
+		func(c *fiber.Ctx) bool {
+			// Do not trace /metrics endpoint
+			return c.Path() == "/metrics" || c.Path() == "/swagger/*" || c.Path() == "/favicon.ico"
+		})))
 
 	app.Use(cache.New(cache.Config{
 		Expiration:   config.CacheExpireTime,

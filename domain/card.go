@@ -14,7 +14,7 @@ type Card struct {
 	CardType   CardType `json:"card_type"`
 }
 
-func (c *Card) TableName() string {
+func (*Card) TableName() string {
 	return "cards"
 }
 
