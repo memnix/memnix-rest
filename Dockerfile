@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 RUN go get -d -v \
-    && CGO_ENABLED=0 go build -pgo=auto -ldflags="-s -w" -o /app/memnixrest .\
+    && CGO_ENABLED=0 go build -pgo=auto -ldflags="-s -w" -buildmode=pie -trimpath -o /app/memnixrest .\
     && upx /app/memnixrest
 
 RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
