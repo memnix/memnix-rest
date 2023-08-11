@@ -81,6 +81,5 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		utils.SetUserToContext(c, userModel)
 		span.End()
 		return c.Next()
-
 	}
 }

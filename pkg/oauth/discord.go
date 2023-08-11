@@ -69,12 +69,12 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(resperr))
 		return "", errors.Wrap(resperr, views.ResponseFailed)
 	}
-	defer resp.Body.Close()
 
-	if resp == nil || resp.Body == nil {
-		otelzap.Ctx(ctx).Error("resp is empty", zap.Error(resperr))
-		return "", errors.New(views.ResponseFailed)
-	}
+	defer func(resp *http.Response) {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}(resp)
 
 	// Response body converted to stringified JSON
 	respbody, err := io.ReadAll(resp.Body)
