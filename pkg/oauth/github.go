@@ -55,8 +55,11 @@ func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 		return "", errors.Wrap(err, views.ResponseFailed)
 	}
 
-	defer resp.Body.Close()
-
+	defer func(resp *http.Response) {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}(resp)
 	// Response body converted to stringified JSON
 	respbody, _ := io.ReadAll(resp.Body)
 
@@ -97,8 +100,11 @@ func GetGithubData(ctx context.Context, accessToken string) (string, error) {
 		return "", err
 	}
 
-	defer resp.Body.Close()
-
+	defer func(resp *http.Response) {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}(resp)
 	// Read the response as a byte slice
 	respbody, err := io.ReadAll(resp.Body)
 	if err != nil {

@@ -29,8 +29,6 @@ require (
 	golang.org/x/crypto v0.10.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.2
-	gorm.io/plugin/opentelemetry v0.1.3
-	gorm.io/plugin/prometheus v0.0.0-20230504115745-1aec2356381b
 )
 
 require (

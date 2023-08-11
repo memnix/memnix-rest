@@ -119,8 +119,11 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 		return "", errors.Wrap(err, views.ResponseFailed)
 	}
 
-	defer resp.Body.Close()
-
+	defer func(resp *http.Response) {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}(resp)
 	// Response body converted to stringified JSON
 	respbody, err := io.ReadAll(resp.Body)
 	if err != nil {
