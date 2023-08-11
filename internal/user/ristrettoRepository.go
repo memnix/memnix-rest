@@ -29,9 +29,9 @@ func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, er
 		return domain.User{}, errors.New("user not found")
 	}
 
-	switch ristrettoHit.(type) {
+	switch ristrettoHit := ristrettoHit.(type) {
 	case domain.User:
-		return ristrettoHit.(domain.User), nil
+		return ristrettoHit, nil
 	default:
 		return domain.User{}, errors.New("user not found")
 	}
