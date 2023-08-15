@@ -7,7 +7,7 @@ require (
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/bytedance/sonic v1.10.0
 	github.com/dgraph-io/ristretto v0.1.1
-	github.com/fxamacker/cbor/v2 v2.4.0
+	github.com/fxamacker/cbor/v2 v2.5.0
 	github.com/go-playground/validator/v10 v10.15.0
 	github.com/gofiber/contrib/otelfiber v1.0.10
 	github.com/gofiber/fiber/v2 v2.48.0
