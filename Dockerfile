@@ -28,8 +28,6 @@ FROM gcr.io/distroless/static:nonroot AS production
 COPY --from=builder  /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 
-ENV GOMEMLIMIT 4000MiB
-
 WORKDIR /app
 
 COPY --from=builder  /app/memnixrest /app/memnixrest
