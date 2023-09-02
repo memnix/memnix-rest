@@ -13,7 +13,7 @@ import (
 func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "GenerateEncryptedPassword")
 	defer span.End()
-	hash, err := crypto.Helper.Hash(password)
+	hash, err := crypto.GetCrypto().Hash(password)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, er
 func ComparePasswords(ctx context.Context, password string, hash []byte) (bool, error) {
 	_, span := infrastructures.GetFiberTracer().Start(ctx, "ComparePasswords")
 	defer span.End()
-	return crypto.Helper.Verify(password, hash)
+	return crypto.GetCrypto().Verify(password, hash)
 }
 
 // VerifyPassword verifies a password

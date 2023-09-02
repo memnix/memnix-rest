@@ -1,6 +1,18 @@
 package crypto
 
-var Helper = BcryptCrypto{}
+const DefaultBcryptCost = 10
+
+var cryptoHelper = Crypto{
+	crypto: NewBcryptCrypto(DefaultBcryptCost),
+}
+
+func InitCrypto(crypto ICrypto) {
+	cryptoHelper = Crypto{crypto: crypto}
+}
+
+func GetCrypto() Crypto {
+	return cryptoHelper
+}
 
 // ICrypto is the interface for the crypto methods
 // It's used to abstract the crypto methods used in the application
@@ -20,7 +32,7 @@ type Crypto struct {
 // Hash hashes a password using the configured crypto method
 // password is the plaintext password to hash.
 // Returns the hashed password, or an error on failure.
-func (c *Crypto) Hash(password string) ([]byte, error) {
+func (c Crypto) Hash(password string) ([]byte, error) {
 	return c.crypto.Hash(password) //nolint:wrapcheck
 }
 
@@ -29,6 +41,6 @@ func (c *Crypto) Hash(password string) ([]byte, error) {
 // hash is the bcrypt hashed password.
 // Returns nil on success, or an error on failure.
 // Returns true if the password matches, false if it does not.
-func (c *Crypto) Verify(password string, hash []byte) (bool, error) {
+func (c Crypto) Verify(password string, hash []byte) (bool, error) {
 	return c.crypto.Verify(password, hash) //nolint:wrapcheck
 }

@@ -2,8 +2,8 @@ package infrastructures
 
 import (
 	"context"
+	"strings"
 
-	"github.com/memnix/memnix-rest/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
@@ -18,18 +18,15 @@ var (
 	tp          *sdktrace.TracerProvider
 )
 
-func getEndpoint() string {
-	var url string
-	if config.IsDevelopment() {
-		url = config.EnvHelper.GetEnv("DEBUG_JAEGER_URL")
-	} else {
-		url = config.EnvHelper.GetEnv("JAEGER_URL")
-	}
-	return url + "/api/traces"
+func buildEndpoint(url string) string {
+	var sb strings.Builder
+	sb.WriteString(url)
+	sb.WriteString("/api/traces")
+	return sb.String()
 }
 
-func InitTracer() error {
-	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(getEndpoint())))
+func InitTracer(url string) error {
+	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(buildEndpoint(url))))
 	if err != nil {
 		return err
 	}

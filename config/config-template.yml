@@ -1,0 +1,27 @@
+server:
+  Port: 1815
+  AppVersion: 1.0.0
+  JaegerURL: http://localhost:14268
+  Host: http://localhost:1815
+  FrontendURL: http://localhost:3000
+Database:
+  DSN: toto
+Redis:
+  Addr: :6379
+  Password: redis
+Log:
+  Level: debug
+Auth:
+  BcryptCost: 10
+  JWTSecret: toto
+  JWTHeaderLen: 2
+  JWTExpiration: 48
+  Github:
+    ClientID: toto
+    ClientSecret: toto
+  Discord:
+    ClientID: toto
+    ClientSecret: toto
+    URL: toto
+Tracing:
+  URL: http://localhost:14268

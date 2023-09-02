@@ -13,8 +13,8 @@ import (
 var redisClient *redis.Client
 
 // ConnectRedis Connects to redis
-func ConnectRedis() error {
-	redisClient = NewRedisClient()
+func ConnectRedis(redisHost string) error {
+	redisClient = NewRedisClient(redisHost)
 
 	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
@@ -35,14 +35,7 @@ func GetRedisClient() *redis.Client {
 }
 
 // NewRedisClient Returns new redis client
-func NewRedisClient() *redis.Client {
-	var redisHost string
-	if config.IsDevelopment() {
-		redisHost = config.EnvHelper.GetEnv("DEBUG_REDIS_URL")
-	} else {
-		redisHost = config.EnvHelper.GetEnv("REDIS_URL")
-	}
-
+func NewRedisClient(redisHost string) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:         redisHost,
 		MinIdleConns: config.RedisMinIdleConns,

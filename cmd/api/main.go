@@ -8,33 +8,31 @@ import (
 
 	"github.com/bytedance/gopkg/util/gctuner"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
+	"github.com/memnix/memnix-rest/pkg/crypto"
+	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/pkg/logger"
+	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 )
 
 func main() {
-	// Setup the logger
+	// setup the logger
 	zapLogger, undo := logger.CreateZapLogger()
 
-	// Setup the environment variables
-	setupEnv()
+	configPath := config.GetConfigPath()
 
-	// Setup the garbage collector
-	gcTuning()
-
-	// Setup the infrastructures
-	setupInfrastructures()
-
-	if !fiber.IsChild() {
-		// Migrate the models
-		migrate()
+	cfg, err := config.LoadConfig(configPath)
+	if err != nil {
+		otelzap.L().Fatal("❌ Error loading config", zap.Error(err))
 	}
+
+	// setup the environment variables
+	setup(cfg)
 
 	zapLogger.Info("starting server")
 
@@ -91,49 +89,68 @@ func shutdown(app *fiber.App) {
 	}
 }
 
-func migrate() {
-	// Models to migrate
-	migrates := []domain.Model{
-		&domain.User{}, &domain.Card{}, &domain.Deck{}, &domain.Mcq{},
+func setup(cfg *config.Config) {
+	setupCrypto(cfg)
+
+	setupInfrastructures(cfg)
+
+	gcTuning()
+
+	setupJwt(cfg)
+
+	setupOAuth(cfg)
+
+	if !fiber.IsChild() {
+		// Migrate the models
+		migrate()
 	}
 
-	otelzap.L().Info("⚙️ Starting database migration...")
-
-	// AutoMigrate models
-	for i := 0; i < len(migrates); i++ {
-		step := i + 1
-		err := infrastructures.GetDBConn().AutoMigrate(&migrates[i])
-		if err != nil {
-			otelzap.L().Error(fmt.Sprintf("❌ Error migrating model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
-		} else {
-			otelzap.L().Info(fmt.Sprintf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
-		}
-	}
-
-	otelzap.L().Info("✅ Database migration completed!")
+	otelzap.L().Info("✅ setup completed!")
 }
 
-func setupEnv() {
-	// Load the .env file
-	err := godotenv.Load()
-	if err != nil {
-		otelzap.L().Fatal("❌ Error loading .env file", zap.Error(err))
-	}
-
+func setupJwt(cfg *config.Config) {
+	// Parse the private key
 	if err := config.ParseEd25519PrivateKey(); err != nil {
 		otelzap.L().Fatal("❌ Error parsing private key", zap.Error(err))
 	}
 
+	// Parse the public key
 	if err := config.ParseEd25519PublicKey(); err != nil {
 		otelzap.L().Fatal("❌ Error parsing public key", zap.Error(err))
 	}
 
-	// Init oauth
-	infrastructures.InitOauth()
+	// Create the JWT instance
+	jwtInstance := myJwt.NewJWTInstance(cfg.Auth.JWTHeaderLen, cfg.Auth.JWTExpiration, config.GetEd25519PublicKey(), config.GetEd25519PrivateKey())
+
+	config.JwtInstance = jwtInstance
+
+	otelzap.L().Info("✅ Created JWT instance")
 }
 
-func setupInfrastructures() {
-	err := infrastructures.ConnectDB()
+func setupCrypto(cfg *config.Config) {
+	crypto.InitCrypto(crypto.NewBcryptCrypto(cfg.Auth.Bcryptcost))
+
+	otelzap.L().Info("✅ Created Crypto instance")
+}
+
+func setupOAuth(cfg *config.Config) {
+	oauth.SetJSONHelper(config.JSONHelper)
+
+	oauthConfig := oauth.GlobalConfig{
+		CallbackURL: cfg.Server.Host,
+		FrontendURL: cfg.Server.FrontendURL,
+	}
+
+	oauth.SetOauthConfig(oauthConfig)
+
+	oauth.InitGithub(cfg.Auth.Github)
+	oauth.InitDiscord(cfg.Auth.Discord)
+
+	otelzap.L().Info("✅ Created OAuth instance")
+}
+
+func setupInfrastructures(cfg *config.Config) {
+	err := infrastructures.ConnectDB(cfg.Database.DSN)
 	if err != nil {
 		otelzap.L().Fatal("❌ Error connecting to database", zap.Error(err))
 	} else {
@@ -141,7 +158,7 @@ func setupInfrastructures() {
 	}
 
 	// Redis connection
-	err = infrastructures.ConnectRedis()
+	err = infrastructures.ConnectRedis(cfg.Redis.Addr)
 	if err != nil {
 		otelzap.L().Fatal("❌ Error connecting to Redis")
 	} else {
@@ -149,7 +166,7 @@ func setupInfrastructures() {
 	}
 
 	// Connect to the tracer
-	err = infrastructures.InitTracer()
+	err = infrastructures.InitTracer(cfg.Tracing.URL)
 	if err != nil {
 		otelzap.L().Fatal("❌ Error connecting to the tracer", zap.Error(err))
 	} else {
@@ -178,4 +195,26 @@ func gcTuning() {
 		gctuner.GetMaxGCPercent()))
 
 	otelzap.L().Info("✅ GC Tuning completed!")
+}
+
+func migrate() {
+	// Models to migrate
+	migrates := []domain.Model{
+		&domain.User{}, &domain.Card{}, &domain.Deck{}, &domain.Mcq{},
+	}
+
+	otelzap.L().Info("⚙️ Starting database migration...")
+
+	// AutoMigrate models
+	for i := 0; i < len(migrates); i++ {
+		step := i + 1
+		err := infrastructures.GetDBConn().AutoMigrate(&migrates[i])
+		if err != nil {
+			otelzap.L().Error(fmt.Sprintf("❌ Error migrating model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
+		} else {
+			otelzap.L().Info(fmt.Sprintf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
+		}
+	}
+
+	otelzap.L().Info("✅ Database migration completed!")
 }

@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
+	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/user"
-	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/pkg/errors"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -41,7 +41,7 @@ func (a *UseCase) Login(ctx context.Context, password string, email string) (str
 		return "", err
 	}
 
-	token, err := jwt.GenerateToken(ctx, userModel.ID)
+	token, err := config.GetJwtInstance().GenerateToken(ctx, userModel.ID)
 	if err != nil {
 		return "", err
 	}
@@ -86,7 +86,7 @@ func (*UseCase) Logout(_ context.Context) (string, error) {
 
 // RefreshToken refreshes a token
 func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, error) {
-	token, err := jwt.GenerateToken(ctx, user.ID)
+	token, err := config.GetJwtInstance().GenerateToken(ctx, user.ID)
 	if err != nil {
 		return "", err
 	}
@@ -140,5 +140,5 @@ func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, err
 		}
 	}
 
-	return jwt.GenerateToken(ctx, userModel.ID)
+	return config.GetJwtInstance().GenerateToken(ctx, userModel.ID)
 }

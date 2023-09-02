@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/auth"
-	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
@@ -102,7 +101,7 @@ func (*AuthController) Logout(c *fiber.Ctx) error {
 //	@Failure		500	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/refresh [post]
 func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
-	user, err := utils.GetUserFromContext(c)
+	user, err := GetUserFromContext(c)
 	if err != nil {
 		return errors.Wrap(err, "user not found in RefreshToken")
 	}

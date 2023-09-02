@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/internal/user"
-	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
 )
 
@@ -26,7 +25,7 @@ func (u *UserController) GetName(c *fiber.Ctx) error {
 
 // GetMe returns the user from the context
 func (*UserController) GetMe(c *fiber.Ctx) error {
-	userCtx, err := utils.GetUserFromContext(c)
+	userCtx, err := GetUserFromContext(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVM("User not found", nil))
 	}

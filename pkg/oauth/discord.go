@@ -7,13 +7,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/memnix/memnix-rest/config"
-	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -33,14 +28,11 @@ type discordAccessTokenResponse struct {
 
 // GetDiscordAccessToken gets the access token from Discord
 func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetDiscordAccessToken")
-	defer span.End()
-
 	reqBody := bytes.NewBuffer([]byte(fmt.Sprintf(
 		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s&scope=identify,email",
-		infrastructures.AppConfig.DiscordConfig.ClientID,
-		infrastructures.AppConfig.DiscordConfig.ClientSecret,
-		config.GetCurrentURL()+"/v2/security/discord_callback",
+		discordConfig.ClientID,
+		discordConfig.ClientSecret,
+		GetCallbackURL()+"/v2/security/discord_callback",
 		code,
 	)))
 
@@ -52,12 +44,12 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	)
 	if err != nil {
 		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(err))
-		return "", errors.Wrap(err, views.RequestFailed)
+		return "", errors.Wrap(err, RequestFailed)
 	}
 
 	if req == nil || req.Body == nil || req.Header == nil {
 		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(err))
-		return "", errors.New(views.RequestFailed)
+		return "", errors.New(RequestFailed)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -67,7 +59,7 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil {
 		otelzap.Ctx(ctx).Error("Failed to get Discord access token", zap.Error(resperr))
-		return "", errors.Wrap(resperr, views.ResponseFailed)
+		return "", errors.Wrap(resperr, ResponseFailed)
 	}
 
 	defer func(resp *http.Response) {
@@ -85,12 +77,10 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 
 	// Convert stringified JSON to a struct object of type githubAccessTokenResponse
 	var ghresp discordAccessTokenResponse
-	err = config.JSONHelper.Unmarshal(respbody, &ghresp)
+	err = jsonHelper.Unmarshal(respbody, &ghresp)
 	if err != nil {
 		return "", err
 	}
-
-	span.AddEvent("Discord access token received", trace.WithAttributes(attribute.String("access_token", ghresp.AccessToken)))
 
 	// Return the access token (as the rest of the
 	// details are relatively unnecessary for us)
@@ -99,16 +89,13 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 
 // GetDiscordData gets the user data from Discord
 func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetDiscordData")
-	defer span.End()
-
 	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,
 		discordAPIURL,
 		nil,
 	)
 	if err != nil {
-		return "", errors.Wrap(err, views.RequestFailed)
+		return "", errors.Wrap(err, RequestFailed)
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
@@ -116,7 +103,7 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 	// Get the response
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", errors.Wrap(err, views.ResponseFailed)
+		return "", errors.Wrap(err, ResponseFailed)
 	}
 
 	defer func(resp *http.Response) {
@@ -129,8 +116,6 @@ func GetDiscordData(ctx context.Context, accessToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	span.AddEvent("Discord user data received", trace.WithAttributes(attribute.String("user_data", string(respbody))))
 
 	return string(respbody), nil
 }

@@ -32,3 +32,6 @@ docker-*
 /scripts/vegeta*
 
 config/keys/*
+
+config/config-local.yml
+config/config-prod.yml

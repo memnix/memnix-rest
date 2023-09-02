@@ -5,16 +5,13 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/memnix/memnix-rest/pkg/env"
 	"github.com/memnix/memnix-rest/pkg/json"
+	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
 	"golang.org/x/crypto/ed25519"
 )
 
 // JSONHelper is the helper for JSON operations
 var JSONHelper = json.NewJSON(&json.SonicJSON{})
-
-// EnvHelper is the helper for environment variables
-var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
 	ExpirationTimeInHours = 24 // ExpirationTimeInHours is the expiration time for the JWT token
@@ -33,22 +30,21 @@ const (
 	RedisOwnedExpireTime   = 2 * time.Hour     // RedisOwnedExpireTime is the expiration time for owned keys
 
 	CacheExpireTime = 10 * time.Second // CacheExpireTime is the expiration time for the cache
-	InfluxDBFreq    = 10 * time.Second // InfluxDBFreq is the frequency for writing to InfluxDB
 
-	DeckSecretCodeLength = 10  // DeckSecretCodeLength is the length of the secret code for decks
-	GCThresholdPercent   = 0.7 // GCThresholdPercent is the threshold for garbage collection
+	GCThresholdPercent = 0.7 // GCThresholdPercent is the threshold for garbage collection
 
 	GCLimit = 1024 * 1024 * 1024 // GCLimit is the limit for garbage collection
-
-	GormPrometheusRefreshInterval = 15 // GormPrometheusRefreshInterval is the refresh interval for gorm prometheus
 
 	RistrettoMaxCost     = 5 * MB // RistrettoMaxCost is the maximum cost
 	RistrettoBufferItems = 32     // RistrettoBufferItems is the number of items per get buffer
 	RistrettoNumCounters = 1e4    // RistrettoNumCounters is the number of counters
 )
 
-// JwtSigningMethod is the signing method for JWT
-var JwtSigningMethod = jwt.SigningMethodEdDSA
+var JwtInstance myJwt.Instance
+
+func GetJwtInstance() myJwt.Instance {
+	return JwtInstance
+}
 
 // PasswordConfigStruct is the struct for the password config
 type PasswordConfigStruct struct {
@@ -57,16 +53,6 @@ type PasswordConfigStruct struct {
 	Threads    uint8  // Threads to use for Argon2ID
 	KeyLen     uint32 // KeyLen to use for Argon2ID
 	SaltLen    uint32 // SaltLen to use for Argon2ID
-}
-
-// IsProduction returns true if the app is in production
-func IsProduction() bool {
-	return EnvHelper.GetEnv("APP_ENV") != "dev"
-}
-
-// IsDevelopment returns true if the app is in development
-func IsDevelopment() bool {
-	return EnvHelper.GetEnv("APP_ENV") == "dev"
 }
 
 var (

@@ -43,7 +43,7 @@ func (d *DeckController) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
-	user, err := utils.GetUserFromContext(c)
+	user, err := GetUserFromContext(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -79,7 +79,7 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 
 	deckObject := createDeck.ToDeck()
 
-	user, err := utils.GetUserFromContext(c)
+	user, err := GetUserFromContext(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -104,7 +104,7 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 //	@Router			/v2/deck/owned [get]
 //	@Security		Bearer
 func (d *DeckController) GetOwned(c *fiber.Ctx) error {
-	user, err := utils.GetUserFromContext(c)
+	user, err := GetUserFromContext(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
 	}
@@ -129,7 +129,7 @@ func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 //	@Router			/v2/deck/learning [get]
 //	@Security		Bearer
 func (d *DeckController) GetLearning(c *fiber.Ctx) error {
-	user, err := utils.GetUserFromContext(c)
+	user, err := GetUserFromContext(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
 	}
