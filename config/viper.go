@@ -35,8 +35,11 @@ type DatabaseConfigStruct struct {
 
 // RedisConfigStruct is the redis configuration.
 type RedisConfigStruct struct {
-	Addr     string
-	Password string
+	Addr         string
+	Password     string
+	MinIdleConns int
+	PoolSize     int
+	PoolTimeout  int
 }
 
 // LogConfigStruct is the log configuration.

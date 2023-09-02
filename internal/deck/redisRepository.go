@@ -2,11 +2,14 @@ package deck
 
 import (
 	"context"
+	"time"
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
+
+const OwnedExpirationTime = 2 * time.Hour
 
 func getBaseKey() string {
 	return "deck:id:"
@@ -46,7 +49,7 @@ func (r RedisRepository) DeleteByID(ctx context.Context, id uint) error {
 
 // SetOwnedByUser sets the decks owned by the user.
 func (r RedisRepository) SetOwnedByUser(ctx context.Context, userID uint, decks string) error {
-	return r.RedisConn.Set(ctx, withID(getOwnedKey, userID), decks, config.RedisOwnedExpireTime).Err()
+	return r.RedisConn.Set(ctx, withID(getOwnedKey, userID), decks, OwnedExpirationTime).Err()
 }
 
 // GetOwnedByUser gets the decks owned by the user.
@@ -61,7 +64,7 @@ func (r RedisRepository) DeleteOwnedByUser(ctx context.Context, userID uint) err
 
 // SetLearningByUser sets the decks learning by the user.
 func (r RedisRepository) SetLearningByUser(ctx context.Context, userID uint, decks string) error {
-	return r.RedisConn.Set(ctx, withID(getLearningKey, userID), decks, config.RedisOwnedExpireTime).Err()
+	return r.RedisConn.Set(ctx, withID(getLearningKey, userID), decks, OwnedExpirationTime).Err()
 }
 
 // GetLearningByUser gets the decks learning by the user.
