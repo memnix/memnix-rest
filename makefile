@@ -22,4 +22,4 @@ clean:
 	rm -rf bin/*
 
 generate_keys:
-	./scripts/keys.sh
+	./scripts/keys.sh./

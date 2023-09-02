@@ -8,7 +8,6 @@ package internal
 
 import (
 	"github.com/memnix/memnix-rest/app/http/controllers"
-	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/card"
@@ -96,15 +95,4 @@ func InitializeMcq() controllers.McqController {
 	iUseCase := mcq.NewUseCase(iRepository, iRedisRepository)
 	mcqController := controllers.NewMcqController(iUseCase)
 	return mcqController
-}
-
-// InitializeMeiliSearch initializes the meilisearch.
-func InitializeMeiliSearch() meilisearch.MeiliSearch {
-	db := infrastructures.GetDBConn()
-	iRepository := deck.NewRepository(db)
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := deck.NewRedisRepository(client)
-	iUseCase := deck.NewUseCase(iRepository, iRedisRepository)
-	meiliSearch := meilisearch.NewMeiliSearch(iUseCase)
-	return meiliSearch
 }

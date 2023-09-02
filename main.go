@@ -10,11 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
-	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/internal"
 	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -36,12 +34,6 @@ func main() {
 	if !fiber.IsChild() {
 		// Migrate the models
 		migrate()
-
-		// Init MeiliSearch
-		err := meilisearch.InitMeiliSearch(internal.InitializeMeiliSearch())
-		if err != nil {
-			zapLogger.Error("error initializing meilisearch", zap.Error(err))
-		}
 	}
 
 	zapLogger.Info("starting server")
@@ -154,14 +146,6 @@ func setupInfrastructures() {
 		otelzap.L().Fatal("❌ Error connecting to Redis")
 	} else {
 		otelzap.L().Info("✅ Connected to Redis")
-	}
-
-	// Connect MeiliSearch
-	err = infrastructures.ConnectMeiliSearch(config.EnvHelper)
-	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to MeiliSearch")
-	} else {
-		otelzap.L().Info("✅ Connected to MeiliSearch")
 	}
 
 	// Connect to the tracer
