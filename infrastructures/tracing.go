@@ -15,7 +15,6 @@ import (
 
 var (
 	fiberTracer = otel.Tracer("fiber-server")
-	gormTracer  = otel.Tracer("gorm")
 	tp          *sdktrace.TracerProvider
 )
 
@@ -61,8 +60,4 @@ func GetTracer() *sdktrace.TracerProvider {
 
 func GetFiberTracer() trace.Tracer {
 	return fiberTracer
-}
-
-func GetGormTracer() trace.Tracer {
-	return gormTracer
 }
