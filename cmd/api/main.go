@@ -158,7 +158,7 @@ func setupInfrastructures(cfg *config.Config) {
 	}
 
 	// Redis connection
-	err = infrastructures.ConnectRedis(cfg.Redis.Addr)
+	err = infrastructures.ConnectRedis(cfg.Redis)
 	if err != nil {
 		otelzap.L().Fatal("❌ Error connecting to Redis")
 	} else {
