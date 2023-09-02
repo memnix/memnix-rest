@@ -117,15 +117,15 @@ func setupEnv() {
 	// Load the .env file
 	err := godotenv.Load()
 	if err != nil {
-		otelzap.L().Fatal("❌ Error loading .env file")
+		otelzap.L().Fatal("❌ Error loading .env file", zap.Error(err))
 	}
 
 	if err := config.ParseEd25519PrivateKey(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing private key")
+		otelzap.L().Fatal("❌ Error parsing private key", zap.Error(err))
 	}
 
 	if err := config.ParseEd25519PublicKey(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing public key")
+		otelzap.L().Fatal("❌ Error parsing public key", zap.Error(err))
 	}
 
 	// Init oauth
@@ -135,7 +135,7 @@ func setupEnv() {
 func setupInfrastructures() {
 	err := infrastructures.ConnectDB()
 	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to database")
+		otelzap.L().Fatal("❌ Error connecting to database", zap.Error(err))
 	} else {
 		otelzap.L().Info("✅ Connected to database")
 	}
@@ -151,13 +151,13 @@ func setupInfrastructures() {
 	// Connect to the tracer
 	err = infrastructures.InitTracer()
 	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to the tracer")
+		otelzap.L().Fatal("❌ Error connecting to the tracer", zap.Error(err))
 	} else {
 		otelzap.L().Info("✅ Connected to the tracer")
 	}
 
 	if err = infrastructures.CreateRistrettoCache(); err != nil {
-		otelzap.L().Fatal("❌ Error creating Ristretto cache")
+		otelzap.L().Fatal("❌ Error creating Ristretto cache", zap.Error(err))
 	} else {
 		otelzap.L().Info("✅ Created Ristretto cache")
 	}
