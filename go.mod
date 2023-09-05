@@ -8,27 +8,27 @@ require (
 	github.com/bytedance/sonic v1.10.0
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.5.0
-	github.com/go-playground/validator/v10 v10.15.0
+	github.com/go-playground/validator/v10 v10.15.3
 	github.com/gofiber/contrib/otelfiber v1.0.10
-	github.com/gofiber/fiber/v2 v2.48.0
-	github.com/gofiber/swagger v0.1.12
+	github.com/gofiber/fiber/v2 v2.49.1
+	github.com/gofiber/swagger v0.1.13
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/meilisearch/meilisearch-go v0.25.0
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
-	github.com/redis/go-redis/v9 v9.0.5
-	github.com/swaggo/swag v1.16.1
+	github.com/redis/go-redis/v9 v9.1.0
+	github.com/swaggo/swag v1.16.2
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.2.2
-	go.opentelemetry.io/otel v1.16.0
-	go.opentelemetry.io/otel/exporters/jaeger v1.16.0
-	go.opentelemetry.io/otel/sdk v1.16.0
-	go.opentelemetry.io/otel/trace v1.16.0
+	go.opentelemetry.io/otel v1.17.0
+	go.opentelemetry.io/otel/exporters/jaeger v1.17.0
+	go.opentelemetry.io/otel/sdk v1.17.0
+	go.opentelemetry.io/otel/trace v1.17.0
 	go.uber.org/zap v1.25.0
-	golang.org/x/crypto v0.12.0
+	golang.org/x/crypto v0.13.0
 	gorm.io/driver/mysql v1.5.1
-	gorm.io/gorm v1.25.3
+	gorm.io/gorm v1.25.4
 )
 
 require (
@@ -54,7 +54,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/glog v1.1.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.3.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -78,16 +78,16 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.2.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.48.0 // indirect
+	github.com/valyala/fasthttp v1.49.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opentelemetry.io/contrib v1.17.0 // indirect
-	go.opentelemetry.io/otel/metric v1.16.0 // indirect
+	go.opentelemetry.io/otel/metric v1.17.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/text v0.12.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
