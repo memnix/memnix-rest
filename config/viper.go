@@ -57,8 +57,8 @@ type AuthConfigStruct struct {
 	Bcryptcost    int
 }
 
-// LoadConfig loads a file from given path
-func LoadConfig(filename string) (*Config, error) {
+// UseConfig loads a file from given path
+func UseConfig(filename string) (*Config, error) {
 	v := viper.New()
 
 	v.SetConfigName(filename)

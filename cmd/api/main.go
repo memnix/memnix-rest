@@ -26,11 +26,11 @@ func main() {
 
 	configPath := config.GetConfigPath()
 
-	cfg, err := config.LoadConfig(configPath)
+	// Load the config
+	cfg, err := config.UseConfig(configPath)
 	if err != nil {
-		otelzap.L().Fatal("❌ Error loading config", zap.Error(err))
+		zapLogger.Fatal("❌ Error loading config", zap.Error(err))
 	}
-
 	// setup the environment variables
 	setup(cfg)
 
