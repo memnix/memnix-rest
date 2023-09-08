@@ -2,6 +2,7 @@ package infrastructures
 
 import (
 	"context"
+	"time"
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/redis/go-redis/extra/redisotel/v9"
@@ -13,8 +14,8 @@ import (
 var redisClient *redis.Client
 
 // ConnectRedis Connects to redis
-func ConnectRedis() error {
-	redisClient = NewRedisClient()
+func ConnectRedis(redisConf config.RedisConfigStruct) error {
+	redisClient = NewRedisClient(redisConf)
 
 	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
@@ -35,19 +36,12 @@ func GetRedisClient() *redis.Client {
 }
 
 // NewRedisClient Returns new redis client
-func NewRedisClient() *redis.Client {
-	var redisHost string
-	if config.IsDevelopment() {
-		redisHost = config.EnvHelper.GetEnv("DEBUG_REDIS_URL")
-	} else {
-		redisHost = config.EnvHelper.GetEnv("REDIS_URL")
-	}
-
+func NewRedisClient(redisConf config.RedisConfigStruct) *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Addr:         redisHost,
-		MinIdleConns: config.RedisMinIdleConns,
-		PoolSize:     config.RedisPoolSize,
-		PoolTimeout:  config.RedisPoolTimeout,
+		Addr:         redisConf.Addr,
+		MinIdleConns: redisConf.MinIdleConns,
+		PoolSize:     redisConf.PoolSize,
+		PoolTimeout:  time.Duration(redisConf.PoolTimeout) * time.Second,
 	})
 
 	if err := redisotel.InstrumentTracing(client); err != nil {

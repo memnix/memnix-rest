@@ -42,8 +42,8 @@ func (a *OAuthController) GithubLogin(c *fiber.Ctx) error {
 	// Create the dynamic redirect URL for login
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&state=%s",
-		infrastructures.AppConfig.GithubConfig.ClientID,
-		config.GetCurrentURL()+"/v2/security/github_callback",
+		oauth.GetGithubClientID(),
+		oauth.GetCallbackURL()+"/v2/security/github_callback",
 		state,
 	)
 	// Save the state in the cache
@@ -107,7 +107,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 		otelzap.Ctx(c.UserContext()).Error("failed to delete state from cache", zap.Error(err))
 	}
 
-	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
+	return c.Redirect(oauth.GetFrontendURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
 }
 
 // DiscordLogin redirects the user to the discord login page
@@ -127,7 +127,7 @@ func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 		return err
 	}
 
-	redirectURL := infrastructures.AppConfig.DiscordConfig.URL + "&state=" + state
+	redirectURL := oauth.GetDiscordURL() + "&state=" + state
 
 	err := c.Redirect(redirectURL, fiber.StatusSeeOther)
 	if err != nil {
@@ -204,5 +204,5 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 		otelzap.Ctx(c.UserContext()).Error("error deleting state", zap.Error(err))
 	}
 
-	return c.Redirect(config.GetFrontURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
+	return c.Redirect(oauth.GetFrontendURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
 }

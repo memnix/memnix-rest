@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/ansrivas/fiberprometheus/v2"
+	"github.com/gofiber/contrib/fibersentry"
 	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -60,6 +60,11 @@ func registerMiddlewares(app *fiber.App) {
 		URL:  "/favicon.ico",
 	}))
 
+	app.Use(fibersentry.New(fibersentry.Config{
+		Repanic:         true,
+		WaitForDelivery: true,
+	}))
+
 	app.Use(otelfiber.Middleware(otelfiber.WithNext(
 		func(c *fiber.Ctx) bool {
 			// Do not trace /metrics endpoint
@@ -74,10 +79,6 @@ func registerMiddlewares(app *fiber.App) {
 			return c.Path() == "/metrics"
 		},
 	}))
-
-	prometheus := fiberprometheus.New("memnix")
-	prometheus.RegisterAt(app, "/metrics")
-	app.Use(prometheus.Middleware)
 
 	app.Use(pprof.New())
 }

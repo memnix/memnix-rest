@@ -7,35 +7,30 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/memnix/memnix-rest/config"
-	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
 )
-
-// Represents the response received from Github
-type githubAccessTokenResponse struct {
-	AccessToken string `json:"access_token"`
-	TokenType   string `json:"token_type"`
-	Scope       string `json:"scope"`
-}
 
 const (
 	githubAccessTokenURL = "https://github.com/login/oauth/access_token"
 	githubAPIURL         = "https://api.github.com/user"
 )
 
+// githubAccessTokenResponse Represents the response received from Github
+type githubAccessTokenResponse struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	Scope       string `json:"scope"`
+}
+
 // GetGithubAccessToken gets the access token from Github using the code
 func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubAccessToken")
-	defer span.End()
 	// Set us the request body as JSON
 	requestBodyMap := map[string]string{
-		"client_id":     infrastructures.GetAppConfig().GithubConfig.ClientID,
-		"client_secret": infrastructures.GetAppConfig().GithubConfig.ClientSecret,
+		"client_id":     githubConfig.ClientID,
+		"client_secret": githubConfig.ClientSecret,
 		"code":          code,
 	}
-	requestJSON, _ := config.JSONHelper.Marshal(requestBodyMap)
+	requestJSON, _ := jsonHelper.Marshal(requestBodyMap)
 
 	// POST request to set URL
 	req, err := http.NewRequestWithContext(ctx,
@@ -44,7 +39,7 @@ func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 		bytes.NewBuffer(requestJSON),
 	)
 	if err != nil || req == nil || req.Body == nil || req.Header == nil {
-		return "", errors.Wrap(err, views.RequestFailed)
+		return "", errors.Wrap(err, RequestFailed)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -52,7 +47,7 @@ func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 	// Get the response
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", errors.Wrap(err, views.ResponseFailed)
+		return "", errors.Wrap(err, ResponseFailed)
 	}
 
 	defer func(resp *http.Response) {
@@ -65,7 +60,7 @@ func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 
 	// Convert stringified JSON to a struct object of type githubAccessTokenResponse
 	var ghresp githubAccessTokenResponse
-	err = config.JSONHelper.Unmarshal(respbody, &ghresp)
+	err = jsonHelper.Unmarshal(respbody, &ghresp)
 	if err != nil {
 		return "", err
 	}
@@ -77,8 +72,6 @@ func GetGithubAccessToken(ctx context.Context, code string) (string, error) {
 
 // GetGithubData gets the user data from Github using the access token
 func GetGithubData(ctx context.Context, accessToken string) (string, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetGithubData")
-	defer span.End()
 	// Get request to a set URL
 	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,

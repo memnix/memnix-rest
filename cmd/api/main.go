@@ -7,42 +7,33 @@ import (
 	"syscall"
 
 	"github.com/bytedance/gopkg/util/gctuner"
+	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"github.com/memnix/memnix-rest/app/http"
-	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/internal"
+	"github.com/memnix/memnix-rest/pkg/crypto"
+	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/pkg/logger"
+	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 )
 
 func main() {
-	// Setup the logger
+	// setup the logger
 	zapLogger, undo := logger.CreateZapLogger()
 
-	// Setup the environment variables
-	setupEnv()
+	configPath := config.GetConfigPath()
 
-	// Setup the garbage collector
-	gcTuning()
-
-	// Setup the infrastructures
-	setupInfrastructures()
-
-	if !fiber.IsChild() {
-		// Migrate the models
-		migrate()
-
-		// Init MeiliSearch
-		err := meilisearch.InitMeiliSearch(internal.InitializeMeiliSearch())
-		if err != nil {
-			zapLogger.Error("error initializing meilisearch", zap.Error(err))
-		}
+	// Load the config
+	cfg, err := config.UseConfig(configPath)
+	if err != nil {
+		zapLogger.Fatal("❌ Error loading config", zap.Error(err))
 	}
+	// setup the environment variables
+	setup(cfg)
 
 	zapLogger.Info("starting server")
 
@@ -97,6 +88,119 @@ func shutdown(app *fiber.App) {
 	} else {
 		otelzap.L().Info("✅ Disconnected from Tracer")
 	}
+
+	sentry.Flush(config.SentryFlushTimeout)
+	otelzap.L().Info("✅ Disconnected from Sentry")
+
+	otelzap.L().Info("✅ Cleanup tasks completed!")
+}
+
+func setup(cfg *config.Config) {
+	setupCrypto(cfg)
+
+	setupInfrastructures(cfg)
+
+	gcTuning()
+
+	setupJwt(cfg)
+
+	setupOAuth(cfg)
+
+	if !fiber.IsChild() {
+		// Migrate the models
+		migrate()
+	}
+
+	otelzap.L().Info("✅ setup completed!")
+}
+
+func setupJwt(cfg *config.Config) {
+	// Parse the private key
+	if err := config.ParseEd25519PrivateKey(); err != nil {
+		otelzap.L().Fatal("❌ Error parsing private key", zap.Error(err))
+	}
+
+	// Parse the public key
+	if err := config.ParseEd25519PublicKey(); err != nil {
+		otelzap.L().Fatal("❌ Error parsing public key", zap.Error(err))
+	}
+
+	// Create the JWT instance
+	jwtInstance := myJwt.NewJWTInstance(cfg.Auth.JWTHeaderLen, cfg.Auth.JWTExpiration, config.GetEd25519PublicKey(), config.GetEd25519PrivateKey())
+
+	config.JwtInstance = jwtInstance
+
+	otelzap.L().Info("✅ Created JWT instance")
+}
+
+func setupCrypto(cfg *config.Config) {
+	crypto.InitCrypto(crypto.NewBcryptCrypto(cfg.Auth.Bcryptcost))
+
+	otelzap.L().Info("✅ Created Crypto instance")
+}
+
+func setupOAuth(cfg *config.Config) {
+	oauth.SetJSONHelper(config.JSONHelper)
+
+	oauthConfig := oauth.GlobalConfig{
+		CallbackURL: cfg.Server.Host,
+		FrontendURL: cfg.Server.FrontendURL,
+	}
+
+	oauth.SetOauthConfig(oauthConfig)
+
+	oauth.InitGithub(cfg.Auth.Github)
+	oauth.InitDiscord(cfg.Auth.Discord)
+
+	otelzap.L().Info("✅ Created OAuth instance")
+}
+
+func setupInfrastructures(cfg *config.Config) {
+	err := infrastructures.ConnectDB(cfg.Database.DSN)
+	if err != nil {
+		otelzap.L().Fatal("❌ Error connecting to database", zap.Error(err))
+	} else {
+		otelzap.L().Info("✅ Connected to database")
+	}
+
+	// Redis connection
+	err = infrastructures.ConnectRedis(cfg.Redis)
+	if err != nil {
+		otelzap.L().Fatal("❌ Error connecting to Redis")
+	} else {
+		otelzap.L().Info("✅ Connected to Redis")
+	}
+
+	// Connect to the tracer
+	err = infrastructures.InitTracer(cfg.Sentry)
+	if err != nil {
+		otelzap.L().Fatal("❌ Error connecting to Tracer", zap.Error(err))
+	} else {
+		otelzap.L().Info("✅ Created Tracer")
+	}
+
+	if err = infrastructures.CreateRistrettoCache(); err != nil {
+		otelzap.L().Fatal("❌ Error creating Ristretto cache", zap.Error(err))
+	} else {
+		otelzap.L().Info("✅ Created Ristretto cache")
+	}
+}
+
+func gcTuning() {
+	var limit float64 = 4 * config.GCLimit
+	// Set the GC threshold to 70% of the limit
+	threshold := uint64(limit * config.GCThresholdPercent)
+
+	gctuner.Tuning(threshold)
+
+	otelzap.L().Info(fmt.Sprintf("🔧 GC Tuning - Limit: %.2f GB, Threshold: %d bytes, GC Percent: %d, Min GC Percent: %d, Max GC Percent: %d",
+		limit/(config.GCLimit),
+		threshold,
+		gctuner.GetGCPercent(),
+		gctuner.GetMinGCPercent(),
+		gctuner.GetMaxGCPercent()))
+
+	otelzap.L().Info("✅ GC Tuning completed!")
 }
 
 func migrate() {
@@ -119,79 +223,4 @@ func migrate() {
 	}
 
 	otelzap.L().Info("✅ Database migration completed!")
-}
-
-func setupEnv() {
-	// Load the .env file
-	err := godotenv.Load()
-	if err != nil {
-		otelzap.L().Fatal("❌ Error loading .env file")
-	}
-
-	if err := config.ParseEd25519PrivateKey(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing private key")
-	}
-
-	if err := config.ParseEd25519PublicKey(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing public key")
-	}
-
-	// Init oauth
-	infrastructures.InitOauth()
-}
-
-func setupInfrastructures() {
-	err := infrastructures.ConnectDB()
-	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to database")
-	} else {
-		otelzap.L().Info("✅ Connected to database")
-	}
-
-	// Redis connection
-	err = infrastructures.ConnectRedis()
-	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to Redis")
-	} else {
-		otelzap.L().Info("✅ Connected to Redis")
-	}
-
-	// Connect MeiliSearch
-	err = infrastructures.ConnectMeiliSearch(config.EnvHelper)
-	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to MeiliSearch")
-	} else {
-		otelzap.L().Info("✅ Connected to MeiliSearch")
-	}
-
-	// Connect to the tracer
-	err = infrastructures.InitTracer()
-	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to the tracer")
-	} else {
-		otelzap.L().Info("✅ Connected to the tracer")
-	}
-
-	if err = infrastructures.CreateRistrettoCache(); err != nil {
-		otelzap.L().Fatal("❌ Error creating Ristretto cache")
-	} else {
-		otelzap.L().Info("✅ Created Ristretto cache")
-	}
-}
-
-func gcTuning() {
-	var limit float64 = 4 * config.GCLimit
-	// Set the GC threshold to 70% of the limit
-	threshold := uint64(limit * config.GCThresholdPercent)
-
-	gctuner.Tuning(threshold)
-
-	otelzap.L().Info(fmt.Sprintf("🔧 GC Tuning - Limit: %.2f GB, Threshold: %d bytes, GC Percent: %d, Min GC Percent: %d, Max GC Percent: %d",
-		limit/(config.GCLimit),
-		threshold,
-		gctuner.GetGCPercent(),
-		gctuner.GetMinGCPercent(),
-		gctuner.GetMaxGCPercent()))
-
-	otelzap.L().Info("✅ GC Tuning completed!")
 }

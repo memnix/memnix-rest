@@ -5,16 +5,13 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/memnix/memnix-rest/pkg/env"
 	"github.com/memnix/memnix-rest/pkg/json"
+	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
 	"golang.org/x/crypto/ed25519"
 )
 
 // JSONHelper is the helper for JSON operations
 var JSONHelper = json.NewJSON(&json.SonicJSON{})
-
-// EnvHelper is the helper for environment variables
-var EnvHelper = env.NewMyEnv(&env.OsEnv{})
 
 const (
 	ExpirationTimeInHours = 24 // ExpirationTimeInHours is the expiration time for the JWT token
@@ -23,32 +20,33 @@ const (
 
 	BCryptCost = 11 // BCryptCost is the cost for bcrypt
 
-	OauthStateLength   = 16               // OauthStateLength is the length of the state for oauth
-	OauthStateDuration = 10 * time.Minute // OauthStateDuration is the duration for the state for oauth
+	OauthStateLength = 16 // OauthStateLength is the length of the state for oauth
 
-	RedisMinIdleConns      = 200               // RedisMinIdleConns is the minimum number of idle connections in the pool
-	RedisPoolSize          = 12000             // RedisPoolSize is the maximum number of connections allocated by the pool at a given time
-	RedisPoolTimeout       = 240 * time.Second // RedisPoolTimeout is the amount of time a connection can be used before being closed
-	RedisDefaultExpireTime = 6 * time.Hour     // RedisDefaultExpireTime is the default expiration time for keys
-	RedisOwnedExpireTime   = 2 * time.Hour     // RedisOwnedExpireTime is the expiration time for owned keys
+	RedisDefaultExpireTime = 6 * time.Hour // RedisDefaultExpireTime is the default expiration time for keys
 
 	CacheExpireTime = 10 * time.Second // CacheExpireTime is the expiration time for the cache
-	InfluxDBFreq    = 10 * time.Second // InfluxDBFreq is the frequency for writing to InfluxDB
 
-	DeckSecretCodeLength = 10  // DeckSecretCodeLength is the length of the secret code for decks
-	GCThresholdPercent   = 0.7 // GCThresholdPercent is the threshold for garbage collection
+	GCThresholdPercent = 0.7 // GCThresholdPercent is the threshold for garbage collection
 
 	GCLimit = 1024 * 1024 * 1024 // GCLimit is the limit for garbage collection
-
-	GormPrometheusRefreshInterval = 15 // GormPrometheusRefreshInterval is the refresh interval for gorm prometheus
 
 	RistrettoMaxCost     = 5 * MB // RistrettoMaxCost is the maximum cost
 	RistrettoBufferItems = 32     // RistrettoBufferItems is the number of items per get buffer
 	RistrettoNumCounters = 1e4    // RistrettoNumCounters is the number of counters
+
+	MB = 1024 * 1024 // MB is the number of bytes in a megabyte
+
+	MaxPasswordLength = 72 // MaxPasswordLength is the max password length
+	MinPasswordLength = 8  // MinPasswordLength is the min password length
+
+	SentryFlushTimeout = 2 * time.Second // SentryFlushTimeout is the timeout for flushing sentry
 )
 
-// JwtSigningMethod is the signing method for JWT
-var JwtSigningMethod = jwt.SigningMethodEdDSA
+var JwtInstance myJwt.Instance
+
+func GetJwtInstance() myJwt.Instance {
+	return JwtInstance
+}
 
 // PasswordConfigStruct is the struct for the password config
 type PasswordConfigStruct struct {
@@ -57,16 +55,6 @@ type PasswordConfigStruct struct {
 	Threads    uint8  // Threads to use for Argon2ID
 	KeyLen     uint32 // KeyLen to use for Argon2ID
 	SaltLen    uint32 // SaltLen to use for Argon2ID
-}
-
-// IsProduction returns true if the app is in production
-func IsProduction() bool {
-	return EnvHelper.GetEnv("APP_ENV") != "dev"
-}
-
-// IsDevelopment returns true if the app is in development
-func IsDevelopment() bool {
-	return EnvHelper.GetEnv("APP_ENV") == "dev"
 }
 
 var (
@@ -114,4 +102,24 @@ func ParseEd25519PublicKey() error {
 
 	ed25519PublicKey = publicKey.(ed25519.PublicKey)
 	return nil
+}
+
+func GetConfigPath() string {
+	if IsDevelopment() {
+		return "./config/config-local"
+	}
+
+	return "./config/config-prod"
+}
+
+func IsProduction() bool {
+	return os.Getenv("APP_ENV") != "dev"
+}
+
+func IsDevelopment() bool {
+	return os.Getenv("APP_ENV") == "dev"
+}
+
+func GetCallbackURL() string {
+	return os.Getenv("CALLBACK_URL")
 }

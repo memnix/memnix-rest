@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"errors"
+	"strconv"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/user"
-	"github.com/memnix/memnix-rest/pkg/jwt"
-	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -59,7 +60,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 
 		// get the userModel from the token
 		// if the token is invalid, we return an error
-		userID, err := jwt.GetConnectedUserID(c.UserContext(), tokenHeader)
+		userID, err := config.GetJwtInstance().GetConnectedUserID(c.UserContext(), tokenHeader)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid token")))
 		}
@@ -71,6 +72,14 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid user")))
 		}
 
+		sentry.ConfigureScope(func(scope *sentry.Scope) {
+			scope.SetUser(sentry.User{
+				ID:       strconv.Itoa(int(userModel.ID)),
+				Username: userModel.Username,
+				Email:    userModel.Email,
+			})
+		})
+
 		// Check permissions
 		if !j.VerifyPermissions(userModel, p) {
 			otelzap.Ctx(c.UserContext()).Warn("Not authorized", zap.Error(errors.New("unauthorized: insufficient permissions")))
@@ -78,7 +87,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		}
 
 		// Set userModel in locals
-		utils.SetUserToContext(c, userModel)
+		SetUserToContext(c, userModel)
 		span.End()
 		return c.Next()
 	}

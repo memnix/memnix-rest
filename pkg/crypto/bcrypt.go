@@ -7,7 +7,14 @@ import (
 )
 
 // BcryptCrypto is the struct that holds the bcrypt crypto methods
-type BcryptCrypto struct{}
+type BcryptCrypto struct {
+	Cost int
+}
+
+// NewBcryptCrypto returns a new BcryptCrypto
+func NewBcryptCrypto(cost int) *BcryptCrypto {
+	return &BcryptCrypto{Cost: cost}
+}
 
 // Hash hashes a password using the bcrypt algorithm
 // password is the plaintext password to hash.

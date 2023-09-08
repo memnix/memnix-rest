@@ -6,7 +6,6 @@ package internal
 import (
 	"github.com/google/wire"
 	"github.com/memnix/memnix-rest/app/http/controllers"
-	"github.com/memnix/memnix-rest/app/meilisearch"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/internal/card"
@@ -55,10 +54,4 @@ func InitializeCard() controllers.CardController {
 func InitializeMcq() controllers.McqController {
 	wire.Build(controllers.NewMcqController, mcq.NewUseCase, mcq.NewRepository, infrastructures.GetDBConn, mcq.NewRedisRepository, infrastructures.GetRedisClient)
 	return controllers.McqController{}
-}
-
-// InitializeMeiliSearch initializes the meilisearch.
-func InitializeMeiliSearch() meilisearch.MeiliSearch {
-	wire.Build(meilisearch.NewMeiliSearch, deck.NewUseCase, deck.NewRepository, infrastructures.GetDBConn, deck.NewRedisRepository, infrastructures.GetRedisClient)
-	return meilisearch.MeiliSearch{}
 }

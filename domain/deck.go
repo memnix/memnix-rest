@@ -2,10 +2,11 @@ package domain
 
 import (
 	"github.com/go-playground/validator/v10"
-	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/random"
 	"gorm.io/gorm"
 )
+
+const DeckSecretCodeLength = 10
 
 // Deck is the domain model for a deck
 type Deck struct {
@@ -76,7 +77,7 @@ func (c *CreateDeck) Validate() error {
 
 // ToDeck converts the CreateDeck struct to a Deck struct
 func (c *CreateDeck) ToDeck() Deck {
-	key, _ := random.GenerateSecretCode(config.DeckSecretCodeLength)
+	key, _ := random.GenerateSecretCode(DeckSecretCodeLength)
 	return Deck{
 		Name:        c.Name,
 		Description: c.Description,
