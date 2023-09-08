@@ -55,7 +55,7 @@ func (instance Instance) GenerateToken(_ context.Context, userID uint) (string, 
 
 // VerifyToken verifies a jwt token
 // and returns the user id and an error
-func (instance Instance) VerifyToken(token *jwt.Token) (uint, error) {
+func (Instance) VerifyToken(token *jwt.Token) (uint, error) {
 	// claims is of type jwt.MapClaims
 	if claims, ok := token.Claims.(jwt.MapClaims); token.Valid && ok {
 		// Get the issuer from the claims and convert it to uint
@@ -82,7 +82,7 @@ func (instance Instance) GetToken(_ context.Context, token string) (*jwt.Token, 
 	})
 }
 
-func (instance Instance) GetExpirationTime(token *jwt.Token) int64 {
+func (Instance) GetExpirationTime(token *jwt.Token) int64 {
 	claims := token.Claims.(jwt.MapClaims)
 	return int64(claims["exp"].(float64))
 }
