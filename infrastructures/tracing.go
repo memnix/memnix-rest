@@ -2,76 +2,51 @@ package infrastructures
 
 import (
 	"context"
+	"github.com/getsentry/sentry-go"
+	sentryotel "github.com/getsentry/sentry-go/otel"
 	"github.com/memnix/memnix-rest/config"
-	"github.com/pkg/errors"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc/credentials"
+	"go.uber.org/zap"
 )
 
 var (
-	otlpExporter *otlptrace.Exporter
-	fiberTracer  = otel.Tracer("fiber-server")
+	fiberTracer = otel.Tracer("fiber-server")
 )
 
-func InitTracer(cfg config.TracingConfigStruct) error {
+func InitTracer(cfg config.SentryConfigStruct) error {
 
-	var secureOption otlptracegrpc.Option
+	initSentry(cfg)
 
-	if cfg.InsecureMode {
-		secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
-	} else {
-		secureOption = otlptracegrpc.WithInsecure()
-	}
-
-	exporter, err := otlptrace.New(
-		context.Background(),
-		otlptracegrpc.NewClient(
-			secureOption,
-			otlptracegrpc.WithEndpoint(cfg.OtelEndpoint),
-		),
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSpanProcessor(sentryotel.NewSentrySpanProcessor()),
 	)
-
-	if err != nil {
-		return errors.Wrap(err, "failed to create exporter")
-	}
-	resources, err := resource.New(
-		context.Background(),
-		resource.WithAttributes(
-			attribute.String("service.name", cfg.ServiceName),
-			attribute.String("library.language", "go"),
-		),
-	)
-	if err != nil {
-		return errors.Wrap(err, "failed to create resource")
-	}
-
-	otel.SetTracerProvider(
-		sdktrace.NewTracerProvider(
-			sdktrace.WithSampler(sdktrace.AlwaysSample()),
-			sdktrace.WithBatcher(exporter),
-			sdktrace.WithResource(resources),
-		),
-	)
-
-	otlpExporter = exporter
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(sentryotel.NewSentryPropagator())
 
 	return nil
 }
 
 func ShutdownTracer() error {
-	return otlpExporter.Shutdown(context.Background())
-}
-
-func GetTracer() *sdktrace.TracerProvider {
-	return otel.GetTracerProvider().(*sdktrace.TracerProvider)
+	return nil
 }
 
 func GetFiberTracer() trace.Tracer {
 	return fiberTracer
+}
+
+func initSentry(cfg config.SentryConfigStruct) {
+	otelzap.Ctx(context.Background()).Info("Initializing Sentry :", zap.Float64("traces_sample_rate", cfg.TracesSampleRate), zap.Float64("profiles_sample_rate", cfg.ProfilesSampleRate))
+	_ = sentry.Init(sentry.ClientOptions{
+		Dsn:                cfg.DSN,
+		Debug:              cfg.Debug,
+		AttachStacktrace:   true,
+		Environment:        cfg.Environment,
+		Release:            cfg.Release,
+		EnableTracing:      true,
+		TracesSampleRate:   cfg.TracesSampleRate,
+		ProfilesSampleRate: cfg.ProfilesSampleRate,
+	})
 }

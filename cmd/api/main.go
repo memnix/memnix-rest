@@ -166,7 +166,7 @@ func setupInfrastructures(cfg *config.Config) {
 	}
 
 	// Connect to the tracer
-	err = infrastructures.InitTracer(cfg.Tracing)
+	err = infrastructures.InitTracer(cfg.Sentry)
 	if err != nil {
 		otelzap.L().Fatal("❌ Error connecting to Tracer", zap.Error(err))
 	} else {

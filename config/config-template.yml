@@ -23,7 +23,10 @@ Auth:
     ClientID: toto
     ClientSecret: toto
     URL: toto
-Tracing:
-  ServiceName: api
-  InsecureMode: false
-  OtelEndpoint: localhost:4317
+Sentry:
+  DSN: https://whoknows.app
+  Environment: production
+  Debug: false
+  Release: 1.0.0
+  TraceSampleRate: 1.0
+  ProfilesSampleRate: 0.3

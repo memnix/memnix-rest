@@ -12,13 +12,16 @@ type Config struct {
 	Redis    RedisConfigStruct
 	Log      LogConfigStruct
 	Auth     AuthConfigStruct
-	Tracing  TracingConfigStruct
+	Sentry   SentryConfigStruct
 }
 
-type TracingConfigStruct struct {
-	ServiceName  string
-	InsecureMode bool
-	OtelEndpoint string
+type SentryConfigStruct struct {
+	Debug              bool
+	Environment        string
+	Release            string
+	TracesSampleRate   float64
+	ProfilesSampleRate float64
+	DSN                string
 }
 
 // ServerConfigStruct is the server configuration.
