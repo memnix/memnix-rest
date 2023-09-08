@@ -38,6 +38,8 @@ const (
 
 	MaxPasswordLength = 72 // MaxPasswordLength is the max password length
 	MinPasswordLength = 8  // MinPasswordLength is the min password length
+
+	SentryFlushTimeout = 2 * time.Second // SentryFlushTimeout is the timeout for flushing sentry
 )
 
 var JwtInstance myJwt.Instance

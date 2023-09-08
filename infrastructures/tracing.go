@@ -2,6 +2,7 @@ package infrastructures
 
 import (
 	"context"
+
 	"github.com/getsentry/sentry-go"
 	sentryotel "github.com/getsentry/sentry-go/otel"
 	"github.com/memnix/memnix-rest/config"
@@ -12,12 +13,9 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	fiberTracer = otel.Tracer("fiber-server")
-)
+var fiberTracer = otel.Tracer("fiber-server")
 
 func InitTracer(cfg config.SentryConfigStruct) error {
-
 	initSentry(cfg)
 
 	tp := sdktrace.NewTracerProvider(

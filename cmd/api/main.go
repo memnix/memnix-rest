@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/getsentry/sentry-go"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/bytedance/gopkg/util/gctuner"
+	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/app/http"
 	"github.com/memnix/memnix-rest/config"
@@ -90,7 +89,7 @@ func shutdown(app *fiber.App) {
 		otelzap.L().Info("✅ Disconnected from Tracer")
 	}
 
-	sentry.Flush(2 * time.Second)
+	sentry.Flush(config.SentryFlushTimeout)
 	otelzap.L().Info("✅ Disconnected from Sentry")
 
 	otelzap.L().Info("✅ Cleanup tasks completed!")
@@ -185,7 +184,6 @@ func setupInfrastructures(cfg *config.Config) {
 	} else {
 		otelzap.L().Info("✅ Created Ristretto cache")
 	}
-
 }
 
 func gcTuning() {

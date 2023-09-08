@@ -10,7 +10,6 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
 	"gorm.io/gorm/logger"
 )
 

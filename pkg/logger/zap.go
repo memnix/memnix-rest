@@ -1,17 +1,20 @@
 package logger
 
 import (
+	"strings"
+
 	"github.com/getsentry/sentry-go"
+	"github.com/memnix/memnix-rest/config"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"strings"
-	"time"
 )
 
 // ConvertSentryLevel converts a zapcore.Level to a sentry.Level
 func ConvertSentryLevel(level zapcore.Level) sentry.Level {
 	switch level {
+	case zapcore.InvalidLevel:
+		return sentry.LevelFatal
 	case zapcore.DebugLevel:
 		return sentry.LevelDebug
 	case zapcore.InfoLevel:
@@ -33,7 +36,7 @@ func ConvertSentryLevel(level zapcore.Level) sentry.Level {
 
 func CreateZapLogger() (*otelzap.Logger, func()) {
 	zapLogger, _ := zap.NewProduction(zap.Hooks(func(entry zapcore.Entry) error {
-		defer sentry.Flush(2 * time.Second)
+		defer sentry.Flush(config.SentryFlushTimeout)
 		if entry.Level <= zapcore.InfoLevel {
 			return nil
 		}

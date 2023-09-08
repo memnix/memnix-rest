@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"errors"
-	"github.com/getsentry/sentry-go"
 	"strconv"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
