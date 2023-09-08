@@ -7,8 +7,10 @@ import (
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/pkg/errors"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
 	"gorm.io/gorm/logger"
 )
 
@@ -49,6 +51,10 @@ func ConnectDB(dsn string) error {
 	sqlDB.SetMaxIdleConns(config.SQLMaxIdleConns) // Set max idle connections
 	sqlDB.SetMaxOpenConns(config.SQLMaxOpenConns) // Set max open connections
 	sqlDB.SetConnMaxLifetime(time.Second)         // Set max connection lifetime
+
+	if err := conn.Use(otelgorm.NewPlugin()); err != nil {
+		panic(err)
+	}
 
 	DBConn = conn
 

@@ -16,7 +16,9 @@ type Config struct {
 }
 
 type TracingConfigStruct struct {
-	URL string
+	ServiceName  string
+	InsecureMode bool
+	OtelEndpoint string
 }
 
 // ServerConfigStruct is the server configuration.

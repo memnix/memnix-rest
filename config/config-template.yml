@@ -24,4 +24,6 @@ Auth:
     ClientSecret: toto
     URL: toto
 Tracing:
-  URL: http://localhost:14268
+  ServiceName: api
+  InsecureMode: false
+  OtelEndpoint: localhost:4317

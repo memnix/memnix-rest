@@ -2,57 +2,74 @@ package infrastructures
 
 import (
 	"context"
-	"strings"
-
+	"github.com/memnix/memnix-rest/config"
+	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/jaeger"
-	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc/credentials"
 )
 
 var (
-	fiberTracer = otel.Tracer("fiber-server")
-	tp          *sdktrace.TracerProvider
+	otlpExporter *otlptrace.Exporter
+	fiberTracer  = otel.Tracer("fiber-server")
 )
 
-func buildEndpoint(url string) string {
-	var sb strings.Builder
-	sb.WriteString(url)
-	sb.WriteString("/api/traces")
-	return sb.String()
-}
+func InitTracer(cfg config.TracingConfigStruct) error {
 
-func InitTracer(url string) error {
-	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(buildEndpoint(url))))
-	if err != nil {
-		return err
+	var secureOption otlptracegrpc.Option
+
+	if cfg.InsecureMode {
+		secureOption = otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
+	} else {
+		secureOption = otlptracegrpc.WithInsecure()
 	}
 
-	tp = sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(exporter),
-		sdktrace.WithResource(
-			resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String("memnix-backend"),
-			)),
+	exporter, err := otlptrace.New(
+		context.Background(),
+		otlptracegrpc.NewClient(
+			secureOption,
+			otlptracegrpc.WithEndpoint(cfg.OtelEndpoint),
+		),
 	)
 
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	if err != nil {
+		return errors.Wrap(err, "failed to create exporter")
+	}
+	resources, err := resource.New(
+		context.Background(),
+		resource.WithAttributes(
+			attribute.String("service.name", cfg.ServiceName),
+			attribute.String("library.language", "go"),
+		),
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to create resource")
+	}
+
+	otel.SetTracerProvider(
+		sdktrace.NewTracerProvider(
+			sdktrace.WithSampler(sdktrace.AlwaysSample()),
+			sdktrace.WithBatcher(exporter),
+			sdktrace.WithResource(resources),
+		),
+	)
+
+	otlpExporter = exporter
 
 	return nil
 }
 
 func ShutdownTracer() error {
-	return tp.Shutdown(context.Background())
+	return otlpExporter.Shutdown(context.Background())
 }
 
 func GetTracer() *sdktrace.TracerProvider {
-	return tp
+	return otel.GetTracerProvider().(*sdktrace.TracerProvider)
 }
 
 func GetFiberTracer() trace.Tracer {

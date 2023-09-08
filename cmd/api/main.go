@@ -166,11 +166,11 @@ func setupInfrastructures(cfg *config.Config) {
 	}
 
 	// Connect to the tracer
-	err = infrastructures.InitTracer(cfg.Tracing.URL)
+	err = infrastructures.InitTracer(cfg.Tracing)
 	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to the tracer", zap.Error(err))
+		otelzap.L().Fatal("❌ Error connecting to Tracer", zap.Error(err))
 	} else {
-		otelzap.L().Info("✅ Connected to the tracer")
+		otelzap.L().Info("✅ Created Tracer")
 	}
 
 	if err = infrastructures.CreateRistrettoCache(); err != nil {
@@ -178,6 +178,7 @@ func setupInfrastructures(cfg *config.Config) {
 	} else {
 		otelzap.L().Info("✅ Created Ristretto cache")
 	}
+
 }
 
 func gcTuning() {
