@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"errors"
+	"github.com/getsentry/sentry-go"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/config"
@@ -69,6 +71,14 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 			otelzap.Ctx(c.UserContext()).Error("error getting user / not connected", zap.Error(err))
 			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid user")))
 		}
+
+		sentry.ConfigureScope(func(scope *sentry.Scope) {
+			scope.SetUser(sentry.User{
+				ID:       strconv.Itoa(int(userModel.ID)),
+				Username: userModel.Username,
+				Email:    userModel.Email,
+			})
+		})
 
 		// Check permissions
 		if !j.VerifyPermissions(userModel, p) {

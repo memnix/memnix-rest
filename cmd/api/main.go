@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/getsentry/sentry-go"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/bytedance/gopkg/util/gctuner"
 	"github.com/gofiber/fiber/v2"
@@ -87,6 +89,11 @@ func shutdown(app *fiber.App) {
 	} else {
 		otelzap.L().Info("✅ Disconnected from Tracer")
 	}
+
+	sentry.Flush(2 * time.Second)
+	otelzap.L().Info("✅ Disconnected from Sentry")
+
+	otelzap.L().Info("✅ Cleanup tasks completed!")
 }
 
 func setup(cfg *config.Config) {
