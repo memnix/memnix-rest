@@ -370,37 +370,6 @@
                 }
             }
         },
-        "/v2/security/key": {
-            "get": {
-                "security": [
-                    {
-                        "Beaver": []
-                    }
-                ],
-                "description": "Search the key",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "security"
-                ],
-                "summary": "searches the key",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/views.HTTPResponseVM"
-                        }
-                    }
-                }
-            }
-        },
         "/v2/security/login": {
             "post": {
                 "description": "Login",

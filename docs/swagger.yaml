@@ -398,25 +398,6 @@ paths:
       summary: Handles the callback from github
       tags:
       - OAuth
-  /v2/security/key:
-    get:
-      description: Search the key
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/views.HTTPResponseVM'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/views.HTTPResponseVM'
-      security:
-      - Beaver: []
-      summary: searches the key
-      tags:
-      - security
   /v2/security/login:
     post:
       consumes:
