@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/contrib/fibersentry"
 	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
@@ -70,15 +69,6 @@ func registerMiddlewares(app *fiber.App) {
 			// Do not trace /metrics endpoint
 			return c.Path() == "/metrics" || c.Path() == "/swagger/*" || c.Path() == "/favicon.ico"
 		})))
-
-	app.Use(cache.New(cache.Config{
-		Expiration:   config.CacheExpireTime,
-		CacheControl: true,
-		Next: func(c *fiber.Ctx) bool {
-			// Do not cache /metrics endpoint
-			return c.Path() == "/metrics"
-		},
-	}))
 
 	app.Use(pprof.New())
 }
