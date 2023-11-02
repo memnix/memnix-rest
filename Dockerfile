@@ -25,6 +25,8 @@ RUN chmod +x /usr/local/bin/dumb-init
 
 FROM gcr.io/distroless/static:nonroot AS production
 
+LABEL org.opencontainers.image.source=https://github.com/memnix/memnix-rest
+
 ENV TZ Europe/Paris
 
 WORKDIR /app

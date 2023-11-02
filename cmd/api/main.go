@@ -115,14 +115,9 @@ func setup(cfg *config.Config) {
 }
 
 func setupJwt(cfg *config.Config) {
-	// Parse the private key
-	if err := config.ParseEd25519PrivateKey(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing private key", zap.Error(err))
-	}
-
-	// Parse the public key
-	if err := config.ParseEd25519PublicKey(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing public key", zap.Error(err))
+	// Parse the keys
+	if err := config.ParseEd25519Key(); err != nil {
+		otelzap.L().Fatal("❌ Error parsing keys", zap.Error(err))
 	}
 
 	// Create the JWT instance
