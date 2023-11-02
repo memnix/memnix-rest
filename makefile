@@ -1,22 +1,45 @@
 APP_NAME = api
-
 OUTPUT_DIR = bin
 
+# Common build options
+BUILD_OPTIONS = -ldflags="-s -w"
+
+# Define the default target
+.DEFAULT_GOAL := build
+
+# Targets
 ci:
 	./scripts/ci.sh
+
+wire:
+	wire ./...
 
 test:
 	go test -v ./...
 
-build:
-	go build -o $(OUTPUT_DIR)/$(APP_NAME) -v .
+build: wire
+	go build -o $(OUTPUT_DIR)/$(APP_NAME) $(BUILD_OPTIONS) -v ./cmd/$(APP_NAME)
 
-run:
-	go run ./...
+run: build
+	$(OUTPUT_DIR)/$(APP_NAME)
 
-release:
-	GOAMD64=v3 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o $(OUTPUT_DIR)/$(APP_NAME) -v .
+compress:
 	upx -9 --best $(OUTPUT_DIR)/$(APP_NAME)
+
+release-v3: build-linux-v3 compress
+
+release-v2: build-linux-v2 compress
+
+release: build-linux compress
+
+build-linux: wire
+	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME) $(BUILD_OPTIONS) -v ./cmd/$(APP_NAME)
+
+build-linux-v3:
+	GOAMD64=v3 $(MAKE) build-linux
+
+build-linux-v2:
+	GOAMD64=v2 $(MAKE) build-linux
 
 clean:
 	rm -rf bin/*

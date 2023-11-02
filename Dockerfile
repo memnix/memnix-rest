@@ -25,15 +25,12 @@ RUN chmod +x /usr/local/bin/dumb-init
 
 FROM gcr.io/distroless/static:nonroot AS production
 
-COPY --from=builder  /usr/share/zoneinfo/Europe/Paris /usr/share/zoneinfo/Europe/Paris
 ENV TZ Europe/Paris
 
 WORKDIR /app
 
 COPY --from=builder  /app/memnixrest /app/memnixrest
-COPY --from=builder  /build/.env* /app/.
 COPY --from=builder  /build/favicon.ico /app/favicon.ico
-COPY --from=builder  /build/config /app/config
 COPY --from=builder  /usr/local/bin/dumb-init /usr/bin/dumb-init
 
 
