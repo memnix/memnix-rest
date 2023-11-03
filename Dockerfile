@@ -1,8 +1,7 @@
 
 FROM golang:1.21-alpine AS builder
 
-ARG VERSION=1.21
-
+ARG VERSION=prod
 
 LABEL stage=gobuilder
 
