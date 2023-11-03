@@ -1,4 +1,7 @@
+
 FROM golang:1.21-alpine AS builder
+
+ARG VERSION=prod
 
 LABEL stage=gobuilder
 
@@ -17,7 +20,7 @@ RUN go mod download
 COPY . .
 
 RUN go get -d -v ./cmd/api \
-    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /app/memnixrest ./cmd/api/main.go\
+    && CGO_ENABLED=0 go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./cmd/api/main.go\
     && upx /app/memnixrest
 
 RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
@@ -26,6 +29,8 @@ RUN chmod +x /usr/local/bin/dumb-init
 FROM gcr.io/distroless/static:nonroot AS production
 
 LABEL org.opencontainers.image.source=https://github.com/memnix/memnix-rest
+LABEL description="Production stage for Memnix REST API."
+
 
 ENV TZ Europe/Paris
 

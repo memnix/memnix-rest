@@ -11,3 +11,6 @@ go install github.com/daixiang0/gci@latest
 
 # Install golangci-lint
 wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.55.1
+
+# Install swaggo
+go install github.com/swaggo/swag/cmd/swag@latest

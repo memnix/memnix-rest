@@ -44,5 +44,10 @@ build-linux-v2:
 clean:
 	rm -rf bin/*
 
-generate_keys:
-	./scripts/keys.sh
+run-docker:
+	# setup APP_VERSION env variable to the latest git tag version
+	export APP_VERSION=$(git describe --tags --abbrev=0)
+	docker-compose up -d
+
+swagger:
+	swag init -g ./cmd/api/main.go
