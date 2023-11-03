@@ -1,12 +1,14 @@
 package config
 
 import (
+	"crypto/rand"
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/memnix/memnix-rest/pkg/json"
 	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
+	"github.com/pkg/errors"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"golang.org/x/crypto/ed25519"
 )
 
@@ -62,6 +64,20 @@ var (
 	ed25519PublicKey  = ed25519.PublicKey{}
 )
 
+func ParseEd25519Key() error {
+	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		return errors.Wrap(err, "Error generating keys")
+	}
+	ed25519PrivateKey = privateKey
+
+	ed25519PublicKey = publicKey
+
+	otelzap.L().Info("✅ Created ed25519 keys")
+
+	return nil
+}
+
 // GetEd25519PrivateKey returns the ed25519 private key
 func GetEd25519PrivateKey() ed25519.PrivateKey {
 	return ed25519PrivateKey
@@ -70,38 +86,6 @@ func GetEd25519PrivateKey() ed25519.PrivateKey {
 // GetEd25519PublicKey returns the ed25519 public key
 func GetEd25519PublicKey() ed25519.PublicKey {
 	return ed25519PublicKey
-}
-
-// ParseEd25519PrivateKey parses the ed25519 private key
-func ParseEd25519PrivateKey() error {
-	key, err := os.ReadFile("./config/keys/ed25519_private.pem")
-	if err != nil {
-		return err
-	}
-
-	privateKey, err := jwt.ParseEdPrivateKeyFromPEM(key)
-	if err != nil {
-		return err
-	}
-
-	ed25519PrivateKey = privateKey.(ed25519.PrivateKey)
-	return nil
-}
-
-// ParseEd25519PublicKey parses the ed25519 public key
-func ParseEd25519PublicKey() error {
-	key, err := os.ReadFile("./config/keys/ed25519_public.pem")
-	if err != nil {
-		return err
-	}
-
-	publicKey, err := jwt.ParseEdPublicKeyFromPEM(key)
-	if err != nil {
-		return err
-	}
-
-	ed25519PublicKey = publicKey.(ed25519.PublicKey)
-	return nil
 }
 
 func GetConfigPath() string {

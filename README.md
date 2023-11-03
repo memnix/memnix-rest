@@ -13,22 +13,6 @@ Memnix REST is the rest API that is used by user interfaces to create decks and 
 using [Gofiber](https://github.com/gofiber/fiber) to
 handle requests and [Gorm](https://github.com/go-gorm/gorm) as a layer for Postgres.
 
-## Env
-
-Create a **.env** file
-
-```env
-# This is a sample config file
-
-DB_USER="user"
-DB_PASSWORD="password"
-DB_PORT ="port"
-DB_DB = "mydb"
-DB_HOST="localhost"
-```
-
-## Version v0.1.0-beta4
-
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmemnix%2Fmemnix-rest.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmemnix%2Fmemnix-rest?ref=badge_large)
