@@ -1,13 +1,12 @@
 package config
 
 import (
-	"crypto/rand"
 	"os"
 	"time"
 
+	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/memnix/memnix-rest/pkg/json"
 	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
-	"github.com/pkg/errors"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"golang.org/x/crypto/ed25519"
 )
@@ -65,12 +64,12 @@ var (
 )
 
 func ParseEd25519Key() error {
-	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	publicKey, privateKey, err := crypto.GenerateKeyPair()
 	if err != nil {
-		return errors.Wrap(err, "Error generating keys")
+		return err
 	}
-	ed25519PrivateKey = privateKey
 
+	ed25519PrivateKey = privateKey
 	ed25519PublicKey = publicKey
 
 	otelzap.L().Info("✅ Created ed25519 keys")

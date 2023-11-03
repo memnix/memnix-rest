@@ -1,7 +1,6 @@
 package crypto
 
 import (
-	"github.com/memnix/memnix-rest/config"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -23,8 +22,8 @@ func NewBcryptCrypto(cost int) *BcryptCrypto {
 //
 // see: https://godoc.org/golang.org/x/crypto/bcrypt
 // see: utils/config.go for the default cost
-func (*BcryptCrypto) Hash(password string) ([]byte, error) {
-	key, err := bcrypt.GenerateFromPassword([]byte(password), config.BCryptCost)
+func (b *BcryptCrypto) Hash(password string) ([]byte, error) {
+	key, err := bcrypt.GenerateFromPassword([]byte(password), b.Cost)
 	if err != nil {
 		return []byte(""), err
 	}
