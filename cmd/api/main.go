@@ -21,6 +21,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var Version = "development"
+
 func main() {
 	// setup the logger
 	zapLogger, undo := logger.CreateZapLogger()
@@ -32,10 +34,17 @@ func main() {
 	if err != nil {
 		zapLogger.Fatal("❌ Error loading config", zap.Error(err))
 	}
+
+	if config.IsProduction() {
+		zapLogger.Info("🚀 Running in production mode 🚀")
+		cfg.Server.AppVersion = Version
+		cfg.Sentry.Release = "memnix@" + Version
+	}
+
 	// setup the environment variables
 	setup(cfg)
 
-	zapLogger.Info("starting server")
+	zapLogger.Info("starting server 🚀", zap.String("version", cfg.Server.AppVersion))
 
 	// Create the app
 	app := http.New()
