@@ -26,6 +26,8 @@ RUN chmod +x /usr/local/bin/dumb-init
 FROM gcr.io/distroless/static:nonroot AS production
 
 LABEL org.opencontainers.image.source=https://github.com/memnix/memnix-rest
+LABEL description="Production stage for Memnix REST API."
+
 
 ENV TZ Europe/Paris
 
