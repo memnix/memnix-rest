@@ -6,7 +6,7 @@ toolchain go1.21.6
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.27.0
-	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
+	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.10.2
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.5.0
