@@ -13,6 +13,38 @@ Memnix REST is the rest API that is used by user interfaces to create decks and 
 using [Gofiber](https://github.com/gofiber/fiber) to
 handle requests and [Gorm](https://github.com/go-gorm/gorm) as a layer for Postgres.
 
+## Status
+
+I wasn't happy with the state of the project, so I decided to rewrite it from scratch. 
+The new version is in the `main` branch. The old version is in the `legacy` branch.
+
+For now, the project is in a very early stage, and it's not ready for production. I haven't yet decided on the architecture, features, and so on. 
+
+At the moment, I'm trying things out and experimenting with different approaches. 
+
+Here are some of the things I'm considering:
+
+### Web Framework
+
+In the previous version, I used Gofiber, but now I'm considering using Echo or Chi to follow the idiomatic Go way of doing things. 
+If you have any suggestions, please let me know. 
+
+### Database
+
+In the past, I used Gorm, but I'm considering using SQLBoiler or SQLC. I'm also considering using a NoSQL database like MongoDB for some parts of the application.
+
+### Caching
+
+I'm considering using Redis for caching and eventually for other things like pub/sub. 
+I'm using Ristretto for some parts of the application, so it's even faster. 
+
+### Authentication 
+
+I'll keep using JWT for authentication, but I've added support for OAuth2. 
+
+## Contributing
+
+I'm actively looking for contributors. If you're interested in contributing, please let me know.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmemnix%2Fmemnix-rest.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmemnix%2Fmemnix-rest?ref=badge_large)
