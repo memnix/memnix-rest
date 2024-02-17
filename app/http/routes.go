@@ -1,10 +1,11 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal"
-	"net/http"
 )
 
 func registerRoutes(router *fiber.Router) {
