@@ -14,7 +14,7 @@ import (
 var redisClient *redis.Client
 
 // ConnectRedis Connects to redis
-func ConnectRedis(redisConf config.RedisConfigStruct) error {
+func ConnectRedis(redisConf config.RedisConfig) error {
 	redisClient = NewRedisClient(redisConf)
 
 	_, err := redisClient.Ping(context.Background()).Result()
@@ -36,7 +36,7 @@ func GetRedisClient() *redis.Client {
 }
 
 // NewRedisClient Returns new redis client
-func NewRedisClient(redisConf config.RedisConfigStruct) *redis.Client {
+func NewRedisClient(redisConf config.RedisConfig) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:         redisConf.Addr,
 		MinIdleConns: redisConf.MinIdleConns,

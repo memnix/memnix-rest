@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/memnix/memnix-rest/pkg/random"
 	"gorm.io/gorm"
 )
@@ -31,9 +30,9 @@ func (*Deck) TableName() string {
 type DeckStatus int64
 
 const (
-	DeckStatusPrivate  DeckStatus = iota // DeckStatusPrivate is the private status of the deck
-	DeckStatusToReview                   // DeckStatusToReview is the to review status of the deck
-	DeckStatusPublic                     // DeckStatusPublic is the public status of the deck
+	DeckStatusPrivate  DeckStatus = 0 // DeckStatusPrivate is the private status of the deck
+	DeckStatusToReview DeckStatus = 1 // DeckStatusToReview is the to review status of the deck
+	DeckStatusPublic   DeckStatus = 2 // DeckStatusPublic is the public status of the deck
 )
 
 // PublicDeck is the public deck model
@@ -71,7 +70,6 @@ type CreateDeck struct {
 
 // Validate validates the CreateDeck struct
 func (c *CreateDeck) Validate() error {
-	validate := validator.New()
 	return validate.Struct(c)
 }
 

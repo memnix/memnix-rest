@@ -1,9 +1,14 @@
 package domain
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
+)
 
 // Permission is the permission level of a user.
 type Permission int64
+
+var validate = validator.New()
 
 const (
 	PermissionNone  Permission = iota // PermissionNone is the default permission level.

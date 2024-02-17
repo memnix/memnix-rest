@@ -7,7 +7,7 @@ import (
 
 	"github.com/memnix/memnix-rest/config"
 	"github.com/pkg/errors"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -33,7 +33,7 @@ func ConnectDB(dsn string) error {
 		},
 	)
 	// Open connection
-	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger:                                   newLogger, // Logger
 		SkipDefaultTransaction:                   true,      // Skip default transaction
 		DisableForeignKeyConstraintWhenMigrating: true,      // Disable foreign key constraint when migrating (planetscale recommends this)

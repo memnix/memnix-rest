@@ -30,7 +30,7 @@ func main() {
 	configPath := config.GetConfigPath()
 
 	// Load the config
-	cfg, err := config.UseConfig(configPath)
+	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		zapLogger.Fatal("❌ Error loading config", zap.Error(err))
 	}

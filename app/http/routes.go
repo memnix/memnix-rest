@@ -4,32 +4,36 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal"
+	"net/http"
 )
 
 func registerRoutes(router *fiber.Router) {
-	userController := internal.GetServiceContainer().GetUser()
-	authController := internal.GetServiceContainer().GetAuth()
-	jwtController := internal.GetServiceContainer().GetJwt()
-	oauthController := internal.GetServiceContainer().GetOAuth()
-	deckController := internal.GetServiceContainer().GetDeck()
+	serviceContainer := internal.DefaultServiceContainer()
+	userController := serviceContainer.User()
+	authController := serviceContainer.Auth()
+	jwtController := serviceContainer.Jwt()
+	oauthController := serviceContainer.OAuth()
+	deckController := serviceContainer.Deck()
 
-	(*router).Add("GET", "/user/me", jwtController.IsConnectedMiddleware(domain.PermissionUser), userController.GetMe)
-	(*router).Add("GET", "/user/:uuid", userController.GetName)
+	(*router).Get("/health", func(c *fiber.Ctx) error { return c.Status(http.StatusOK).SendString("ok") })
 
-	(*router).Add("POST", "/security/login", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Login)
-	(*router).Add("POST", "/security/register", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Register)
-	(*router).Add("POST", "/security/logout", jwtController.IsConnectedMiddleware(domain.PermissionUser), authController.Logout)
-	(*router).Add("POST", "/security/refresh", jwtController.IsConnectedMiddleware(domain.PermissionUser), authController.RefreshToken)
+	(*router).Get("/user/me", jwtController.IsConnectedMiddleware(domain.PermissionUser), userController.GetMe)
+	(*router).Get("/user/:uuid", userController.GetName)
 
-	(*router).Add("GET", "/security/github", oauthController.GithubLogin)
-	(*router).Add("GET", "/security/github_callback", oauthController.GithubCallback)
+	(*router).Post("/security/login", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Login)
+	(*router).Post("/security/register", jwtController.IsConnectedMiddleware(domain.PermissionNone), authController.Register)
+	(*router).Post("/security/logout", jwtController.IsConnectedMiddleware(domain.PermissionUser), authController.Logout)
+	(*router).Post("/security/refresh", jwtController.IsConnectedMiddleware(domain.PermissionUser), authController.RefreshToken)
 
-	(*router).Add("GET", "/security/discord", oauthController.DiscordLogin)
-	(*router).Add("GET", "/security/discord_callback", oauthController.DiscordCallback)
+	(*router).Get("/security/github", oauthController.GithubLogin)
+	(*router).Get("/security/github_callback", oauthController.GithubCallback)
 
-	(*router).Add("GET", "/deck/owned", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetOwned)
-	(*router).Add("GET", "/deck/public", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetPublic)
-	(*router).Add("GET", "/deck/learning", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetLearning)
-	(*router).Add("GET", "/deck/:id", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetByID)
-	(*router).Add("POST", "/deck", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.Create)
+	(*router).Get("/security/discord", oauthController.DiscordLogin)
+	(*router).Get("/security/discord_callback", oauthController.DiscordCallback)
+
+	(*router).Get("/deck/owned", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetOwned)
+	(*router).Get("/deck/public", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetPublic)
+	(*router).Get("/deck/learning", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetLearning)
+	(*router).Get("/deck/:id", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.GetByID)
+	(*router).Post("/deck", jwtController.IsConnectedMiddleware(domain.PermissionUser), deckController.Create)
 }

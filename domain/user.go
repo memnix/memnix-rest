@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -38,7 +37,6 @@ func (u *User) ToPublicUser() PublicUser {
 
 // Validate validates the user
 func (u *User) Validate() error {
-	validate := validator.New()
 	return validate.Struct(u)
 }
 
@@ -71,7 +69,6 @@ type Register struct {
 
 // Validate validates the register model
 func (r *Register) Validate() error {
-	validate := validator.New()
 	return validate.Struct(r)
 }
 

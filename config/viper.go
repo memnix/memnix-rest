@@ -2,20 +2,21 @@ package config
 
 import (
 	"github.com/memnix/memnix-rest/pkg/oauth"
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
+// Config holds the configuration for the application.
 type Config struct {
-	Server   ServerConfigStruct
-	Database DatabaseConfigStruct
-	Redis    RedisConfigStruct
-	Log      LogConfigStruct
-	Auth     AuthConfigStruct
-	Sentry   SentryConfigStruct
+	Server   ServerConfig
+	Database DatabaseConfig
+	Redis    RedisConfig
+	Log      LogConfig
+	Auth     AuthConfig
+	Sentry   SentryConfig
 }
 
-type SentryConfigStruct struct {
+// SentryConfig holds the configuration for the sentry client.
+type SentryConfig struct {
 	Debug              bool
 	Environment        string
 	Release            string
@@ -24,8 +25,8 @@ type SentryConfigStruct struct {
 	DSN                string
 }
 
-// ServerConfigStruct is the server configuration.
-type ServerConfigStruct struct {
+// ServerConfig holds the configuration for the server.
+type ServerConfig struct {
 	Port        string
 	AppVersion  string
 	JaegerURL   string
@@ -33,13 +34,13 @@ type ServerConfigStruct struct {
 	FrontendURL string
 }
 
-// DatabaseConfigStruct is the database configuration.
-type DatabaseConfigStruct struct {
+// DatabaseConfig holds the configuration for the database.
+type DatabaseConfig struct {
 	DSN string
 }
 
-// RedisConfigStruct is the redis configuration.
-type RedisConfigStruct struct {
+// RedisConfig holds the configuration for the redis client.
+type RedisConfig struct {
 	Addr         string
 	Password     string
 	MinIdleConns int
@@ -47,13 +48,13 @@ type RedisConfigStruct struct {
 	PoolTimeout  int
 }
 
-// LogConfigStruct is the log configuration.
-type LogConfigStruct struct {
+// LogConfig holds the configuration for the logger.
+type LogConfig struct {
 	Level string
 }
 
-// AuthConfigStruct is the auth configuration.
-type AuthConfigStruct struct {
+// AuthConfig holds the configuration for the authentication.
+type AuthConfig struct {
 	JWTSecret     string
 	JWTHeaderLen  int
 	JWTExpiration int
@@ -62,25 +63,19 @@ type AuthConfigStruct struct {
 	Bcryptcost    int
 }
 
-// UseConfig loads a file from given path
-func UseConfig(filename string) (*Config, error) {
+// LoadConfig loads the configuration from a file.
+func LoadConfig(filename string) (*Config, error) {
 	v := viper.New()
-
 	v.SetConfigName(filename)
 	v.AddConfigPath(".")
 	v.AutomaticEnv()
+
 	if err := v.ReadInConfig(); err != nil {
-		var configFileNotFoundError viper.ConfigFileNotFoundError
-		if errors.As(err, &configFileNotFoundError) {
-			return nil, errors.New("config file not found")
-		}
 		return nil, err
 	}
 
 	var c Config
-
-	err := v.Unmarshal(&c)
-	if err != nil {
+	if err := v.Unmarshal(&c); err != nil {
 		return nil, err
 	}
 

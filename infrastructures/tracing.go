@@ -15,7 +15,7 @@ import (
 
 var fiberTracer = otel.Tracer("fiber-server")
 
-func InitTracer(cfg config.SentryConfigStruct) error {
+func InitTracer(cfg config.SentryConfig) error {
 	initSentry(cfg)
 
 	tp := sdktrace.NewTracerProvider(
@@ -35,7 +35,7 @@ func GetFiberTracer() trace.Tracer {
 	return fiberTracer
 }
 
-func initSentry(cfg config.SentryConfigStruct) {
+func initSentry(cfg config.SentryConfig) {
 	otelzap.Ctx(context.Background()).Info("Initializing Sentry :", zap.Float64("traces_sample_rate", cfg.TracesSampleRate), zap.Float64("profiles_sample_rate", cfg.ProfilesSampleRate))
 	_ = sentry.Init(sentry.ClientOptions{
 		Dsn:                cfg.DSN,
