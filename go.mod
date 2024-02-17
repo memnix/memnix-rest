@@ -9,7 +9,7 @@ require (
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.10.2
 	github.com/dgraph-io/ristretto v0.1.1
-	github.com/fxamacker/cbor/v2 v2.5.0
+	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
 	github.com/getsentry/sentry-go/otel v0.27.0
 	github.com/go-playground/validator/v10 v10.18.0
