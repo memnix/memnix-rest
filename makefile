@@ -11,6 +11,10 @@ BUILD_OPTIONS = -ldflags="-s -w"
 ci:
 	./scripts/ci.sh
 
+bootstrap:
+	./scripts/tools.sh
+	go mod download
+
 wire:
 	wire ./...
 

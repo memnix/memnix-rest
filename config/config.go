@@ -31,7 +31,7 @@ const (
 
 	GCLimit = 1024 * 1024 * 1024 // GCLimit is the limit for garbage collection
 
-	RistrettoMaxCost     = 5 * MB // RistrettoMaxCost is the maximum cost
+	RistrettoMaxCost     = 3 * MB // RistrettoMaxCost is the maximum cost
 	RistrettoBufferItems = 32     // RistrettoBufferItems is the number of items per get buffer
 	RistrettoNumCounters = 1e4    // RistrettoNumCounters is the number of counters
 
