@@ -1,11 +1,12 @@
 module github.com/memnix/memnix-rest
 
-go 1.21
+go 1.22
 
-toolchain go1.21.6
+toolchain go1.22.0
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
+	github.com/brianvoe/gofakeit/v7 v7.0.0
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.10.2
 	github.com/dgraph-io/ristretto v0.1.1
