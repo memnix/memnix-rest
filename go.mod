@@ -7,7 +7,7 @@ toolchain go1.21.6
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
-	github.com/bytedance/sonic v1.10.2
+	github.com/bytedance/sonic v1.11.0
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
@@ -21,7 +21,7 @@ require (
 	github.com/google/wire v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.0
 	github.com/spf13/viper v1.18.2
 	github.com/swaggo/swag v1.16.3
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.2.3
