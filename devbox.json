@@ -1,21 +1,24 @@
 {
   "packages": [
     "go@1.21.5",
-    "trivy",
-    "hadolint"
+    "hadolint@2.12.0",
+    "commitizen@3.14.1",
+    "python@3.10"
   ],
   "env": {
     "GOPATH": "${workspaceRoot}"
   },
   "shell": {
     "init_hook": [
-      "export \"GOROOT=$(go env GOROOT)\""
+      "export \"GOROOT=$(go env GOROOT)\"",
+      ". $VENV_DIR/bin/activate",
+      "pip install cz-conventional-gitmoji"
     ],
     "scripts": {
       "main": "go run ./cmd/api",
       "dev": "APP_ENV=dev go run ./cmd/api",
-      "trivy": "trivy image ghcr.io/memnix/memnix-rest:latest",
-      "hadolint": "hadolint ./Dockerfile"
+      "hadolint": "hadolint ./Dockerfile",
+      "commit": "cz --name cz_gitmoji commit"
     }
   }
 }
