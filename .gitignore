@@ -37,3 +37,4 @@ config/config-local.yml
 config/config-prod.yml
 
 .cache_ggshield
+devbox.lock
