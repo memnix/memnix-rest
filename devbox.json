@@ -18,7 +18,8 @@
       "main": "go run ./cmd/api",
       "dev": "APP_ENV=dev go run ./cmd/api",
       "hadolint": "hadolint ./Dockerfile",
-      "commit": "cz --name cz_gitmoji commit"
+      "commit": "cz --name cz_gitmoji commit",
+      "bump": "cz bump"
     }
   }
 }
