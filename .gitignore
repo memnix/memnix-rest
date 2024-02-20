@@ -39,3 +39,5 @@ config/config-prod.yml
 .cache_ggshield
 devbox.lock
 .idea
+
+tmp/*
