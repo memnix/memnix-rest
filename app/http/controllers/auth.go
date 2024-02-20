@@ -1,13 +1,13 @@
 package controllers
 
 import (
+	views2 "github.com/memnix/memnix-rest/app/http/httpViews"
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/auth"
-	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
 )
 
@@ -37,16 +37,16 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	var loginStruct domain.Login
 	err := c.BodyParser(&loginStruct)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(views2.NewHTTPResponseVMFromError(err))
 	}
 
 	jwtToken, err := a.auth.Login(c.UserContext(), loginStruct.Password, loginStruct.Email)
 	if err != nil {
 		log.WithContext(c.UserContext()).Warn("invalid credentials", slog.Any("error", err))
-		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
+		return c.Status(fiber.StatusUnauthorized).JSON(views2.NewLoginTokenVM("", "invalid credentials"))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM(jwtToken, ""))
+	return c.Status(fiber.StatusOK).JSON(views2.NewLoginTokenVM(jwtToken, ""))
 }
 
 // Register is the controller for the register route
@@ -65,15 +65,15 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	var registerStruct domain.Register
 	err := c.BodyParser(&registerStruct)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(views2.NewHTTPResponseVMFromError(err))
 	}
 
 	newUser, err := a.auth.Register(c.UserContext(), registerStruct)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(errors.New("error creating user")))
+		return c.Status(fiber.StatusBadRequest).JSON(views2.NewHTTPResponseVMFromError(errors.New("error creating user")))
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(views.NewRegisterVM("user created", newUser.ToPublicUser()))
+	return c.Status(fiber.StatusCreated).JSON(views2.NewRegisterVM("user created", newUser.ToPublicUser()))
 }
 
 // Logout is the controller for the logout route
@@ -87,7 +87,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 //	@Failure		500	{object}	views.HTTPResponseVM
 //	@Router			/v2/security/logout [post]
 func (*AuthController) Logout(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM("", "logged out"))
+	return c.Status(fiber.StatusOK).JSON(views2.NewLoginTokenVM("", "logged out"))
 }
 
 // RefreshToken is the controller for the refresh token route
@@ -108,8 +108,8 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	}
 	newToken, err := a.auth.RefreshToken(c.UserContext(), user)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusUnauthorized).JSON(views2.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewLoginTokenVM(newToken, ""))
+	return c.Status(fiber.StatusOK).JSON(views2.NewLoginTokenVM(newToken, ""))
 }

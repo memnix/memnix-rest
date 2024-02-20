@@ -1,4 +1,4 @@
-package views
+package httpViews
 
 const (
 	// InvalidCredentials is the message for invalid credentials.

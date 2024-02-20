@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/memnix/memnix-rest/app/http/httpViews"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/deck"
 	"github.com/memnix/memnix-rest/pkg/utils"
-	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
 )
 
@@ -37,21 +37,21 @@ func (d *DeckController) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	uintID, err := utils.ConvertStrToUInt(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 	deckObject, err := d.IUseCase.GetByID(c.UserContext(), uintID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusNotFound).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 	user, err := GetUserFromContext(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 	if !deckObject.IsOwner(user.ID) && user.Permission != domain.PermissionAdmin {
-		return c.Status(fiber.StatusForbidden).JSON(views.NewHTTPResponseVMFromError(errors.New("deck is private")))
+		return c.Status(fiber.StatusForbidden).JSON(httpViews.NewHTTPResponseVMFromError(errors.New("deck is private")))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("deck found", deckObject))
+	return c.Status(fiber.StatusOK).JSON(httpViews.NewHTTPResponseVM("deck found", deckObject))
 }
 
 // Create is the controller for the create deck route
@@ -70,25 +70,25 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 	var createDeck domain.CreateDeck
 	err := c.BodyParser(&createDeck)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
 	if err = createDeck.Validate(); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
 	deckObject := createDeck.ToDeck()
 
 	user, err := GetUserFromContext(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
 	if err = d.IUseCase.CreateFromUser(c.UserContext(), user, &deckObject); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusBadRequest).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(views.NewHTTPResponseVM("deck created", deckObject.ToPublicDeck()))
+	return c.Status(fiber.StatusCreated).JSON(httpViews.NewHTTPResponseVM("deck created", deckObject.ToPublicDeck()))
 }
 
 // GetOwned is the controller for the get owned decks route
@@ -106,14 +106,14 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 	user, err := GetUserFromContext(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 	deckObjects, err := d.IUseCase.GetByUser(c.UserContext(), user)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusNotFound).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("owned decks found", deckObjects))
+	return c.Status(fiber.StatusOK).JSON(httpViews.NewHTTPResponseVM("owned decks found", deckObjects))
 }
 
 // GetLearning is the controller for the get learning decks route
@@ -131,15 +131,15 @@ func (d *DeckController) GetOwned(c *fiber.Ctx) error {
 func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 	user, err := GetUserFromContext(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 	deckObjects, err := d.IUseCase.GetByLearner(c.UserContext(), user)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusNotFound).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
 	return c.Status(fiber.StatusOK).JSON(
-		views.NewHTTPResponseVM("learning decks found", deck.ConvertToPublic(deckObjects)))
+		httpViews.NewHTTPResponseVM("learning decks found", deck.ConvertToPublic(deckObjects)))
 }
 
 // GetPublic is the controller for the get public decks route
@@ -157,8 +157,8 @@ func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 func (d *DeckController) GetPublic(c *fiber.Ctx) error {
 	deckObjects, err := d.IUseCase.GetPublic(c.UserContext())
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
+		return c.Status(fiber.StatusNotFound).JSON(httpViews.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("public decks found", deckObjects))
+	return c.Status(fiber.StatusOK).JSON(httpViews.NewHTTPResponseVM("public decks found", deckObjects))
 }

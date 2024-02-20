@@ -1,4 +1,4 @@
-package views
+package httpViews
 
 type HTTPResponseVM struct {
 	Data    interface{} `json:"data"`
