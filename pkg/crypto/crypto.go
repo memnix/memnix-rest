@@ -1,22 +1,41 @@
 package crypto
 
+import "sync"
+
 const DefaultBcryptCost = 10
 
-var cryptoHelper = Crypto{
-	crypto: NewBcryptCrypto(DefaultBcryptCost),
+// HelperSingleton is the struct that holds the crypto helper.
+type HelperSingleton struct {
+	cryptoHelper Crypto
 }
 
-func InitCrypto(crypto ICrypto) {
-	cryptoHelper = Crypto{crypto: crypto}
+var (
+	once     sync.Once        //nolint:gochecknoglobals //Singleton
+	instance *HelperSingleton //nolint:gochecknoglobals //Singleton
+)
+
+func GetCryptoHelperInstance() *HelperSingleton {
+	once.Do(func() {
+		instance = &HelperSingleton{
+			cryptoHelper: Crypto{
+				Crypto: NewBcryptCrypto(DefaultBcryptCost),
+			},
+		}
+	})
+	return instance
 }
 
-func GetCrypto() Crypto {
-	return cryptoHelper
+func (c *HelperSingleton) GetCryptoHelper() Crypto {
+	return c.cryptoHelper
+}
+
+func (c *HelperSingleton) SetCryptoHelper(crypto ICrypto) {
+	c.cryptoHelper.Crypto = crypto
 }
 
 // ICrypto is the interface for the crypto methods
 // It's used to abstract the crypto methods used in the application
-// so that they can be easily swapped out if needed
+// so that they can be easily swapped out if needed.
 type ICrypto interface {
 	// Hash hashes a password using the configured crypto method
 	Hash(password string) ([]byte, error)
@@ -24,16 +43,16 @@ type ICrypto interface {
 	Verify(password string, hash []byte) (bool, error)
 }
 
-// Crypto is the struct that holds the crypto methods
+// Crypto is the struct that holds the crypto methods.
 type Crypto struct {
-	crypto ICrypto
+	Crypto ICrypto
 }
 
 // Hash hashes a password using the configured crypto method
 // password is the plaintext password to hash.
 // Returns the hashed password, or an error on failure.
 func (c Crypto) Hash(password string) ([]byte, error) {
-	return c.crypto.Hash(password) //nolint:wrapcheck
+	return c.Crypto.Hash(password)
 }
 
 // Verify compares a crypto hashed password with its possible plaintext equivalent
@@ -42,5 +61,5 @@ func (c Crypto) Hash(password string) ([]byte, error) {
 // Returns nil on success, or an error on failure.
 // Returns true if the password matches, false if it does not.
 func (c Crypto) Verify(password string, hash []byte) (bool, error) {
-	return c.crypto.Verify(password, hash) //nolint:wrapcheck
+	return c.Crypto.Verify(password, hash)
 }

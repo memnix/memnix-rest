@@ -1,7 +1,9 @@
-package crypto
+package crypto_test
 
 import (
 	"testing"
+
+	"github.com/memnix/memnix-rest/pkg/crypto"
 )
 
 // MockCrypto is a mock implementation of the ICrypto interface for testing.
@@ -19,7 +21,7 @@ func (mc MockCrypto) Verify(_ string, hash []byte) (bool, error) {
 
 func TestCrypto_Hash(t *testing.T) {
 	mockCrypto := MockCrypto{}
-	cryptoHelper = Crypto{crypto: mockCrypto}
+	cryptoHelper := crypto.Crypto{Crypto: mockCrypto}
 
 	password := "my_password"
 	hashedPassword, err := cryptoHelper.Hash(password)
@@ -34,7 +36,7 @@ func TestCrypto_Hash(t *testing.T) {
 
 func TestCrypto_Verify(t *testing.T) {
 	mockCrypto := MockCrypto{}
-	cryptoHelper = Crypto{crypto: mockCrypto}
+	cryptoHelper := crypto.Crypto{Crypto: mockCrypto}
 
 	password := "my_password"
 	hashedPassword, _ := cryptoHelper.Hash(password)

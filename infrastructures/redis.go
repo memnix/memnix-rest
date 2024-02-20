@@ -2,22 +2,40 @@ package infrastructures
 
 import (
 	"context"
+	"log/slog"
+	"sync"
 	"time"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
-	"go.uber.org/zap"
 )
 
-var redisClient *redis.Client
+type RedisManager struct {
+	client *redis.Client
+}
 
-// ConnectRedis Connects to redis
-func ConnectRedis(redisConf config.RedisConfig) error {
-	redisClient = NewRedisClient(redisConf)
+var (
+	redisInstance *RedisManager //nolint:gochecknoglobals //Singleton
+	redisOnce     sync.Once     //nolint:gochecknoglobals //Singleton
+)
 
-	_, err := redisClient.Ping(context.Background()).Result()
+func GetRedisClient() *redis.Client {
+	return GetRedisManagerInstance().GetRedisClient()
+}
+
+func GetRedisManagerInstance() *RedisManager {
+	redisOnce.Do(func() {
+		redisInstance = &RedisManager{}
+	})
+	return redisInstance
+}
+
+func (r *RedisManager) ConnectRedis(redisConf config.RedisConfig) error {
+	r.client = r.NewRedisClient(redisConf)
+
+	_, err := r.client.Ping(context.Background()).Result()
 	if err != nil {
 		return err
 	}
@@ -25,18 +43,15 @@ func ConnectRedis(redisConf config.RedisConfig) error {
 	return nil
 }
 
-// CloseRedis Closes redis connection
-func CloseRedis() error {
-	return redisClient.Close()
+func (r *RedisManager) CloseRedis() error {
+	return r.client.Close()
 }
 
-// GetRedisClient Returns redis client
-func GetRedisClient() *redis.Client {
-	return redisClient
+func (r *RedisManager) GetRedisClient() *redis.Client {
+	return r.client
 }
 
-// NewRedisClient Returns new redis client
-func NewRedisClient(redisConf config.RedisConfig) *redis.Client {
+func (r *RedisManager) NewRedisClient(redisConf config.RedisConfig) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:         redisConf.Addr,
 		MinIdleConns: redisConf.MinIdleConns,
@@ -45,7 +60,7 @@ func NewRedisClient(redisConf config.RedisConfig) *redis.Client {
 	})
 
 	if err := redisotel.InstrumentTracing(client); err != nil {
-		otelzap.L().Error("failed to instrument redis", zap.Error(err))
+		log.Error("failed to instrument redis", slog.Any("error", err))
 	}
 
 	return client

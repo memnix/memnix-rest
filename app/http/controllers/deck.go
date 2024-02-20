@@ -9,12 +9,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DeckController is the controller for the deck routes
+// DeckController is the controller for the deck routes.
 type DeckController struct {
 	deck.IUseCase
 }
 
-// NewDeckController returns a new deck controller
+// NewDeckController returns a new deck controller.
 func NewDeckController(useCase deck.IUseCase) DeckController {
 	return DeckController{IUseCase: useCase}
 }
@@ -73,7 +73,7 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	if err := createDeck.Validate(); err != nil {
+	if err = createDeck.Validate(); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
@@ -84,7 +84,7 @@ func (d *DeckController) Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	if err := d.IUseCase.CreateFromUser(c.UserContext(), user, &deckObject); err != nil {
+	if err = d.IUseCase.CreateFromUser(c.UserContext(), user, &deckObject); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
@@ -138,7 +138,8 @@ func (d *DeckController) GetLearning(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(views.NewHTTPResponseVMFromError(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(views.NewHTTPResponseVM("learning decks found", deck.ConvertToPublic(deckObjects)))
+	return c.Status(fiber.StatusOK).JSON(
+		views.NewHTTPResponseVM("learning decks found", deck.ConvertToPublic(deckObjects)))
 }
 
 // GetPublic is the controller for the get public decks route

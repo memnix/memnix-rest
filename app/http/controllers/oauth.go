@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
@@ -11,18 +13,16 @@ import (
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/memnix/memnix-rest/pkg/random"
 	"github.com/memnix/memnix-rest/views"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.opentelemetry.io/otel/attribute"
-	"go.uber.org/zap"
 )
 
-// OAuthController is the controller for the OAuth routes
+// OAuthController is the controller for the OAuth routes.
 type OAuthController struct {
 	auth auth.IUseCase // auth usecase
 	auth.IAuthRedisRepository
 }
 
-// NewOAuthController creates a new OAuthController
+// NewOAuthController creates a new OAuthController.
 func NewOAuthController(auth auth.IUseCase, redisRepository auth.IAuthRedisRepository) OAuthController {
 	return OAuthController{auth: auth, IAuthRedisRepository: redisRepository}
 }
@@ -38,7 +38,7 @@ func NewOAuthController(auth auth.IUseCase, redisRepository auth.IAuthRedisRepos
 //	@Failure		500	{object}	views.HTTPResponseVM	"internal server error"
 //	@Router			/v2/security/github [get]
 func (a *OAuthController) GithubLogin(c *fiber.Ctx) error {
-	state, _ := random.GenerateSecretCode(config.OauthStateLength)
+	state, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(config.OauthStateLength)
 	// Create the dynamic redirect URL for login
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&state=%s",
@@ -91,7 +91,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 	}
 
 	var githubUser domain.GithubLogin
-	err = config.JSONHelper.Unmarshal([]byte(user), &githubUser)
+	err = GetJSONHelperInstance().GetJSONHelper().Unmarshal([]byte(user), &githubUser)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
@@ -104,7 +104,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 
 	// Delete the state from the cache
 	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
-		otelzap.Ctx(c.UserContext()).Error("failed to delete state from cache", zap.Error(err))
+		log.WithContext(c.UserContext()).Error("failed to delete state from cache", slog.Any("error", err))
 	}
 
 	return c.Redirect(oauth.GetFrontendURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)
@@ -122,7 +122,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 //	@Router			/v2/security/discord [get]
 func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 	// Create the dynamic redirect URL for login
-	state, _ := random.GenerateSecretCode(config.OauthStateLength)
+	state, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(config.OauthStateLength)
 	if err := a.IAuthRedisRepository.SetState(c.UserContext(), state); err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 //	@Failure		500		{object}	views.HTTPResponseVM	"internal server error"
 //	@Router			/v2/security/discord_callback [get]
 func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
-	_, span := infrastructures.GetFiberTracer().Start(c.UserContext(), "DiscordCallback")
+	_, span := infrastructures.GetTracerInstance().Start(c.UserContext(), "DiscordCallback")
 	defer span.End()
 	// get the code from the query string
 	code := c.Query("code")
@@ -157,51 +157,51 @@ func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
 
 	span.SetAttributes(attribute.String("code", code), attribute.String("state", state))
 	if ok, _ := a.IAuthRedisRepository.HasState(c.UserContext(), state); !ok {
-		otelzap.Ctx(c.UserContext()).Warn("state not found", zap.String("state", state))
+		log.WithContext(c.UserContext()).Warn("state not found", slog.String("state", state))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the access token from discord
 	accessToken, err := oauth.GetDiscordAccessToken(c.UserContext(), code)
 	if err != nil {
-		otelzap.Ctx(c.UserContext()).Error("failed to get access token from discord", zap.Error(err))
+		log.WithContext(c.UserContext()).Error("failed to get access token from discord", slog.Any("error", err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if accessToken == "" {
-		otelzap.Ctx(c.UserContext()).Error("access token is empty")
+		log.WithContext(c.UserContext()).Error("access token is empty")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// get the user from discord
 	user, err := oauth.GetDiscordData(c.UserContext(), accessToken)
 	if err != nil {
-		otelzap.Ctx(c.UserContext()).Error("failed to get user from discord", zap.Error(err))
+		log.WithContext(c.UserContext()).Error("failed to get user from discord", slog.Any("error", err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	var discordUser domain.DiscordLogin
 	// print the user to the console
-	err = config.JSONHelper.Unmarshal([]byte(user), &discordUser)
+	err = GetJSONHelperInstance().GetJSONHelper().Unmarshal([]byte(user), &discordUser)
 	if err != nil {
-		otelzap.Ctx(c.UserContext()).Error("failed to unmarshal discord user", zap.Error(err))
+		log.WithContext(c.UserContext()).Error("failed to unmarshal discord user", slog.Any("error", err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if discordUser == (domain.DiscordLogin{}) {
-		otelzap.Ctx(c.UserContext()).Error("discord user is empty")
+		log.WithContext(c.UserContext()).Error("discord user is empty")
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	// log the user
 	jwtToken, err := a.auth.LoginOauth(c.UserContext(), discordUser.ToUser())
 	if err != nil {
-		otelzap.Ctx(c.UserContext()).Error("failed to login user", zap.Error(err))
+		log.WithContext(c.UserContext()).Error("failed to login user", slog.Any("error", err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", views.InvalidCredentials))
 	}
 
 	if err = a.IAuthRedisRepository.DeleteState(c.UserContext(), state); err != nil {
-		otelzap.Ctx(c.UserContext()).Error("error deleting state", zap.Error(err))
+		log.WithContext(c.UserContext()).Error("error deleting state", slog.Any("error", err))
 	}
 
 	return c.Redirect(oauth.GetFrontendURL()+"/callback/"+jwtToken, fiber.StatusSeeOther)

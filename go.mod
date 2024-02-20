@@ -5,7 +5,6 @@ go 1.22
 toolchain go1.22.0
 
 require (
-	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/brianvoe/gofakeit/v7 v7.0.0
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.11.0
@@ -25,11 +24,9 @@ require (
 	github.com/redis/go-redis/v9 v9.5.0
 	github.com/spf13/viper v1.18.2
 	github.com/swaggo/swag v1.16.3
-	github.com/uptrace/opentelemetry-go-extra/otelzap v0.2.3
 	go.opentelemetry.io/otel v1.23.1
 	go.opentelemetry.io/otel/sdk v1.23.1
 	go.opentelemetry.io/otel/trace v1.23.1
-	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.19.0
 	gorm.io/driver/postgres v1.5.6
 	gorm.io/gorm v1.25.7
@@ -83,14 +80,12 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/uptrace/opentelemetry-go-extra/otelutil v0.2.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.52.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opentelemetry.io/contrib v1.23.0 // indirect
 	go.opentelemetry.io/otel/metric v1.23.1 // indirect
-	go.uber.org/goleak v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20240205201215-2c58cdc269a3 // indirect

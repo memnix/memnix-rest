@@ -1,0 +1,21 @@
+{
+  "packages": [
+    "go@1.21.5",
+    "trivy",
+    "hadolint"
+  ],
+  "env": {
+    "GOPATH": "${workspaceRoot}"
+  },
+  "shell": {
+    "init_hook": [
+      "export \"GOROOT=$(go env GOROOT)\""
+    ],
+    "scripts": {
+      "main": "go run ./cmd/api",
+      "dev": "APP_ENV=dev go run ./cmd/api",
+      "trivy": "trivy image ghcr.io/memnix/memnix-rest:latest",
+      "hadolint": "hadolint ./Dockerfile"
+    }
+  }
+}

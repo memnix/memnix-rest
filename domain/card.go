@@ -39,32 +39,17 @@ func (c *Card) IsLinked() bool {
 
 // IsMcqType checks if the card is of a type that is only a multiple choice question.
 func (c *Card) IsMcqType() bool {
-	switch c.CardType {
-	case CardTypeMCQOnly, CardTypeBlankMCQ:
-		return true
-	default:
-		return false
-	}
+	return c.CardType == CardTypeMCQOnly || c.CardType == CardTypeBlankMCQ
 }
 
 // IsProgressiveType checks if the card is of a progressive type.
 func (c *Card) IsProgressiveType() bool {
-	switch c.CardType {
-	case CardTypeQAProgressive, CardTypeBlankProgressive:
-		return true
-	default:
-		return false
-	}
+	return c.CardType == CardTypeQAProgressive || c.CardType == CardTypeBlankProgressive
 }
 
 // IsBlankType checks if the card is of a blank type.
 func (c *Card) IsBlankType() bool {
-	switch c.CardType {
-	case CardTypeBlankOnly, CardTypeBlankProgressive, CardTypeBlankMCQ:
-		return true
-	default:
-		return false
-	}
+	return c.CardType == CardTypeBlankOnly || c.CardType == CardTypeBlankProgressive || c.CardType == CardTypeBlankMCQ
 }
 
 // IsQAOnlyType checks if the card is of a type that is only a question and answer.
@@ -85,17 +70,19 @@ const (
 	CardTypeBlankMCQ         CardType = 5
 )
 
-// cardTypeNames maps CardType values to their string representations.
-var cardTypeNames = map[CardType]string{
-	CardTypeQAOnly:           "QAOnly",
-	CardTypeMCQOnly:          "MCQOnly",
-	CardTypeQAProgressive:    "QAProgressive",
-	CardTypeBlankOnly:        "BlankOnly",
-	CardTypeBlankProgressive: "BlankProgressive",
-	CardTypeBlankMCQ:         "BlankMCQ",
-}
-
 // String returns the string representation of a CardType.
 func (c CardType) String() string {
-	return cardTypeNames[c]
+	return c.cardTypeNames()[c]
+}
+
+// cardTypeNames returns a map of CardType values to their string representations.
+func (CardType) cardTypeNames() map[CardType]string {
+	return map[CardType]string{
+		CardTypeQAOnly:           "QAOnly",
+		CardTypeMCQOnly:          "MCQOnly",
+		CardTypeQAProgressive:    "QAProgressive",
+		CardTypeBlankOnly:        "BlankOnly",
+		CardTypeBlankProgressive: "BlankProgressive",
+		CardTypeBlankMCQ:         "BlankMCQ",
+	}
 }

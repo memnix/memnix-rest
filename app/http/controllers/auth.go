@@ -1,21 +1,22 @@
 package controllers
 
 import (
+	"log/slog"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/views"
 	"github.com/pkg/errors"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
-	"go.uber.org/zap"
 )
 
-// AuthController is the controller for the auth routes
+// AuthController is the controller for the auth routes.
 type AuthController struct {
 	auth auth.IUseCase
 }
 
-// NewAuthController creates a new auth controller
+// NewAuthController creates a new auth controller.
 func NewAuthController(auth auth.IUseCase) AuthController {
 	return AuthController{auth: auth}
 }
@@ -41,7 +42,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 
 	jwtToken, err := a.auth.Login(c.UserContext(), loginStruct.Password, loginStruct.Email)
 	if err != nil {
-		otelzap.Ctx(c.UserContext()).Warn("invalid credentials", zap.Error(err))
+		log.WithContext(c.UserContext()).Warn("invalid credentials", slog.Any("error", err))
 		return c.Status(fiber.StatusUnauthorized).JSON(views.NewLoginTokenVM("", "invalid credentials"))
 	}
 

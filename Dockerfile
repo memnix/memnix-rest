@@ -19,12 +19,10 @@ RUN go mod download
 COPY . .
 
 RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./cmd/api/main.go \
-    && upx /app/memnixrest
-
-RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
-RUN chmod +x /usr/local/bin/dumb-init
-
-RUN apk del upx
+    && upx /app/memnixrest \
+    && wget -O --progress=dot:giga /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 \
+    && chmod +x /usr/local/bin/dumb-init \
+    && apk del upx
 
 FROM gcr.io/distroless/static:nonroot AS production
 

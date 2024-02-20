@@ -1,8 +1,10 @@
-package json
+package json_test
 
 import (
 	"encoding/json"
 	"testing"
+
+	myJson "github.com/memnix/memnix-rest/pkg/json"
 )
 
 // MockJSONHelper is a mock implementation of the Helper interface for testing purposes.
@@ -32,7 +34,7 @@ func TestJSON_Marshal(t *testing.T) {
 			return []byte(`{"mocked":true}`), nil
 		},
 	}
-	jsonHelper := NewJSON(mockHelper)
+	jsonHelper := myJson.NewJSON(mockHelper)
 
 	// Test JSON.Marshal method
 	result, err := jsonHelper.Marshal(map[string]interface{}{"key": "value"})
@@ -52,7 +54,7 @@ func TestJSON_Unmarshal(t *testing.T) {
 			return json.Unmarshal([]byte(`{"mocked":true}`), v)
 		},
 	}
-	jsonHelper := NewJSON(mockHelper)
+	jsonHelper := myJson.NewJSON(mockHelper)
 
 	// Test JSON.Unmarshal method
 	var output map[string]interface{}
@@ -67,7 +69,7 @@ func TestJSON_Unmarshal(t *testing.T) {
 }
 
 func TestNativeJSON_Marshal(t *testing.T) {
-	nativeJSONHelper := &NativeJSON{}
+	nativeJSONHelper := &myJson.NativeJSON{}
 
 	// Test NativeJSON.Marshal method
 	result, err := nativeJSONHelper.Marshal(map[string]interface{}{"key": "value"})
@@ -81,7 +83,7 @@ func TestNativeJSON_Marshal(t *testing.T) {
 }
 
 func TestNativeJSON_Unmarshal(t *testing.T) {
-	nativeJSONHelper := &NativeJSON{}
+	nativeJSONHelper := &myJson.NativeJSON{}
 
 	// Test NativeJSON.Unmarshal method
 	var output map[string]interface{}

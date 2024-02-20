@@ -6,14 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// Mcq is the domain model for a mcq
+// Mcq is the domain model for a mcq.
 type Mcq struct {
 	gorm.Model `swaggerignore:"true"`
 	Answers    string `json:"answers"`
 	Linked     bool   `json:"linked"`
 }
 
-// TableName returns the table name for the mcq model
+// TableName returns the table name for the mcq model.
 func (*Mcq) TableName() string {
 	return "mcqs"
 }

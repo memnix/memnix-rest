@@ -5,23 +5,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// BcryptCrypto is the struct that holds the bcrypt crypto methods
+// BcryptCrypto is the struct that holds the bcrypt crypto methods.
 type BcryptCrypto struct {
 	Cost int
 }
 
-// NewBcryptCrypto returns a new BcryptCrypto
+// NewBcryptCrypto returns a new BcryptCrypto.
 func NewBcryptCrypto(cost int) *BcryptCrypto {
 	return &BcryptCrypto{Cost: cost}
 }
 
-// Hash hashes a password using the bcrypt algorithm
+// Hash hashes a password using the bcrypt algorithm.
 // password is the plaintext password to hash.
 // Returns the hashed password, or an error on failure.
 // The cost is set in the config file.
 //
 // see: https://godoc.org/golang.org/x/crypto/bcrypt
-// see: utils/config.go for the default cost
+// see: utils/config.go for the default cost.
 func (b *BcryptCrypto) Hash(password string) ([]byte, error) {
 	key, err := bcrypt.GenerateFromPassword([]byte(password), b.Cost)
 	if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,50 +10,51 @@ import (
 	"github.com/bytedance/gopkg/util/gctuner"
 	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/app/http"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/crypto"
+	"github.com/memnix/memnix-rest/pkg/json"
 	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/memnix/memnix-rest/pkg/oauth"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
-	"go.uber.org/zap"
 )
 
-var Version = "development"
+var version = "development"
 
 func main() {
-	// setup the logger
-	zapLogger, undo := logger.CreateZapLogger()
-
 	configPath := config.GetConfigPath()
 
 	// Load the config
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		zapLogger.Fatal("❌ Error loading config", zap.Error(err))
+		log.Fatalf("❌ Error loading config: %s", err.Error())
 	}
 
+	logger.NewLogger().SetLogLevel(slog.LevelInfo)
+
 	if config.IsProduction() {
-		zapLogger.Info("🚀 Running in production mode 🚀")
-		cfg.Server.AppVersion = Version
-		cfg.Sentry.Release = "memnix@" + Version
+		log.Info("🚀 Running in production mode 🚀")
+		cfg.Server.AppVersion = version
+		cfg.Sentry.Release = "memnix@" + version
 	}
 
 	// setup the environment variables
 	setup(cfg)
 
-	zapLogger.Info("starting server 🚀", zap.String("version", cfg.Server.AppVersion))
+	log.Info("starting server 🚀", slog.String("version", cfg.Server.AppVersion))
 
 	// Create the app
 	app := http.New()
 
 	// Listen from a different goroutine
 	go func() {
-		if err := app.Listen(":1815"); err != nil {
-			zapLogger.Panic("error starting server", zap.Error(err))
+		if err = app.Listen(":1815"); err != nil {
+			log.Error("error starting server", slog.Any("error", err))
+			// exit with error
+			os.Exit(1)
 		}
 	}()
 
@@ -63,45 +65,40 @@ func main() {
 
 	shutdown(app)
 
-	zapLogger.Info("server stopped")
-
-	if err := zapLogger.Sync(); err != nil {
-		return // can't even log, just exit
-	}
-	undo()
+	log.Info("server stopped")
 }
 
 func shutdown(app *fiber.App) {
-	otelzap.L().Info("🔒 Server shutting down...")
+	log.Info("🔒 Server shutting down...")
 	_ = app.Shutdown()
 
-	otelzap.L().Info("🧹 Running cleanup tasks...")
+	log.Info("🧹 Running cleanup tasks...")
 
-	err := infrastructures.DisconnectDB()
+	err := infrastructures.GetDBConnInstance().DisconnectDB()
 	if err != nil {
-		otelzap.L().Error("❌ Error closing database connection")
+		log.Error("❌ Error closing database connection")
 	} else {
-		otelzap.L().Info("✅ Disconnected from database")
+		log.Info("✅ Disconnected from database")
 	}
 
-	err = infrastructures.CloseRedis()
+	err = infrastructures.GetRedisManagerInstance().CloseRedis()
 	if err != nil {
-		otelzap.L().Error("❌ Error closing Redis connection")
+		log.Error("❌ Error closing Redis connection")
 	} else {
-		otelzap.L().Info("✅ Disconnected from Redis")
+		log.Info("✅ Disconnected from Redis")
 	}
 
 	err = infrastructures.ShutdownTracer()
 	if err != nil {
-		otelzap.L().Error("❌ Error closing Tracer connection")
+		log.Error("❌ Error closing Tracer connection")
 	} else {
-		otelzap.L().Info("✅ Disconnected from Tracer")
+		log.Info("✅ Disconnected from Tracer")
 	}
 
 	sentry.Flush(config.SentryFlushTimeout)
-	otelzap.L().Info("✅ Disconnected from Sentry")
+	log.Info("✅ Disconnected from Sentry")
 
-	otelzap.L().Info("✅ Cleanup tasks completed!")
+	log.Info("✅ Cleanup tasks completed!")
 }
 
 func setup(cfg *config.Config) {
@@ -120,31 +117,31 @@ func setup(cfg *config.Config) {
 		migrate()
 	}
 
-	otelzap.L().Info("✅ setup completed!")
+	log.Info("✅ setup completed!")
 }
 
 func setupJwt(cfg *config.Config) {
 	// Parse the keys
-	if err := config.ParseEd25519Key(); err != nil {
-		otelzap.L().Fatal("❌ Error parsing keys", zap.Error(err))
+	if err := config.GetKeyManagerInstance().ParseEd25519Key(); err != nil {
+		log.Fatal("❌ Error parsing keys", slog.Any("error", err))
 	}
 
 	// Create the JWT instance
-	jwtInstance := myJwt.NewJWTInstance(cfg.Auth.JWTHeaderLen, cfg.Auth.JWTExpiration, config.GetEd25519PublicKey(), config.GetEd25519PrivateKey())
+	jwtInstance := myJwt.NewJWTInstance(cfg.Auth.JWTHeaderLen, cfg.Auth.JWTExpiration, config.GetKeyManagerInstance().GetPublicKey(), config.GetKeyManagerInstance().GetPrivateKey())
 
-	config.JwtInstance = jwtInstance
+	config.GetJwtInstance().SetJwt(jwtInstance)
 
-	otelzap.L().Info("✅ Created JWT instance")
+	log.Info("✅ Created JWT instance")
 }
 
 func setupCrypto(cfg *config.Config) {
-	crypto.InitCrypto(crypto.NewBcryptCrypto(cfg.Auth.Bcryptcost))
+	crypto.GetCryptoHelperInstance().SetCryptoHelper(crypto.NewBcryptCrypto(cfg.Auth.Bcryptcost))
 
-	otelzap.L().Info("✅ Created Crypto instance")
+	log.Info("✅ Created Crypto instance")
 }
 
 func setupOAuth(cfg *config.Config) {
-	oauth.SetJSONHelper(config.JSONHelper)
+	oauth.GetJSONHelperInstance().SetJSONHelper(json.NewJSON(&json.NativeJSON{}))
 
 	oauthConfig := oauth.GlobalConfig{
 		CallbackURL: cfg.Server.Host,
@@ -156,38 +153,35 @@ func setupOAuth(cfg *config.Config) {
 	oauth.InitGithub(cfg.Auth.Github)
 	oauth.InitDiscord(cfg.Auth.Discord)
 
-	otelzap.L().Info("✅ Created OAuth instance")
+	log.Info("✅ Created OAuth instance")
 }
 
 func setupInfrastructures(cfg *config.Config) {
-	err := infrastructures.ConnectDB(cfg.Database.DSN)
+	err := infrastructures.GetDBConnInstance().ConnectDB(cfg.Database.DSN)
 	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to database", zap.Error(err))
-	} else {
-		otelzap.L().Info("✅ Connected to database")
+		log.Fatal("❌ Error connecting to database", slog.Any("error", err))
 	}
 
+	log.Info("✅ Connected to database")
+
 	// Redis connection
-	err = infrastructures.ConnectRedis(cfg.Redis)
+	err = infrastructures.GetRedisManagerInstance().ConnectRedis(cfg.Redis)
 	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to Redis")
-	} else {
-		otelzap.L().Info("✅ Connected to Redis")
+		log.Fatal("❌ Error connecting to Redis")
 	}
+	log.Info("✅ Connected to Redis")
 
 	// Connect to the tracer
 	err = infrastructures.InitTracer(cfg.Sentry)
 	if err != nil {
-		otelzap.L().Fatal("❌ Error connecting to Tracer", zap.Error(err))
-	} else {
-		otelzap.L().Info("✅ Created Tracer")
+		log.Fatal("❌ Error connecting to Tracer", slog.Any("error", err))
 	}
+	log.Info("✅ Created Tracer")
 
-	if err = infrastructures.CreateRistrettoCache(); err != nil {
-		otelzap.L().Fatal("❌ Error creating Ristretto cache", zap.Error(err))
-	} else {
-		otelzap.L().Info("✅ Created Ristretto cache")
+	if err = infrastructures.GetCacheInstance().CreateRistrettoCache(); err != nil {
+		log.Fatal("❌ Error creating Ristretto cache", slog.Any("error", err))
 	}
+	log.Info("✅ Created Ristretto cache")
 }
 
 func gcTuning() {
@@ -197,14 +191,14 @@ func gcTuning() {
 
 	gctuner.Tuning(threshold)
 
-	otelzap.L().Info(fmt.Sprintf("🔧 GC Tuning - Limit: %.2f GB, Threshold: %d bytes, GC Percent: %d, Min GC Percent: %d, Max GC Percent: %d",
+	log.Info(fmt.Sprintf("🔧 GC Tuning - Limit: %.2f GB, Threshold: %d bytes, GC Percent: %d, Min GC Percent: %d, Max GC Percent: %d",
 		limit/(config.GCLimit),
 		threshold,
 		gctuner.GetGCPercent(),
 		gctuner.GetMinGCPercent(),
 		gctuner.GetMaxGCPercent()))
 
-	otelzap.L().Info("✅ GC Tuning completed!")
+	log.Info("✅ GC Tuning completed!")
 }
 
 func migrate() {
@@ -213,18 +207,18 @@ func migrate() {
 		&domain.User{}, &domain.Card{}, &domain.Deck{}, &domain.Mcq{},
 	}
 
-	otelzap.L().Info("⚙️ Starting database migration...")
+	log.Info("⚙️ Starting database migration...")
 
 	// AutoMigrate models
 	for i := 0; i < len(migrates); i++ {
 		step := i + 1
 		err := infrastructures.GetDBConn().AutoMigrate(&migrates[i])
 		if err != nil {
-			otelzap.L().Error(fmt.Sprintf("❌ Error migrating model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
+			log.Error(fmt.Sprintf("❌ Error migrating model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
 		} else {
-			otelzap.L().Info(fmt.Sprintf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
+			log.Info(fmt.Sprintf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
 		}
 	}
 
-	otelzap.L().Info("✅ Database migration completed!")
+	log.Info("✅ Database migration completed!")
 }

@@ -1,6 +1,8 @@
 package config
 
 import (
+	"log/slog"
+
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/spf13/viper"
 )
@@ -32,6 +34,7 @@ type ServerConfig struct {
 	JaegerURL   string
 	Host        string
 	FrontendURL string
+	LogLevel    string
 }
 
 // DatabaseConfig holds the configuration for the database.
@@ -51,6 +54,21 @@ type RedisConfig struct {
 // LogConfig holds the configuration for the logger.
 type LogConfig struct {
 	Level string
+}
+
+func (logConfig *LogConfig) GetSlogLevel() slog.Level {
+	switch logConfig.Level {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
 }
 
 // AuthConfig holds the configuration for the authentication.

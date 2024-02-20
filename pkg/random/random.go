@@ -3,6 +3,7 @@ package random
 import (
 	"math/rand"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -13,17 +14,31 @@ const (
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
 
-var src = rand.NewSource(time.Now().UnixNano()) // initialize global pseudo random generator
+type Generator struct {
+	src rand.Source
+}
 
-// GenerateSecretCode generates a secret code of a given length
-// sources: https://stackoverflow.com/a/31832326
-func GenerateSecretCode(n int) (string, error) {
+var (
+	instance *Generator //nolint:gochecknoglobals //Singleton
+	once     sync.Once  //nolint:gochecknoglobals //Singleton
+)
+
+func GetRandomGeneratorInstance() *Generator {
+	once.Do(func() {
+		instance = &Generator{
+			src: rand.NewSource(time.Now().UnixNano()),
+		}
+	})
+	return instance
+}
+
+func (r *Generator) GenerateSecretCode(n int) (string, error) {
 	sb := strings.Builder{}
 	sb.Grow(n)
-	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+	// A r.src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, r.src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {
-			cache, remain = src.Int63(), letterIdxMax
+			cache, remain = r.src.Int63(), letterIdxMax
 		}
 		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
 			sb.WriteByte(letterBytes[idx])

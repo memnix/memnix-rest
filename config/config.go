@@ -2,24 +2,19 @@ package config
 
 import (
 	"os"
+	"sync"
 	"time"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/pkg/crypto"
-	"github.com/memnix/memnix-rest/pkg/json"
 	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"golang.org/x/crypto/ed25519"
 )
-
-// JSONHelper is the helper for JSON operations
-var JSONHelper = json.NewJSON(&json.SonicJSON{})
 
 const (
 	ExpirationTimeInHours = 24 // ExpirationTimeInHours is the expiration time for the JWT token
 	SQLMaxOpenConns       = 10 // SQLMaxOpenConns is the max number of connections in the open connection pool
 	SQLMaxIdleConns       = 1  // SQLMaxIdleConns is the max number of connections in the idle connection pool
-
-	BCryptCost = 11 // BCryptCost is the cost for bcrypt
 
 	OauthStateLength = 16 // OauthStateLength is the length of the state for oauth
 
@@ -43,13 +38,31 @@ const (
 	SentryFlushTimeout = 2 * time.Second // SentryFlushTimeout is the timeout for flushing sentry
 )
 
-var JwtInstance myJwt.Instance
-
-func GetJwtInstance() myJwt.Instance {
-	return JwtInstance
+type JwtInstanceSingleton struct {
+	jwtInstance myJwt.Instance
 }
 
-// PasswordConfigStruct is the struct for the password config
+var (
+	jwtInstance *JwtInstanceSingleton //nolint:gochecknoglobals //Singleton
+	jwtOnce     sync.Once             //nolint:gochecknoglobals //Singleton
+)
+
+func GetJwtInstance() *JwtInstanceSingleton {
+	jwtOnce.Do(func() {
+		jwtInstance = &JwtInstanceSingleton{}
+	})
+	return jwtInstance
+}
+
+func (j *JwtInstanceSingleton) GetJwt() myJwt.Instance {
+	return j.jwtInstance
+}
+
+func (j *JwtInstanceSingleton) SetJwt(instance myJwt.Instance) {
+	j.jwtInstance = instance
+}
+
+// PasswordConfigStruct is the struct for the password config.
 type PasswordConfigStruct struct {
 	Iterations uint32 // Iterations to use for Argon2ID
 	Memory     uint32 // Memory to use for Argon2ID
@@ -58,33 +71,43 @@ type PasswordConfigStruct struct {
 	SaltLen    uint32 // SaltLen to use for Argon2ID
 }
 
+type KeyManager struct {
+	privateKey ed25519.PrivateKey
+	publicKey  ed25519.PublicKey
+}
+
 var (
-	ed25519PrivateKey = ed25519.PrivateKey{}
-	ed25519PublicKey  = ed25519.PublicKey{}
+	keyManagerInstance *KeyManager //nolint:gochecknoglobals //Singleton
+	keyManagerOnce     sync.Once   //nolint:gochecknoglobals //Singleton
 )
 
-func ParseEd25519Key() error {
+func GetKeyManagerInstance() *KeyManager {
+	keyManagerOnce.Do(func() {
+		keyManagerInstance = &KeyManager{}
+	})
+	return keyManagerInstance
+}
+
+func (k *KeyManager) GetPrivateKey() ed25519.PrivateKey {
+	return k.privateKey
+}
+
+func (k *KeyManager) GetPublicKey() ed25519.PublicKey {
+	return k.publicKey
+}
+
+func (k *KeyManager) ParseEd25519Key() error {
 	publicKey, privateKey, err := crypto.GenerateKeyPair()
 	if err != nil {
 		return err
 	}
 
-	ed25519PrivateKey = privateKey
-	ed25519PublicKey = publicKey
+	k.privateKey = privateKey
+	k.publicKey = publicKey
 
-	otelzap.L().Info("✅ Created ed25519 keys")
+	log.Info("✅ Created ed25519 keys")
 
 	return nil
-}
-
-// GetEd25519PrivateKey returns the ed25519 private key
-func GetEd25519PrivateKey() ed25519.PrivateKey {
-	return ed25519PrivateKey
-}
-
-// GetEd25519PublicKey returns the ed25519 public key
-func GetEd25519PublicKey() ed25519.PublicKey {
-	return ed25519PublicKey
 }
 
 func GetConfigPath() string {

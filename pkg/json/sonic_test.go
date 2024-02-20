@@ -1,10 +1,11 @@
-package json
+package json_test
 
 import (
 	"encoding/json"
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/brianvoe/gofakeit/v7"
+	myJson "github.com/memnix/memnix-rest/pkg/json"
 )
 
 type Mcq struct {
@@ -28,10 +29,10 @@ var structSliceSizes = []int{100, 200, 500, 1000}
 func BenchmarkMarshal(b *testing.B) {
 	jsonHelpers := []struct {
 		name       string
-		jsonHelper Helper
+		jsonHelper myJson.Helper
 	}{
-		{"SonicJSON", &SonicJSON{}},
-		{"NativeJSON", &NativeJSON{}},
+		{"SonicJSON", &myJson.SonicJSON{}},
+		{"NativeJSON", &myJson.NativeJSON{}},
 	}
 
 	for _, size := range structSliceSizes {
@@ -57,10 +58,10 @@ func BenchmarkMarshal(b *testing.B) {
 func BenchmarkUnmarshal(b *testing.B) {
 	jsonHelpers := []struct {
 		name       string
-		jsonHelper Helper
+		jsonHelper myJson.Helper
 	}{
-		{"SonicJSON", &SonicJSON{}},
-		{"NativeJSON", &NativeJSON{}},
+		{"SonicJSON", &myJson.SonicJSON{}},
+		{"NativeJSON", &myJson.NativeJSON{}},
 	}
 
 	for _, size := range structSliceSizes {

@@ -3,6 +3,7 @@ package infrastructures
 import (
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/memnix/memnix-rest/config"
@@ -12,18 +13,27 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// DBConn is the database connection object
-var DBConn *gorm.DB
-
-// GetDBConn returns the database connection object
-func GetDBConn() *gorm.DB {
-	return DBConn
+type DBConnSingleton struct {
+	dbConn *gorm.DB
 }
 
-// ConnectDB creates a connection to database
-//
-// see: utils/config.go and utils/env.go for more details
-func ConnectDB(dsn string) error {
+var (
+	dbInstance *DBConnSingleton //nolint:gochecknoglobals //Singleton
+	dbOnce     sync.Once        //nolint:gochecknoglobals //Singleton
+)
+
+func GetDBConnInstance() *DBConnSingleton {
+	dbOnce.Do(func() {
+		dbInstance = &DBConnSingleton{}
+	})
+	return dbInstance
+}
+
+func (d *DBConnSingleton) GetDBConn() *gorm.DB {
+	return d.dbConn
+}
+
+func (d *DBConnSingleton) ConnectDB(dsn string) error {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -50,14 +60,13 @@ func ConnectDB(dsn string) error {
 	sqlDB.SetMaxOpenConns(config.SQLMaxOpenConns) // Set max open connections
 	sqlDB.SetConnMaxLifetime(time.Second)         // Set max connection lifetime
 
-	DBConn = conn
+	d.dbConn = conn
 
 	return nil
 }
 
-// DisconnectDB closes the database connection
-func DisconnectDB() error {
-	sqlDB, err := GetDBConn().DB() // Get sql.DB object from gorm.DB
+func (d *DBConnSingleton) DisconnectDB() error {
+	sqlDB, err := d.GetDBConn().DB() // Get sql.DB object from gorm.DB
 	if err != nil {
 		return errors.Wrap(err, "failed to get sql.DB object")
 	}
@@ -66,4 +75,8 @@ func DisconnectDB() error {
 	}
 
 	return nil
+}
+
+func GetDBConn() *gorm.DB {
+	return GetDBConnInstance().GetDBConn()
 }
