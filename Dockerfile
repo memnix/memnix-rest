@@ -20,7 +20,7 @@ COPY . .
 
 RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./cmd/api/main.go \
     && upx /app/memnixrest \
-    && wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 \
+    && wget -q -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 \
     && chmod +x /usr/local/bin/dumb-init \
     && apk del upx
 
