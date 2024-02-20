@@ -1,15 +1,15 @@
-package http
+package v1
 
 import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/memnix/memnix-rest/domain"
-	"github.com/memnix/memnix-rest/internal"
+	"github.com/memnix/memnix-rest/services"
 )
 
 func registerRoutes(router *fiber.Router) {
-	serviceContainer := internal.DefaultServiceContainer()
+	serviceContainer := services.DefaultServiceContainer()
 	userController := serviceContainer.User()
 	authController := serviceContainer.Auth()
 	jwtController := serviceContainer.Jwt()

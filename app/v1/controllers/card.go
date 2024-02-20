@@ -1,6 +1,6 @@
 package controllers
 
-import "github.com/memnix/memnix-rest/internal/card"
+import "github.com/memnix/memnix-rest/services/card"
 
 type CardController struct {
 	card.IUseCase

@@ -2,17 +2,17 @@ package controllers
 
 import (
 	"errors"
-	"github.com/memnix/memnix-rest/app/http/httpViews"
 	"log/slog"
 	"strconv"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/memnix/memnix-rest/app/v1/views"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/internal/user"
+	"github.com/memnix/memnix-rest/services/user"
 )
 
 // JwtController is the controller for the jwt routes.
@@ -41,7 +41,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		// check if the permission is valid
 		if !p.IsValid() {
 			return c.Status(fiber.StatusInternalServerError).JSON(
-				httpViews.NewHTTPResponseVMFromError(errors.New("invalid permission")))
+				views.NewHTTPResponseVMFromError(errors.New("invalid permission")))
 		}
 
 		// if the route is public, we don't need to check if the userModel is connected
@@ -57,7 +57,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		// if the token is empty, the userModel is not connected, and we return an error
 		if tokenHeader == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(
-				httpViews.NewHTTPResponseVMFromError(errors.New("unauthorized: token missing")))
+				views.NewHTTPResponseVMFromError(errors.New("unauthorized: token missing")))
 		}
 
 		// get the userModel from the token
@@ -65,7 +65,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		userID, err := config.GetJwtInstance().GetJwt().GetConnectedUserID(c.UserContext(), tokenHeader)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(
-				httpViews.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid token")))
+				views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid token")))
 		}
 
 		// get the userModel from the database
@@ -73,7 +73,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		if err != nil {
 			log.WithContext(c.UserContext()).Error("error getting user / not connected", slog.Any("error", err))
 			return c.Status(fiber.StatusUnauthorized).JSON(
-				httpViews.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid user")))
+				views.NewHTTPResponseVMFromError(errors.New("unauthorized: invalid user")))
 		}
 
 		sentry.ConfigureScope(func(scope *sentry.Scope) {
@@ -87,7 +87,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 		// Check permissions
 		if !j.VerifyPermissions(userModel, p) {
 			log.WithContext(c.UserContext()).Debug("Not authorized")
-			return c.Status(fiber.StatusUnauthorized).JSON(httpViews.NewHTTPResponseVMFromError(errors.New("unauthorized: insufficient permissions")))
+			return c.Status(fiber.StatusUnauthorized).JSON(views.NewHTTPResponseVMFromError(errors.New("unauthorized: insufficient permissions")))
 		}
 
 		// Set userModel in locals

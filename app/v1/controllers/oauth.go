@@ -2,17 +2,17 @@ package controllers
 
 import (
 	"fmt"
-	views2 "github.com/memnix/memnix-rest/app/http/httpViews"
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	views2 "github.com/memnix/memnix-rest/app/v1/views"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/internal/auth"
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/memnix/memnix-rest/pkg/random"
+	"github.com/memnix/memnix-rest/services/auth"
 	"go.opentelemetry.io/otel/attribute"
 )
 

@@ -1,12 +1,13 @@
 {
   "packages": [
-    "go@1.21.5",
+    "go@1.22.0",
     "hadolint@2.12.0",
     "commitizen@3.14.1",
     "python@3.10",
     "tailwindcss@3.4.1",
     "air@1.49.0",
-    "templ@0.2.543"
+    "templ@0.2.543",
+    "go-task@3.34.1"
   ],
   "env": {
     "GOPATH": "${workspaceRoot}"
@@ -17,16 +18,19 @@
       ". $VENV_DIR/bin/activate"
     ],
     "scripts": {
-        "test": "go test ./...",
+      "test": "go test ./...",
       "install:cz": "pip install cz-conventional-gitmoji",
-      "install:go": "go mod tidy && go mod download",
       "install:go-mod-upgrade": "go install github.com/oligot/go-mod-upgrade@latest",
-      "api": "APP_ENV=dev go run ./cmd/api",
+      "install:wire": "go install github.com/google/wire/cmd/wire@latest",
+      "api": "APP_ENV=dev go run ./cmd/v1",
       "hadolint": "hadolint ./Dockerfile --ignore DL3018",
       "commit": "git add -A && cz --name cz_gitmoji commit",
       "bump": "cz bump",
-      "memnix": "APP_ENV=dev air",
-      "go-upgrade": "go-mod-upgrade"
+      "dev": "task dev",
+      "go-upgrade": "go-mod-upgrade",
+      "gen": "task generate",
+      "lint": "task lint",
+      "clean": "task clean"
     }
   }
 }

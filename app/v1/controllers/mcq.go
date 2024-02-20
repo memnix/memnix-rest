@@ -1,6 +1,6 @@
 package controllers
 
-import "github.com/memnix/memnix-rest/internal/mcq"
+import "github.com/memnix/memnix-rest/services/mcq"
 
 type McqController struct {
 	mcq.IUseCase

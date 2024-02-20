@@ -1,9 +1,9 @@
-package internal
+package services
 
 import (
 	"sync"
 
-	"github.com/memnix/memnix-rest/app/http/controllers"
+	"github.com/memnix/memnix-rest/app/v1/controllers"
 )
 
 type ServiceContainer struct {

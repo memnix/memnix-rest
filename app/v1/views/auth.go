@@ -1,4 +1,4 @@
-package httpViews
+package views
 
 import "github.com/memnix/memnix-rest/domain"
 

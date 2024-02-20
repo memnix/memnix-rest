@@ -1,17 +1,17 @@
 //go:build wireinject
 // +build wireinject
 
-package internal
+package services
 
 import (
 	"github.com/google/wire"
-	"github.com/memnix/memnix-rest/app/http/controllers"
+	"github.com/memnix/memnix-rest/app/v1/controllers"
 	"github.com/memnix/memnix-rest/infrastructures"
-	"github.com/memnix/memnix-rest/internal/auth"
-	"github.com/memnix/memnix-rest/internal/card"
-	"github.com/memnix/memnix-rest/internal/deck"
-	"github.com/memnix/memnix-rest/internal/mcq"
-	"github.com/memnix/memnix-rest/internal/user"
+	"github.com/memnix/memnix-rest/services/auth"
+	"github.com/memnix/memnix-rest/services/card"
+	"github.com/memnix/memnix-rest/services/deck"
+	"github.com/memnix/memnix-rest/services/mcq"
+	"github.com/memnix/memnix-rest/services/user"
 )
 
 // InitializeUser initializes the user controller.

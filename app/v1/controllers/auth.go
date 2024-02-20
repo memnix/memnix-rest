@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	views2 "github.com/memnix/memnix-rest/app/http/httpViews"
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	views2 "github.com/memnix/memnix-rest/app/v1/views"
 	"github.com/memnix/memnix-rest/domain"
-	"github.com/memnix/memnix-rest/internal/auth"
+	"github.com/memnix/memnix-rest/services/auth"
 	"github.com/pkg/errors"
 )
 

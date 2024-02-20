@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
-	"github.com/memnix/memnix-rest/internal/user"
+	"github.com/memnix/memnix-rest/services/user"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
