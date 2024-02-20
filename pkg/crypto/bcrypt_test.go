@@ -1,14 +1,16 @@
-package crypto
+package crypto_test
 
 import (
 	"testing"
+
+	"github.com/memnix/memnix-rest/pkg/crypto"
 )
 
 func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 1: Correctly hashed password should verify successfully
 	t.Run("Test 1 - Successful Hash and Verify", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password := "my_password"
 		hashedPassword, _ := bc.Hash(password)
 		match, err := bc.Verify(password, hashedPassword)
@@ -20,7 +22,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 2: Incorrect password should not match
 	t.Run("Test 2 - Incorrect Password Verification", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password := "my_password"
 		hashedPassword, _ := bc.Hash(password)
 		incorrectPassword := "incorrect_password"
@@ -33,7 +35,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 3: Verify empty password
 	t.Run("Test 3 - Empty Password Verification", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		hashedPassword, _ := bc.Hash("")
 		match, err := bc.Verify("", hashedPassword)
 		if !match || err != nil {
@@ -44,7 +46,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 4: Successful hash and verify with different cost
 	t.Run("Test 4 - Hash and Verify with Different Cost", func(t *testing.T) {
 		cost := 12
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password := "my_password"
 		hashedPassword, _ := bc.Hash(password)
 		match, err := bc.Verify(password, hashedPassword)
@@ -56,7 +58,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 5: Verify against empty hashed password
 	t.Run("Test 5 - Verify Against Empty Hashed Password", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		incorrectPassword := "incorrect_password"
 		emptyHashedPassword := []byte{}
 		match, _ := bc.Verify(incorrectPassword, emptyHashedPassword)
@@ -68,7 +70,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 6: Incorrect password with correct hashed password
 	t.Run("Test 6 - Incorrect Password with Correct Hashed Password", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password := "my_password"
 		hashedPassword, _ := bc.Hash(password)
 		incorrectPassword := "incorrect_password"
@@ -81,7 +83,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 7: Compare two hashed passwords
 	t.Run("Test 7 - Compare Two Hashed Passwords", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password1 := "password1"
 		password2 := "password2"
 		_, _ = bc.Hash(password1)
@@ -95,7 +97,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 8: Successful hash and verify with empty password
 	t.Run("Test 8 - Hash and Verify with Empty Password", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		emptyPassword := ""
 		hashedPassword, _ := bc.Hash(emptyPassword)
 		match, err := bc.Verify(emptyPassword, hashedPassword)
@@ -107,7 +109,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 9: Verify against incorrect hashed password
 	t.Run("Test 9 - Verify Against Incorrect Hashed Password", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password := "my_password"
 		_, _ = bc.Hash(password)
 		incorrectHashedPassword := []byte("incorrect_hashed_password")
@@ -120,7 +122,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 	// Test 10: BcryptCrypto should fail when the password exceeds 72 bytes
 	t.Run("Test 10 - Password Length Exceeds 72 Bytes", func(t *testing.T) {
 		cost := 10
-		bc := NewBcryptCrypto(cost)
+		bc := crypto.NewBcryptCrypto(cost)
 		password := "ThisPasswordExceedsSeventyTwoBytesToFailTheTestPasswordIsLimitedToSeventyTwoCharacters"
 		_, err := bc.Hash(password)
 		if err == nil {
@@ -130,7 +132,7 @@ func TestBcryptCrypto_HashAndVerify(t *testing.T) {
 }
 
 func runBenchmark(b *testing.B, cost int) {
-	bc := NewBcryptCrypto(cost)
+	bc := crypto.NewBcryptCrypto(cost)
 	password := "my_password"
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -21,10 +21,10 @@ func NewRistrettoCache(ristrettoCache *ristretto.Cache) IRistrettoRepository {
 }
 
 func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "GetByIDRistretto")
+	_, span := infrastructures.GetTracerInstance().Start(ctx, "GetByIDRistretto")
 	defer span.End()
 
-	ristrettoHit, ok := r.RistrettoCache.Get("user:" + utils.ConvertUIntToStr(id))
+	ristrettoHit, ok := r.RistrettoCache.Get(keyPrefix + utils.ConvertUIntToStr(id))
 	if !ok {
 		return domain.User{}, errors.New("user not found")
 	}
@@ -38,10 +38,10 @@ func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, er
 }
 
 func (r *RistrettoRepository) Set(ctx context.Context, user domain.User) error {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "SetByIDRistretto")
+	_, span := infrastructures.GetTracerInstance().Start(ctx, "SetByIDRistretto")
 	defer span.End()
 
-	r.RistrettoCache.Set("user:"+utils.ConvertUIntToStr(user.ID), user, 0)
+	r.RistrettoCache.Set(keyPrefix+utils.ConvertUIntToStr(user.ID), user, 0)
 
 	r.RistrettoCache.Wait()
 
@@ -49,10 +49,10 @@ func (r *RistrettoRepository) Set(ctx context.Context, user domain.User) error {
 }
 
 func (r *RistrettoRepository) Delete(ctx context.Context, id uint) error {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "DeleteByIDRistretto")
+	_, span := infrastructures.GetTracerInstance().Start(ctx, "DeleteByIDRistretto")
 	defer span.End()
 
-	r.RistrettoCache.Del("user:" + utils.ConvertUIntToStr(id))
+	r.RistrettoCache.Del(keyPrefix + utils.ConvertUIntToStr(id))
 
 	return nil
 }

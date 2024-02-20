@@ -33,7 +33,8 @@ func (u *UseCase) GetByID(ctx context.Context, id uint) (domain.Deck, error) {
 		return domain.Deck{}, err
 	}
 
-	if marshalledDeck, err := cbor.Marshal(deckObject); err == nil {
+	var marshalledDeck []byte
+	if marshalledDeck, err = cbor.Marshal(deckObject); err == nil {
 		_ = u.IRedisRepository.SetByID(ctx, id, string(marshalledDeck))
 	}
 
@@ -71,7 +72,8 @@ func (u *UseCase) GetByUser(ctx context.Context, user domain.User) ([]domain.Dec
 		return []domain.Deck{}, err
 	}
 
-	if marshalledDeck, err := cbor.Marshal(ownedDecks); err == nil {
+	var marshalledDeck []byte
+	if marshalledDeck, err = cbor.Marshal(ownedDecks); err == nil {
 		_ = u.IRedisRepository.SetOwnedByUser(ctx, user.ID, string(marshalledDeck))
 	}
 	return ownedDecks, nil
@@ -92,7 +94,8 @@ func (u *UseCase) GetByLearner(ctx context.Context, user domain.User) ([]domain.
 		return []domain.Deck{}, err
 	}
 
-	if marshalledDeck, err := cbor.Marshal(learnedDecks); err == nil {
+	var marshalledDeck []byte
+	if marshalledDeck, err = cbor.Marshal(learnedDecks); err == nil {
 		_ = u.IRedisRepository.SetLearningByUser(ctx, user.ID, string(marshalledDeck))
 	}
 	return learnedDecks, nil

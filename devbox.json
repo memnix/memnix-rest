@@ -1,0 +1,25 @@
+{
+  "packages": [
+    "go@1.21.5",
+    "hadolint@2.12.0",
+    "commitizen@3.14.1",
+    "python@3.10"
+  ],
+  "env": {
+    "GOPATH": "${workspaceRoot}"
+  },
+  "shell": {
+    "init_hook": [
+      "export \"GOROOT=$(go env GOROOT)\"",
+      ". $VENV_DIR/bin/activate",
+      "pip install cz-conventional-gitmoji"
+    ],
+    "scripts": {
+      "main": "go run ./cmd/api",
+      "dev": "APP_ENV=dev go run ./cmd/api",
+      "hadolint": "hadolint ./Dockerfile --ignore DL3018 --ignore DL3047",
+      "commit": "git add -A && cz --name cz_gitmoji commit",
+      "bump": "cz bump"
+    }
+  }
+}

@@ -17,8 +17,8 @@ type ServiceContainer struct {
 }
 
 var (
-	container *ServiceContainer
-	once      sync.Once
+	container *ServiceContainer //nolint:gochecknoglobals // Singleton
+	once      sync.Once         //nolint:gochecknoglobals // Singleton
 )
 
 func DefaultServiceContainer() *ServiceContainer {
@@ -30,7 +30,9 @@ func DefaultServiceContainer() *ServiceContainer {
 	cardController := InitializeCard()
 	mcqController := InitializeMcq()
 
-	return NewServiceContainer(userController, authController, jwtController, oAuthController, deckController, cardController, mcqController)
+	return NewServiceContainer(userController, authController,
+		jwtController, oAuthController, deckController,
+		cardController, mcqController)
 }
 
 func NewServiceContainer(user controllers.UserController, auth controllers.AuthController, jwt controllers.JwtController, oAuth controllers.OAuthController, deck controllers.DeckController, card controllers.CardController, mcq controllers.McqController) *ServiceContainer {

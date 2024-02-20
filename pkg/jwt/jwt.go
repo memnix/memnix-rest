@@ -19,8 +19,10 @@ type Instance struct {
 	ExpirationTimeInHours int
 }
 
-// NewJWTInstance return a new JwtInstance with the given parameters
-func NewJWTInstance(headerLen, expirationTime int, publicKey ed25519.PublicKey, privateKey ed25519.PrivateKey) Instance {
+// NewJWTInstance return a new JwtInstance with the given parameters.
+func NewJWTInstance(headerLen, expirationTime int,
+	publicKey ed25519.PublicKey, privateKey ed25519.PrivateKey,
+) Instance {
 	return Instance{
 		headerLen:             headerLen,
 		publicKey:             publicKey,
@@ -54,7 +56,7 @@ func (instance Instance) GenerateToken(_ context.Context, userID uint) (string, 
 }
 
 // VerifyToken verifies a jwt token
-// and returns the user id and an error
+// and returns the user id and an error.
 func (Instance) VerifyToken(token *jwt.Token) (uint, error) {
 	// claims is of type jwt.MapClaims
 	if claims, ok := token.Claims.(jwt.MapClaims); token.Valid && ok {
@@ -71,7 +73,7 @@ func (Instance) VerifyToken(token *jwt.Token) (uint, error) {
 }
 
 // GetToken gets a jwt.Token token from a string
-// and returns the jwt.Token and an error
+// and returns the jwt.Token and an error.
 func (instance Instance) GetToken(_ context.Context, token string) (*jwt.Token, error) {
 	// Parse takes the token string and a function for looking up the key.
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
@@ -83,23 +85,27 @@ func (instance Instance) GetToken(_ context.Context, token string) (*jwt.Token, 
 }
 
 func (Instance) GetExpirationTime(token *jwt.Token) int64 {
-	claims := token.Claims.(jwt.MapClaims)
+	// Safe type assertion
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0
+	}
 	return int64(claims["exp"].(float64))
 }
 
-// extractToken function to extract token from header
+// extractToken function to extract token from header.
 func (instance Instance) extractToken(token string) string {
 	// Normally Authorization HTTP header.
-	onlyToken := strings.Split(token, " ") // Split token
+	onlyToken := strings.Split(token, " ") // Split token.
 	if len(onlyToken) == instance.headerLen {
-		return onlyToken[1] // Return only token
+		return onlyToken[1] // Return only token.
 	}
-	return "" // Return empty string
+	return "" // Return empty string.
 }
 
-// GetConnectedUserID gets the user id from a jwt token
+// GetConnectedUserID gets the user id from a jwt token.
 func (instance Instance) GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
-	// Get the token from the Authorization header
+	// Get the token from the Authorization header.
 	tokenString := instance.extractToken(tokenHeader)
 
 	token, err := instance.GetToken(ctx, tokenString)
@@ -107,7 +113,7 @@ func (instance Instance) GetConnectedUserID(ctx context.Context, tokenHeader str
 		return 0, err
 	}
 
-	// Check if the token is valid
+	// Check if the token is valid.
 	userID, err := instance.VerifyToken(token)
 	if err != nil {
 		return 0, err
@@ -116,7 +122,7 @@ func (instance Instance) GetConnectedUserID(ctx context.Context, tokenHeader str
 	return userID, nil
 }
 
-// CalculateExpirationTime returns the expiration time
+// CalculateExpirationTime returns the expiration time.
 func (instance Instance) CalculateExpirationTime() *jwt.NumericDate {
 	return jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(instance.ExpirationTimeInHours)))
 }

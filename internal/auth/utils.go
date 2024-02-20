@@ -9,11 +9,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// GenerateEncryptedPassword generates a password hash using the crypto helper
+// GenerateEncryptedPassword generates a password hash using the crypto helper.
 func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "GenerateEncryptedPassword")
+	_, span := infrastructures.GetTracerInstance().Start(ctx, "GenerateEncryptedPassword")
 	defer span.End()
-	hash, err := crypto.GetCrypto().Hash(password)
+	hash, err := crypto.GetCryptoHelperInstance().GetCryptoHelper().Hash(password)
 	if err != nil {
 		return nil, err
 	}
@@ -28,13 +28,13 @@ func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, er
 // Returns true if the password matches, false if it does not.
 // Returns nil on success, or an error on failure.
 func ComparePasswords(ctx context.Context, password string, hash []byte) (bool, error) {
-	_, span := infrastructures.GetFiberTracer().Start(ctx, "ComparePasswords")
+	_, span := infrastructures.GetTracerInstance().Start(ctx, "ComparePasswords")
 	defer span.End()
-	return crypto.GetCrypto().Verify(password, hash)
+	return crypto.GetCryptoHelperInstance().GetCryptoHelper().Verify(password, hash)
 }
 
 // VerifyPassword verifies a password
-// Returns an error if the password is invalid
+// Returns an error if the password is invalid.
 func VerifyPassword(password string) error {
 	// Convert password to byte array
 	passwordBytes := []byte(password)

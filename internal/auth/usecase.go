@@ -2,34 +2,34 @@ package auth
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/internal/user"
 	"github.com/pkg/errors"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-// UseCase is the auth use case
+// UseCase is the auth use case.
 type UseCase struct {
 	user.IRepository
 }
 
-// NewUseCase creates a new auth use case
+// NewUseCase creates a new auth use case.
 func NewUseCase(repo user.IRepository) IUseCase {
 	return &UseCase{IRepository: repo}
 }
 
 // Login logs in a user
-// Returns a token and error
+// Returns a token and error.
 func (a *UseCase) Login(ctx context.Context, password string, email string) (string, error) {
 	userModel, err := a.GetByEmail(ctx, email)
 	if err != nil {
-		otelzap.Ctx(ctx).Error("user not found", zap.Error(err), zap.String("email", email))
+		log.WithContext(ctx).Error("user not found", slog.Any("error", err), slog.String("email", email))
 		return "", errors.New("user not found")
 	}
 
@@ -41,7 +41,7 @@ func (a *UseCase) Login(ctx context.Context, password string, email string) (str
 		return "", err
 	}
 
-	token, err := config.GetJwtInstance().GenerateToken(ctx, userModel.ID)
+	token, err := config.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +50,7 @@ func (a *UseCase) Login(ctx context.Context, password string, email string) (str
 }
 
 // Register registers a new user
-// Returns an error
+// Returns an error.
 func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) (domain.User, error) {
 	if err := VerifyPassword(registerStruct.Password); err != nil {
 		return domain.User{}, errors.Wrap(err, "Verify password failed")
@@ -66,7 +66,7 @@ func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) 
 	userModel := registerStruct.ToUser()
 
 	if err = a.Create(ctx, &userModel); err != nil {
-		otelzap.Ctx(ctx).Error("failed to create registerStruct in register", zap.Error(err))
+		log.WithContext(ctx).Error("failed to create registerStruct in register", slog.Any("error", err))
 		return domain.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 
@@ -79,14 +79,14 @@ func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) 
 }
 
 // Logout returns an empty string
-// It might be used to invalidate a token in the future
+// It might be used to invalidate a token in the future.
 func (*UseCase) Logout(_ context.Context) (string, error) {
 	return "", nil
 }
 
-// RefreshToken refreshes a token
+// RefreshToken refreshes a token.
 func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, error) {
-	token, err := config.GetJwtInstance().GenerateToken(ctx, user.ID)
+	token, err := config.GetJwtInstance().GetJwt().GenerateToken(ctx, user.ID)
 	if err != nil {
 		return "", err
 	}
@@ -94,36 +94,35 @@ func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, err
 	return token, nil
 }
 
-// RegisterOauth registers a new user with oauth
+// RegisterOauth registers a new user with oauth.
 func (a *UseCase) RegisterOauth(ctx context.Context, user domain.User) error {
 	return a.Create(ctx, &user)
 }
 
-// LoginOauth logs in a user with oauth
 func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, error) {
 	userModel, err := a.GetByEmail(ctx, user.Email)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = a.RegisterOauth(ctx, user)
-			if err != nil {
-				otelzap.Ctx(ctx).Error("failed to register user", zap.Error(err))
-				return "", errors.Wrap(err, "failed to register user")
-			}
-
-			userModel, err = a.GetByEmail(ctx, user.Email)
-			if err != nil {
-				otelzap.Ctx(ctx).Error("failed to get user", zap.Error(err))
-				return "", errors.New("failed to get user")
-			}
-		} else {
-			otelzap.Ctx(ctx).Error("failed to get user", zap.Error(err))
-			return "", err
-		}
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.WithContext(ctx).Error("failed to get user", slog.Any("error", err))
+		return "", err
 	}
 
-	if userModel.OauthProvider != user.OauthProvider && userModel.OauthProvider != "" {
-		otelzap.Ctx(ctx).Warn("user is already registered with another provider")
+	if err == nil && userModel.OauthProvider != user.OauthProvider && userModel.OauthProvider != "" {
+		log.WithContext(ctx).Warn("user is already registered with another provider")
 		return "", errors.New("user is already registered with another provider")
+	}
+
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err = a.RegisterOauth(ctx, user)
+		if err != nil {
+			log.WithContext(ctx).Error("failed to register user", slog.Any("error", err))
+			return "", errors.Wrap(err, "failed to register user")
+		}
+
+		userModel, err = a.GetByEmail(ctx, user.Email)
+		if err != nil {
+			log.WithContext(ctx).Error("failed to get user", slog.Any("error", err))
+			return "", errors.New("failed to get user")
+		}
 	}
 
 	// Check if user is up to date
@@ -135,10 +134,10 @@ func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, err
 		}
 		err = a.Update(ctx, &userModel)
 		if err != nil {
-			otelzap.Ctx(ctx).Error("failed to update user", zap.Error(err))
+			log.WithContext(ctx).Error("failed to update user", slog.Any("error", err))
 			return "", errors.Wrap(err, "failed to update user")
 		}
 	}
 
-	return config.GetJwtInstance().GenerateToken(ctx, userModel.ID)
+	return config.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
 }

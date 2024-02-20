@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"sync"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -8,7 +10,27 @@ import (
 // Permission is the permission level of a user.
 type Permission int64
 
-var validate = validator.New()
+type Validator struct {
+	validate *validator.Validate
+}
+
+var (
+	validatorInstance *Validator //nolint:gochecknoglobals //Singleton
+	validatorOnce     sync.Once  //nolint:gochecknoglobals //Singleton
+)
+
+func GetValidatorInstance() *Validator {
+	validatorOnce.Do(func() {
+		validatorInstance = &Validator{
+			validate: validator.New(),
+		}
+	})
+	return validatorInstance
+}
+
+func (v *Validator) Validate() *validator.Validate {
+	return v.validate
+}
 
 const (
 	PermissionNone  Permission = iota // PermissionNone is the default permission level.

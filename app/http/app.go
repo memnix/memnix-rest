@@ -8,19 +8,19 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/swagger"
-	"github.com/memnix/memnix-rest/config"
 	_ "github.com/memnix/memnix-rest/docs" // Side effect import
+	"github.com/memnix/memnix-rest/pkg/json"
 )
 
-// New returns a new Fiber instance
+// New returns a new Fiber instance.
 func New() *fiber.App {
 	// Create new app
 
 	app := fiber.New(
 		fiber.Config{
 			Prefork:     false,
-			JSONDecoder: config.JSONHelper.Unmarshal,
-			JSONEncoder: config.JSONHelper.Marshal,
+			JSONDecoder: json.NewJSON(&json.SonicJSON{}).Unmarshal,
+			JSONEncoder: json.NewJSON(&json.SonicJSON{}).Marshal,
 		})
 
 	// Register middlewares

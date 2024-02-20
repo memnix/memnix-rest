@@ -7,7 +7,7 @@ import (
 
 const DeckSecretCodeLength = 10
 
-// Deck is the domain model for a deck
+// Deck is the domain model for a deck.
 type Deck struct {
 	gorm.Model  `swaggerignore:"true"`
 	Name        string     `json:"name"`
@@ -21,12 +21,12 @@ type Deck struct {
 	Status      DeckStatus `json:"status"`
 }
 
-// TableName returns the table name for the deck model
+// TableName returns the table name for the deck model.
 func (*Deck) TableName() string {
 	return "decks"
 }
 
-// DeckStatus is the status of the deck
+// DeckStatus is the status of the deck.
 type DeckStatus int64
 
 const (
@@ -35,7 +35,7 @@ const (
 	DeckStatusPublic   DeckStatus = 2 // DeckStatusPublic is the public status of the deck
 )
 
-// PublicDeck is the public deck model
+// PublicDeck is the public deck model.
 type PublicDeck struct {
 	Name        string `json:"name"`        // Name of the deck
 	Description string `json:"description"` // Description of the deck
@@ -44,7 +44,7 @@ type PublicDeck struct {
 	ID          uint   `json:"id"`          // ID of the deck
 }
 
-// ToPublicDeck converts the deck to a public deck
+// ToPublicDeck converts the deck to a public deck.
 func (d *Deck) ToPublicDeck() PublicDeck {
 	return PublicDeck{
 		ID:          d.ID,
@@ -55,12 +55,12 @@ func (d *Deck) ToPublicDeck() PublicDeck {
 	}
 }
 
-// IsOwner checks if the deck is owned by the user with the given id
+// IsOwner checks if the deck is owned by the user with the given id.
 func (d *Deck) IsOwner(id uint) bool {
 	return d.OwnerID == id
 }
 
-// CreateDeck is a struct that contains the data needed to create a deck
+// CreateDeck is a struct that contains the data needed to create a deck.
 type CreateDeck struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
@@ -68,14 +68,14 @@ type CreateDeck struct {
 	Banner      string `json:"banner" validate:"required,uri"`
 }
 
-// Validate validates the CreateDeck struct
+// Validate validates the CreateDeck struct.
 func (c *CreateDeck) Validate() error {
-	return validate.Struct(c)
+	return GetValidatorInstance().Validate().Struct(c)
 }
 
-// ToDeck converts the CreateDeck struct to a Deck struct
+// ToDeck converts the CreateDeck struct to a Deck struct.
 func (c *CreateDeck) ToDeck() Deck {
-	key, _ := random.GenerateSecretCode(DeckSecretCodeLength)
+	key, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(DeckSecretCodeLength)
 	return Deck{
 		Name:        c.Name,
 		Description: c.Description,
@@ -85,5 +85,5 @@ func (c *CreateDeck) ToDeck() Deck {
 	}
 }
 
-// DeckIndex is the index of the deck for MeiliSearch search engine
+// DeckIndex is the index of the deck for MeiliSearch search engine.
 type DeckIndex map[string]interface{}
