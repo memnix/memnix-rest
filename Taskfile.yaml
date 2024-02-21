@@ -9,12 +9,14 @@ tasks:
     run: always
     cmds:
       - air
-
+  tailwind:
+    cmds:
+      - npx tailwindcss -i tailwind.css -o static/style.css --watch
   lint:
     cmds:
       - gofumpt -l -w .
       - fieldalignment -fix domain/**
-      - gci write -s standard -s default .
+      - gci write -s standard -s default  --skip-generated  .
       - golangci-lint run
       - go mod tidy
       - go test -cover ./...
@@ -41,7 +43,7 @@ tasks:
       - tailwind.config.js
       - tailwind.css
     cmds:
-      - npx tailwindcss build -i tailwind.css -o static/style.css
+      - npx tailwindcss build -i tailwind.css -o static/style.css --minify
       - templ generate
       - wire ./...
       - go generate ./...

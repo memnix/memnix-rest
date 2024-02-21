@@ -1,7 +1,6 @@
 module github.com/memnix/memnix-rest
 
 go 1.22.0
-
 require (
 	github.com/a-h/templ v0.2.543
 	github.com/brianvoe/gofakeit/v7 v7.0.0
