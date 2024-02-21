@@ -33,8 +33,8 @@ docker-*
 
 config/keys/*
 
-config/config-local.yml
-config/config-prod.yml
+config*.yml
+
 
 .cache_ggshield
 devbox.lock
