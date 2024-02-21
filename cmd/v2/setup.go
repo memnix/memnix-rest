@@ -30,8 +30,10 @@ func setup(cfg *config.Config) {
 
 	setupOAuth(cfg)
 
-	migrate()
-
+	// Migrate the database on production mode
+	if config.IsProduction() {
+		migrate()
+	}
 	slog.Info("✅ setup completed!")
 }
 

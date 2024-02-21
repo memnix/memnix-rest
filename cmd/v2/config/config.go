@@ -6,10 +6,6 @@ import (
 )
 
 const (
-	RedisDefaultExpireTime = 6 * time.Hour // RedisDefaultExpireTime is the default expiration time for keys
-
-	CacheExpireTime = 10 * time.Second // CacheExpireTime is the expiration time for the cache
-
 	GCThresholdPercent = 0.7 // GCThresholdPercent is the threshold for garbage collection
 
 	GCLimit = 1024 * 1024 * 1024 // GCLimit is the limit for garbage collection
