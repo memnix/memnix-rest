@@ -9,11 +9,10 @@ import (
 var (
 	instance *echo.Echo //nolint:gochecknoglobals //Singleton
 	once     sync.Once  //nolint:gochecknoglobals //Singleton
-
 )
 
 // New returns a new Echo instance.
-func New() *echo.Echo {
+func GetEchoInstance() *echo.Echo {
 	once.Do(func() {
 		instance = echo.New()
 		registerMiddlewares(instance)

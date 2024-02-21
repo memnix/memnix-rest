@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	once     sync.Once        //nolint:gochecknoglobals // Singleton
-	instance *TracerSingleton //nolint:gochecknoglobals // Singleton
+	once     sync.Once        //nolint:gochecknoglobals //Singleton
+	instance *TracerSingleton //nolint:gochecknoglobals //Singleton
 )
 
 type TracerSingleton struct {

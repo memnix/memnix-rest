@@ -50,7 +50,7 @@ func (r *RedisManager) RedisWithConfig(redisConf RedisConfig) *RedisManager {
 }
 
 func (r *RedisManager) ConnectRedis() error {
-	client := redis.NewClient(&redis.Options{
+	r.client = redis.NewClient(&redis.Options{
 		Addr:         r.Redisconfig.Addr,
 		Password:     r.Redisconfig.Password,
 		MinIdleConns: r.Redisconfig.MinIdleConns,
@@ -58,7 +58,7 @@ func (r *RedisManager) ConnectRedis() error {
 		PoolTimeout:  time.Duration(r.Redisconfig.PoolTimeout) * time.Second,
 	})
 
-	if err := redisotel.InstrumentTracing(client); err != nil {
+	if err := redisotel.InstrumentTracing(r.client); err != nil {
 		log.Error("failed to instrument redis", slog.Any("error", err))
 	}
 

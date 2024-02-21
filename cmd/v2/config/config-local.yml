@@ -29,3 +29,7 @@ Sentry:
   Release: memnix@1.2.1-dev
   TracesSampleRate: 1.0
   ProfilesSampleRate: 1.0
+Ristretto:
+  NumCounters: 10
+  MaxCost: 10000
+  BufferItems: 32
