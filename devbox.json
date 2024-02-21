@@ -8,7 +8,11 @@
     "air@1.49.0",
     "templ@0.2.543",
     "go-task@3.34.1",
-    "wire@0.5.0"
+    "wire@0.5.0",
+    "gofumpt@0.3.1",
+    "gotools@0.7.0",
+    "gci@0.11.0",
+    "golangci-lint@1.55.2"
   ],
   "env": {
     "GOPATH": "${workspaceRoot}"
