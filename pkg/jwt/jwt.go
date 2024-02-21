@@ -3,6 +3,7 @@ package jwt
 import (
 	"context"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -10,6 +11,30 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ed25519"
 )
+
+type InstanceSingleton struct {
+	jwtInstance Instance
+}
+
+var (
+	jwtInstance *InstanceSingleton //nolint:gochecknoglobals //Singleton
+	jwtOnce     sync.Once          //nolint:gochecknoglobals //Singleton
+)
+
+func GetJwtInstance() *InstanceSingleton {
+	jwtOnce.Do(func() {
+		jwtInstance = &InstanceSingleton{}
+	})
+	return jwtInstance
+}
+
+func (j *InstanceSingleton) GetJwt() Instance {
+	return j.jwtInstance
+}
+
+func (j *InstanceSingleton) SetJwt(instance Instance) {
+	j.jwtInstance = instance
+}
 
 type Instance struct {
 	headerLen             int

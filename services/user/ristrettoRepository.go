@@ -21,7 +21,7 @@ func NewRistrettoCache(ristrettoCache *ristretto.Cache) IRistrettoRepository {
 }
 
 func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, error) {
-	_, span := infrastructures.GetTracerInstance().Start(ctx, "GetByIDRistretto")
+	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "GetByIDRistretto")
 	defer span.End()
 
 	ristrettoHit, ok := r.RistrettoCache.Get(keyPrefix + utils.ConvertUIntToStr(id))
@@ -38,7 +38,7 @@ func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, er
 }
 
 func (r *RistrettoRepository) Set(ctx context.Context, user domain.User) error {
-	_, span := infrastructures.GetTracerInstance().Start(ctx, "SetByIDRistretto")
+	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "SetByIDRistretto")
 	defer span.End()
 
 	r.RistrettoCache.Set(keyPrefix+utils.ConvertUIntToStr(user.ID), user, 0)
@@ -49,7 +49,7 @@ func (r *RistrettoRepository) Set(ctx context.Context, user domain.User) error {
 }
 
 func (r *RistrettoRepository) Delete(ctx context.Context, id uint) error {
-	_, span := infrastructures.GetTracerInstance().Start(ctx, "DeleteByIDRistretto")
+	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "DeleteByIDRistretto")
 	defer span.End()
 
 	r.RistrettoCache.Del(keyPrefix + utils.ConvertUIntToStr(id))

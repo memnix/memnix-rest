@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/domain"
+	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/services/user"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
@@ -41,7 +41,7 @@ func (a *UseCase) Login(ctx context.Context, password string, email string) (str
 		return "", err
 	}
 
-	token, err := config.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
+	token, err := jwt.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
 	if err != nil {
 		return "", err
 	}
@@ -86,7 +86,7 @@ func (*UseCase) Logout(_ context.Context) (string, error) {
 
 // RefreshToken refreshes a token.
 func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, error) {
-	token, err := config.GetJwtInstance().GetJwt().GenerateToken(ctx, user.ID)
+	token, err := jwt.GetJwtInstance().GetJwt().GenerateToken(ctx, user.ID)
 	if err != nil {
 		return "", err
 	}
@@ -139,5 +139,5 @@ func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, err
 		}
 	}
 
-	return config.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
+	return jwt.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
 }

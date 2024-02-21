@@ -4,18 +4,24 @@ import (
 	"sync"
 
 	"github.com/dgraph-io/ristretto"
-	"github.com/memnix/memnix-rest/config"
 )
 
 // CacheSingleton is the singleton for the ristretto cache.
 type CacheSingleton struct {
-	cache *ristretto.Cache
+	cache  *ristretto.Cache
+	config RistrettoConfig
 }
 
 var (
 	cacheInstance *CacheSingleton //nolint:gochecknoglobals //Singleton
 	cacheOnce     sync.Once       //nolint:gochecknoglobals //Singleton
 )
+
+type RistrettoConfig struct {
+	NumCounters int64
+	MaxCost     int64
+	BufferItems int64
+}
 
 // GetCacheInstance gets the cache instance.
 func GetCacheInstance() *CacheSingleton {
@@ -25,17 +31,25 @@ func GetCacheInstance() *CacheSingleton {
 	return cacheInstance
 }
 
+func CreateRistrettoInstance(config RistrettoConfig) *CacheSingleton {
+	return GetCacheInstance().WithConfig(config)
+}
+
+func (c *CacheSingleton) WithConfig(config RistrettoConfig) *CacheSingleton {
+	c.config = config
+	return c
+}
+
 // CreateRistrettoCache creates a new ristretto cache.
 func (c *CacheSingleton) CreateRistrettoCache() error {
 	var err error
 	if c.cache, err = ristretto.NewCache(&ristretto.Config{
-		NumCounters: config.RistrettoNumCounters, // number of keys to track frequency of (10M).
-		MaxCost:     config.RistrettoMaxCost,     // maximum cost of cache (1GB).
-		BufferItems: config.RistrettoBufferItems, // number of keys per Get buffer.
+		NumCounters: c.config.NumCounters,
+		MaxCost:     c.config.MaxCost,
+		BufferItems: c.config.BufferItems,
 	}); err != nil {
 		return err
 	}
-
 	return nil
 }
 

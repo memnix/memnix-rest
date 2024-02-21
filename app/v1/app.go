@@ -34,13 +34,13 @@ func New() *fiber.App {
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
 	// Api group
-	v2 := app.Group("/v2")
+	v1 := app.Group("/v1")
 
-	v2.Get("/", func(c *fiber.Ctx) error {
+	v1.Get("/", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "This is not a valid route") // Custom error
 	})
 
-	registerRoutes(&v2) // /v2
+	registerRoutes(&v1)
 
 	return app
 }

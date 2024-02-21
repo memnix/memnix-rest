@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	views2 "github.com/memnix/memnix-rest/app/v1/views"
-	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/cmd/v1/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/oauth"
@@ -15,6 +15,8 @@ import (
 	"github.com/memnix/memnix-rest/services/auth"
 	"go.opentelemetry.io/otel/attribute"
 )
+
+const secretCodeLength = 16
 
 // OAuthController is the controller for the OAuth routes.
 type OAuthController struct {
@@ -122,7 +124,7 @@ func (a *OAuthController) GithubCallback(c *fiber.Ctx) error {
 //	@Router			/v2/security/discord [get]
 func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 	// Create the dynamic redirect URL for login
-	state, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(config.OauthStateLength)
+	state, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(secretCodeLength)
 	if err := a.IAuthRedisRepository.SetState(c.UserContext(), state); err != nil {
 		return err
 	}
@@ -149,7 +151,7 @@ func (a *OAuthController) DiscordLogin(c *fiber.Ctx) error {
 //	@Failure		500		{object}	views.HTTPResponseVM	"internal server error"
 //	@Router			/v2/security/discord_callback [get]
 func (a *OAuthController) DiscordCallback(c *fiber.Ctx) error {
-	_, span := infrastructures.GetTracerInstance().Start(c.UserContext(), "DiscordCallback")
+	_, span := infrastructures.GetTracerInstance().Tracer().Start(c.UserContext(), "DiscordCallback")
 	defer span.End()
 	// get the code from the query string
 	code := c.Query("code")

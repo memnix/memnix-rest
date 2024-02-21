@@ -2,11 +2,13 @@ package user
 
 import (
 	"context"
+	"time"
 
-	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
+
+const defaultExpireTime = 6 * time.Hour
 
 // RedisRepository is the interface for the redis repository.
 type RedisRepository struct {
@@ -27,5 +29,5 @@ func (r *RedisRepository) Get(ctx context.Context, id uint) (string, error) {
 
 // Set sets the user by id.
 func (r *RedisRepository) Set(ctx context.Context, id uint, value string) error {
-	return r.RedisConn.Set(ctx, keyPrefix+utils.ConvertUIntToStr(id), value, config.RedisDefaultExpireTime).Err()
+	return r.RedisConn.Set(ctx, keyPrefix+utils.ConvertUIntToStr(id), value, defaultExpireTime).Err()
 }

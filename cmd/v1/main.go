@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	http "github.com/memnix/memnix-rest/app/v1"
-	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/cmd/v1/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/crypto"
@@ -88,13 +88,6 @@ func shutdown(app *fiber.App) {
 		log.Info("✅ Disconnected from Redis")
 	}
 
-	err = infrastructures.ShutdownTracer()
-	if err != nil {
-		log.Error("❌ Error closing Tracer connection")
-	} else {
-		log.Info("✅ Disconnected from Tracer")
-	}
-
 	sentry.Flush(config.SentryFlushTimeout)
 	log.Info("✅ Disconnected from Sentry")
 
@@ -157,7 +150,13 @@ func setupOAuth(cfg *config.Config) {
 }
 
 func setupInfrastructures(cfg *config.Config) {
-	err := infrastructures.GetDBConnInstance().ConnectDB(cfg.Database.DSN)
+	const maxIdleConns = 10
+	const maxOpenConns = 100
+	err := infrastructures.NewDBConnInstance(infrastructures.DatabaseConfig{
+		DSN:             cfg.Database.DSN,
+		SQLMaxIdleConns: maxIdleConns,
+		SQLMaxOpenConns: maxOpenConns,
+	}).ConnectDB()
 	if err != nil {
 		log.Fatal("❌ Error connecting to database", slog.Any("error", err))
 	}
@@ -165,14 +164,28 @@ func setupInfrastructures(cfg *config.Config) {
 	log.Info("✅ Connected to database")
 
 	// Redis connection
-	err = infrastructures.GetRedisManagerInstance().ConnectRedis(cfg.Redis)
+	err = infrastructures.NewRedisInstance(infrastructures.RedisConfig{
+		Addr:         cfg.Redis.Addr,
+		MinIdleConns: cfg.Redis.MinIdleConns,
+		PoolSize:     cfg.Redis.PoolSize,
+		PoolTimeout:  cfg.Redis.PoolTimeout,
+	}).ConnectRedis()
 	if err != nil {
 		log.Fatal("❌ Error connecting to Redis")
 	}
 	log.Info("✅ Connected to Redis")
 
 	// Connect to the tracer
-	err = infrastructures.InitTracer(cfg.Sentry)
+	err = infrastructures.NewTracerInstance(infrastructures.SentryConfig{
+		DSN:                cfg.Sentry.DSN,
+		Environment:        cfg.Sentry.Environment,
+		Debug:              cfg.Sentry.Debug,
+		Release:            cfg.Sentry.Release,
+		TracesSampleRate:   cfg.Sentry.TracesSampleRate,
+		ProfilesSampleRate: cfg.Sentry.ProfilesSampleRate,
+		Name:               "fiber-rest",
+		WithStacktrace:     false,
+	}).ConnectTracer()
 	if err != nil {
 		log.Fatal("❌ Error connecting to Tracer", slog.Any("error", err))
 	}

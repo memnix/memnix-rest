@@ -1,59 +1,77 @@
 package infrastructures
 
 import (
-	"context"
-	"log/slog"
 	"sync"
 
 	"github.com/getsentry/sentry-go"
 	sentryotel "github.com/getsentry/sentry-go/otel"
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/memnix/memnix-rest/config"
 	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
 
 var (
-	once     sync.Once    //nolint:gochecknoglobals // Singleton
-	instance trace.Tracer //nolint:gochecknoglobals // Singleton
+	once     sync.Once        //nolint:gochecknoglobals // Singleton
+	instance *TracerSingleton //nolint:gochecknoglobals // Singleton
 )
 
-func GetTracerInstance() trace.Tracer {
+type TracerSingleton struct {
+	tracer trace.Tracer
+	config SentryConfig
+}
+
+// SentryConfig holds the configuration for the sentry client.
+type SentryConfig struct {
+	Debug              bool
+	Environment        string
+	Release            string
+	TracesSampleRate   float64
+	ProfilesSampleRate float64
+	DSN                string
+	Name               string
+	WithStacktrace     bool
+}
+
+func GetTracerInstance() *TracerSingleton {
 	once.Do(func() {
-		instance = otel.Tracer("fiber-server")
+		instance = &TracerSingleton{}
 	})
 	return instance
 }
 
-func InitTracer(cfg config.SentryConfig) error {
-	initSentry(cfg)
+func NewTracerInstance(cfg SentryConfig) *TracerSingleton {
+	return GetTracerInstance().WithConfig(cfg)
+}
+
+func (t *TracerSingleton) WithConfig(cfg SentryConfig) *TracerSingleton {
+	t.config = cfg
+	return t
+}
+
+func (t *TracerSingleton) Tracer() trace.Tracer {
+	return t.tracer
+}
+
+func (t *TracerSingleton) ConnectTracer() error {
+	t.tracer = otel.Tracer(t.config.Name)
+
+	_ = sentry.Init(sentry.ClientOptions{
+		Dsn:                t.config.DSN,
+		Debug:              t.config.Debug,
+		AttachStacktrace:   t.config.WithStacktrace,
+		Environment:        t.config.Environment,
+		Release:            t.config.Release,
+		EnableTracing:      true,
+		TracesSampleRate:   t.config.TracesSampleRate,
+		ProfilesSampleRate: t.config.ProfilesSampleRate,
+	})
 
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSpanProcessor(sentryotel.NewSentrySpanProcessor()),
 	)
+
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(sentryotel.NewSentryPropagator())
 
 	return nil
-}
-
-func ShutdownTracer() error {
-	return nil
-}
-
-func initSentry(cfg config.SentryConfig) {
-	log.WithContext(context.Background()).Info(
-		"Initializing Sentry :", slog.Float64("traces_sample_rate", cfg.TracesSampleRate), slog.Float64(
-			"profiles_sample_rate", cfg.ProfilesSampleRate))
-	_ = sentry.Init(sentry.ClientOptions{
-		Dsn:                cfg.DSN,
-		Debug:              cfg.Debug,
-		AttachStacktrace:   true,
-		Environment:        cfg.Environment,
-		Release:            cfg.Release,
-		EnableTracing:      true,
-		TracesSampleRate:   cfg.TracesSampleRate,
-		ProfilesSampleRate: cfg.ProfilesSampleRate,
-	})
 }

@@ -24,7 +24,7 @@ func (u UseCase) GetName(ctx context.Context, id string) string {
 
 // GetByID returns the user with the given id.
 func (u UseCase) GetByID(ctx context.Context, id uint) (domain.User, error) {
-	_, span := infrastructures.GetTracerInstance().Start(ctx, "GetUserByID")
+	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "GetUserByID")
 	defer span.End()
 
 	var userObject domain.User

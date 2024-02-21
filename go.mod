@@ -4,7 +4,6 @@ go 1.22.0
 
 require (
 	github.com/a-h/templ v0.2.543
-	github.com/brianvoe/gofakeit/v7 v7.0.1
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.11.0
 	github.com/dgraph-io/ristretto v0.1.1

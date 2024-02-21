@@ -4,12 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/memnix/memnix-rest/config"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
 
-const OwnedExpirationTime = 2 * time.Hour
+const (
+	OwnedExpirationTime = 2 * time.Hour
+	defaultExpireTime   = 6 * time.Hour
+)
 
 func getBaseKey() string {
 	return "deck:id:"
@@ -39,7 +41,7 @@ func (r RedisRepository) GetByID(ctx context.Context, id uint) (string, error) {
 
 // SetByID sets the deck by id.
 func (r RedisRepository) SetByID(ctx context.Context, id uint, deck string) error {
-	return r.RedisConn.Set(ctx, withID(getBaseKey, id), deck, config.RedisDefaultExpireTime).Err()
+	return r.RedisConn.Set(ctx, withID(getBaseKey, id), deck, defaultExpireTime).Err()
 }
 
 // DeleteByID deletes the deck by id.

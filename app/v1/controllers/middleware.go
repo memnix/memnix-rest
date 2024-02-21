@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/memnix/memnix-rest/app/v1/views"
-	"github.com/memnix/memnix-rest/config"
+	"github.com/memnix/memnix-rest/cmd/v1/config"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/services/user"
@@ -49,7 +49,7 @@ func (j *JwtController) IsConnectedMiddleware(p domain.Permission) func(c *fiber
 			return c.Next()
 		}
 
-		_, span := infrastructures.GetTracerInstance().Start(c.UserContext(), "IsConnectedMiddleware")
+		_, span := infrastructures.GetTracerInstance().Tracer().Start(c.UserContext(), "IsConnectedMiddleware")
 		defer span.End()
 
 		// get the token from the request header
