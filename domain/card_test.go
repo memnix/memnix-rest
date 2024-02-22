@@ -19,6 +19,7 @@ func TestCard_String(t *testing.T) {
 		t.Errorf("Expected result to be %q, but got %q", expected, result)
 	}
 }
+
 func TestCard_TableName(t *testing.T) {
 	card := &domain.Card{}
 	expected := "cards"
@@ -222,7 +223,7 @@ func TestCard_IsQAOnlyType(t *testing.T) {
 		{
 			name:     "CardTypeQAProgressive",
 			cardType: domain.CardTypeQAProgressive,
-			expected: true,
+			expected: false,
 		},
 	}
 

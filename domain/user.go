@@ -7,9 +7,9 @@ import (
 // User is the domain model for a user.
 type User struct {
 	gorm.Model    `swaggerignore:"true"`
-	Username      string     `json:"username"`
+	Username      string     `json:"username" validate:"required"`
 	Email         string     `json:"email" validate:"email" gorm:"unique"`
-	Password      string     `json:"-"`
+	Password      string     `json:"-" validate:"required"`
 	Avatar        string     `json:"avatar"`
 	OauthProvider string     `json:"oauth_provider" `
 	OauthID       string     `json:"oauth_id" gorm:"unique"`

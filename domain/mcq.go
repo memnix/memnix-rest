@@ -24,6 +24,39 @@ func (m *Mcq) IsLinked() bool {
 }
 
 func (m *Mcq) ExtractAnswers() []string {
+	if m.Answers == "" {
+		return []string{}
+	}
 	// separate the answers by the semicolon
 	return strings.Split(m.Answers, ";")
+}
+
+func (m *Mcq) AppendAnswer(answer string) {
+	m.Answers += ";" + answer
+}
+
+func (m *Mcq) RemoveAnswer(answer string) {
+	answers := m.ExtractAnswers()
+	for i, a := range answers {
+		if a == answer {
+			answers = append(answers[:i], answers[i+1:]...)
+			break
+		}
+	}
+	m.Answers = strings.Join(answers, ";")
+}
+
+func (m *Mcq) UpdateAnswer(oldAnswer, newAnswer string) {
+	if m.Answers == "" {
+		return
+	}
+
+	answers := strings.Split(m.Answers, ";")
+	for i := range answers {
+		if answers[i] == oldAnswer {
+			answers[i] = newAnswer
+			break
+		}
+	}
+	m.Answers = strings.Join(answers, ";")
 }
