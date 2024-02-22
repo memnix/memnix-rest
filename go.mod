@@ -15,7 +15,7 @@ require (
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/gofiber/contrib/fibersentry v1.0.4
 	github.com/gofiber/contrib/otelfiber v1.0.10
-	github.com/gofiber/fiber/v2 v2.52.0
+	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/gofiber/swagger v1.0.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/wire v0.6.0
