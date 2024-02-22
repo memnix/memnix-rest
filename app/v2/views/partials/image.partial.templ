@@ -1,0 +1,9 @@
+package partials
+
+templ ImageOptimized(src, alt string, width, height int, class string, lazy bool, quality int) {
+    <picture>
+        <source srcset="{src}.webp" type="image/webp" data-testid="webp"/>
+        <img src="{src}" alt="{alt}" width="{width}" height="{height}" class="{class}"
+         loading="{if lazy}lazy{else}auto{end}" decoding="async" data-testid="src"/>
+    </picture>
+}
