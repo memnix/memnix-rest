@@ -4,16 +4,18 @@ import (
 	"sync"
 
 	"github.com/memnix/memnix-rest/app/v1/controllers"
+	"github.com/memnix/memnix-rest/app/v2/handlers"
 )
 
 type ServiceContainer struct {
-	user  controllers.UserController
-	auth  controllers.AuthController
-	jwt   controllers.JwtController
-	oAuth controllers.OAuthController
-	deck  controllers.DeckController
-	card  controllers.CardController
-	mcq   controllers.McqController
+	user        controllers.UserController
+	auth        controllers.AuthController
+	jwt         controllers.JwtController
+	oAuth       controllers.OAuthController
+	deck        controllers.DeckController
+	card        controllers.CardController
+	mcq         controllers.McqController
+	authHandler handlers.AuthController
 }
 
 var (
@@ -30,21 +32,28 @@ func DefaultServiceContainer() *ServiceContainer {
 	cardController := InitializeCard()
 	mcqController := InitializeMcq()
 
+	authHandler := InitializeAuthHandler()
+
 	return NewServiceContainer(userController, authController,
 		jwtController, oAuthController, deckController,
-		cardController, mcqController)
+		cardController, mcqController, authHandler)
 }
 
-func NewServiceContainer(user controllers.UserController, auth controllers.AuthController, jwt controllers.JwtController, oAuth controllers.OAuthController, deck controllers.DeckController, card controllers.CardController, mcq controllers.McqController) *ServiceContainer {
+func NewServiceContainer(user controllers.UserController, auth controllers.AuthController,
+	jwt controllers.JwtController, oAuth controllers.OAuthController,
+	deck controllers.DeckController, card controllers.CardController,
+	mcq controllers.McqController, authHandler handlers.AuthController,
+) *ServiceContainer {
 	once.Do(func() {
 		container = &ServiceContainer{
-			user:  user,
-			auth:  auth,
-			jwt:   jwt,
-			oAuth: oAuth,
-			deck:  deck,
-			card:  card,
-			mcq:   mcq,
+			user:        user,
+			auth:        auth,
+			jwt:         jwt,
+			oAuth:       oAuth,
+			deck:        deck,
+			card:        card,
+			mcq:         mcq,
+			authHandler: authHandler,
 		}
 	})
 	return container
@@ -76,4 +85,8 @@ func (sc *ServiceContainer) Card() controllers.CardController {
 
 func (sc *ServiceContainer) Mcq() controllers.McqController {
 	return sc.mcq
+}
+
+func (sc *ServiceContainer) AuthHandler() handlers.AuthController {
+	return sc.authHandler
 }

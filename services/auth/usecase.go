@@ -27,9 +27,9 @@ func NewUseCase(repo user.IRepository) IUseCase {
 // Login logs in a user
 // Returns a token and error.
 func (a *UseCase) Login(ctx context.Context, password string, email string) (string, error) {
-	userModel, err := a.GetByEmail(ctx, email)
+	userModel, err := a.IRepository.GetByEmail(ctx, email)
 	if err != nil {
-		log.WithContext(ctx).Error("user not found", slog.Any("error", err), slog.String("email", email))
+		log.WithContext(ctx).Error("user not found ", slog.Any("error", err), slog.String(" email", email))
 		return "", errors.New("user not found")
 	}
 

@@ -1,23 +1,22 @@
-/** @type {import('tailwindcss').Config} */
-export const content = [
-  './app/v2/views/**/*.templ',
-];
-export const theme = {
-  extend: {
-    fontFamily: {
-      mono: ['Courier Prime', 'monospace'],
+module.exports = {
+  content: [
+    './app/v2/views/**/*.templ',
+    './app/v2/views/**/*_templ.go',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Syne", "Nunito"],
+      },
     },
   },
-};
-export const plugins = [
-  require("@tailwindcss/forms"),
-  require("@tailwindcss/typography"),
-  require("@tailwindcss/aspect-ratio"),
-  require("daisyui"),
-];
-export const corePlugins = { preFlight: true };
-
-export const daisyui = {
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/aspect-ratio"),
+    require("daisyui"),
+  ],
+  daisyui: {
     themes: [
       {
         memnix: {
@@ -71,4 +70,5 @@ export const daisyui = {
         },
       },
     ],
-  }
+  },
+};

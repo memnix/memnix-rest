@@ -13,11 +13,6 @@ import (
 	"github.com/memnix/memnix-rest/services/user"
 )
 
-const (
-	// SessionTokenCookieKey is the key for the session token cookie.
-	SessionTokenCookieKey = "session_token"
-)
-
 // JwtMiddleware is the controller for the jwt routes.
 type JwtMiddleware struct {
 	user.IUseCase

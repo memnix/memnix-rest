@@ -8,6 +8,7 @@ package services
 
 import (
 	"github.com/memnix/memnix-rest/app/v1/controllers"
+	"github.com/memnix/memnix-rest/app/v2/handlers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/services/auth"
 	"github.com/memnix/memnix-rest/services/card"
@@ -17,6 +18,14 @@ import (
 )
 
 // Injectors from wire.go:
+
+func InitializeAuthHandler() handlers.AuthController {
+	db := infrastructures.GetDBConn()
+	iRepository := user.NewRepository(db)
+	iUseCase := auth.NewUseCase(iRepository)
+	authController := handlers.NewAuthController(iUseCase)
+	return authController
+}
 
 // InitializeUser initializes the user controller.
 func InitializeUser() controllers.UserController {

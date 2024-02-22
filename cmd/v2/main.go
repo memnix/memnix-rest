@@ -23,9 +23,9 @@ func main() {
 
 	logger.NewLogger().SetLogLevel(slog.LevelInfo)
 
-	e := v2.CreateEchoInstance(cfg.Server)
-
 	setup(cfg)
+
+	e := v2.CreateEchoInstance(cfg.Server)
 
 	slog.Info("starting server 🚀", slog.String("version", cfg.Server.AppVersion))
 

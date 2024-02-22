@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/exp/slog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -94,5 +95,9 @@ func (d *DBConnSingleton) DisconnectDB() error {
 }
 
 func GetDBConn() *gorm.DB {
+	if GetDBConnInstance().GetDBConn() == nil {
+		slog.Error("db connection is nil")
+		return nil
+	}
 	return GetDBConnInstance().GetDBConn()
 }

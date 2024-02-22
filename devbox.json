@@ -23,7 +23,8 @@
     "init_hook": [
       "export \"GOROOT=$(go env GOROOT)\"",
       ". $VENV_DIR/bin/activate",
-      "export PATH=$PATH:$GOPATH/bin"
+      "export PATH=$PATH:$GOPATH/bin",
+      "npm install"
     ],
     "scripts": {
       "test": "go test ./...",

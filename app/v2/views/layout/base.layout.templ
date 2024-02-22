@@ -1,0 +1,38 @@
+package layout 
+
+import "github.com/memnix/memnix-rest/app/v2/views/partials"
+
+
+templ Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs []string) {
+	<!DOCTYPE html>
+	<html lang="en" data-theme="dark">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta
+ 				name="description"
+ 				content="Go/Echo+Templ+Htmx: Full stack application using Golang's Echo framework & Templ templating language with user session management + CRUD to a SQLite database (To Do List) and HTMX in the frontend"
+			/>
+            <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+			<meta name="google" content="notranslate"/>
+			// <link rel="stylesheet" href="/style.css"/>
+			<title>{ title }</title>
+			<script src="/htmx.min.js"></script>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+
+
+		</head>
+		<body class="sample-transition" hx-boost="true">
+			<header>
+				if !isError {
+					@partials.Navbar(username, fromProtected)
+				}
+			</header>
+			<main class={ }>
+				{ children... }
+				@partials.FlashMessages(errMsgs, sucMsgs)
+			</main>
+		</body>
+	</html>
+}

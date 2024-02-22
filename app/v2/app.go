@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/memnix/memnix-rest/cmd/v1/config"
 )
 
 var (
@@ -65,13 +66,16 @@ func (i *InstanceSingleton) WithConfig(config ServerConfig) *InstanceSingleton {
 
 func (i *InstanceSingleton) registerMiddlewares(e *echo.Echo) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"https://labstack.com", "https://labstack.net"},
+		AllowOrigins: []string{"http://localhost", i.config.FrontendURL, i.config.Host},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 
-	e.Use(middleware.Logger())
+	// if debug
+	if config.IsDevelopment() {
+		e.Use(middleware.Logger())
+	}
 
-	e.Use(middleware.Recover())
+	// e.Use(middleware.Recover())
 
 	e.Use(middleware.Secure())
 

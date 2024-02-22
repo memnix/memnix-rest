@@ -6,6 +6,7 @@ package services
 import (
 	"github.com/google/wire"
 	"github.com/memnix/memnix-rest/app/v1/controllers"
+	"github.com/memnix/memnix-rest/app/v2/handlers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/services/auth"
 	"github.com/memnix/memnix-rest/services/card"
@@ -13,6 +14,11 @@ import (
 	"github.com/memnix/memnix-rest/services/mcq"
 	"github.com/memnix/memnix-rest/services/user"
 )
+
+func InitializeAuthHandler() handlers.AuthController {
+	wire.Build(handlers.NewAuthController, auth.NewUseCase, user.NewRepository, infrastructures.GetDBConn)
+	return handlers.AuthController{}
+}
 
 // InitializeUser initializes the user controller.
 func InitializeUser() controllers.UserController {
