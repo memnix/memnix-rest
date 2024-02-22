@@ -1,15 +1,18 @@
 package crypto
 
 import (
-	"log"
+	"crypto/rand"
+	"io"
 	"sync"
 
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/ed25519"
 )
 
 type KeyManager struct {
 	privateKey ed25519.PrivateKey
 	publicKey  ed25519.PublicKey
+	seed       io.Reader
 }
 
 var (
@@ -19,7 +22,9 @@ var (
 
 func GetKeyManagerInstance() *KeyManager {
 	keyManagerOnce.Do(func() {
-		keyManagerInstance = &KeyManager{}
+		keyManagerInstance = &KeyManager{
+			seed: rand.Reader,
+		}
 	})
 	return keyManagerInstance
 }
@@ -41,7 +46,14 @@ func (k *KeyManager) ParseEd25519Key() error {
 	k.privateKey = privateKey
 	k.publicKey = publicKey
 
-	log.Println("✅ Created ed25519 keys")
-
 	return nil
+}
+
+func GenerateKeyPair() (ed25519.PublicKey, ed25519.PrivateKey, error) {
+	publicKey, privateKey, err := ed25519.GenerateKey(GetKeyManagerInstance().seed)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "Error generating keys")
+	}
+
+	return publicKey, privateKey, nil
 }
