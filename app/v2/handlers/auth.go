@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/memnix/memnix-rest/app/v2/views/components"
 	"github.com/memnix/memnix-rest/services/auth"
 )
 
@@ -31,14 +32,12 @@ func (a *AuthController) PostLogin(c echo.Context) error {
 
 	slog.Info("Auth: ", slog.String("email", email), slog.String("password", password))
 
-	if a.useCase == nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
-	}
-
 	// Call the use case to authenticate the user
 	jwtToken, err := a.useCase.Login(context.Background(), password, email)
 	if err != nil {
-		return c.JSON(http.StatusForbidden, map[string]string{"error": "invalid credentials"})
+		loginError := components.LoginError("Invalid email or password")
+		slog.Info("Auth: ", slog.String("error", err.Error()))
+		return Render(c, http.StatusForbidden, loginError)
 	}
 
 	cookie := &http.Cookie{

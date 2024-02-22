@@ -2,8 +2,8 @@ package components
 
 templ LoginComponent() {
 	<div class="flex flex-col gap-4 p-4 md:p-8">
-		<form hx-post="/login">
-			<div class="" hx-target="this" >
+		<form hx-post="/login" hx-swap="outerHTML" hx-target="#login-error">
+			<div class="" hx-target="this">
 				<label class="label">
 					<span class="label-text">auth.email</span>
 				</label>
@@ -11,7 +11,7 @@ templ LoginComponent() {
 					class="input-bordered input w-full transition duration-100"
 					placeholder="Enter your email"
 					type="email"
-                    name="email"
+					name="email"
 				/>
 			</div>
 			<div class="">
@@ -22,7 +22,7 @@ templ LoginComponent() {
 					class="input-bordered input w-full transition duration-100"
 					placeholder="Enter your password"
 					type="password"
-                    name="password"
+					name="password"
 				/>
 			</div>
 			<div class="pt-6">
@@ -31,5 +31,10 @@ templ LoginComponent() {
 				</button>
 			</div>
 		</form>
+		<div id="login-error" class="text-red-500"></div>
 	</div>
+}
+
+templ LoginError(err string) {
+	<div class="text-red-500">{ err }</div>
 }

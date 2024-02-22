@@ -62,7 +62,7 @@ func Clicked() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"parent-div\" class=\"flex flex-col\"><h1 class=\"mx-auto \">Clicked!</h1></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"parent-div\" class=\"flex flex-col\"><p class=\"mx-auto \">Clicked!</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
