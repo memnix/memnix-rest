@@ -12,11 +12,11 @@ import (
 // Config holds the configuration for the application.
 type Config struct {
 	Server    v2.ServerConfig
-	Database  infrastructures.DatabaseConfig
-	Redis     infrastructures.RedisConfig
 	Log       LogConfig
 	Auth      AuthConfig
 	Sentry    infrastructures.SentryConfig
+	Database  infrastructures.DatabaseConfig
+	Redis     infrastructures.RedisConfig
 	Ristretto infrastructures.RistrettoConfig
 }
 
@@ -42,11 +42,11 @@ func (logConfig *LogConfig) GetSlogLevel() slog.Level {
 
 // AuthConfig holds the configuration for the authentication.
 type AuthConfig struct {
+	Discord       oauth.DiscordConfig
+	Github        oauth.GithubConfig
 	JWTSecret     string
 	JWTHeaderLen  int
 	JWTExpiration int
-	Discord       oauth.DiscordConfig
-	Github        oauth.GithubConfig
 	Bcryptcost    int
 }
 

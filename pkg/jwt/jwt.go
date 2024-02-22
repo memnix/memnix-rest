@@ -37,10 +37,10 @@ func (j *InstanceSingleton) SetJwt(instance Instance) {
 }
 
 type Instance struct {
-	HeaderLen             int
+	SigningMethod         jwt.SigningMethod
 	PublicKey             ed25519.PublicKey
 	PrivateKey            ed25519.PrivateKey
-	SigningMethod         jwt.SigningMethod
+	HeaderLen             int
 	ExpirationTimeInHours int
 }
 

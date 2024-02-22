@@ -12,10 +12,10 @@ import (
 type BaseArgs struct {
 	title         string
 	username      string
-	fromProtected bool
-	isError       bool
 	errMsgs       []string
 	sucMsgs       []string
+	fromProtected bool
+	isError       bool
 }
 
 func TestBase(t *testing.T) {

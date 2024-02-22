@@ -22,8 +22,8 @@ type discordAccessTokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`
 	Scope        string `json:"scope"`
-	Expires      int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
+	Expires      int    `json:"expires_in"`
 }
 
 // GetDiscordAccessToken gets the access token from Discord.

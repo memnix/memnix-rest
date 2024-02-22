@@ -10,21 +10,21 @@ import (
 // Config holds the configuration for the application.
 type Config struct {
 	Server   ServerConfig
+	Sentry   SentryConfig
 	Database DatabaseConfig
-	Redis    RedisConfig
 	Log      LogConfig
 	Auth     AuthConfig
-	Sentry   SentryConfig
+	Redis    RedisConfig
 }
 
 // SentryConfig holds the configuration for the sentry client.
 type SentryConfig struct {
-	Debug              bool
 	Environment        string
 	Release            string
+	DSN                string
 	TracesSampleRate   float64
 	ProfilesSampleRate float64
-	DSN                string
+	Debug              bool
 }
 
 // ServerConfig holds the configuration for the server.
@@ -73,11 +73,11 @@ func (logConfig *LogConfig) GetSlogLevel() slog.Level {
 
 // AuthConfig holds the configuration for the authentication.
 type AuthConfig struct {
+	Discord       oauth.DiscordConfig
+	Github        oauth.GithubConfig
 	JWTSecret     string
 	JWTHeaderLen  int
 	JWTExpiration int
-	Discord       oauth.DiscordConfig
-	Github        oauth.GithubConfig
 	Bcryptcost    int
 }
 

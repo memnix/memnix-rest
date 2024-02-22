@@ -12,10 +12,10 @@ func TestGenerator_GenerateSecretCode(t *testing.T) {
 	generator := random.GetRandomGeneratorInstance()
 
 	testCases := []struct {
+		expectedErr error
 		name        string
 		n           int
 		expected    int
-		expectedErr error
 		hasErr      bool
 	}{
 		{

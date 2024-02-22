@@ -7,6 +7,7 @@ require (
 	github.com/a-h/templ v0.2.543
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.11.0
+	github.com/davidbyttow/govips/v2 v2.13.0
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
@@ -97,6 +98,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.23.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.7.0 // indirect
+	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

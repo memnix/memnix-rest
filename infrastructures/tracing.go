@@ -22,13 +22,13 @@ type TracerSingleton struct {
 
 // SentryConfig holds the configuration for the sentry client.
 type SentryConfig struct {
-	Debug              bool
 	Environment        string
 	Release            string
-	TracesSampleRate   float64
-	ProfilesSampleRate float64
 	DSN                string
 	Name               string
+	TracesSampleRate   float64
+	ProfilesSampleRate float64
+	Debug              bool
 	WithStacktrace     bool
 }
 

@@ -316,10 +316,10 @@ func TestGetConnectedUserID(t *testing.T) {
 
 	// Set up test cases
 	testCases := []struct {
+		expectedErr error
 		name        string
 		tokenHeader string
 		expectedID  uint
-		expectedErr error
 	}{
 		{
 			name:        "ValidToken",

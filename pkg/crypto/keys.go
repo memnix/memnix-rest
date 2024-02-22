@@ -10,9 +10,9 @@ import (
 )
 
 type KeyManager struct {
+	seed       io.Reader
 	privateKey ed25519.PrivateKey
 	publicKey  ed25519.PublicKey
-	seed       io.Reader
 }
 
 var (

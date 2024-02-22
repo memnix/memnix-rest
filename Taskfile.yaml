@@ -15,7 +15,7 @@ tasks:
   lint:
     cmds:
       - gofumpt -l -w .
-      - fieldalignment -fix domain/**
+      - fieldalignment -fix ./...
       - gci write -s standard -s default  --skip-generated  .
       - golangci-lint run
       - go mod tidy
@@ -24,7 +24,7 @@ tasks:
     deps:
       - task: generate
     cmds:
-      - CGO_ENABLED=0 go build -o build/memnix ./cmd/v2/main.go
+      - go build -o build/memnix ./cmd/v2/main.go
 
   clean:
     cmds:
