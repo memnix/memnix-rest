@@ -1,23 +1,18 @@
 package partials 
 
 templ Navbar(username string, fromProtected bool) {
-	<nav class="navbar transition-all md:px-5">
-		<div class="navbar-start">
-	
-		</div>
-        <div class="navbar-center">
-        		<a hx-swap="transition:true" href="/" class="text-3xl font-bold">
-            Memnix
+	<nav class="navbar transition-all md:px-5" data-testid="navbar">
+		<div class="navbar-start" data-testid="navbarStart"></div>
+		<div class="navbar-center" data-testid="navbarCenter">
+			<a hx-swap="transition:true" href="/" class="text-3xl font-bold">
+				Memnix
 			</a>
-        </div>
-		<div class="navbar-end">
+		</div>
+		<div class="navbar-end" data-testid="navbarEnd">
 			if fromProtected {
-				<span class="font-bold text-indigo-700 mr-8">
+				<span class="font-bold text-indigo-700 mr-8" data-testid="username">
 					{ username }
 				</span>
-				<a hx-swap="transition:true" class="btn btn-ghost text-lg" href="/todo/list">
-					Tasks
-				</a>
 				<button
 					hx-swap="transition:true"
 					hx-post="/todo/logout"
@@ -25,12 +20,17 @@ templ Navbar(username string, fromProtected bool) {
 					hx-target="body"
 					hx-push-url="true"
 					class="btn btn-ghost text-lg"
+					data-testid="logoutButton"
 				>
 					Logout
 				</button>
 			} else {
-
-				<a hx-swap="transition:true" class="btn btn-primary text-lg" href="/login">
+				<a
+					hx-swap="transition:true"
+					data-testid="loginButton"
+					class="btn btn-primary text-lg"
+					href="/login"
+				>
 					Login
 				</a>
 			}

@@ -26,7 +26,7 @@ func LoginContent() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"py-6 sm:py-8 lg:py-12\"><div class=\"mx-auto max-w-screen-2xl px-4 md:px-8\"><h2 class=\"mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl\">auth.login</h2><div class=\"mx-auto max-w-lg rounded-lg border\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"py-6 sm:py-8 lg:py-12\" data-testid=\"loginContent\"><div class=\"mx-auto max-w-screen-2xl px-4 md:px-8\"><h2 class=\"mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl\">auth.login</h2><div class=\"mx-auto max-w-lg rounded-lg border\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -34,7 +34,7 @@ func LoginContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 px-4\"><div class=\"relative flex items-center justify-center\"><span class=\"bg-base-content absolute inset-x-0 h-px\"></span> <span class=\"bg-base-100 relative px-4 text-sm\">Log in with social</span></div><a class=\"btn-accent btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100\" :href=\"githubEndpoint\">Continue with github</a> <a class=\"btn-secondary btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100\" :href=\"discordEndpoint\">Continue with discord</a></div><div class=\"flex items-center justify-center p-4\"><p class=\"text-center text-sm\">Don't have an account? <a class=\"text-secondary transition duration-100\">Register </a></p></div></div></div></section>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 px-4\"><div class=\"relative flex items-center justify-center\"><span class=\"bg-base-content absolute inset-x-0 h-px\"></span> <span class=\"bg-base-100 relative px-4 text-sm\">Log in with social</span></div><a class=\"btn-accent btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100\" href=\"githubEndpoint\" data-testid=\"githubLogin\">Continue with github</a> <a class=\"btn-secondary btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100\" href=\"discordEndpoint\" data-testid=\"discordLogin\">Continue with discord</a></div><div class=\"flex items-center justify-center p-4\"><p class=\"text-center text-sm\">Don't have an account? <a class=\"text-secondary transition duration-100\">Register </a></p></div></div></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

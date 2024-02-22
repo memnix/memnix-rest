@@ -1,7 +1,7 @@
 package components 
 
 templ LoginComponent() {
-	<div class="flex flex-col gap-4 p-4 md:p-8">
+	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="loginComponent">
 		<form hx-post="/login" hx-swap="outerHTML" hx-target="#login-error">
 			<div class="" hx-target="this">
 				<label class="label">
@@ -31,7 +31,7 @@ templ LoginComponent() {
 				</button>
 			</div>
 		</form>
-		<div id="login-error" class="text-red-500"></div>
+		<div id="login-error" data-testid="LoginError" class="hidden"></div>
 	</div>
 }
 

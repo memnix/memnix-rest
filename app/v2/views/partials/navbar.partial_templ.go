@@ -23,30 +23,30 @@ func Navbar(username string, fromProtected bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\"><div class=\"navbar-start\"></div><div class=\"navbar-center\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\">Memnix</a></div><div class=\"navbar-end\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\" data-testid=\"navbar\"><div class=\"navbar-start\" data-testid=\"navbarStart\"></div><div class=\"navbar-center\" data-testid=\"navbarCenter\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\">Memnix</a></div><div class=\"navbar-end\" data-testid=\"navbarEnd\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if fromProtected {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"font-bold text-indigo-700 mr-8\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"font-bold text-indigo-700 mr-8\" data-testid=\"username\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(username)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/partials/navbar.partial.templ`, Line: 15, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/partials/navbar.partial.templ`, Line: 13, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <a hx-swap=\"transition:true\" class=\"btn btn-ghost text-lg\" href=\"/todo/list\">Tasks</a> <button hx-swap=\"transition:true\" hx-post=\"/todo/logout\" hx-confirm=\"Are you sure you want to log out?\" hx-target=\"body\" hx-push-url=\"true\" class=\"btn btn-ghost text-lg\">Logout</button>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <button hx-swap=\"transition:true\" hx-post=\"/todo/logout\" hx-confirm=\"Are you sure you want to log out?\" hx-target=\"body\" hx-push-url=\"true\" class=\"btn btn-ghost text-lg\" data-testid=\"logoutButton\">Logout</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a hx-swap=\"transition:true\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a hx-swap=\"transition:true\" data-testid=\"loginButton\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

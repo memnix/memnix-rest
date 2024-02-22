@@ -25,14 +25,14 @@ func hello(name string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\"><h1 class=\"mx-auto \">Hello, ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\" data-testid=\"helloComponent\"><h1 class=\"mx-auto\" data-testid=\"helloH1\">Hello, ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/page/index.page.templ`, Line: 6, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/page/index.page.templ`, Line: 6, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func Hero(name string) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto\"><div class=\"block py-12 text-center md:flex md:py-12 md:text-left lg:py-16\"><div class=\"mx-auto flex basis-3/5 items-center pb-12 md:py-0 md:pr-16\"><div><h1 class=\"leading-tighter font-heading mb-4 px-4 text-5xl font-bold tracking-tighter md:px-0 md:text-[3.48rem]\">A <span class=\"text-accent\">spaced repetition </span> <span class=\"lg:block\">learning app </span> <span class=\"text-secondary sm:whitespace-nowrap\">using AI</span></h1><div class=\"mx-auto max-w-3xl\"><div class=\"m-auto flex max-w-xs flex-col flex-nowrap justify-center gap-4 sm:max-w-md sm:flex-row md:m-0 md:justify-start\"><div class=\"flex w-full sm:w-auto\"><a class=\"btn btn-primary w-full sm:mb-0\" to=\"/auth\" rel=\"noopener\">cta.get_started</a></div><div class=\"flex w-full sm:w-auto\"><a to=\"https://github.com/CorentinGS\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-outline w-full\">cta.learn_more</a></div></div></div></div></div><div class=\"block flex-1 items-center md:flex\"><div class=\"relative m-auto max-w-4xl\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section data-testid=\"hero\" class=\"mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto\"><div class=\"block py-12 text-center md:flex md:py-12 md:text-left lg:py-16\"><div class=\"mx-auto flex basis-3/5 items-center pb-12 md:py-0 md:pr-16\"><div><h1 class=\"leading-tighter font-heading mb-4 px-4 text-5xl font-bold tracking-tighter md:px-0 md:text-[3.48rem]\">A <span class=\"text-accent\">spaced repetition </span> <span class=\"lg:block\">learning app </span> <span class=\"text-secondary sm:whitespace-nowrap\">using AI</span></h1><div class=\"mx-auto max-w-3xl\"><div class=\"m-auto flex max-w-xs flex-col flex-nowrap justify-center gap-4 sm:max-w-md sm:flex-row md:m-0 md:justify-start\"><div class=\"flex w-full sm:w-auto\"><a class=\"btn btn-primary w-full sm:mb-0\" to=\"/auth\" rel=\"noopener\">cta.get_started</a></div><div class=\"flex w-full sm:w-auto\"><a to=\"https://github.com/CorentinGS\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-outline w-full\">cta.learn_more</a></div></div></div></div></div><div class=\"block flex-1 items-center md:flex\"><div class=\"relative m-auto max-w-4xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

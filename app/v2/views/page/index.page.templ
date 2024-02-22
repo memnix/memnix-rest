@@ -3,8 +3,8 @@ package page
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
 
 templ hello(name string) {
-	<div class="flex flex-col">
-		<h1 class="mx-auto ">Hello, { name } !</h1>
+	<div class="flex flex-col" data-testid="helloComponent">
+		<h1 class="mx-auto" data-testid="helloH1">Hello, { name } !</h1>
 		<h2 class="mx-auto ">Banana ! </h2>
 		<button
 			hx-post="/clicked"
@@ -26,6 +26,7 @@ templ Clicked() {
 
 templ Hero(name string) {
 	<section
+		data-testid="hero"
 		class="mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto"
 	>
 		<div class="block py-12 text-center md:flex md:py-12 md:text-left lg:py-16">

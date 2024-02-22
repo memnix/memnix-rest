@@ -3,6 +3,7 @@ module github.com/memnix/memnix-rest
 go 1.22.0
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/a-h/templ v0.2.543
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
 	github.com/bytedance/sonic v1.11.0
@@ -40,6 +41,7 @@ require (
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
