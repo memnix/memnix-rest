@@ -5,11 +5,11 @@ import (
 	"github.com/memnix/memnix-rest/app/v2/handlers"
 )
 
-func registerStaticRoutes(e *echo.Echo) {
+func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
 	e.Static("/", "static")
 }
 
-func registerRoutes(e *echo.Echo) {
+func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
 	pageController := handlers.NewPageController()
 
 	e.GET("/", pageController.GetIndex)
