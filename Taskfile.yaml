@@ -14,11 +14,11 @@ tasks:
       - npm run watch
   lint:
     cmds:
+      - go mod tidy
       - gofumpt -l -w .
       - fieldalignment -fix ./...
       - gci write -s standard -s default  --skip-generated  .
       - golangci-lint run
-      - go mod tidy
       - go test -cover ./...
   build:
     deps:

@@ -1,32 +1,35 @@
 server:
-  Port: 1815
+  Port: 3000
   AppVersion: 1.0.0
-  JaegerURL: http://localhost:14268
-  Host: http://localhost:1815
+  Host: http://localhost:3000
   FrontendURL: http://localhost:3000
 Database:
-  DSN: toto
+  DSN: postgresql://localhost:5430/postgres?user=user&password=password
 Redis:
-  Addr: :6379
-  Password: redis
+  Addr: :6380
+  Password: password
 Log:
   Level: debug
 Auth:
-  BcryptCost: 10
-  JWTSecret: toto
+  BcryptCost: 5
+  JWTSecret: secret
   JWTHeaderLen: 2
   JWTExpiration: 48
   Github:
-    ClientID: toto
-    ClientSecret: toto
+    ClientID: clientid
+    ClientSecret: clientsecret
   Discord:
-    ClientID: toto
-    ClientSecret: toto
-    URL: toto
+    ClientID: clientid
+    ClientSecret: clientsecret
+    URL: https://discord.com/api/oauth2/token
 Sentry:
-  DSN: https://whoknows.app
-  Environment: production
-  Debug: false
-  Release: 1.0.0
-  TraceSampleRate: 1.0
-  ProfilesSampleRate: 0.3
+  DSN: https://sentry.io
+  Environment: developement
+  Debug: true
+  Release: memnix@1.0.0
+  TracesSampleRate: 1.0
+  ProfilesSampleRate: 1.0
+Ristretto:
+  NumCounters: 10
+  MaxCost: 100
+  BufferItems: 32

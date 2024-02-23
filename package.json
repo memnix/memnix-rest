@@ -10,7 +10,7 @@
     "tailwindcss": "^3.4.1"
   },
   "scripts": {
-    "build": "tailwindcss build -o static/style.css --minify",
-    "watch": "tailwindcss build -o static/style.css --watch"
+    "build": "tailwindcss build -o assets/static/style.css --minify",
+    "watch": "tailwindcss build -o assets/static/style.css --watch"
   }
 }
