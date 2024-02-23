@@ -9,7 +9,7 @@ import (
 // CacheSingleton is the singleton for the ristretto cache.
 type CacheSingleton struct {
 	cache  *ristretto.Cache
-	config RistrettoConfig
+	Config RistrettoConfig
 }
 
 var (
@@ -36,7 +36,7 @@ func CreateRistrettoInstance(config RistrettoConfig) *CacheSingleton {
 }
 
 func (c *CacheSingleton) WithConfig(config RistrettoConfig) *CacheSingleton {
-	c.config = config
+	c.Config = config
 	return c
 }
 
@@ -44,9 +44,9 @@ func (c *CacheSingleton) WithConfig(config RistrettoConfig) *CacheSingleton {
 func (c *CacheSingleton) CreateRistrettoCache() error {
 	var err error
 	if c.cache, err = ristretto.NewCache(&ristretto.Config{
-		NumCounters: c.config.NumCounters,
-		MaxCost:     c.config.MaxCost,
-		BufferItems: c.config.BufferItems,
+		NumCounters: c.Config.NumCounters,
+		MaxCost:     c.Config.MaxCost,
+		BufferItems: c.Config.BufferItems,
 	}); err != nil {
 		return err
 	}

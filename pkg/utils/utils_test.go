@@ -58,7 +58,7 @@ func TestConvertStrToInt(t *testing.T) {
 	}{
 		{str: "123", expected: 123, hasError: false},
 		{str: "0", expected: 0, hasError: false},
-		{str: "4294967295", expected: 4294967295, hasError: true},
+		{str: "4294967295", expected: 0, hasError: true},
 		{str: "invalid", expected: 0, hasError: true},
 	}
 
