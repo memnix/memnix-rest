@@ -79,7 +79,7 @@ func (i *InstanceSingleton) registerMiddlewares(e *echo.Echo) {
 
 	e.Use(middleware.Secure())
 
-	middleware.CSRFWithConfig(middleware.CSRFConfig{
+	csrfConfig := middleware.CSRFWithConfig(middleware.CSRFConfig{
 		TokenLookup:    "cookie:_csrf",
 		CookiePath:     "/",
 		CookieDomain:   i.config.Host,
@@ -87,4 +87,6 @@ func (i *InstanceSingleton) registerMiddlewares(e *echo.Echo) {
 		CookieHTTPOnly: true,
 		CookieSameSite: http.SameSiteStrictMode,
 	})
+
+	e.Use(csrfConfig)
 }

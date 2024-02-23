@@ -23,7 +23,7 @@ func RegisterComponent() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4 md:p-8\" data-testid=\"registerComponent\"><form hx-post=\"/register\" hx-swap=\"outerHTML\" hx-target=\"#register-error\"><div class=\"\" hx-target=\"this\"><label class=\"label\"><span class=\"label-text\">auth.email</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your email\" type=\"email\" name=\"email\"></div><div class=\"\" hx-target=\"this\"><label class=\"label\"><span class=\"label-text\">auth.username</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your username\" type=\"username\" name=\"username\"></div><div class=\"\"><label class=\"label\"><span class=\"label-text\">auth.password</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your password\" type=\"password\" name=\"password\"></div><div class=\"pt-6\"><button class=\"btn-primary btn transition duration-100 w-full\">auth.register</button></div></form><div id=\"register-error\" data-testid=\"registerError\" class=\"hidden\"></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4 md:p-8\" data-testid=\"registerComponent\"><form hx-post=\"/register\" hx-swap=\"outerHTML\" hx-target=\"#register-error\"><div class=\"\" hx-target=\"this\"><label class=\"label\"><span class=\"label-text\">auth.email</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your email\" type=\"email\" name=\"email\"></div><div class=\"\" hx-target=\"this\"><label class=\"label\"><span class=\"label-text\">auth.username</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your username\" type=\"username\" name=\"username\"></div><div class=\"\"><label class=\"label\"><span class=\"label-text\">auth.password</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your password\" type=\"password\" name=\"password\"></div><div class=\"pt-6\"><button class=\"btn-primary btn transition duration-100 w-full\">auth.register</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -54,7 +54,7 @@ func RegisterError(err string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(err)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/register.component.templ`, Line: 49, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/register.component.templ`, Line: 48, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

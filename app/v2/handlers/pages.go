@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -28,8 +29,14 @@ func (p *PageController) PostClicked(c echo.Context) error {
 }
 
 func (p *PageController) GetLogin(c echo.Context) error {
+	errorMessages := getFlashmessages(c, "error")
+	successMessages := getFlashmessages(c, "success")
+
+	slog.Debug("Error messages: ", slog.Any("error", errorMessages))
+	slog.Debug("Success messages: ", slog.Any("success", successMessages))
 	loginContent := page.LoginContent()
-	login := page.LoginPage("Login", false, nil, nil, loginContent)
+	login := page.LoginPage("Login", false, errorMessages,
+		successMessages, loginContent)
 
 	return Render(c, http.StatusOK, login)
 }

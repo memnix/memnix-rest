@@ -31,14 +31,15 @@ func (a *AuthController) PostLogin(c echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 
-	slog.Info("Auth: ", slog.String("email", email), slog.String("password", password))
+	slog.Debug("Auth: ", slog.String("email", email), slog.String("password", password))
 
 	// Call the use case to authenticate the user
 	jwtToken, err := a.useCase.Login(context.Background(), password, email)
 	if err != nil {
-		loginError := components.LoginError("Invalid email or password")
-		slog.Info("Auth: ", slog.String("error", err.Error()))
-		return Render(c, http.StatusForbidden, loginError)
+		setFlashmessages(c, "error", "Invalid email or password")
+		slog.Debug("Auth: ", slog.String("error", err.Error()))
+
+		return Redirect(c, "/login", http.StatusForbidden)
 	}
 
 	cookie := &http.Cookie{
@@ -52,7 +53,9 @@ func (a *AuthController) PostLogin(c echo.Context) error {
 	}
 	c.SetCookie(cookie)
 
-	return c.Redirect(http.StatusFound, "/")
+	setFlashmessages(c, "success", "You are now logged in")
+
+	return Redirect(c, "/", http.StatusAccepted)
 }
 
 func (a *AuthController) PostLogout(c echo.Context) error {
@@ -66,7 +69,8 @@ func (a *AuthController) PostLogout(c echo.Context) error {
 		SameSite: http.SameSiteLaxMode,
 	}
 	c.SetCookie(cookie)
-	return c.Redirect(http.StatusFound, "/")
+	c.Response().Header().Set("HX-Redirect", "/login")
+	return c.NoContent(http.StatusAccepted)
 }
 
 func (a *AuthController) PostRegister(c echo.Context) error {
@@ -75,7 +79,7 @@ func (a *AuthController) PostRegister(c echo.Context) error {
 	password := c.FormValue("password")
 	username := c.FormValue("username")
 
-	slog.Info("Auth: ", slog.String("email", email), slog.String("username", username))
+	slog.Debug("Auth: ", slog.String("email", email), slog.String("username", username))
 
 	registerStruct := domain.Register{
 		Email:    email,
@@ -91,5 +95,6 @@ func (a *AuthController) PostRegister(c echo.Context) error {
 		return Render(c, http.StatusForbidden, loginError)
 	}
 
-	return c.Redirect(http.StatusFound, "/")
+	c.Response().Header().Set("HX-Redirect", "/login")
+	return c.NoContent(http.StatusAccepted)
 }

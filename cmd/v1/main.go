@@ -18,7 +18,6 @@ import (
 	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/memnix/memnix-rest/pkg/json"
 	myJwt "github.com/memnix/memnix-rest/pkg/jwt"
-	"github.com/memnix/memnix-rest/pkg/logger"
 	"github.com/memnix/memnix-rest/pkg/oauth"
 )
 
@@ -32,8 +31,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("❌ Error loading config: %s", err.Error())
 	}
-
-	logger.NewLogger().SetLogLevel(slog.LevelInfo)
 
 	if config.IsProduction() {
 		log.Info("🚀 Running in production mode 🚀")

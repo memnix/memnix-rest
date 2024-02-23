@@ -45,21 +45,6 @@ func TestRegisterComponent(t *testing.T) {
 	if doc.Find("button").Length() != 1 {
 		t.Errorf("Expected to find a register button")
 	}
-
-	// Assert that the register error div exists
-	if doc.Find("#register-error").Length() != 1 {
-		t.Errorf("Expected to find a register error div")
-	}
-
-	// Assert that the login error div is hidden
-	if !doc.Find(`[data-testid="registerError"]`).HasClass("hidden") {
-		val, ok := doc.Find(`[data-testid="registerError"]`).Attr("class")
-		if !ok {
-			t.Errorf("Expected the login error div to have a class, but got none")
-		}
-
-		t.Errorf("Expected the login error div to be hidden, but got class: %s", val)
-	}
 }
 
 func TestRegisterError(t *testing.T) {

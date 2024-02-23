@@ -31,11 +31,15 @@ func main() {
 		log.Fatalf("❌ Error loading config: %s", err.Error())
 	}
 
-	logger.NewLogger().SetLogLevel(slog.LevelInfo)
+	logger.GetLogger().SetLogLevel(cfg.Log.GetSlogLevel()).CreateGlobalHandler()
 
 	setup(cfg)
 
 	e := v2.CreateEchoInstance(cfg.Server)
+
+	if cfg.Log.GetSlogLevel().Level() == slog.LevelDebug {
+		slog.Debug("🔧 Debug mode enabled")
+	}
 
 	slog.Info("starting server 🚀", slog.String("version", cfg.Server.AppVersion))
 
