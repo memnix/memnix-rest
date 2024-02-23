@@ -18,6 +18,9 @@ func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
 
 	e.GET("/", pageController.GetIndex)
 	e.GET("/login", pageController.GetLogin)
+	e.GET("/register", pageController.GetRegister)
+	e.POST("/register", authController.PostRegister)
+	e.POST("/logout", authController.PostLogout)
 	e.POST("/login", authController.PostLogin)
 	e.POST("/clicked", pageController.PostClicked)
 }

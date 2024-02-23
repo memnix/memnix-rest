@@ -1,0 +1,54 @@
+package page
+
+import "github.com/memnix/memnix-rest/app/v2/views/layout"
+import "github.com/memnix/memnix-rest/app/v2/views/components"
+
+templ RegisterContent() {
+	<section class="py-6 sm:py-8 lg:py-12" data-testid="registerContent">
+		<div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+			<h2 class="mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl">
+				auth.register
+			</h2>
+			<div class="mx-auto max-w-lg rounded-lg border">
+				@components.RegisterComponent()
+				<div class="flex flex-col gap-4 px-4">
+					<div class="relative flex items-center justify-center">
+						<span class="bg-base-content absolute inset-x-0 h-px"></span>
+						<span class="bg-base-100 relative px-4 text-sm">
+							Register with social
+						</span>
+					</div>
+					<a
+						class="btn-accent btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100"
+						href="githubEndpoint"
+						data-testid="githubRegister"
+					>
+						Continue with github
+					</a>
+					<a
+						class="btn-secondary btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100"
+						href="discordEndpoint"
+						data-testid="discordRegister"
+					>
+						Continue with discord
+					</a>
+				</div>
+				<div class="flex items-center justify-center p-4">
+					<p class="text-center text-sm">
+						Already have an account?
+						<a class="text-secondary transition duration-100">Login </a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+}
+
+templ RegisterPage(  title string,
+    isError bool,
+	errMsgs, sucMsgs []string,
+    cmp templ.Component) {
+	@layout.Base(title, "", false, isError, errMsgs, sucMsgs) {
+		@cmp
+	}
+}

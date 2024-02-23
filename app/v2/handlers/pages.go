@@ -33,3 +33,10 @@ func (p *PageController) GetLogin(c echo.Context) error {
 
 	return Render(c, http.StatusOK, login)
 }
+
+func (p *PageController) GetRegister(c echo.Context) error {
+	registerContent := page.RegisterContent()
+	register := page.RegisterPage("Register", false, nil, nil, registerContent)
+
+	return Render(c, http.StatusOK, register)
+}
