@@ -51,9 +51,9 @@ func TestConvertToWebp(t *testing.T) {
 				return
 			}
 			// Check the metadata forrmats
-			if err != nil {
-				if got1.Format.FileExt() != "webp" {
-					t.Errorf("ConvertToWebp() got1 = %v, want %v", got1.Format, "webp")
+			if !tt.wantErr {
+				if got1.Format.FileExt() != ".webp" {
+					t.Errorf("ConvertToWebp() got1 = %v, want %v", got1.Format, ".webp")
 				}
 			}
 		})
@@ -103,6 +103,64 @@ func TestStoreImage(t *testing.T) {
 
 			if err := images.StoreImage(tt.args.name, newJpg); (err != nil) != tt.wantErr {
 				t.Errorf("StoreImage() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestConvertToWebpWithQuality(t *testing.T) {
+	images.StartVips()
+
+	type args struct {
+		name    string
+		quality int
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    []byte
+		want1   vips.ImageMetadata
+		wantErr bool
+	}{
+		{
+			name: "ConvertToWebpWithQuality",
+			args: args{
+				name:    "test/1.jpg",
+				quality: 80,
+			},
+			wantErr: false,
+		},
+		{
+			name: "ConvertToWebpWithQuality",
+			args: args{
+				name:    "test/2.png",
+				quality: 80,
+			},
+			wantErr: false,
+		},
+		{
+			name: "ConvertToWebpWithWrongQuality",
+			args: args{
+				name:    "test/1.jpg",
+				quality: 0,
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, got1, err := images.ConvertToWebpWithQuality(tt.args.name, tt.args.quality)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ConvertToWebp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			// Check the metadata formats
+			if !tt.wantErr {
+				if got1.Format.FileExt() != ".webp" {
+					t.Errorf("ConvertToWebp() got1 = %v, want %v", got1.Format.FileExt(), ".webp")
+				}
 			}
 		})
 	}

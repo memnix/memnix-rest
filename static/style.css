@@ -1981,6 +1981,10 @@ html {
   height: 1px;
 }
 
+.h-24 {
+  height: 6rem;
+}
+
 .w-6 {
   width: 1.5rem;
 }
@@ -1992,6 +1996,10 @@ html {
 
 .w-full {
   width: 100%;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .min-w-\[384px\] {

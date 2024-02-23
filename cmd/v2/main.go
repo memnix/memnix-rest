@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	configPath := config.GetConfigPath()
+	configPath := config.GetConfigPath(config.IsDevelopment())
 
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {

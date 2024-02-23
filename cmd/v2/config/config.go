@@ -24,8 +24,8 @@ type PasswordConfigStruct struct {
 	SaltLen    uint32 // SaltLen to use for Argon2ID
 }
 
-func GetConfigPath() string {
-	if IsDevelopment() {
+func GetConfigPath(isDevelopment bool) string {
+	if isDevelopment {
 		return "./cmd/v2/config/config-local"
 	}
 

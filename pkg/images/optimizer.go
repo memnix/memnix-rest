@@ -1,6 +1,7 @@
 package images
 
 import (
+	"errors"
 	"os"
 	"sync"
 
@@ -27,6 +28,28 @@ func ConvertToWebp(name string) ([]byte, vips.ImageMetadata, error) {
 	defer image1.Close()
 
 	newBuffer, metadata, err := image1.ExportWebp(vips.NewWebpExportParams())
+	if err != nil {
+		return nil, vips.ImageMetadata{}, err
+	}
+
+	return newBuffer, *metadata, nil
+}
+
+func ConvertToWebpWithQuality(name string, quality int) ([]byte, vips.ImageMetadata, error) {
+	if quality <= 0 || quality >= 100 {
+		return nil, vips.ImageMetadata{}, errors.New("quality must be between 0 and 100")
+	}
+
+	image1, err := vips.NewImageFromFile(name)
+	if err != nil {
+		return nil, vips.ImageMetadata{}, err
+	}
+	defer image1.Close()
+
+	webpParams := vips.NewWebpExportParams()
+	webpParams.Quality = quality
+
+	newBuffer, metadata, err := image1.ExportWebp(webpParams)
 	if err != nil {
 		return nil, vips.ImageMetadata{}, err
 	}

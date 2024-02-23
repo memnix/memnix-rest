@@ -25,7 +25,7 @@ import (
 var version = "development"
 
 func main() {
-	configPath := config.GetConfigPath()
+	configPath := config.GetConfigPath(config.IsDevelopment())
 
 	// Load the config
 	cfg, err := config.LoadConfig(configPath)

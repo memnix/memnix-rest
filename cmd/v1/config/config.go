@@ -110,8 +110,8 @@ func (k *KeyManager) ParseEd25519Key() error {
 	return nil
 }
 
-func GetConfigPath() string {
-	if IsDevelopment() {
+func GetConfigPath(isDevelopment bool) string {
+	if isDevelopment {
 		return "./config/config-local"
 	}
 

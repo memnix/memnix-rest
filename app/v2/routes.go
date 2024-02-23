@@ -8,6 +8,7 @@ import (
 
 func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
 	e.Static("/", "assets/static")
+	e.Static("/img", "assets/img")
 }
 
 func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
