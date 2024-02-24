@@ -1,6 +1,7 @@
 package random
 
 import (
+	"errors"
 	"math/rand"
 	"strings"
 	"sync"
@@ -33,6 +34,9 @@ func GetRandomGeneratorInstance() *Generator {
 }
 
 func (r *Generator) GenerateSecretCode(n int) (string, error) {
+	if n < 0 {
+		return "", errors.New("invalid length")
+	}
 	sb := strings.Builder{}
 	sb.Grow(n)
 	// A r.src.Int63() generates 63 random bits, enough for letterIdxMax characters!

@@ -2,7 +2,11 @@ package crypto
 
 import "sync"
 
-const DefaultBcryptCost = 10
+const (
+	DefaultBcryptCost = 10
+	MaxPasswordLength = 72
+	MinPasswordLength = 8
+)
 
 // HelperSingleton is the struct that holds the crypto helper.
 type HelperSingleton struct {

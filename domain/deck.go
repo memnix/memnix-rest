@@ -35,6 +35,10 @@ const (
 	DeckStatusPublic   DeckStatus = 2 // DeckStatusPublic is the public status of the deck
 )
 
+func (s DeckStatus) String() string {
+	return [...]string{"private", "to review", "public"}[s]
+}
+
 // PublicDeck is the public deck model.
 type PublicDeck struct {
 	Name        string `json:"name"`        // Name of the deck

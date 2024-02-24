@@ -1,0 +1,50 @@
+package components 
+
+templ RegisterComponent() {
+	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="registerComponent">
+		<form hx-post="/register" hx-swap="outerHTML" hx-target="#register-error">
+			<div class="" hx-target="this">
+				<label class="label">
+					<span class="label-text">auth.email</span>
+				</label>
+				<input
+					class="input-bordered input w-full transition duration-100"
+					placeholder="Enter your email"
+					type="email"
+					name="email"
+				/>
+			</div>
+			<div class="" hx-target="this">
+				<label class="label">
+					<span class="label-text">auth.username</span>
+				</label>
+				<input
+					class="input-bordered input w-full transition duration-100"
+					placeholder="Enter your username"
+					type="username"
+					name="username"
+				/>
+			</div>
+			<div class="">
+				<label class="label">
+					<span class="label-text">auth.password</span>
+				</label>
+				<input
+					class="input-bordered input w-full transition duration-100"
+					placeholder="Enter your password"
+					type="password"
+					name="password"
+				/>
+			</div>
+			<div class="pt-6">
+				<button class="btn-primary btn transition duration-100 w-full">
+					auth.register
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ RegisterError(err string) {
+	<div class="text-red-500">{ err }</div>
+}

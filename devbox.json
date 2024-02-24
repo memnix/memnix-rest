@@ -1,25 +1,49 @@
 {
   "packages": [
-    "go@1.21.5",
+    "go@1.22.0",
     "hadolint@2.12.0",
     "commitizen@3.14.1",
-    "python@3.10"
+    "python@3.10",
+    "tailwindcss@3.4.1",
+    "air@1.49.0",
+    "templ@0.2.543",
+    "go-task@3.34.1",
+    "wire@0.5.0",
+    "gofumpt@0.3.1",
+    "gotools@0.7.0",
+    "gci@0.11.0",
+    "golangci-lint@1.55.2",
+    "pre-commit@3.3.3",
+    "ggshield@1.24.0",
+    "vips@8.14.4",
+    "github:nixos/nixpkgs#vips^dev",
+    "gcc@13.2.0"
+
   ],
   "env": {
-    "GOPATH": "${workspaceRoot}"
+    "GOPATH": "${workspaceRoot}",
+    "CGO_CFLAGS_ALLOW":"-Xpreprocessor"
   },
   "shell": {
     "init_hook": [
       "export \"GOROOT=$(go env GOROOT)\"",
       ". $VENV_DIR/bin/activate",
-      "pip install cz-conventional-gitmoji"
+      "export PATH=$PATH:$GOPATH/bin",
+      "npm install"
     ],
     "scripts": {
-      "main": "go run ./cmd/api",
-      "dev": "APP_ENV=dev go run ./cmd/api",
-      "hadolint": "hadolint ./Dockerfile --ignore DL3018 --ignore DL3047",
+      "test": "go test ./...",
+      "install:cz": "pip install cz-conventional-gitmoji",
+      "install:go-mod-upgrade": "go install github.com/oligot/go-mod-upgrade@latest",
+      "api": "APP_ENV=dev go run ./cmd/v1",
+      "hadolint": "hadolint ./Dockerfile --ignore DL3018",
       "commit": "git add -A && cz --name cz_gitmoji commit",
-      "bump": "cz bump"
+      "bump": "cz bump",
+      "dev": "task dev",
+      "go-upgrade": "go-mod-upgrade",
+      "gen": "task generate",
+      "lint": "task lint",
+      "clean": "task clean"
     }
   }
 }

@@ -1,0 +1,39 @@
+package components 
+
+templ LoginComponent() {
+	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="loginComponent">
+		<form hx-post="/login" hx-swap="outerHTML" hx-target="#login-error">
+			<div class="" hx-target="this">
+				<label class="label">
+					<span class="label-text">auth.email</span>
+				</label>
+				<input
+					class="input-bordered input w-full transition duration-100"
+					placeholder="Enter your email"
+					type="email"
+					name="email"
+				/>
+			</div>
+			<div class="">
+				<label class="label">
+					<span class="label-text">auth.password</span>
+				</label>
+				<input
+					class="input-bordered input w-full transition duration-100"
+					placeholder="Enter your password"
+					type="password"
+					name="password"
+				/>
+			</div>
+			<div class="pt-6">
+				<button class="btn-primary btn transition duration-100 w-full">
+					auth.login
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ LoginError(err string) {
+	<div class="text-red-500">{ err }</div>
+}

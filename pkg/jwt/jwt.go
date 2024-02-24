@@ -3,6 +3,7 @@ package jwt
 import (
 	"context"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -11,11 +12,35 @@ import (
 	"golang.org/x/crypto/ed25519"
 )
 
+type InstanceSingleton struct {
+	jwtInstance Instance
+}
+
+var (
+	jwtInstance *InstanceSingleton //nolint:gochecknoglobals //Singleton
+	jwtOnce     sync.Once          //nolint:gochecknoglobals //Singleton
+)
+
+func GetJwtInstance() *InstanceSingleton {
+	jwtOnce.Do(func() {
+		jwtInstance = &InstanceSingleton{}
+	})
+	return jwtInstance
+}
+
+func (j *InstanceSingleton) GetJwt() Instance {
+	return j.jwtInstance
+}
+
+func (j *InstanceSingleton) SetJwt(instance Instance) {
+	j.jwtInstance = instance
+}
+
 type Instance struct {
-	headerLen             int
-	publicKey             ed25519.PublicKey
-	privateKey            ed25519.PrivateKey
-	signingMethod         jwt.SigningMethod
+	SigningMethod         jwt.SigningMethod
+	PublicKey             ed25519.PublicKey
+	PrivateKey            ed25519.PrivateKey
+	HeaderLen             int
 	ExpirationTimeInHours int
 }
 
@@ -24,10 +49,10 @@ func NewJWTInstance(headerLen, expirationTime int,
 	publicKey ed25519.PublicKey, privateKey ed25519.PrivateKey,
 ) Instance {
 	return Instance{
-		headerLen:             headerLen,
-		publicKey:             publicKey,
-		privateKey:            privateKey,
-		signingMethod:         jwt.SigningMethodEdDSA,
+		HeaderLen:             headerLen,
+		PublicKey:             publicKey,
+		PrivateKey:            privateKey,
+		SigningMethod:         jwt.SigningMethodEdDSA,
 		ExpirationTimeInHours: expirationTime,
 	}
 }
@@ -41,13 +66,13 @@ func NewJWTInstance(headerLen, expirationTime int,
 // see: utils/config.go for more information
 func (instance Instance) GenerateToken(_ context.Context, userID uint) (string, error) {
 	// Create the Claims for the token
-	claims := jwt.NewWithClaims(instance.signingMethod, jwt.RegisteredClaims{
+	claims := jwt.NewWithClaims(instance.SigningMethod, jwt.RegisteredClaims{
 		Issuer:    utils.ConvertUIntToStr(userID),     // Issuer is the user id
 		ExpiresAt: instance.CalculateExpirationTime(), // ExpiresAt is the expiration time
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	token, err := claims.SignedString(instance.privateKey)
+	token, err := claims.SignedString(instance.PrivateKey)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to sign")
 	}
@@ -80,7 +105,7 @@ func (instance Instance) GetToken(_ context.Context, token string) (*jwt.Token, 
 		if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return instance.publicKey, nil // Return the secret key as the signing key
+		return instance.PublicKey, nil // Return the secret key as the signing key
 	})
 }
 
@@ -93,11 +118,11 @@ func (Instance) GetExpirationTime(token *jwt.Token) int64 {
 	return int64(claims["exp"].(float64))
 }
 
-// extractToken function to extract token from header.
-func (instance Instance) extractToken(token string) string {
+// ExtractToken function to extract token from header.
+func (instance Instance) ExtractToken(token string) string {
 	// Normally Authorization HTTP header.
 	onlyToken := strings.Split(token, " ") // Split token.
-	if len(onlyToken) == instance.headerLen {
+	if len(onlyToken) == instance.HeaderLen {
 		return onlyToken[1] // Return only token.
 	}
 	return "" // Return empty string.
@@ -105,18 +130,30 @@ func (instance Instance) extractToken(token string) string {
 
 // GetConnectedUserID gets the user id from a jwt token.
 func (instance Instance) GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
+	if tokenHeader == "" {
+		return 0, errors.New("empty token")
+	}
+
 	// Get the token from the Authorization header.
-	tokenString := instance.extractToken(tokenHeader)
+	tokenString := instance.ExtractToken(tokenHeader)
+
+	if tokenString == "" {
+		return 0, errors.New("empty token")
+	}
 
 	token, err := instance.GetToken(ctx, tokenString)
 	if err != nil {
-		return 0, err
+		return 0, errors.New("invalid token")
 	}
 
 	// Check if the token is valid.
 	userID, err := instance.VerifyToken(token)
 	if err != nil {
 		return 0, err
+	}
+
+	if userID == 0 {
+		return 0, errors.New("invalid token")
 	}
 
 	return userID, nil

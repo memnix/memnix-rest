@@ -1,0 +1,49 @@
+version: "3"
+
+env:
+  PORT: 8080
+  APP_ENV: dev
+
+tasks:
+  dev:
+    run: always
+    cmds:
+      - air
+  tailwind:
+    cmds:
+      - npm run watch
+  lint:
+    cmds:
+      - go mod tidy
+      - gofumpt -l -w .
+      - fieldalignment -fix ./...
+      - gci write -s standard -s default  --skip-generated  .
+      - golangci-lint run
+      - go test -cover ./...
+  build:
+    deps:
+      - task: generate
+    cmds:
+      - go build -o build/memnix ./cmd/v2/main.go
+
+  clean:
+    cmds:
+      - rm -rf build
+      - rm -rf static/style.css
+      - rm -rf app/v2/views/**/*.go
+  generate:
+    aliases:
+      - gen
+      - g
+    generates:
+      - app/v2/views/**/*.go
+      - static/**/*.css
+    sources:
+      - app/v2/views/**/*.templ
+      - tailwind.config.js
+      - tailwind.css
+    cmds:
+      - npx tailwindcss build -i tailwind.css -o static/style.css --minify
+      - templ generate
+      - wire ./...
+      - go generate ./...

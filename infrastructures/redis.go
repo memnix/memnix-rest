@@ -7,13 +7,21 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/memnix/memnix-rest/config"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 )
 
 type RedisManager struct {
-	client *redis.Client
+	client      *redis.Client
+	Redisconfig RedisConfig
+}
+
+type RedisConfig struct {
+	Addr         string
+	Password     string
+	MinIdleConns int
+	PoolSize     int
+	PoolTimeout  int
 }
 
 var (
@@ -32,8 +40,27 @@ func GetRedisManagerInstance() *RedisManager {
 	return redisInstance
 }
 
-func (r *RedisManager) ConnectRedis(redisConf config.RedisConfig) error {
-	r.client = r.NewRedisClient(redisConf)
+func NewRedisInstance(redisConf RedisConfig) *RedisManager {
+	return GetRedisManagerInstance().RedisWithConfig(redisConf)
+}
+
+func (r *RedisManager) RedisWithConfig(redisConf RedisConfig) *RedisManager {
+	r.Redisconfig = redisConf
+	return r
+}
+
+func (r *RedisManager) ConnectRedis() error {
+	r.client = redis.NewClient(&redis.Options{
+		Addr:         r.Redisconfig.Addr,
+		Password:     r.Redisconfig.Password,
+		MinIdleConns: r.Redisconfig.MinIdleConns,
+		PoolSize:     r.Redisconfig.PoolSize,
+		PoolTimeout:  time.Duration(r.Redisconfig.PoolTimeout) * time.Second,
+	})
+
+	if err := redisotel.InstrumentTracing(r.client); err != nil {
+		log.Error("failed to instrument redis", slog.Any("error", err))
+	}
 
 	_, err := r.client.Ping(context.Background()).Result()
 	if err != nil {
@@ -49,19 +76,4 @@ func (r *RedisManager) CloseRedis() error {
 
 func (r *RedisManager) GetRedisClient() *redis.Client {
 	return r.client
-}
-
-func (r *RedisManager) NewRedisClient(redisConf config.RedisConfig) *redis.Client {
-	client := redis.NewClient(&redis.Options{
-		Addr:         redisConf.Addr,
-		MinIdleConns: redisConf.MinIdleConns,
-		PoolSize:     redisConf.PoolSize,
-		PoolTimeout:  time.Duration(redisConf.PoolTimeout) * time.Second,
-	})
-
-	if err := redisotel.InstrumentTracing(client); err != nil {
-		log.Error("failed to instrument redis", slog.Any("error", err))
-	}
-
-	return client
 }

@@ -3,42 +3,45 @@ package logger
 import (
 	"log/slog"
 	"os"
-	"runtime/debug"
+	"sync"
+)
+
+var (
+	logger *Logger   //nolint:gochecknoglobals //Singleton
+	once   sync.Once //nolint:gochecknoglobals //Singleton
 )
 
 type Logger struct {
 	logLevel slog.Level
 }
 
-func NewLogger() *Logger {
-	return &Logger{
-		logLevel: slog.LevelInfo,
-	}
+func GetLogger() *Logger {
+	once.Do(func() {
+		logger = &Logger{
+			logLevel: slog.LevelInfo,
+		}
+	})
+	return logger
 }
 
-func (l *Logger) SetLogLevel(level slog.Level) {
+func (l *Logger) SetLogLevel(level slog.Level) *Logger {
 	l.logLevel = level
+	return l
 }
 
 func (l *Logger) GetLogLevel() slog.Level {
 	return l.logLevel
 }
 
-func (l *Logger) CreateSlogHandler() {
+func (l *Logger) CreateGlobalHandler() {
 	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level:     l.logLevel,
-		AddSource: l.logLevel == slog.LevelDebug,
+		AddSource: false,
 	})
-
-	buildInfo, _ := debug.ReadBuildInfo()
 
 	logger := slog.New(handler)
 
-	child := logger.With(
-		slog.Group("program_info",
-			slog.Int("pid", os.Getpid()),
-			slog.String("go_version", buildInfo.GoVersion),
-		))
+	slog.SetLogLoggerLevel(l.logLevel)
 
-	slog.SetDefault(child)
+	slog.SetDefault(logger)
 }

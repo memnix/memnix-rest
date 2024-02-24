@@ -1,0 +1,35 @@
+server:
+  Port: 3000
+  AppVersion: 1.0.0
+  Host: http://localhost:3000
+  FrontendURL: http://localhost:3000
+Database:
+  DSN: postgresql://localhost:5430/postgres?user=user&password=password
+Redis:
+  Addr: :6380
+  Password: password
+Log:
+  Level: debug
+Auth:
+  BcryptCost: 5
+  JWTSecret: secret
+  JWTHeaderLen: 2
+  JWTExpiration: 48
+  Github:
+    ClientID: clientid
+    ClientSecret: clientsecret
+  Discord:
+    ClientID: clientid
+    ClientSecret: clientsecret
+    URL: https://discord.com/api/oauth2/token
+Sentry:
+  DSN: https://sentry.io
+  Environment: developement
+  Debug: true
+  Release: memnix@1.0.0
+  TracesSampleRate: 1.0
+  ProfilesSampleRate: 1.0
+Ristretto:
+  NumCounters: 10
+  MaxCost: 100
+  BufferItems: 32
