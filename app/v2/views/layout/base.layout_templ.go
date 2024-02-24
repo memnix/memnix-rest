@@ -25,7 +25,7 @@ func Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs 
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\" data-theme=\"dark\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"description\" content=\"Go/Echo+Templ+Htmx: Full stack application using Golang&#39;s Echo framework &amp; Templ templating language with user session management + CRUD to a SQLite database (To Do List) and HTMX in the frontend\"><script src=\"https://unpkg.com/hyperscript.org@0.9.12\"></script><meta name=\"google\" content=\"notranslate\"><title>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\" data-theme=\"dark\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"description\" content=\"Go/Echo+Templ+Htmx: Full stack application using Golang&#39;s Echo framework &amp; Templ templating language with user session management + CRUD to a SQLite database (To Do List) and HTMX in the frontend\"><script src=\"https://unpkg.com/hyperscript.org@0.9.12\"></script><meta name=\"google\" content=\"notranslate\"><link rel=\"stylesheet\" href=\"/style.css\"><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -38,7 +38,7 @@ func Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><script src=\"/htmx.min.js\"></script><script src=\"https://cdn.tailwindcss.com\"></script><link href=\"https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css\" rel=\"stylesheet\" type=\"text/css\"></head><body class=\"sample-transition\" hx-boost=\"true\"><header>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><script src=\"/htmx.min.js\"></script><link rel=\"preconnect\" href=\"https://fonts.bunny.net\"><link href=\"https://fonts.bunny.net/css?family=nunito:500,600|syne:500,600\" rel=\"stylesheet\"></head><body class=\"sample-transition\" hx-boost=\"true\"><header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
