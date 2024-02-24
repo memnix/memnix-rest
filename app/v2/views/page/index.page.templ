@@ -1,10 +1,15 @@
 package page
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
+import "github.com/nicksnyder/go-i18n/v2/i18n"
 
-templ hello(name string) {
+templ hello(name string, localizer *i18n.Localizer) {
 	<div class="flex flex-col" data-testid="helloComponent">
-		<h1 class="mx-auto" data-testid="helloH1">Hello, { name } !</h1>
+		<h1 class="mx-auto" data-testid="helloH1">
+			{ localizer.MustLocalize(&i18n.LocalizeConfig{
+			MessageID: "auth.welcome_back",
+		}) }, { name } !
+		</h1>
 		<h2 class="mx-auto ">Banana ! </h2>
 		<button
 			hx-post="/clicked"
@@ -24,7 +29,7 @@ templ Clicked() {
 	</div>
 }
 
-templ Hero(name string) {
+templ Hero(name string, localizer *i18n.Localizer) {
 	<section
 		data-testid="hero"
 		class="mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto"
@@ -68,7 +73,7 @@ templ Hero(name string) {
 			</div>
 			<div class="block flex-1 items-center md:flex">
 				<div class="relative m-auto max-w-4xl">
-					@hello(name)
+					@hello(name, localizer)
 				</div>
 			</div>
 		</div>

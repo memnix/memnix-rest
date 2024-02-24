@@ -7,13 +7,16 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/memnix/memnix-rest/app/v2/views/page"
+	"github.com/memnix/memnix-rest/pkg/i18n"
 )
+
+var localizer = i18n.MockLocalizer("../../../../locales/en.json")
 
 func TestHero(t *testing.T) {
 	r, w := io.Pipe()
 	const name = "John"
 	go func() {
-		_ = page.Hero(name).Render(context.Background(), w)
+		_ = page.Hero(name, localizer).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 
@@ -33,7 +36,7 @@ func TestHero(t *testing.T) {
 	}
 
 	// Assert that the h1 is the name
-	if doc.Find(`[data-testid="helloH1"]`).Text() != "Hello, "+name+" !" {
+	if doc.Find(`[data-testid="helloH1"]`).Text() != "Welcome back on Memnix , "+name+" !" {
 		t.Errorf("Expected to find a h1 with the name: %s, but got %s", name, doc.Find(`[data-testid="helloH1"]`).Text())
 	}
 

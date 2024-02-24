@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/memnix/memnix-rest/app/v2/views/page"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type PageController struct{}
@@ -15,7 +16,17 @@ func NewPageController() *PageController {
 }
 
 func (p *PageController) GetIndex(c echo.Context) error {
-	hero := page.Hero("John")
+	if lang, ok := c.Get("lang").(string); ok {
+		slog.Debug("🌐 ", slog.String("lang", lang))
+	}
+
+	localizer, ok := c.Get("localizer").(*i18n.Localizer)
+	if !ok {
+		slog.WarnContext(c.Request().Context(), "Failed to get localizer")
+		return Render(c, http.StatusInternalServerError, nil)
+	}
+
+	hero := page.Hero("John", localizer)
 
 	index := page.HomePage("Memnix", "", false, false, nil, nil, hero)
 

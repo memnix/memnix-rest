@@ -1,0 +1,31 @@
+{
+  "hello": "Welcome back on Memnix",
+
+  "cta": {
+    "get_started": "Get started",
+    "learn_more": "Learn more"
+  },
+  "auth": {
+    "welcome_back": "Welcome back on Memnix ",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "forgot_password": "Forgot password?",
+    "register": "Register"
+  },
+  "description": {
+    "spaced_repetition_learning_app": "A spaced repetition learning app using AI "
+  },
+  "features": {
+    "personalized_learning": "Personalized learning",
+    "open_source_free": "Open source and free",
+    "modern": "Modern",
+    "accessible": "Accessible",
+    "personalized_learning_description": "The app adapts to your learning style and your needs",
+    "open_source_free_description": "The app is open source and free",
+    "modern_description": "The app is modern and easy to use",
+    "accessible_description": "The app is accessible and easy to use",
+    "features": "Features",
+    "what_you_get": "What you get with the app"
+  }
+}

@@ -1,0 +1,29 @@
+{
+    "cta": {
+        "get_started": "Commencez",
+        "learn_more": "En savoir plus"
+    },
+    "auth": {
+        "welcome_back": "Bienvenue à nouveau sur Memnix",
+        "email": "Email",
+        "password": "Mot de passe",
+        "login": "Connection",
+        "forgot_password": "Mot de passe oublié ?",
+        "register": "S'inscrire"
+    },
+    "description": {
+        "spaced_repetition_learning_app": "Une application d'apprentissage par répétition espacée utilisant l'IA"
+    },
+    "features": {
+        "personalized_learning": "L'apprentissage personnalisé",
+        "open_source_free": "Source ouverte et gratuite",
+        "modern": "Moderne",
+        "accessible": "Accessible",
+        "personalized_learning_description": "L'application s'adapte à votre style d'apprentissage et à vos besoins",
+        "open_source_free_description": "L'application est open source et gratuite",
+        "modern_description": "L'application est moderne et facile à utiliser",
+        "accessible_description": "L'application est accessible et facile à utiliser",
+        "features": "Caractéristiques",
+        "what_you_get": "Ce que vous obtenez avec l'application"
+    }
+}
