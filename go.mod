@@ -6,8 +6,8 @@ require (
 	github.com/PuerkitoBio/goquery v1.9.0
 	github.com/a-h/templ v0.2.543
 	github.com/bytedance/gopkg v0.0.0-20240202110943-5e26950c5e57
-	github.com/bytedance/sonic v1.11.0
-	github.com/davidbyttow/govips/v2 v2.13.0
+	github.com/bytedance/sonic v1.11.1
+	github.com/davidbyttow/govips/v2 v2.14.0
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
@@ -30,7 +30,7 @@ require (
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/sdk v1.24.0
 	go.opentelemetry.io/otel/trace v1.24.0
-	golang.org/x/crypto v0.19.0
+	golang.org/x/crypto v0.20.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	gorm.io/driver/postgres v1.5.6
 	gorm.io/gorm v1.25.7
