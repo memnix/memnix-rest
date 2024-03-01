@@ -1953,12 +1953,20 @@ html {
   display: flex;
 }
 
+.hidden {
+  display: none;
+}
+
 .h-6 {
   height: 1.5rem;
 }
 
 .h-px {
   height: 1px;
+}
+
+.h-8 {
+  height: 2rem;
 }
 
 .w-6 {
@@ -1972,6 +1980,10 @@ html {
 
 .w-full {
   width: 100%;
+}
+
+.w-auto {
+  width: auto;
 }
 
 .min-w-\[384px\] {
@@ -2215,6 +2227,10 @@ html {
 
   .md\:mb-8 {
     margin-bottom: 2rem;
+  }
+
+  .md\:block {
+    display: block;
   }
 
   .md\:flex {

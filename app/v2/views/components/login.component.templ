@@ -5,7 +5,7 @@ templ LoginComponent() {
 		<form hx-post="/login" hx-swap="outerHTML" hx-target="#login-error">
 			<div class="" hx-target="this">
 				<label class="label">
-					<span class="label-text">auth.email</span>
+					<span class="label-text">Email</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
@@ -16,7 +16,7 @@ templ LoginComponent() {
 			</div>
 			<div class="">
 				<label class="label">
-					<span class="label-text">auth.password</span>
+					<span class="label-text">Password</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
@@ -27,7 +27,7 @@ templ LoginComponent() {
 			</div>
 			<div class="pt-6">
 				<button class="btn-primary btn transition duration-100 w-full">
-					auth.login
+					Login
 				</button>
 			</div>
 		</form>

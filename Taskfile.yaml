@@ -12,7 +12,6 @@ tasks:
   tailwind:
     cmds:
       - npm run watch
-
   commit:
     cmds:
       - git add -A
@@ -30,7 +29,6 @@ tasks:
       - task: generate
     cmds:
       - go build -o build/memnix ./cmd/v2/main.go
-
   clean:
     cmds:
       - rm -rf build

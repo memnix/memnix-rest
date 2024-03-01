@@ -7,7 +7,7 @@ templ LoginContent() {
 	<section class="py-6 sm:py-8 lg:py-12" data-testid="loginContent">
 		<div class="mx-auto max-w-screen-2xl px-4 md:px-8">
 			<h2 class="mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl">
-				auth.login
+				Login
 			</h2>
 			<div class="mx-auto max-w-lg rounded-lg border">
 				@components.LoginComponent()
@@ -21,14 +21,14 @@ templ LoginContent() {
 					<a
 						class="btn-accent btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100"
 						href="githubEndpoint"
-            data-testid="githubLogin"
+						data-testid="githubLogin"
 					>
 						Continue with github
 					</a>
 					<a
 						class="btn-secondary btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100"
 						href="discordEndpoint"
-            data-testid="discordLogin"
+						data-testid="discordLogin"
 					>
 						Continue with discord
 					</a>
@@ -36,7 +36,7 @@ templ LoginContent() {
 				<div class="flex items-center justify-center p-4">
 					<p class="text-center text-sm">
 						Don't have an account?
-						<a class="text-secondary transition duration-100">Register </a>
+						<a class="text-secondary transition duration-100" href="/register">Register </a>
 					</p>
 				</div>
 			</div>
