@@ -12,6 +12,11 @@ tasks:
   tailwind:
     cmds:
       - npm run watch
+
+  commit:
+    cmds:
+      - git add -A
+      - cz --name cz_gitmoji commit
   lint:
     cmds:
       - go mod tidy

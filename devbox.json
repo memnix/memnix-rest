@@ -25,16 +25,16 @@
   },
   "shell": {
     "init_hook": [
-      "export GOROOT=$(go env GOROOT)",
+      "export \"GOROOT=$(go env GOROOT)\"",
       ". $VENV_DIR/bin/activate",
-      "export PATH=$PATH:$GOPATH/bin",
-      "npm install"
+      "export PATH=$PATH:$GOPATH/bin"
     ],
     "scripts": {
       "test": "go test ./...",
       "install:cz": "pip install cz-conventional-gitmoji",
       "install:go-mod-upgrade": "go install github.com/oligot/go-mod-upgrade@latest",
       "install:betteralign": "go install https://github.com/dkorunic/betteralignt",
+      "install:npm": "npm install",
       "api": "APP_ENV=dev go run ./cmd/v1",
       "hadolint": "hadolint ./Dockerfile --ignore DL3018",
       "commit": "git add -A && cz --name cz_gitmoji commit",
