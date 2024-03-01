@@ -41,7 +41,7 @@ func (l *Logger) CreateGlobalHandler() {
 
 	logger := slog.New(handler)
 
-	slog.SetLogLoggerLevel(l.logLevel)
+	// slog.SetLogLoggerLevel(l.logLevel)
 
 	slog.SetDefault(logger)
 }

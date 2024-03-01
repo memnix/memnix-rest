@@ -16,7 +16,7 @@ tasks:
     cmds:
       - go mod tidy
       - gofumpt -l -w .
-      - fieldalignment -fix ./...
+      - betteralign -apply ./...
       - gci write -s standard -s default  --skip-generated  .
       - golangci-lint run
       - go test -cover ./...
@@ -30,7 +30,6 @@ tasks:
     cmds:
       - rm -rf build
       - rm -rf static/style.css
-      - rm -rf app/v2/views/**/*.go
   generate:
     aliases:
       - gen
