@@ -157,7 +157,7 @@ func TestGenerateToken(t *testing.T) {
 	// Set up test cases
 	testCases := []struct {
 		name   string
-		userID uint
+		userID int32
 	}{
 		{
 			name:   "ValidUserID",
@@ -319,7 +319,7 @@ func TestGetConnectedUserID(t *testing.T) {
 		expectedErr error
 		name        string
 		tokenHeader string
-		expectedID  uint
+		expectedID  int32
 	}{
 		{
 			name:        "ValidToken",
@@ -386,9 +386,9 @@ func FuzzGenerateToken(f *testing.F) {
 	// Create a mock context
 	ctx := context.TODO()
 
-	f.Add(uint(1)) // Add a value to the fuzzing pool
+	f.Add(int32(1)) // Add a value to the fuzzing pool
 
-	f.Fuzz(func(t *testing.T, userID uint) {
+	f.Fuzz(func(t *testing.T, userID int32) {
 		token, err := instance.GenerateToken(ctx, userID)
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)

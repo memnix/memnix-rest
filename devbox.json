@@ -6,7 +6,7 @@
     "python@3.10",
     "tailwindcss@3.4.1",
     "air@1.49.0",
-    "templ@0.2.543",
+    "templ@0.2.598",
     "go-task@3.34.1",
     "wire@0.6.0",
     "gofumpt@0.3.1",

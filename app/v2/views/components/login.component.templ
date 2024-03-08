@@ -2,7 +2,7 @@ package components
 
 templ LoginComponent() {
 	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="loginComponent">
-		<form hx-post="/login" hx-swap="outerHTML" hx-target="#login-error">
+		<form hx-post="/login" hx-swap="outerHTML">
 			<div class="" hx-target="this">
 				<label class="label">
 					<span class="label-text">Email</span>

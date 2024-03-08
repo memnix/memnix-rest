@@ -12,7 +12,7 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (email, password, username) VALUES ($1, $2, $3) RETURNING id, email, password, created_at, updated_at, deleted_at, username
+INSERT INTO users (email, password, username) VALUES ($1, $2, $3) RETURNING id, email, password, created_at, updated_at, deleted_at, username, oauth_id, oauth_provider, has_oauth, avatar, permission
 `
 
 type CreateUserParams struct {
@@ -32,6 +32,11 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Username,
+		&i.OauthID,
+		&i.OauthProvider,
+		&i.HasOauth,
+		&i.Avatar,
+		&i.Permission,
 	)
 	return i, err
 }
@@ -46,7 +51,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, password, created_at, updated_at, deleted_at, username FROM users WHERE id = $1
+SELECT id, email, password, created_at, updated_at, deleted_at, username, oauth_id, oauth_provider, has_oauth, avatar, permission FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
@@ -60,12 +65,17 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Username,
+		&i.OauthID,
+		&i.OauthProvider,
+		&i.HasOauth,
+		&i.Avatar,
+		&i.Permission,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, created_at, updated_at, deleted_at, username FROM users WHERE email = $1
+SELECT id, email, password, created_at, updated_at, deleted_at, username, oauth_id, oauth_provider, has_oauth, avatar, permission FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -79,6 +89,11 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Username,
+		&i.OauthID,
+		&i.OauthProvider,
+		&i.HasOauth,
+		&i.Avatar,
+		&i.Permission,
 	)
 	return i, err
 }
@@ -95,7 +110,7 @@ func (q *Queries) GetUserName(ctx context.Context, id int32) (pgtype.Text, error
 }
 
 const updateUser = `-- name: UpdateUser :one
-UPDATE users SET email = $1, password = $2, username = $3 WHERE id = $4 RETURNING id, email, password, created_at, updated_at, deleted_at, username
+UPDATE users SET email = $1, password = $2, username = $3 WHERE id = $4 RETURNING id, email, password, created_at, updated_at, deleted_at, username, oauth_id, oauth_provider, has_oauth, avatar, permission
 `
 
 type UpdateUserParams struct {
@@ -121,6 +136,11 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Username,
+		&i.OauthID,
+		&i.OauthProvider,
+		&i.HasOauth,
+		&i.Avatar,
+		&i.Permission,
 	)
 	return i, err
 }

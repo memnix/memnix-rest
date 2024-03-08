@@ -64,10 +64,10 @@ func NewJWTInstance(headerLen, expirationTime int,
 // It's expiration time is defined in utils.GetExpirationTime
 // It's secret key is defined in the environment variable SECRET_KEY
 // see: utils/config.go for more information
-func (instance Instance) GenerateToken(_ context.Context, userID uint) (string, error) {
+func (instance Instance) GenerateToken(_ context.Context, userID int32) (string, error) {
 	// Create the Claims for the token
 	claims := jwt.NewWithClaims(instance.SigningMethod, jwt.RegisteredClaims{
-		Issuer:    utils.ConvertUIntToStr(userID),     // Issuer is the user id
+		Issuer:    utils.ConvertInt32ToStr(userID),    // Issuer is the user id
 		ExpiresAt: instance.CalculateExpirationTime(), // ExpiresAt is the expiration time
 	})
 
@@ -82,11 +82,11 @@ func (instance Instance) GenerateToken(_ context.Context, userID uint) (string, 
 
 // VerifyToken verifies a jwt token
 // and returns the user id and an error.
-func (Instance) VerifyToken(token *jwt.Token) (uint, error) {
+func (Instance) VerifyToken(token *jwt.Token) (int32, error) {
 	// claims is of type jwt.MapClaims
 	if claims, ok := token.Claims.(jwt.MapClaims); token.Valid && ok {
 		// Get the issuer from the claims and convert it to uint
-		userID, err := utils.ConvertStrToUInt(claims["iss"].(string))
+		userID, err := utils.ConvertStrToInt32(claims["iss"].(string))
 		if err != nil {
 			return 0, err
 		}
@@ -129,7 +129,7 @@ func (instance Instance) ExtractToken(token string) string {
 }
 
 // GetConnectedUserID gets the user id from a jwt token.
-func (instance Instance) GetConnectedUserID(ctx context.Context, tokenHeader string) (uint, error) {
+func (instance Instance) GetConnectedUserID(ctx context.Context, tokenHeader string) (int32, error) {
 	if tokenHeader == "" {
 		return 0, errors.New("empty token")
 	}
