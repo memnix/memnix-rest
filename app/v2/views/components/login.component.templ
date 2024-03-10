@@ -26,7 +26,10 @@ templ LoginComponent() {
 				/>
 			</div>
 			<div class="pt-6">
-				<button class="btn-primary btn transition duration-100 w-full">
+				<button
+					class="btn-primary btn transition duration-100 w-full"
+					hx-disabled-elt="this"
+				>
 					Login
 				</button>
 			</div>

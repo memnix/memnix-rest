@@ -23,7 +23,7 @@ func LoginComponent() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4 md:p-8\" data-testid=\"loginComponent\"><form hx-post=\"/login\" hx-swap=\"outerHTML\"><div class=\"\" hx-target=\"this\"><label class=\"label\"><span class=\"label-text\">Email</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your email\" type=\"email\" name=\"email\"></div><div class=\"\"><label class=\"label\"><span class=\"label-text\">Password</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your password\" type=\"password\" name=\"password\"></div><div class=\"pt-6\"><button class=\"btn-primary btn transition duration-100 w-full\">Login</button></div></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4 md:p-8\" data-testid=\"loginComponent\"><form hx-post=\"/login\" hx-swap=\"outerHTML\"><div class=\"\" hx-target=\"this\"><label class=\"label\"><span class=\"label-text\">Email</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your email\" type=\"email\" name=\"email\"></div><div class=\"\"><label class=\"label\"><span class=\"label-text\">Password</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your password\" type=\"password\" name=\"password\"></div><div class=\"pt-6\"><button class=\"btn-primary btn transition duration-100 w-full\" hx-disabled-elt=\"this\">Login</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -54,7 +54,7 @@ func LoginError(err string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(err)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/login.component.templ`, Line: 37, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/login.component.templ`, Line: 40, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

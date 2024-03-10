@@ -1,7 +1,9 @@
 package partials
 
 templ FlashMessages(errMsgs, sucMsgs []string) {
-	<div>
+	<div
+		_="init wait 5s then remove me"
+	>
 		if len(errMsgs) != 0 {
 			<div
 				role="alert"
@@ -26,6 +28,7 @@ templ FlashMessages(errMsgs, sucMsgs []string) {
 		if len(sucMsgs) != 0 {
 			<div
 				role="alert"
+				_="wait 2s then remove me"
 				class="alert alert-success w-fit min-w-[384px] mx-auto mt-12"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
