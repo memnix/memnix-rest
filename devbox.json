@@ -15,7 +15,8 @@
     "golangci-lint@1.55.2",
     "pre-commit@3.3.3",
     "ggshield@1.24.0",
-    "sqlc@1.25.0"
+    "sqlc@1.25.0",
+    "atlas@0.19.2"
   ],
   "env": {
     "GOPATH": "${workspaceRoot}",
