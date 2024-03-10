@@ -1,3 +1,50 @@
+## v2.0.0-a1 (2024-03-10)
+
+### 💥 Boom
+
+- switch to sqlc >>> ⏰ 3h
+
+### ♻️  Refactorings
+
+- **views**: better ui
+
+### BREAKING CHANGE
+
+- remove gorm for sqlc
+
+### ✅🤡🧪 Tests
+
+- **views**: update tests
+- **tests**: remove tests that need the db
+
+### 💄🚸 UI & UIX
+
+- **flashmessages**: auto remove after a timer
+
+### 💚👷 CI & Build
+
+- fix weird stuff
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- **deps**: update deps
+
+### 🔐🚧📈✏️ 💩👽️🍻💬🥚🌱🚩🥅🩺 Others
+
+- **sqlc**: try sqlc
+
+### 🔧🔨📦️ Configuration, Scripts, Packages
+
+- **devbox**: add atlas
+
+### 🗃️ Database
+
+- add atlas migration
+
+### 🚨 Linting
+
+- fix packages
+
 ## v2.0.0-a0 (2024-02-24)
 
 ### ✨ Features
