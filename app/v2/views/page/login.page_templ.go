@@ -12,6 +12,7 @@ import "bytes"
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
 import "github.com/memnix/memnix-rest/app/v2/views/components"
+import "github.com/memnix/memnix-rest/domain"
 
 func LoginContent() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -47,7 +48,7 @@ func LoginContent() templ.Component {
 
 func LoginPage(title string,
 	isError bool,
-	errMsgs, sucMsgs []string,
+	errMsgs, sucMsgs []string, nonce domain.Nonce,
 	cmp templ.Component) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -76,7 +77,7 @@ func LoginPage(title string,
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Base(title, "", false, isError, errMsgs, sucMsgs).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Base(title, "", false, isError, errMsgs, sucMsgs, nonce).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

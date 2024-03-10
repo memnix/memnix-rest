@@ -58,3 +58,9 @@ type Route struct {
 type Model interface {
 	TableName() string
 }
+
+type Nonce struct {
+	HtmxNonce        string
+	TwNonce          string
+	HyperscriptNonce string
+}

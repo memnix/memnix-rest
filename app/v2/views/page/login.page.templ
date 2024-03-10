@@ -2,6 +2,7 @@ package page
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
 import "github.com/memnix/memnix-rest/app/v2/views/components"
+import "github.com/memnix/memnix-rest/domain"
 
 templ LoginContent() {
 	<section class="py-6 sm:py-8 lg:py-12" data-testid="loginContent">
@@ -46,9 +47,9 @@ templ LoginContent() {
 
 templ LoginPage(  title string,
     isError bool,
-	errMsgs, sucMsgs []string,
+	errMsgs, sucMsgs []string, nonce domain.Nonce,
     cmp templ.Component) {
-	@layout.Base(title, "", false, isError, errMsgs, sucMsgs) {
+	@layout.Base(title, "", false, isError, errMsgs, sucMsgs, nonce) {
 		@cmp
 	}
 }

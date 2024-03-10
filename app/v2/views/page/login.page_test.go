@@ -7,6 +7,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/memnix/memnix-rest/app/v2/views/page"
+	"github.com/memnix/memnix-rest/domain"
 )
 
 func TestLoginContent(t *testing.T) {
@@ -49,7 +50,7 @@ func TestLoginPage(t *testing.T) {
 	errMsgs := make([]string, 0)
 	sucMsgs := make([]string, 0)
 	go func() {
-		_ = page.LoginPage(title, isError, errMsgs, sucMsgs, page.LoginContent()).Render(context.Background(), w)
+		_ = page.LoginPage(title, isError, errMsgs, sucMsgs, domain.Nonce{}, page.LoginContent()).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 
