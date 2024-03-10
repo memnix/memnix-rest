@@ -3,7 +3,7 @@ server:
   AppVersion: 1.0.0
   Host: http://localhost:3000
   FrontendURL: http://localhost:3000
-Database:
+Pgx:
   DSN: postgresql://localhost:5430/postgres?user=user&password=password
 Redis:
   Addr: :6380

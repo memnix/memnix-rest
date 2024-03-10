@@ -99,14 +99,11 @@ func shutdown() error {
 
 	slog.Info("🧹 Running cleanup tasks...")
 
-	err := infrastructures.GetDBConnInstance().DisconnectDB()
-	if err != nil {
-		shutdownError = errors.Wrap(shutdownError, err.Error())
-	} else {
-		slog.Info("✅ Disconnected from database")
-	}
+	infrastructures.GetPgxConnInstance().ClosePgx()
 
-	err = infrastructures.GetRedisManagerInstance().CloseRedis()
+	slog.Info("✅ Disconnected from database")
+
+	err := infrastructures.GetRedisManagerInstance().CloseRedis()
 	if err != nil {
 		shutdownError = errors.Wrap(shutdownError, err.Error())
 	} else {
@@ -160,7 +157,7 @@ func setupOAuth(cfg *config.Config) {
 
 func setupInfrastructures(cfg *config.Config) {
 	err := infrastructures.NewPgxConnInstance(infrastructures.PgxConfig{
-		DSN: cfg.Database.DSN,
+		DSN: cfg.Pgx.DSN,
 	}).ConnectPgx()
 	if err != nil {
 		log.Fatal("❌ Error connecting to database", slog.Any("error", err))

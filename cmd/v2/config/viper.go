@@ -12,9 +12,9 @@ import (
 type Config struct {
 	Server    ServerConfig
 	Log       LogConfig
+	Pgx       infrastructures.PgxConfig
 	Auth      AuthConfig
 	Sentry    infrastructures.SentryConfig
-	Database  infrastructures.DatabaseConfig
 	Redis     infrastructures.RedisConfig
 	Ristretto infrastructures.RistrettoConfig
 }

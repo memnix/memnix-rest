@@ -18,7 +18,9 @@ var (
 )
 
 type PgxConfig struct {
-	DSN string
+	DSN             string
+	SQLMaxIdleConns int
+	SQLMaxOpenConns int
 }
 
 func GetPgxConnInstance() *PgxConnSingleton {
