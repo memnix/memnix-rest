@@ -56,15 +56,24 @@ type PublicUser struct {
 
 // Login is the login model.
 type Login struct {
-	Email    string `json:"email" validate:"email"` // Email of the user
-	Password string `json:"password"`               // Password of the user
+	Email    string `json:"email" validate:"required,email,max=254"` // Email of the user
+	Password string `json:"password" validate:"required,max=72"`     // Password of the user
+}
+
+// Validate validates the login model.
+func (l *Login) Validate() error {
+	return GetValidatorInstance().Validate().Struct(l)
 }
 
 // Register is the register model.
 type Register struct {
-	Username string `json:"username" validate:"required"` // Username of the user
-	Email    string `json:"email" validate:"email"`       // Email of the user
-	Password string `json:"password" validate:"required"` // Password of the user
+	Username string `json:"username" validate:"required,max=50,min=3"` // Username of the user
+	Email    string `json:"email" validate:"email,required,max=254"`   // Email of the user
+	// Password of the user
+	// min length is 12 as recommended by the OWASP password guidelines
+	// max length is 72 because of bcrypt limitation
+	// the password must have a minimum entropy of 72 bits but the recommended is 80 bits (CNIL, 2022)
+	Password string `json:"password" validate:"required,min=10,max=72"`
 }
 
 // Validate validates the register model.

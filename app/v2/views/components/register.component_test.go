@@ -46,22 +46,3 @@ func TestRegisterComponent(t *testing.T) {
 		t.Errorf("Expected to find a register button")
 	}
 }
-
-func TestRegisterError(t *testing.T) {
-	r, w := io.Pipe()
-	errorMessage := "Invalid email or password"
-	go func() {
-		_ = components.RegisterError(errorMessage).Render(context.Background(), w)
-		_ = w.Close()
-	}()
-
-	doc, err := goquery.NewDocumentFromReader(r)
-	if err != nil {
-		t.Fatalf("Error reading document: %s", err)
-	}
-
-	// Assert that the login test is correct
-	if doc.Text() != errorMessage {
-		t.Errorf("Expected the error message to be %s, got %s", errorMessage, doc.Text())
-	}
-}

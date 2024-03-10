@@ -15,6 +15,7 @@ type IUseCase interface {
 	RefreshToken(ctx context.Context, user db.User) (string, error)
 	RegisterOauth(ctx context.Context, user db.User) error
 	LoginOauth(ctx context.Context, user db.User) (string, error)
+	ValidatePassword(ctx context.Context, password string) (float64, error)
 }
 
 // IAuthRedisRepository is the interface for the auth redis repository.

@@ -11,8 +11,11 @@ import (
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/services/user"
 	"github.com/pkg/errors"
+	passwordvalidator "github.com/wagslane/go-password-validator"
 	"golang.org/x/crypto/bcrypt"
 )
+
+const minEntropy = 70
 
 // UseCase is the auth use case.
 type UseCase struct {
@@ -91,6 +94,14 @@ func (*UseCase) RefreshToken(ctx context.Context, user db.User) (string, error) 
 	}
 
 	return token, nil
+}
+
+// ValidatePassword validates a password.
+func (a *UseCase) ValidatePassword(_ context.Context, password string) (float64, error) {
+	entropy := passwordvalidator.GetEntropy(password)
+	err := passwordvalidator.Validate(password, minEntropy)
+
+	return entropy, err
 }
 
 // RegisterOauth registers a new user with oauth.

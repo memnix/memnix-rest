@@ -23,4 +23,5 @@ func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
 	e.POST("/logout", authController.PostLogout)
 	e.POST("/login", authController.PostLogin)
 	e.POST("/clicked", pageController.PostClicked)
+	e.POST("/register/password", authController.ValidatePassword)
 }
