@@ -7,101 +7,18 @@
 package services
 
 import (
-	"github.com/memnix/memnix-rest/app/v1/controllers"
 	"github.com/memnix/memnix-rest/app/v2/handlers"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/services/auth"
-	"github.com/memnix/memnix-rest/services/card"
-	"github.com/memnix/memnix-rest/services/deck"
-	"github.com/memnix/memnix-rest/services/mcq"
 	"github.com/memnix/memnix-rest/services/user"
 )
 
 // Injectors from wire.go:
 
 func InitializeAuthHandler() handlers.AuthController {
-	db := infrastructures.GetDBConn()
-	iRepository := user.NewRepository(db)
+	pool := infrastructures.GetPgxConn()
+	iRepository := user.NewRepository(pool)
 	iUseCase := auth.NewUseCase(iRepository)
 	authController := handlers.NewAuthController(iUseCase)
 	return authController
-}
-
-// InitializeUser initializes the user controller.
-func InitializeUser() controllers.UserController {
-	db := infrastructures.GetDBConn()
-	iRepository := user.NewRepository(db)
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := user.NewRedisRepository(client)
-	cache := infrastructures.GetRistrettoCache()
-	iRistrettoRepository := user.NewRistrettoCache(cache)
-	iUseCase := user.NewUseCase(iRepository, iRedisRepository, iRistrettoRepository)
-	userController := controllers.NewUserController(iUseCase)
-	return userController
-}
-
-// InitializeAuth initializes the auth controller.
-func InitializeAuth() controllers.AuthController {
-	db := infrastructures.GetDBConn()
-	iRepository := user.NewRepository(db)
-	iUseCase := auth.NewUseCase(iRepository)
-	authController := controllers.NewAuthController(iUseCase)
-	return authController
-}
-
-// InitializeJWT initializes the jwt controller.
-func InitializeJWT() controllers.JwtController {
-	db := infrastructures.GetDBConn()
-	iRepository := user.NewRepository(db)
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := user.NewRedisRepository(client)
-	cache := infrastructures.GetRistrettoCache()
-	iRistrettoRepository := user.NewRistrettoCache(cache)
-	iUseCase := user.NewUseCase(iRepository, iRedisRepository, iRistrettoRepository)
-	jwtController := controllers.NewJwtController(iUseCase)
-	return jwtController
-}
-
-// InitializeOAuth initializes the oauth controller.
-func InitializeOAuth() controllers.OAuthController {
-	db := infrastructures.GetDBConn()
-	iRepository := user.NewRepository(db)
-	iUseCase := auth.NewUseCase(iRepository)
-	client := infrastructures.GetRedisClient()
-	iAuthRedisRepository := auth.NewRedisRepository(client)
-	oAuthController := controllers.NewOAuthController(iUseCase, iAuthRedisRepository)
-	return oAuthController
-}
-
-// InitializeDeck initializes the deck controller.
-func InitializeDeck() controllers.DeckController {
-	db := infrastructures.GetDBConn()
-	iRepository := deck.NewRepository(db)
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := deck.NewRedisRepository(client)
-	iUseCase := deck.NewUseCase(iRepository, iRedisRepository)
-	deckController := controllers.NewDeckController(iUseCase)
-	return deckController
-}
-
-// InitializeCard initializes the card controller.
-func InitializeCard() controllers.CardController {
-	db := infrastructures.GetDBConn()
-	iRepository := card.NewRepository(db)
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := card.NewRedisRepository(client)
-	iUseCase := card.NewUseCase(iRepository, iRedisRepository)
-	cardController := controllers.NewCardController(iUseCase)
-	return cardController
-}
-
-// InitializeMcq initializes the mcq controller.
-func InitializeMcq() controllers.McqController {
-	db := infrastructures.GetDBConn()
-	iRepository := mcq.NewRepository(db)
-	client := infrastructures.GetRedisClient()
-	iRedisRepository := mcq.NewRedisRepository(client)
-	iUseCase := mcq.NewUseCase(iRepository, iRedisRepository)
-	mcqController := controllers.NewMcqController(iUseCase)
-	return mcqController
 }

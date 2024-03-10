@@ -26,19 +26,4 @@ func TestHero(t *testing.T) {
 	if doc.Find(`[data-testid="hero"]`).Length() != 1 {
 		t.Errorf("Expected to find a hero")
 	}
-
-	// Assert that the hero has a hello component
-	if doc.Find(`[data-testid="helloComponent"]`).Length() != 1 {
-		t.Errorf("Expected to find a hello component")
-	}
-
-	// Assert that the h1 is the name
-	if doc.Find(`[data-testid="helloH1"]`).Text() != "Hello, "+name+" !" {
-		t.Errorf("Expected to find a h1 with the name: %s, but got %s", name, doc.Find(`[data-testid="helloH1"]`).Text())
-	}
-
-	// Assert that there is only one h1
-	if doc.Find(`[data-testid="helloH1"]`).Length() != 1 {
-		t.Errorf("Expected to find only one h1")
-	}
 }

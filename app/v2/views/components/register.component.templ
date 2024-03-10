@@ -1,50 +1,85 @@
 package components 
 
+import "strconv"
+
 templ RegisterComponent() {
 	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="registerComponent">
-		<form hx-post="/register" hx-swap="outerHTML" hx-target="#register-error">
-			<div class="" hx-target="this">
+		<form hx-post="/register" hx-swap="afterend">
+			<div class="">
 				<label class="label">
-					<span class="label-text">auth.email</span>
+					<span id="email-error" class="label-text">Email</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
 					placeholder="Enter your email"
 					type="email"
 					name="email"
+					required
+					maxlength="254"
 				/>
 			</div>
-			<div class="" hx-target="this">
+			<div class="">
 				<label class="label">
-					<span class="label-text">auth.username</span>
+					<span id="username-error" class="label-text">Username</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
 					placeholder="Enter your username"
+					required
+					maxlength="50"
+					minlength="3"
 					type="username"
 					name="username"
 				/>
 			</div>
 			<div class="">
 				<label class="label">
-					<span class="label-text">auth.password</span>
+					<span id="password-error" class="label-text">Password</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
+					hx-post="/register/password"
+					hx-trigger="input changed delay:500ms"
+					hx-swap="afterend"
 					placeholder="Enter your password"
 					type="password"
 					name="password"
+					minlength="10"
+					maxlength="72"
+					required
 				/>
+				<div id="password-entropy">
+					<span class="label-text">Strength of password</span>
+					<progress id="pb" class="progress progress-error w-full" value="6" max="100"></progress>
+				</div>
 			</div>
 			<div class="pt-6">
 				<button class="btn-primary btn transition duration-100 w-full">
-					auth.register
+					Register
 				</button>
 			</div>
 		</form>
 	</div>
 }
 
-templ RegisterError(err string) {
-	<div class="text-red-500">{ err }</div>
+templ UsernameError(err string) {
+	<div id="#username-error" hx-swap-oob="true" class="text-red-500 text-xs mt-1">Username - { err }</div>
+}
+
+templ PasswordEntropy(value float64, err error) {
+	<div id="password-entropy" hx-swap-oob="true">
+		<span class="label-text">Strength of password</span>
+		<progress
+			id="pb"
+			class={ "progress w-full transition-all ease-out duration-[6s]", templ.KV("progress-error", value<72), 
+			templ.KV("progress-warning", value >= 72 && value < 80), templ.KV("progress-success", value >= 80) }
+			value={ strconv.Itoa(int(value)) }
+			max="100"
+		></progress>
+		if err != nil {
+			<span class="text-xs text-gray-500">
+				{ err.Error() }
+			</span>
+		}
+	</div>
 }

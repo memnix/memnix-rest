@@ -2,38 +2,59 @@ package components
 
 templ LoginComponent() {
 	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="loginComponent">
-		<form hx-post="/login" hx-swap="outerHTML" hx-target="#login-error">
-			<div class="" hx-target="this">
-				<label class="label">
-					<span class="label-text">auth.email</span>
+		<form hx-post="/login" hx-swap="beforeend">
+			<div class="">
+				<label class="label flex-row">
+					<span id="email-error" class="label-text">Email</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
 					placeholder="Enter your email"
 					type="email"
 					name="email"
+					required
 				/>
 			</div>
+			<span class="text-xs text-gray-500">
+				We'll never share your email with anyone else.
+			</span>
 			<div class="">
 				<label class="label">
-					<span class="label-text">auth.password</span>
+					<span id="password-error" class="label-text">Password</span>
 				</label>
 				<input
 					class="input-bordered input w-full transition duration-100"
 					placeholder="Enter your password"
 					type="password"
 					name="password"
+					required
 				/>
 			</div>
+			<span class="text-xs text-gray-500">
+				We recommend using a strong password.
+			</span>
 			<div class="pt-6">
-				<button class="btn-primary btn transition duration-100 w-full">
-					auth.login
+				<button
+					class="btn-primary btn transition duration-100 w-full"
+					hx-disabled-elt="this"
+					type="post"
+				>
+					Login
 				</button>
 			</div>
 		</form>
 	</div>
 }
 
+templ EmailError(err string) {
+	<div id="email-error" hx-swap-oob="true" class="text-red-500">Email - { err }</div>
+}
+
+templ PasswordError(err string) {
+	<div id="password-error" hx-swap-oob="true" class="text-red-500">Password - { err }</div>
+}
+
 templ LoginError(err string) {
-	<div class="text-red-500">{ err }</div>
+	<div id="email-error" hx-swap-oob="true" class="text-red-500">Email - { err }</div>
+	<div id="password-error" hx-swap-oob="true" class="text-red-500">Password - { err }</div>
 }

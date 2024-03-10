@@ -6,13 +6,16 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2/log"
+	db "github.com/memnix/memnix-rest/db/sqlc"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/services/user"
 	"github.com/pkg/errors"
+	passwordvalidator "github.com/wagslane/go-password-validator"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
+
+const minEntropy = 70
 
 // UseCase is the auth use case.
 type UseCase struct {
@@ -51,28 +54,27 @@ func (a *UseCase) Login(ctx context.Context, password string, email string) (str
 
 // Register registers a new user
 // Returns an error.
-func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) (domain.User, error) {
+func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) (db.User, error) {
 	if err := VerifyPassword(registerStruct.Password); err != nil {
-		return domain.User{}, errors.Wrap(err, "Verify password failed")
+		return db.User{}, errors.Wrap(err, "Verify password failed")
 	}
 
 	hash, err := GenerateEncryptedPassword(ctx, registerStruct.Password)
 	if err != nil {
-		return domain.User{}, errors.Wrap(err, "Generate encrypted password failed")
+		return db.User{}, errors.Wrap(err, "Generate encrypted password failed")
 	}
 
 	registerStruct.Password = string(hash)
 	registerStruct.Email = strings.ToLower(registerStruct.Email)
-	userModel := registerStruct.ToUser()
 
-	if err = a.Create(ctx, &userModel); err != nil {
+	if err = a.Create(ctx, registerStruct.Email, registerStruct.Password, registerStruct.Username); err != nil {
 		log.WithContext(ctx).Error("failed to create registerStruct in register", slog.Any("error", err))
-		return domain.User{}, errors.Wrap(err, "failed to create registerStruct in register")
+		return db.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 
-	userModel, err = a.GetByEmail(ctx, registerStruct.Email)
+	userModel, err := a.GetByEmail(ctx, registerStruct.Email)
 	if err != nil {
-		return domain.User{}, errors.Wrap(err, "failed to get registerStruct in register")
+		return db.User{}, errors.Wrap(err, "failed to get registerStruct in register")
 	}
 
 	return userModel, nil
@@ -85,7 +87,7 @@ func (*UseCase) Logout(_ context.Context) (string, error) {
 }
 
 // RefreshToken refreshes a token.
-func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, error) {
+func (*UseCase) RefreshToken(ctx context.Context, user db.User) (string, error) {
 	token, err := jwt.GetJwtInstance().GetJwt().GenerateToken(ctx, user.ID)
 	if err != nil {
 		return "", err
@@ -94,12 +96,24 @@ func (*UseCase) RefreshToken(ctx context.Context, user domain.User) (string, err
 	return token, nil
 }
 
-// RegisterOauth registers a new user with oauth.
-func (a *UseCase) RegisterOauth(ctx context.Context, user domain.User) error {
-	return a.Create(ctx, &user)
+// ValidatePassword validates a password.
+func (a *UseCase) ValidatePassword(_ context.Context, password string) (float64, error) {
+	entropy := passwordvalidator.GetEntropy(password)
+	err := passwordvalidator.Validate(password, minEntropy)
+
+	return entropy, err
 }
 
-func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, error) {
+// RegisterOauth registers a new user with oauth.
+func (a *UseCase) RegisterOauth(_ context.Context, _ db.User) error {
+	return nil
+}
+
+func (a *UseCase) LoginOauth(_ context.Context, _ db.User) (string, error) {
+	return "", nil
+}
+
+/*
 	userModel, err := a.GetByEmail(ctx, user.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		log.WithContext(ctx).Error("failed to get user", slog.Any("error", err))
@@ -141,3 +155,4 @@ func (a *UseCase) LoginOauth(ctx context.Context, user domain.User) (string, err
 
 	return jwt.GetJwtInstance().GetJwt().GenerateToken(ctx, userModel.ID)
 }
+*/

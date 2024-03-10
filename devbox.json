@@ -1,40 +1,38 @@
 {
   "packages": [
-    "go@1.22.0",
+    "go@1.21.7",
     "hadolint@2.12.0",
     "commitizen@3.14.1",
     "python@3.10",
     "tailwindcss@3.4.1",
     "air@1.49.0",
-    "templ@0.2.543",
+    "templ@0.2.598",
     "go-task@3.34.1",
-    "wire@0.5.0",
+    "wire@0.6.0",
     "gofumpt@0.3.1",
     "gotools@0.7.0",
     "gci@0.11.0",
     "golangci-lint@1.55.2",
     "pre-commit@3.3.3",
     "ggshield@1.24.0",
-    "vips@8.14.4",
-    "github:nixos/nixpkgs#vips^dev",
-    "gcc@13.2.0"
-
+    "sqlc@1.25.0",
+    "atlas@0.19.2"
   ],
   "env": {
     "GOPATH": "${workspaceRoot}",
-    "CGO_CFLAGS_ALLOW":"-Xpreprocessor"
+    "CGO_CFLAGS_ALLOW": "-Xpreprocessor"
   },
   "shell": {
     "init_hook": [
       "export \"GOROOT=$(go env GOROOT)\"",
-      ". $VENV_DIR/bin/activate",
-      "export PATH=$PATH:$GOPATH/bin",
-      "npm install"
+      "export PATH=$PATH:$GOPATH/bin"
     ],
     "scripts": {
       "test": "go test ./...",
       "install:cz": "pip install cz-conventional-gitmoji",
       "install:go-mod-upgrade": "go install github.com/oligot/go-mod-upgrade@latest",
+      "install:betteralign": "go install https://github.com/dkorunic/betteralignt",
+      "install:npm": "npm install",
       "api": "APP_ENV=dev go run ./cmd/v1",
       "hadolint": "hadolint ./Dockerfile --ignore DL3018",
       "commit": "git add -A && cz --name cz_gitmoji commit",

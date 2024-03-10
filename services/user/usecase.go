@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	"github.com/memnix/memnix-rest/domain"
+	db "github.com/memnix/memnix-rest/db/sqlc"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
 )
@@ -17,17 +17,17 @@ type UseCase struct {
 
 // GetName returns the name of the user with the given id.
 func (u UseCase) GetName(ctx context.Context, id string) string {
-	uintID, _ := utils.ConvertStrToUInt(id)
-
-	return u.IRepository.GetName(ctx, uintID)
+	idInt32, err := utils.ConvertStrToInt32(id)
+	if err != nil {
+		return ""
+	}
+	return u.IRepository.GetName(ctx, idInt32)
 }
 
 // GetByID returns the user with the given id.
-func (u UseCase) GetByID(ctx context.Context, id uint) (domain.User, error) {
+func (u UseCase) GetByID(ctx context.Context, id int32) (db.User, error) {
 	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "GetUserByID")
 	defer span.End()
-
-	var userObject domain.User
 
 	if risrettoHit, err := u.IRistrettoRepository.Get(ctx, id); err == nil {
 		return risrettoHit, nil
@@ -35,7 +35,7 @@ func (u UseCase) GetByID(ctx context.Context, id uint) (domain.User, error) {
 
 	userObject, err := u.IRepository.GetByID(ctx, id)
 	if err != nil {
-		return domain.User{}, err
+		return db.User{}, err
 	}
 
 	_ = u.IRistrettoRepository.Set(ctx, userObject)

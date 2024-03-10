@@ -7,6 +7,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/labstack/echo/v4"
+	db "github.com/memnix/memnix-rest/db/sqlc"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/jwt"
@@ -24,8 +25,8 @@ func NewJwtMiddleware(user user.IUseCase) JwtMiddleware {
 }
 
 // VerifyPermissions checks if the user has the required permissions.
-func (*JwtMiddleware) VerifyPermissions(user domain.User, p domain.Permission) bool {
-	return user.HasPermission(p)
+func (*JwtMiddleware) VerifyPermissions(user db.User, p domain.Permission) bool {
+	return domain.Permission(user.Permission.Int32) >= p
 }
 
 func (j *JwtMiddleware) AuthorizeUser(next echo.HandlerFunc) echo.HandlerFunc {
@@ -71,7 +72,7 @@ func (j *JwtMiddleware) IsConnectedMiddleware(p domain.Permission, next echo.Han
 		sentry.ConfigureScope(func(scope *sentry.Scope) {
 			scope.SetUser(sentry.User{
 				ID:       strconv.Itoa(int(userModel.ID)),
-				Username: userModel.Username,
+				Username: userModel.Username.String,
 				Email:    userModel.Email,
 			})
 		})
@@ -88,13 +89,13 @@ func (j *JwtMiddleware) IsConnectedMiddleware(p domain.Permission, next echo.Han
 	}
 }
 
-func SetUserToContext(c echo.Context, user domain.User) {
+func SetUserToContext(c echo.Context, user db.User) {
 	c.Set("user", user)
 }
 
-func GetUserFromContext(c echo.Context) (domain.User, error) {
+func GetUserFromContext(c echo.Context) (db.User, error) {
 	if c.Get("user") == nil {
-		return domain.User{}, errors.New("user is not initialized")
+		return db.User{}, errors.New("user is not initialized")
 	}
-	return c.Get("user").(domain.User), nil
+	return c.Get("user").(db.User), nil
 }

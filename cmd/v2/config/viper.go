@@ -3,7 +3,6 @@ package config
 import (
 	"log/slog"
 
-	v2 "github.com/memnix/memnix-rest/app/v2"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/oauth"
 	"github.com/spf13/viper"
@@ -11,13 +10,23 @@ import (
 
 // Config holds the configuration for the application.
 type Config struct {
-	Server    v2.ServerConfig
+	Server    ServerConfig
 	Log       LogConfig
+	Pgx       infrastructures.PgxConfig
 	Auth      AuthConfig
 	Sentry    infrastructures.SentryConfig
-	Database  infrastructures.DatabaseConfig
 	Redis     infrastructures.RedisConfig
 	Ristretto infrastructures.RistrettoConfig
+}
+
+// ServerConfig holds the configuration for the server.
+type ServerConfig struct {
+	Port        string
+	AppVersion  string
+	JaegerURL   string
+	Host        string
+	FrontendURL string
+	LogLevel    string
 }
 
 // LogConfig holds the configuration for the logger.

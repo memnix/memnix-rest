@@ -12,11 +12,15 @@ tasks:
   tailwind:
     cmds:
       - npm run watch
+  commit:
+    cmds:
+      - git add -A
+      - cz --name cz_gitmoji commit
   lint:
     cmds:
       - go mod tidy
       - gofumpt -l -w .
-      - fieldalignment -fix ./...
+      - betteralign -apply ./...
       - gci write -s standard -s default  --skip-generated  .
       - golangci-lint run
       - go test -cover ./...
@@ -25,12 +29,10 @@ tasks:
       - task: generate
     cmds:
       - go build -o build/memnix ./cmd/v2/main.go
-
   clean:
     cmds:
       - rm -rf build
       - rm -rf static/style.css
-      - rm -rf app/v2/views/**/*.go
   generate:
     aliases:
       - gen
@@ -46,4 +48,5 @@ tasks:
       - npx tailwindcss build -i tailwind.css -o static/style.css --minify
       - templ generate
       - wire ./...
+      - sqlc generate
       - go generate ./...

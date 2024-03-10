@@ -93,7 +93,7 @@ func TestRegister_Validate(t *testing.T) {
 			register: &domain.Register{
 				Username: "testuser",
 				Email:    "test@example.com",
-				Password: "password",
+				Password: "passwordP@ssw0rd",
 			},
 			shouldErr: false,
 		},
