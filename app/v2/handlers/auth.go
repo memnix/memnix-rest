@@ -100,7 +100,8 @@ func (a *AuthController) PostRegister(c echo.Context) error {
 	entropy, err := a.useCase.ValidatePassword(c.Request().Context(), registerStruct.Password)
 	if err != nil {
 		slog.Info("Auth: ", slog.String("error", err.Error()))
-		return Render(c, http.StatusForbidden, components.PasswordEntropy(entropy, err))
+		passwordEntropy := components.PasswordEntropy(entropy, err)
+		return Render(c, http.StatusOK, passwordEntropy)
 	}
 
 	// Call the use case to authenticate the user

@@ -4,8 +4,8 @@ import "strconv"
 
 templ RegisterComponent() {
 	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="registerComponent">
-		<form hx-post="/register" hx-swap="outerHTML">
-			<div class="" hx-target="this">
+		<form hx-post="/register" hx-swap="afterend">
+			<div class="">
 				<label class="label">
 					<span id="email-error" class="label-text">Email</span>
 				</label>
@@ -18,7 +18,7 @@ templ RegisterComponent() {
 					maxlength="254"
 				/>
 			</div>
-			<div class="" hx-target="this">
+			<div class="">
 				<label class="label">
 					<span id="username-error" class="label-text">Username</span>
 				</label>
