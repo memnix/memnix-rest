@@ -13,3 +13,15 @@ CREATE TABLE
         "avatar" VARCHAR(255) DEFAULT NULL,
         "permission" integer DEFAULT 0
     );
+
+CREATE TABLE
+    "decks" (
+        "id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        "name" VARCHAR(255) NOT NULL,
+        "description" TEXT DEFAULT NULL,
+        "created_at" TIMESTAMP NOT NULL DEFAULT (now () at time zone 'utc'),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT (now () at time zone 'utc'),
+        "deleted_at" TIMESTAMP DEFAULT NULL,
+        "user_id" integer NOT NULL,
+        "public" BOOLEAN DEFAULT FALSE
+    );
