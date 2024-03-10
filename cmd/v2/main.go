@@ -13,7 +13,6 @@ import (
 	"github.com/getsentry/sentry-go"
 	v2 "github.com/memnix/memnix-rest/app/v2"
 	"github.com/memnix/memnix-rest/cmd/v2/config"
-	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/crypto"
 	"github.com/memnix/memnix-rest/pkg/json"
@@ -160,11 +159,9 @@ func setupOAuth(cfg *config.Config) {
 }
 
 func setupInfrastructures(cfg *config.Config) {
-	err := infrastructures.NewDBConnInstance(infrastructures.DatabaseConfig{
-		DSN:             cfg.Database.DSN,
-		SQLMaxIdleConns: cfg.Database.SQLMaxIdleConns,
-		SQLMaxOpenConns: cfg.Database.SQLMaxOpenConns,
-	}).ConnectDB()
+	err := infrastructures.NewPgxConnInstance(infrastructures.PgxConfig{
+		DSN: cfg.Database.DSN,
+	}).ConnectPgx()
 	if err != nil {
 		log.Fatal("❌ Error connecting to database", slog.Any("error", err))
 	}
@@ -220,23 +217,7 @@ func gcTuning() {
 }
 
 func migrate() {
-	// Models to migrate
-	migrates := []domain.Model{
-		&domain.User{}, &domain.Card{}, &domain.Deck{}, &domain.Mcq{},
-	}
-
 	slog.Info("⚙️ Starting database migration...")
-
-	// AutoMigrate models
-	for i := 0; i < len(migrates); i++ {
-		step := i + 1
-		err := infrastructures.GetDBConn().AutoMigrate(&migrates[i])
-		if err != nil {
-			slog.Error(fmt.Sprintf("❌ Error migrating model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
-		} else {
-			slog.Info(fmt.Sprintf("✅ Migration completed for model %s %d/%d", migrates[i].TableName(), step, len(migrates)))
-		}
-	}
 
 	slog.Info("✅ Database migration completed!")
 }

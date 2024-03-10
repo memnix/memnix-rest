@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/dgraph-io/ristretto"
-	"github.com/memnix/memnix-rest/domain"
+	db "github.com/memnix/memnix-rest/db/sqlc"
 	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
 	"github.com/pkg/errors"
@@ -20,39 +20,39 @@ func NewRistrettoCache(ristrettoCache *ristretto.Cache) IRistrettoRepository {
 	}
 }
 
-func (r *RistrettoRepository) Get(ctx context.Context, id uint) (domain.User, error) {
+func (r *RistrettoRepository) Get(ctx context.Context, id int32) (db.User, error) {
 	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "GetByIDRistretto")
 	defer span.End()
 
-	ristrettoHit, ok := r.RistrettoCache.Get(keyPrefix + utils.ConvertUIntToStr(id))
+	ristrettoHit, ok := r.RistrettoCache.Get(keyPrefix + utils.ConvertInt32ToStr(id))
 	if !ok {
-		return domain.User{}, errors.New("user not found")
+		return db.User{}, errors.New("user not found")
 	}
 
 	switch ristrettoHit := ristrettoHit.(type) {
-	case domain.User:
+	case db.User:
 		return ristrettoHit, nil
 	default:
-		return domain.User{}, errors.New("user not found")
+		return db.User{}, errors.New("user not found")
 	}
 }
 
-func (r *RistrettoRepository) Set(ctx context.Context, user domain.User) error {
+func (r *RistrettoRepository) Set(ctx context.Context, user db.User) error {
 	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "SetByIDRistretto")
 	defer span.End()
 
-	r.RistrettoCache.Set(keyPrefix+utils.ConvertUIntToStr(user.ID), user, 0)
+	r.RistrettoCache.Set(keyPrefix+utils.ConvertInt32ToStr(user.ID), user, 0)
 
 	r.RistrettoCache.Wait()
 
 	return nil
 }
 
-func (r *RistrettoRepository) Delete(ctx context.Context, id uint) error {
+func (r *RistrettoRepository) Delete(ctx context.Context, id int32) error {
 	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "DeleteByIDRistretto")
 	defer span.End()
 
-	r.RistrettoCache.Del(keyPrefix + utils.ConvertUIntToStr(id))
+	r.RistrettoCache.Del(keyPrefix + utils.ConvertInt32ToStr(id))
 
 	return nil
 }

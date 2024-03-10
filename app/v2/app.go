@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/memnix/memnix-rest/cmd/v1/config"
+	"github.com/memnix/memnix-rest/cmd/v2/config"
 )
 
 var (
@@ -16,17 +16,7 @@ var (
 
 type InstanceSingleton struct {
 	echoInstance *echo.Echo
-	config       ServerConfig
-}
-
-// ServerConfig holds the configuration for the server.
-type ServerConfig struct {
-	Port        string
-	AppVersion  string
-	JaegerURL   string
-	Host        string
-	FrontendURL string
-	LogLevel    string
+	config       config.ServerConfig
 }
 
 // New returns a new Echo instance.
@@ -47,7 +37,7 @@ func GetEchoSingleton() *InstanceSingleton {
 	return instance
 }
 
-func CreateEchoInstance(config ServerConfig) *InstanceSingleton {
+func CreateEchoInstance(config config.ServerConfig) *InstanceSingleton {
 	return GetEchoSingleton().WithConfig(config)
 }
 
@@ -59,7 +49,7 @@ func (i *InstanceSingleton) Start() error {
 	return nil
 }
 
-func (i *InstanceSingleton) WithConfig(config ServerConfig) *InstanceSingleton {
+func (i *InstanceSingleton) WithConfig(config config.ServerConfig) *InstanceSingleton {
 	i.config = config
 	return i
 }

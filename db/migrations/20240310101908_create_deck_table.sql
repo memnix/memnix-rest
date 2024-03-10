@@ -1,0 +1,2 @@
+-- Create "decks" table
+CREATE TABLE "decks" ("id" integer NOT NULL GENERATED ALWAYS AS IDENTITY, "name" character varying(255) NOT NULL, "description" text NULL, "created_at" timestamp NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text), "updated_at" timestamp NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text), "deleted_at" timestamp NULL, "user_id" integer NOT NULL, "public" boolean NULL DEFAULT false, PRIMARY KEY ("id"));
