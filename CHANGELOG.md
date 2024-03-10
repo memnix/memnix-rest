@@ -1,3 +1,13 @@
+## v2.0.0-a2 (2024-03-10)
+
+### 🔒️ Security
+
+- **password**: verify password strengh >>> ⏰ 3h
+
+### 🎨🏗️ Style & Architecture
+
+- **pgx**: improve pgx config
+
 ## v2.0.0-a1 (2024-03-10)
 
 ### 💥 Boom

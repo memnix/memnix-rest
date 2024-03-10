@@ -1,5 +1,5 @@
 
-FROM golang:1.22-alpine3.19 AS builder
+FROM golang:1.21-alpine3.19 AS builder
 
 ARG VERSION=prod
 
@@ -18,7 +18,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./cmd/api/main.go \
+RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./cmd/v2/main.go \
     && upx /app/memnixrest \
     && wget -q -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 \
     && chmod +x /usr/local/bin/dumb-init \

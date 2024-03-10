@@ -78,10 +78,6 @@ func setup(cfg *config.Config) {
 
 	setupOAuth(cfg)
 
-	// Migrate the database on production mode
-	if config.IsProduction() {
-		migrate()
-	}
 	slog.Info("✅ setup completed!")
 }
 
@@ -211,10 +207,4 @@ func gcTuning() {
 		gctuner.GetMaxGCPercent()))
 
 	slog.Info("✅ GC Tuning completed!")
-}
-
-func migrate() {
-	slog.Info("⚙️ Starting database migration...")
-
-	slog.Info("✅ Database migration completed!")
 }
