@@ -1,3 +1,22 @@
+## v2.0.0-a3 (2024-03-10)
+
+### ♻️  Refactorings
+
+- **config**: remove old config files
+
+### fix
+
+- **deps**: update all non-major dependencies
+- **deps**: update all non-major dependencies
+- **deps**: update module github.com/gofiber/contrib/otelfiber to v2
+- **deps**: update module github.com/gofiber/contrib/otelfiber to v2
+- **deps**: update golang.org/x/exp digest to 814bf88
+- **deps**: update golang.org/x/exp digest to 814bf88
+
+### 💚👷 CI & Build
+
+- fix small issuers
+
 ## v2.0.0-a2 (2024-03-10)
 
 ### 🔒️ Security
