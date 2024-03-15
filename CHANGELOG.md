@@ -1,3 +1,9 @@
+## v2.0.0-a7 (2024-03-15)
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- upgrade deps and remove fiber
+
 ## v2.0.0-a6 (2024-03-15)
 
 ### ⚡️ Performance
