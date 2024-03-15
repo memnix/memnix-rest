@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/gofiber/fiber/v2/log"
 	db "github.com/memnix/memnix-rest/db/sqlc"
 	"github.com/memnix/memnix-rest/domain"
 	"github.com/memnix/memnix-rest/pkg/jwt"
@@ -32,7 +31,7 @@ func NewUseCase(repo user.IRepository) IUseCase {
 func (a *UseCase) Login(ctx context.Context, password string, email string) (string, error) {
 	userModel, err := a.IRepository.GetByEmail(ctx, email)
 	if err != nil {
-		log.WithContext(ctx).Error("user not found ", slog.Any("error", err), slog.String(" email", email))
+		slog.Error("user not found ", slog.Any("error", err), slog.String(" email", email))
 		return "", errors.New("user not found")
 	}
 
@@ -68,7 +67,7 @@ func (a *UseCase) Register(ctx context.Context, registerStruct domain.Register) 
 	registerStruct.Email = strings.ToLower(registerStruct.Email)
 
 	if err = a.Create(ctx, registerStruct.Email, registerStruct.Password, registerStruct.Username); err != nil {
-		log.WithContext(ctx).Error("failed to create registerStruct in register", slog.Any("error", err))
+		slog.Error("failed to create registerStruct in register", slog.Any("error", err))
 		return db.User{}, errors.Wrap(err, "failed to create registerStruct in register")
 	}
 

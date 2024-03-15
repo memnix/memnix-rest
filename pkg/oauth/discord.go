@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/pkg/errors"
 )
 
@@ -43,12 +42,12 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 		reqBody,
 	)
 	if err != nil {
-		log.WithContext(ctx).Error("Failed to get Discord access token", slog.Any("error", err))
+		slog.Error("Failed to get Discord access token", slog.Any("error", err))
 		return "", errors.Wrap(err, RequestFailed)
 	}
 
 	if req == nil || req.Body == nil || req.Header == nil {
-		log.WithContext(ctx).Error("Failed to get Discord access token", slog.Any("error", err))
+		slog.Error("Failed to get Discord access token", slog.Any("error", err))
 		return "", errors.New(RequestFailed)
 	}
 
@@ -58,7 +57,7 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	// Get the response.
 	resp, resperr := http.DefaultClient.Do(req)
 	if resperr != nil {
-		log.WithContext(ctx).Error("Failed to get Discord access token", slog.Any("error", resperr))
+		slog.Error("Failed to get Discord access token", slog.Any("error", resperr))
 		return "", errors.Wrap(resperr, ResponseFailed)
 	}
 
@@ -71,7 +70,7 @@ func GetDiscordAccessToken(ctx context.Context, code string) (string, error) {
 	// Response body converted to stringified JSON.
 	respbody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.WithContext(ctx).Error("failed to read resp.body", slog.Any("error", err))
+		slog.Error("failed to read resp.body", slog.Any("error", err))
 		return "", err
 	}
 
