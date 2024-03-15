@@ -15,14 +15,16 @@ templ Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs
 			/>
 			<meta name="htmx-config" content='{"selfRequestsOnly":"true"}'/>
 			<meta name="google" content="notranslate"/>
-			<link rel="stylesheet" href="/style.css" nonce={ nonce.TwNonce }/>
+			<link rel="stylesheet" href="/static/style.css" nonce={ nonce.TwNonce }/>
 			<title>{ title }</title>
-			<script src="/htmx.min.js" nonce={ nonce.HtmxNonce }></script>
-			<script src="/_hyperscript.min.js" nonce={ nonce.HyperscriptNonce }></script>
+			<script src="/static/htmx.min.js" nonce={ nonce.HtmxNonce } defer></script>
+			<script src="/static/_hyperscript.min.js" nonce={ nonce.HyperscriptNonce } defer></script>
 			// <script src="https://cdn.tailwindcss.com"></script>
 			// <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css"/>
 			<link rel="preconnect" href="https://fonts.bunny.net"/>
-			<link href="https://fonts.bunny.net/css?family=nunito:500,600|syne:500,600" rel="stylesheet"/>
+			<link href="https://fonts.bunny.net/css?family=nunito:500,600|syne:500,600&display=swap" rel="stylesheet"/>
+			// Favicon
+			<link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
 		</head>
 		<body class="sample-transition" hx-boost="true">
 			<header>

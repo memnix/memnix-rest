@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Syne", "Nunito"],
+        sans: ["Syne", "Nunito", "sans-serif", "ui-sans-serif", "system-ui"],
       },
     },
   },

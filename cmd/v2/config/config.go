@@ -13,6 +13,8 @@ const (
 	MB = 1024 * 1024 // MB is the number of bytes in a megabyte
 
 	SentryFlushTimeout = 2 * time.Second // SentryFlushTimeout is the timeout for flushing sentry
+
+	NonceLength = 16 // NonceLength is the length of the nonce : 16 bytes * 8 bits/byte = 128 bits
 )
 
 // PasswordConfigStruct is the struct for the password config.

@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"sync"
@@ -9,7 +11,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/memnix/memnix-rest/cmd/v2/config"
 	"github.com/memnix/memnix-rest/domain"
-	"github.com/memnix/memnix-rest/pkg/random"
 )
 
 var (
@@ -86,15 +87,25 @@ func (i *InstanceSingleton) registerMiddlewares(e *echo.Echo) {
 	e.Use(csrfConfig)
 }
 
+func generateSecureNonce() (string, error) {
+	nonce := make([]byte, config.NonceLength)
+	_, err := rand.Read(nonce)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(nonce), err
+}
+
 func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		htmxNonce, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(16)
-		hyperscriptNonce, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(16)
-		twNonce, _ := random.GetRandomGeneratorInstance().GenerateSecretCode(16)
+		htmxNonce, _ := generateSecureNonce()
+		hyperscriptNonce, _ := generateSecureNonce()
+		twNonce, _ := generateSecureNonce()
 
 		htmxCSSHash := "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
 
-		cspHeader := fmt.Sprintf("default-src 'self'; script-src 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net",
+		cspHeader := fmt.Sprintf(
+			"default-src 'self'; script-src 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net",
 			htmxNonce, hyperscriptNonce, twNonce, htmxCSSHash)
 
 		c.Response().Header().Set("Content-Security-Policy", cspHeader)
@@ -108,6 +119,22 @@ func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("htmxNonce", htmxNonce)
 		c.Set("twNonce", twNonce)
 		c.Set("hyperscriptNonce", hyperscriptNonce)
+
+		return next(c)
+	}
+}
+
+func StaticAssetsCacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Cache-Control", "public, max-age=31536000")
+		return next(c)
+	}
+}
+
+func StaticPageCacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Set Cache-Control header
+		c.Response().Header().Set("Cache-Control", "public, max-age=3600")
 
 		return next(c)
 	}

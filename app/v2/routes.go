@@ -7,8 +7,9 @@ import (
 )
 
 func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
-	e.Static("/", "assets/static")
-	e.Static("/img", "assets/img")
+	g := e.Group("/static", StaticAssetsCacheControlMiddleware)
+	g.Static("/", "assets/static")
+	g.Static("/img", "assets/img")
 }
 
 func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
@@ -16,7 +17,7 @@ func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
 	authController := serviceContainer.AuthHandler()
 	pageController := handlers.NewPageController()
 
-	e.GET("/", pageController.GetIndex)
+	e.GET("/", pageController.GetIndex, StaticPageCacheControlMiddleware)
 	e.GET("/login", pageController.GetLogin)
 	e.GET("/register", pageController.GetRegister)
 	e.POST("/register", authController.PostRegister)
