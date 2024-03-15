@@ -1,3 +1,9 @@
+## v2.0.0-a6 (2024-03-15)
+
+### ⚡️ Performance
+
+- **middlewares**: better config for performances
+
 ## v2.0.0-a5 (2024-03-11)
 
 ### 🐛🚑️ Fixes
