@@ -20,7 +20,7 @@ templ Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs
 			<script src="/static/htmx.min.js" nonce={ nonce.HtmxNonce } defer></script>
 			<script src="/static/_hyperscript.min.js" nonce={ nonce.HyperscriptNonce } defer></script>
 			<script src="/static/preload.js" nonce={ nonce.PreloadNonce } defer></script>
-			<script defer src="https://umami.memnix.app/script.js" data-domains="beta.memnix.app,memnix.app" data-website-id="9dde32bf-4daa-4d93-9d66-c22c74895024"></script>
+			<script defer nonce={ nonce.UmamiNonce } src="https://umami.memnix.app/script.js" data-domains="beta.memnix.app,memnix.app" data-website-id="9dde32bf-4daa-4d93-9d66-c22c74895024"></script>
 			// <script src="https://cdn.tailwindcss.com"></script>
 			// <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css"/>
 			// <link rel="preconnect" href="https://fonts.bunny.net"/>
