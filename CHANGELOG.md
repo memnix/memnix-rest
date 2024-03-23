@@ -1,3 +1,25 @@
+## v2.0.0-a11 (2024-03-23)
+
+### ✨ Features
+
+- **docker**: add healthcheck
+
+### 📝💡 Documentation
+
+- **changelog**: prettier
+
+### 🔐🚧📈✏️ 💩👽️🍻💬🥚🌱🚩🥅🩺 Others
+
+- **umami**: add umami tracking
+
+### 🔥⚰️  Clean up
+
+- **css**: remove unused theme
+
+### 🛂 Authentication
+
+- **csp**: add umami nonce
+
 ## v2.0.0-a10 (2024-03-23)
 
 ### ✨ Features
