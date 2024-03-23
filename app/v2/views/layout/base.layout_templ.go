@@ -63,7 +63,15 @@ func Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" defer></script><link rel=\"preconnect\" href=\"https://fonts.bunny.net\"><link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\"></head><body class=\"sample-transition\" hx-boost=\"true\"><header>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" defer></script><script src=\"/static/preload.js\" nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(nonce.PreloadNonce))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" defer></script><link rel=\"preconnect\" href=\"https://fonts.bunny.net\"><link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\"></head><body class=\"sample-transition\" hx-boost=\"true\" hx-ext=\"preload\"><header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

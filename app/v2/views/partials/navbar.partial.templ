@@ -4,7 +4,7 @@ templ Navbar(username string, fromProtected bool) {
 	<nav class="navbar transition-all md:px-5" data-testid="navbar">
 		<div class="navbar-start" data-testid="navbarStart"></div>
 		<div class="navbar-center" data-testid="navbarCenter">
-			<a hx-swap="transition:true" href="/" class="text-3xl font-bold">
+			<a hx-swap="transition:true" href="/" class="text-3xl font-bold" preload>
 				Memnix
 			</a>
 		</div>
@@ -26,6 +26,7 @@ templ Navbar(username string, fromProtected bool) {
 				</button>
 			} else {
 				<a
+					preload
 					hx-swap="transition:true"
 					data-testid="loginButton"
 					class="btn btn-primary text-lg"

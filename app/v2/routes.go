@@ -18,12 +18,14 @@ func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
 	authController := serviceContainer.AuthHandler()
 	pageController := handlers.NewPageController()
 
+	// Page routes
 	e.GET("/", pageController.GetIndex, StaticPageCacheControlMiddleware)
-	e.GET("/login", pageController.GetLogin)
-	e.GET("/register", pageController.GetRegister)
+	e.GET("/login", pageController.GetLogin, StaticPageCacheControlMiddleware)
+	e.GET("/register", pageController.GetRegister, StaticPageCacheControlMiddleware)
+
+	// Auth routes
 	e.POST("/register", authController.PostRegister)
 	e.POST("/logout", authController.PostLogout)
 	e.POST("/login", authController.PostLogin)
-	e.POST("/clicked", pageController.PostClicked)
 	e.POST("/register/password", authController.ValidatePassword)
 }

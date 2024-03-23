@@ -23,7 +23,7 @@ func Navbar(username string, fromProtected bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\" data-testid=\"navbar\"><div class=\"navbar-start\" data-testid=\"navbarStart\"></div><div class=\"navbar-center\" data-testid=\"navbarCenter\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\">Memnix</a></div><div class=\"navbar-end\" data-testid=\"navbarEnd\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\" data-testid=\"navbar\"><div class=\"navbar-start\" data-testid=\"navbarStart\"></div><div class=\"navbar-center\" data-testid=\"navbarCenter\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\" preload>Memnix</a></div><div class=\"navbar-end\" data-testid=\"navbarEnd\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,7 +46,7 @@ func Navbar(username string, fromProtected bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a hx-swap=\"transition:true\" data-testid=\"loginButton\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a preload hx-swap=\"transition:true\" data-testid=\"loginButton\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -50,4 +50,5 @@ type Nonce struct {
 	HtmxNonce        string
 	TwNonce          string
 	HyperscriptNonce string
+	PreloadNonce     string
 }

@@ -101,12 +101,13 @@ func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		htmxNonce, _ := generateSecureNonce()
 		hyperscriptNonce, _ := generateSecureNonce()
 		twNonce, _ := generateSecureNonce()
+		preloadNonce, _ := generateSecureNonce()
 
 		htmxCSSHash := "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
 
 		cspHeader := fmt.Sprintf(
-			"default-src 'self'; script-src 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net 'self'",
-			htmxNonce, hyperscriptNonce, twNonce, htmxCSSHash)
+			"default-src 'self'; script-src 'nonce-%s' 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net 'self'",
+			htmxNonce, hyperscriptNonce, preloadNonce, twNonce, htmxCSSHash)
 
 		c.Response().Header().Set("Content-Security-Policy", cspHeader)
 
@@ -114,8 +115,10 @@ func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			HtmxNonce:        htmxNonce,
 			HyperscriptNonce: hyperscriptNonce,
 			TwNonce:          twNonce,
+			PreloadNonce:     preloadNonce,
 		})
 
+		c.Set("preloadNonce", preloadNonce)
 		c.Set("htmxNonce", htmxNonce)
 		c.Set("twNonce", twNonce)
 		c.Set("hyperscriptNonce", hyperscriptNonce)
@@ -134,7 +137,7 @@ func StaticAssetsCacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc 
 func StaticPageCacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Set Cache-Control header
-		c.Response().Header().Set("Cache-Control", "public, max-age=3600")
+		c.Response().Header().Set("Cache-Control", "private, max-age=3600")
 
 		return next(c)
 	}
