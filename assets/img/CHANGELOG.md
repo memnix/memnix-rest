@@ -1,19 +1,3 @@
-
-
-## v2.0.0-a9 (2024-03-23)
-
-### ✨ Features
-
-- **api**: add healtcheck endpoint
-
-### ⚡️ Performance
-
-- **css**: minify
-
-### 📌➕⬇️ ➖⬆️  Dependencies
-
-- **gorm**: remove gorm
-
 ## v2.0.0-a8 (2024-03-23)
 
 ### ⚡️ Performance
@@ -31,7 +15,7 @@
 
 ## v2.0.0-a7 (2024-03-15)
 
-### 📌➕⬇️ ➖⬆️ Dependencies
+### 📌➕⬇️ ➖⬆️  Dependencies
 
 - upgrade deps and remove fiber
 
@@ -55,7 +39,7 @@
 
 ## v2.0.0-a3 (2024-03-10)
 
-### ♻️ Refactorings
+### ♻️  Refactorings
 
 - **config**: remove old config files
 
@@ -88,7 +72,7 @@
 
 - switch to sqlc >>> ⏰ 3h
 
-### ♻️ Refactorings
+### ♻️  Refactorings
 
 - **views**: better ui
 
@@ -109,7 +93,7 @@
 
 - fix weird stuff
 
-### 📌➕⬇️ ➖⬆️ Dependencies
+### 📌➕⬇️ ➖⬆️  Dependencies
 
 - **deps**: update deps
 
@@ -149,7 +133,7 @@
 
 - **pre-commit**: add ggshield hook
 
-### ♻️ Refactorings
+### ♻️  Refactorings
 
 - **views**: improved flashmessages
 - **config**: better config management >>> ⏰ 1h30
@@ -160,7 +144,7 @@
 - Echo replaces Fiber
 - change api to htmx handlers
 
-### ⚗️ Experiments
+### ⚗️  Experiments
 
 - **v2**: jwt middleware >>> ⏰ 2h
 
@@ -194,7 +178,7 @@
 
 - **app**: htmx implementation >>> ⏰ 1h
 
-### 🔥⚰️ Clean up
+### 🔥⚰️  Clean up
 
 - **json**: remove useless benchmark
 

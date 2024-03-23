@@ -4,7 +4,7 @@ go 1.21.7
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
-	github.com/a-h/templ v0.2.598
+	github.com/a-h/templ v0.2.639
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
@@ -24,14 +24,13 @@ require (
 	go.opentelemetry.io/otel/sdk v1.24.0
 	go.opentelemetry.io/otel/trace v1.24.0
 	golang.org/x/crypto v0.21.0
-	gorm.io/gorm v1.25.7
 )
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	golang.org/x/exp v0.0.0-20240314144324-c7f7c6466f7f // indirect
+	golang.org/x/exp v0.0.0-20240318143956-a85f2c67cd81 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 )
@@ -55,15 +54,13 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgx/v5 v5.5.5
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.0.5 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect

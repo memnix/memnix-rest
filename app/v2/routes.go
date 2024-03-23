@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/memnix/memnix-rest/app/v2/handlers"
 	"github.com/memnix/memnix-rest/services"
@@ -28,4 +30,9 @@ func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
 	e.POST("/logout", authController.PostLogout)
 	e.POST("/login", authController.PostLogin)
 	e.POST("/register/password", authController.ValidatePassword)
+
+	// Health check
+	e.GET("/health", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
 }

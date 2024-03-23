@@ -1,12 +1,7 @@
 package domain
 
-import (
-	"gorm.io/gorm"
-)
-
 // User is the domain model for a user.
 type User struct {
-	gorm.Model    `swaggerignore:"true"`
 	Username      string     `json:"username" validate:"required"`
 	Email         string     `json:"email" validate:"email" gorm:"unique"`
 	Password      string     `json:"-" validate:"required"`
@@ -15,6 +10,7 @@ type User struct {
 	OauthID       string     `json:"oauth_id" gorm:"unique"`
 	Learning      []*Deck    `json:"learning" gorm:"many2many:user_decks;"`
 	OwnDecks      []Deck     `json:"own_decks" gorm:"foreignKey:OwnerID"`
+	ID            uint       `json:"id"`
 	Permission    Permission `json:"permission"`
 	Oauth         bool       `json:"oauth" gorm:"default:false"`
 }
