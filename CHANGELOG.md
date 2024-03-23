@@ -1,5 +1,3 @@
-
-
 ## v2.0.0-a10 (2024-03-23)
 
 ### ✨ Features
@@ -16,7 +14,7 @@
 
 - **css**: minify
 
-### 📌➕⬇️ ➖⬆️  Dependencies
+### 📌➕⬇️ ➖⬆️ Dependencies
 
 - **gorm**: remove gorm
 
