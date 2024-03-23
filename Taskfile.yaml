@@ -44,6 +44,7 @@ tasks:
       - app/v2/views/**/*.templ
       - tailwind.config.js
       - tailwind.css
+      - assets/static/**/*.css
     cmds:
       - npx tailwindcss build -i tailwind.css -o assets/static/style.css --minify
       - templ generate
