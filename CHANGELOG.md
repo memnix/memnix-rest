@@ -1,8 +1,18 @@
+
+
 ## v2.0.0-a9 (2024-03-23)
 
 ### ✨ Features
 
 - **api**: add healtcheck endpoint
+
+### ⚡️ Performance
+
+- **css**: minify
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- **gorm**: remove gorm
 
 ## v2.0.0-a8 (2024-03-23)
 
