@@ -79,7 +79,7 @@ func Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" src=\"https://umami.memnix.app/script.js\" data-domains=\"beta.memnix.app,memnix.app\" data-website-id=\"9dde32bf-4daa-4d93-9d66-c22c74895024\"></script><link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\"></head><body class=\"sample-transition\" hx-boost=\"true\" hx-ext=\"preload\"><header>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" src=\"https://umami.memnix.app/script.js\" data-website-id=\"9dde32bf-4daa-4d93-9d66-c22c74895024\"></script><link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\"></head><body class=\"sample-transition\" hx-boost=\"true\" hx-ext=\"preload\"><header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
