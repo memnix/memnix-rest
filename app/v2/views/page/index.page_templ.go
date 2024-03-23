@@ -87,7 +87,7 @@ func heroImage() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\" data-testid=\"heroImage\"><img src=\"/static/img/icon.png\" class=\"mx-auto\" alt=\"Memnix app logo\" class=\"hidden md:block\" width=\"600\" height=\"600\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\" data-testid=\"heroImage\"><picture><source media=\"(min-width: 1025px)\" srcset=\"/static/img/memnix_500x500.avif\" type=\"image/avif\"> <source media=\"(min-width: 1025px)\" srcset=\"/static/img/memnix_500x500.webp\" type=\"image/webp\"> <source media=\"(max-width: 1024px)\" srcset=\"/static/img/memnix_400x400.avif\" type=\"image/avif\"> <source media=\"(max-width: 1024px)\" srcset=\"/static/img/memnix_400x400.webp\" type=\"image/webp\"> <img src=\"/static/img/icon.png\" class=\"mx-auto hidden md:block\" alt=\"Memnix app logo\" width=\"500\" height=\"500\"></picture></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
