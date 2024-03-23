@@ -1,5 +1,11 @@
 
 
+## v2.0.0-a10 (2024-03-23)
+
+### ✨ Features
+
+- **docker**: healthcheck
+
 ## v2.0.0-a9 (2024-03-23)
 
 ### ✨ Features
