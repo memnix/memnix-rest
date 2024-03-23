@@ -2,14 +2,12 @@ package domain
 
 import (
 	"github.com/memnix/memnix-rest/pkg/random"
-	"gorm.io/gorm"
 )
 
 const DeckSecretCodeLength = 10
 
 // Deck is the domain model for a deck.
 type Deck struct {
-	gorm.Model  `swaggerignore:"true"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Lang        string     `json:"lang"`
@@ -17,6 +15,7 @@ type Deck struct {
 	Banner      string     `json:"banner"`
 	Learners    []*User    `json:"-" gorm:"many2many:user_decks;"`
 	Cards       []Card     `json:"cards" gorm:"foreignKey:DeckID"`
+	ID          uint       `json:"id"`
 	OwnerID     uint       `json:"owner_id"`
 	Status      DeckStatus `json:"status"`
 }

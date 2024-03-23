@@ -1,20 +1,16 @@
 package domain
 
-import (
-	"gorm.io/gorm"
-)
-
 // Card represents a card in the domain model.
 // It includes fields for the question, answer, multiple choice question (mcq),
 // deck ID, mcq ID, and card type.
 type Card struct {
-	gorm.Model `swaggerignore:"true"` // Model from gorm package
-	Question   string                 `json:"question"`                    // The question on the card
-	Answer     string                 `json:"answer"`                      // The answer to the question on the card
-	Mcq        Mcq                    `json:"mcq" gorm:"foreignKey:McqID"` // The multiple choice question associated with the card
-	DeckID     uint                   `json:"deck_id"`                     // The ID of the deck the card belongs to
-	McqID      uint                   `json:"mcq_id"`                      // The ID of the multiple choice question associated with the card
-	CardType   CardType               `json:"card_type"`                   // The type of the card
+	Question string   `json:"question"`                    // The question on the card
+	Answer   string   `json:"answer"`                      // The answer to the question on the card
+	Mcq      Mcq      `json:"mcq" gorm:"foreignKey:McqID"` // The multiple choice question associated with the card
+	ID       uint     `json:"id"`                          // The ID of the card
+	DeckID   uint     `json:"deck_id"`                     // The ID of the deck the card belongs to
+	McqID    uint     `json:"mcq_id"`                      // The ID of the multiple choice question associated with the card
+	CardType CardType `json:"card_type"`                   // The type of the card
 }
 
 // TableName returns the name of the table in the database.
