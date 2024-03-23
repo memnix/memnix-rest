@@ -24,6 +24,8 @@ RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./
     && chmod +x /usr/local/bin/dumb-init \
     && apk del upx
 
+FROM busybox:uclibc AS deps
+
 FROM gcr.io/distroless/static:nonroot AS production
 
 LABEL org.opencontainers.image.source=https://github.com/memnix/memnix-rest
@@ -35,7 +37,7 @@ WORKDIR /app
 
 COPY --from=builder  /app/memnixrest /app/memnixrest
 COPY --from=builder  /usr/local/bin/dumb-init /usr/bin/dumb-init
-
+COPY --from=deps /bin/wget /usr/bin/wget
 
 EXPOSE 1815
 
