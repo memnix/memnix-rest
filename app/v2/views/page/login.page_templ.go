@@ -27,7 +27,7 @@ func LoginContent() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"py-6 sm:py-8 lg:py-12\" data-testid=\"loginContent\"><div class=\"mx-auto max-w-screen-2xl px-4 md:px-8\"><h2 class=\"mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl\">Login</h2><div class=\"mx-auto max-w-lg rounded-lg border\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"py-6 sm:py-8 lg:py-12\" data-testid=\"loginContent\"><div class=\"mx-auto max-w-screen-2xl px-4 md:px-8\"><h1 class=\"mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl\">Login</h1><div class=\"mx-auto max-w-lg rounded-lg border\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

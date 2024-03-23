@@ -10,6 +10,7 @@ func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
 	g := e.Group("/static", StaticAssetsCacheControlMiddleware)
 	g.Static("/", "assets/static")
 	g.Static("/img", "assets/img")
+	g.Static("/fonts", "assets/fonts")
 }
 
 func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
