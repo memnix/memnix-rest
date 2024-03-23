@@ -1,6 +1,7 @@
 package page
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
+import "github.com/memnix/memnix-rest/domain"
 
 templ hello(name string) {
 	<div class="flex flex-col" data-testid="helloComponent">
@@ -26,14 +27,13 @@ templ Clicked() {
 
 templ heroImage() {
 	<div class="flex flex-col" data-testid="heroImage">
-		<img
-			src="/img/icon.png"
-			class="mx-auto"
-			alt="Memnix app logo"
-			class="hidden md:block"
-			width="800"
-			height="800"
-		/>
+		<picture>
+			<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.avif" type="image/avif"/>
+			<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.webp" type="image/webp"/>
+			<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.avif" type="image/avif"/>
+			<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.webp" type="image/webp"/>
+			<img src="/static/img/icon.png" class="mx-auto hidden md:block" alt="Memnix app logo" width="500" height="500"/>
+		</picture>
 	</div>
 }
 
@@ -59,15 +59,16 @@ templ Hero(name string) {
 							<div class="flex w-full sm:w-auto">
 								<a
 									class="btn btn-primary w-full sm:mb-0"
-									to="/auth"
+									href="/login"
 									rel="noopener"
+									preload
 								>
 									Get Started
 								</a>
 							</div>
 							<div class="flex w-full sm:w-auto">
 								<a
-									to="https://github.com/CorentinGS"
+									href="https://github.com/memnix"
 									target="_blank"
 									rel="noopener noreferrer"
 									class="btn btn-outline w-full"
@@ -92,9 +93,9 @@ templ HomePage(  title,
     username string,
     fromProtected bool,
     isError bool,
-	errMsgs, sucMsgs []string,
+	errMsgs, sucMsgs []string, nonce domain.Nonce,
     cmp templ.Component) {
-	@layout.Base(title, username, fromProtected, isError, errMsgs, sucMsgs) {
+	@layout.Base(title, username, fromProtected, isError, errMsgs, sucMsgs, nonce) {
 		@cmp
 	}
 }

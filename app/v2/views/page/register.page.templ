@@ -2,6 +2,7 @@ package page
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
 import "github.com/memnix/memnix-rest/app/v2/views/components"
+import "github.com/memnix/memnix-rest/domain"
 
 templ RegisterContent() {
 	<section class="py-6 sm:py-8 lg:py-12" data-testid="registerContent">
@@ -36,7 +37,7 @@ templ RegisterContent() {
 				<div class="flex items-center justify-center p-4">
 					<p class="text-center text-sm">
 						Already have an account?
-						<a class="text-secondary transition duration-100" href="/login">Login </a>
+						<a class="text-secondary transition duration-100" href="/login" preload>Login </a>
 					</p>
 				</div>
 			</div>
@@ -46,9 +47,9 @@ templ RegisterContent() {
 
 templ RegisterPage(  title string,
     isError bool,
-	errMsgs, sucMsgs []string,
+	errMsgs, sucMsgs []string, nonce domain.Nonce,
     cmp templ.Component) {
-	@layout.Base(title, "", false, isError, errMsgs, sucMsgs) {
+	@layout.Base(title, "", false, isError, errMsgs, sucMsgs, nonce) {
 		@cmp
 	}
 }

@@ -11,6 +11,7 @@ import "io"
 import "bytes"
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
+import "github.com/memnix/memnix-rest/domain"
 
 func hello(name string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -32,7 +33,7 @@ func hello(name string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/page/index.page.templ`, Line: 6, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/page/index.page.templ`, Line: 7, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -86,7 +87,7 @@ func heroImage() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\" data-testid=\"heroImage\"><img src=\"/img/icon.png\" class=\"mx-auto\" alt=\"Memnix app logo\" class=\"hidden md:block\" width=\"800\" height=\"800\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\" data-testid=\"heroImage\"><picture><source media=\"(min-width: 1025px)\" srcset=\"/static/img/memnix_500x500.avif\" type=\"image/avif\"> <source media=\"(min-width: 1025px)\" srcset=\"/static/img/memnix_500x500.webp\" type=\"image/webp\"> <source media=\"(max-width: 1024px)\" srcset=\"/static/img/memnix_400x400.avif\" type=\"image/avif\"> <source media=\"(max-width: 1024px)\" srcset=\"/static/img/memnix_400x400.webp\" type=\"image/webp\"> <img src=\"/static/img/icon.png\" class=\"mx-auto hidden md:block\" alt=\"Memnix app logo\" width=\"500\" height=\"500\"></picture></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -110,7 +111,7 @@ func Hero(name string) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section data-testid=\"hero\" class=\"mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto\"><div class=\"block py-12 text-center md:flex md:py-12 md:text-left lg:py-16\"><div class=\"mx-auto flex basis-3/5 items-center pb-12 md:py-0 md:pr-16\"><div><h1 class=\"leading-tighter font-heading mb-4 px-4 text-5xl font-bold tracking-tighter md:px-0 md:text-[3.48rem]\">A <span class=\"text-accent\">spaced repetition </span> <span class=\"lg:block\">learning app </span> <span class=\"text-secondary sm:whitespace-nowrap\">using AI</span></h1><div class=\"mx-auto max-w-3xl\"><div class=\"m-auto flex max-w-xs flex-col flex-nowrap justify-center gap-4 sm:max-w-md sm:flex-row md:m-0 md:justify-start\"><div class=\"flex w-full sm:w-auto\"><a class=\"btn btn-primary w-full sm:mb-0\" to=\"/auth\" rel=\"noopener\">Get Started</a></div><div class=\"flex w-full sm:w-auto\"><a to=\"https://github.com/CorentinGS\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-outline w-full\">Learn more</a></div></div></div></div></div><div class=\"block flex-1 items-center md:flex\"><div class=\"relative m-auto max-w-4xl\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section data-testid=\"hero\" class=\"mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto\"><div class=\"block py-12 text-center md:flex md:py-12 md:text-left lg:py-16\"><div class=\"mx-auto flex basis-3/5 items-center pb-12 md:py-0 md:pr-16\"><div><h1 class=\"leading-tighter font-heading mb-4 px-4 text-5xl font-bold tracking-tighter md:px-0 md:text-[3.48rem]\">A <span class=\"text-accent\">spaced repetition </span> <span class=\"lg:block\">learning app </span> <span class=\"text-secondary sm:whitespace-nowrap\">using AI</span></h1><div class=\"mx-auto max-w-3xl\"><div class=\"m-auto flex max-w-xs flex-col flex-nowrap justify-center gap-4 sm:max-w-md sm:flex-row md:m-0 md:justify-start\"><div class=\"flex w-full sm:w-auto\"><a class=\"btn btn-primary w-full sm:mb-0\" href=\"/login\" rel=\"noopener\" preload>Get Started</a></div><div class=\"flex w-full sm:w-auto\"><a href=\"https://github.com/memnix\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-outline w-full\">Learn more</a></div></div></div></div></div><div class=\"block flex-1 items-center md:flex\"><div class=\"relative m-auto max-w-4xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -133,7 +134,7 @@ func HomePage(title,
 	username string,
 	fromProtected bool,
 	isError bool,
-	errMsgs, sucMsgs []string,
+	errMsgs, sucMsgs []string, nonce domain.Nonce,
 	cmp templ.Component) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -162,7 +163,7 @@ func HomePage(title,
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Base(title, username, fromProtected, isError, errMsgs, sucMsgs).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Base(title, username, fromProtected, isError, errMsgs, sucMsgs, nonce).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

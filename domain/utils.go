@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
 )
 
 // Permission is the permission level of a user.
@@ -47,14 +46,9 @@ func (p Permission) IsValid() bool {
 	return p >= PermissionNone && p <= PermissionAdmin
 }
 
-// Route is a route for the API
-// It contains the handler, method and permission level.
-type Route struct {
-	Handler    func(c *fiber.Ctx) error // Handler is the handler function for the route.
-	Method     string                   // Method is the method of the route.
-	Permission Permission               // Permission is the permission level of the route.
-}
-
-type Model interface {
-	TableName() string
+type Nonce struct {
+	HtmxNonce        string
+	TwNonce          string
+	HyperscriptNonce string
+	PreloadNonce     string
 }

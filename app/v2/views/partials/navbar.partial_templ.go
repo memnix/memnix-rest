@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-func Navbar(username string, fromProtected bool) templ.Component {
+func LogoImg() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +23,39 @@ func Navbar(username string, fromProtected bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\" data-testid=\"navbar\"><div class=\"navbar-start\" data-testid=\"navbarStart\"></div><div class=\"navbar-center\" data-testid=\"navbarCenter\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\">Memnix</a></div><div class=\"navbar-end\" data-testid=\"navbarEnd\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<picture><source media=\"(min-width: 768px)\" srcset=\"/static/img/memnix_80x80.avif\" type=\"image/avif\"> <source media=\"(min-width: 768px)\" srcset=\"/static/img/memnix_80x80.webp\" type=\"image/webp\"> <source media=\"(max-width: 767px)\" srcset=\"/static/img/memnix_64x64.avif\" type=\"image/avif\"> <source media=\"(max-width: 767px)\" srcset=\"/static/img/memnix_64x64.webp\" type=\"image/webp\"> <img src=\"/static/img/icon.png\" class=\"mx-auto h-14 w-14 md:h-20 md:w-20\" alt=\"Memnix app logo\" width=\"80\" height=\"80\"></picture>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func Navbar(username string, fromProtected bool) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var2 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var2 == nil {
+			templ_7745c5c3_Var2 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\" data-testid=\"navbar\"><div class=\"navbar-start\" data-testid=\"navbarStart\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = LogoImg().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"navbar-center\" data-testid=\"navbarCenter\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\" preload>Memnix</a></div><div class=\"navbar-end\" data-testid=\"navbarEnd\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -32,12 +64,12 @@ func Navbar(username string, fromProtected bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(username)
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(username)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/partials/navbar.partial.templ`, Line: 13, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/partials/navbar.partial.templ`, Line: 25, Col: 15}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -46,7 +78,7 @@ func Navbar(username string, fromProtected bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a hx-swap=\"transition:true\" data-testid=\"loginButton\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a preload hx-swap=\"transition:true\" data-testid=\"loginButton\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

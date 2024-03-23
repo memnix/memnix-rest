@@ -7,6 +7,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/memnix/memnix-rest/app/v2/views/layout"
+	"github.com/memnix/memnix-rest/domain"
 )
 
 type BaseArgs struct {
@@ -29,7 +30,7 @@ func TestBase(t *testing.T) {
 		sucMsgs:       nil,
 	}
 	go func() {
-		_ = layout.Base(args.title, args.username, args.fromProtected, args.isError, args.errMsgs, args.sucMsgs).Render(context.Background(), w)
+		_ = layout.Base(args.title, args.username, args.fromProtected, args.isError, args.errMsgs, args.sucMsgs, domain.Nonce{}).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 

@@ -2,13 +2,14 @@ package page
 
 import "github.com/memnix/memnix-rest/app/v2/views/layout"
 import "github.com/memnix/memnix-rest/app/v2/views/components"
+import "github.com/memnix/memnix-rest/domain"
 
 templ LoginContent() {
 	<section class="py-6 sm:py-8 lg:py-12" data-testid="loginContent">
 		<div class="mx-auto max-w-screen-2xl px-4 md:px-8">
-			<h2 class="mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl">
+			<h1 class="mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl">
 				Login
-			</h2>
+			</h1>
 			<div class="mx-auto max-w-lg rounded-lg border">
 				@components.LoginComponent()
 				<div class="flex flex-col gap-4 px-4">
@@ -36,7 +37,7 @@ templ LoginContent() {
 				<div class="flex items-center justify-center p-4">
 					<p class="text-center text-sm">
 						Don't have an account?
-						<a class="text-secondary transition duration-100" href="/register">Register </a>
+						<a class="text-secondary transition duration-100" href="/register" preload>Register </a>
 					</p>
 				</div>
 			</div>
@@ -46,9 +47,9 @@ templ LoginContent() {
 
 templ LoginPage(  title string,
     isError bool,
-	errMsgs, sucMsgs []string,
+	errMsgs, sucMsgs []string, nonce domain.Nonce,
     cmp templ.Component) {
-	@layout.Base(title, "", false, isError, errMsgs, sucMsgs) {
+	@layout.Base(title, "", false, isError, errMsgs, sucMsgs, nonce) {
 		@cmp
 	}
 }

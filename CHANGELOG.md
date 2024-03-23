@@ -1,3 +1,27 @@
+## v2.0.0-a7 (2024-03-15)
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- upgrade deps and remove fiber
+
+## v2.0.0-a6 (2024-03-15)
+
+### ⚡️ Performance
+
+- **middlewares**: better config for performances
+
+## v2.0.0-a5 (2024-03-11)
+
+### 🐛🚑️ Fixes
+
+- **docker**: fix path
+
+## v2.0.0-a4 (2024-03-11)
+
+### 🔒️ Security
+
+- **csp**: insane csp
+
 ## v2.0.0-a3 (2024-03-10)
 
 ### ♻️  Refactorings

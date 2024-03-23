@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 )
@@ -59,7 +58,7 @@ func (r *RedisManager) ConnectRedis() error {
 	})
 
 	if err := redisotel.InstrumentTracing(r.client); err != nil {
-		log.Error("failed to instrument redis", slog.Any("error", err))
+		slog.Error("failed to instrument redis", slog.Any("error", err))
 	}
 
 	_, err := r.client.Ping(context.Background()).Result()

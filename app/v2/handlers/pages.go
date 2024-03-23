@@ -16,7 +16,7 @@ func NewPageController() *PageController {
 func (p *PageController) GetIndex(c echo.Context) error {
 	hero := page.Hero("John")
 
-	index := page.HomePage("Memnix", "", false, false, nil, nil, hero)
+	index := page.HomePage("Memnix", "", false, false, nil, nil, GetNonce(c), hero)
 
 	return Render(c, http.StatusOK, index)
 }
@@ -33,7 +33,7 @@ func (p *PageController) GetLogin(c echo.Context) error {
 
 	loginContent := page.LoginContent()
 	login := page.LoginPage("Login", false, errorMessages,
-		successMessages, loginContent)
+		successMessages, GetNonce(c), loginContent)
 
 	return Render(c, http.StatusOK, login)
 }
@@ -43,7 +43,7 @@ func (p *PageController) GetRegister(c echo.Context) error {
 	successMessages := getFlashmessages(c, "success")
 
 	registerContent := page.RegisterContent()
-	register := page.RegisterPage("Register", false, errorMessages, successMessages, registerContent)
+	register := page.RegisterPage("Register", false, errorMessages, successMessages, GetNonce(c), registerContent)
 
 	return Render(c, http.StatusOK, register)
 }

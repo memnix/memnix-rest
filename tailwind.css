@@ -3,6 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+		/* nunito-sans-regular - latin */
+	@font-face {
+		font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+		font-family: 'Nunito Sans';
+		font-style: normal;
+		font-weight: 400;
+		src: url('/static/fonts/nunito-sans-v15-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+	}
+
+
+	/* syne-regular - latin */
+	@font-face {
+		font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+		font-family: 'Syne';
+		font-style: normal;
+		font-weight: 400;
+		src: url('/static/fonts/syne-v22-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+	}
+
+
 	html {
 		font-family:  "Nunito Sans", sans-serif;
 	}
@@ -12,7 +32,15 @@
 	}
 
 	h2 {
-		font-family:  "Inter", sans-serif;
+		font-family:  "Syne", sans-serif;
+	}
+
+	button {
+		font-family:  "Syne", sans-serif;
+	}
+
+	a {
+		font-family:  "Syne", sans-serif;
 	}
 
 	.hoveranimation {

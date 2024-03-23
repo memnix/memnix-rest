@@ -39,13 +39,13 @@ tasks:
       - g
     generates:
       - app/v2/views/**/*.go
-      - static/**/*.css
+      - assets/static/**/*.css
     sources:
       - app/v2/views/**/*.templ
       - tailwind.config.js
       - tailwind.css
     cmds:
-      - npx tailwindcss build -i tailwind.css -o static/style.css --minify
+      - npx tailwindcss build -i tailwind.css -o assets/static/style.css --minify
       - templ generate
       - wire ./...
       - sqlc generate
