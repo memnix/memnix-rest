@@ -137,7 +137,7 @@ func StaticAssetsCacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc 
 func StaticPageCacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Set Cache-Control header
-		c.Response().Header().Set("Cache-Control", "private, max-age=3600")
+		c.Response().Header().Set("Cache-Control", "private, max-age=60")
 
 		return next(c)
 	}
