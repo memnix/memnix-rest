@@ -1,10 +1,10 @@
 module github.com/memnix/memnix-rest
 
-go 1.21.7
+go 1.22.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
-	github.com/a-h/templ v0.2.639
+	github.com/a-h/templ v0.2.648
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
