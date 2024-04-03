@@ -35,7 +35,6 @@
       "install:go-mod-upgrade": "go install github.com/oligot/go-mod-upgrade@latest",
       "install:betteralign": "go install github.com/dkorunic/betteralign/cmd/betteralign@latest",
       "install:npm": "npm install",
-      "api": "APP_ENV=dev go run ./cmd/v1",
       "hadolint": "hadolint ./Dockerfile --ignore DL3018",
       "commit": "git add -A && cz --name cz_gitmoji commit",
       "bump": "cz bump",

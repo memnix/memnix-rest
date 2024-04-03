@@ -4,15 +4,22 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/memnix/memnix-rest/app/v2/handlers"
+	"github.com/memnix/memnix-rest/assets"
 	"github.com/memnix/memnix-rest/services"
 )
 
 func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
+
 	g := e.Group("/static", StaticAssetsCacheControlMiddleware)
-	g.Static("/", "assets/static")
-	g.Static("/img", "assets/img")
-	g.Static("/fonts", "assets/fonts")
+
+	g.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:       ".",
+		Browse:     false,
+		Filesystem: assets.Assets(),
+	}))
+
 }
 
 func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {
