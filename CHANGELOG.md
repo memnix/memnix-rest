@@ -1,3 +1,30 @@
+## v2.0.0-a13 (2024-04-03)
+
+### BREAKING CHANGE
+
+- new paths for assets and build options
+
+### ✅🤡🧪 Tests
+
+- **golang-ci**: improve golangci
+
+### 💚👷 CI & Build
+
+- **assets**: embed assets in production build >>> ⏰ 1h
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- **devbox**: update deps
+- **golang**: 1.22.1
+
+### 🔥⚰️  Clean up
+
+- **tracing**: remove tracing >>> ⏰ 1h
+
+### 🙈 Ignore
+
+- **.vscode**: remove vscode
+
 ## v2.0.0-a12 (2024-03-23)
 
 ### 🐛🚑️ Fixes
