@@ -30,7 +30,7 @@ func (m *MockJSONHelper) Unmarshal(data []byte, v interface{}) error {
 func TestJSON_Marshal(t *testing.T) {
 	// Create a JSON instance with a mock JSON helper
 	mockHelper := &MockJSONHelper{
-		MarshalFunc: func(v interface{}) ([]byte, error) {
+		MarshalFunc: func(_ interface{}) ([]byte, error) {
 			return []byte(`{"mocked":true}`), nil
 		},
 	}
@@ -50,7 +50,7 @@ func TestJSON_Marshal(t *testing.T) {
 func TestJSON_Unmarshal(t *testing.T) {
 	// Create a JSON instance with a mock JSON helper
 	mockHelper := &MockJSONHelper{
-		UnmarshalFunc: func(data []byte, v interface{}) error {
+		UnmarshalFunc: func(_ []byte, v interface{}) error {
 			return json.Unmarshal([]byte(`{"mocked":true}`), v)
 		},
 	}
