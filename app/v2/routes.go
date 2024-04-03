@@ -11,7 +11,6 @@ import (
 )
 
 func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
-
 	g := e.Group("/static", StaticAssetsCacheControlMiddleware)
 
 	g.Use(middleware.StaticWithConfig(middleware.StaticConfig{
@@ -19,7 +18,6 @@ func (i *InstanceSingleton) registerStaticRoutes(e *echo.Echo) {
 		Browse:     false,
 		Filesystem: assets.Assets(),
 	}))
-
 }
 
 func (i *InstanceSingleton) registerRoutes(e *echo.Echo) {

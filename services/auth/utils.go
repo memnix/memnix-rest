@@ -8,8 +8,7 @@ import (
 )
 
 // GenerateEncryptedPassword generates a password hash using the crypto helper.
-func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, error) {
-
+func GenerateEncryptedPassword(_ context.Context, password string) ([]byte, error) {
 	hash, err := crypto.GetCryptoHelperInstance().GetCryptoHelper().Hash(password)
 	if err != nil {
 		return nil, err
@@ -24,8 +23,7 @@ func GenerateEncryptedPassword(ctx context.Context, password string) ([]byte, er
 //
 // Returns true if the password matches, false if it does not.
 // Returns nil on success, or an error on failure.
-func ComparePasswords(ctx context.Context, password string, hash []byte) (bool, error) {
-
+func ComparePasswords(_ context.Context, password string, hash []byte) (bool, error) {
 	return crypto.GetCryptoHelperInstance().GetCryptoHelper().Verify(password, hash)
 }
 

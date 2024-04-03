@@ -1,5 +1,5 @@
 
-FROM golang:1.21-alpine3.19 AS builder
+FROM golang:1.22-alpine3.19 AS builder
 
 ARG VERSION=prod
 
