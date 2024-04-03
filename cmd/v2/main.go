@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/bytedance/gopkg/util/gctuner"
-	"github.com/getsentry/sentry-go"
 	v2 "github.com/memnix/memnix-rest/app/v2"
 	"github.com/memnix/memnix-rest/cmd/v2/config"
 	"github.com/memnix/memnix-rest/infrastructures"
@@ -106,8 +105,6 @@ func shutdown() error {
 		slog.Info("✅ Disconnected from Redis")
 	}
 
-	sentry.Flush(config.SentryFlushTimeout)
-
 	slog.Info("✅ Disconnected from Sentry")
 
 	slog.Info("✅ Cleanup tasks completed!")
@@ -167,22 +164,6 @@ func setupInfrastructures(cfg *config.Config) {
 		log.Fatal("❌ Error connecting to Redis")
 	}
 	slog.Info("✅ Connected to Redis")
-
-	// Connect to the tracer
-	err = infrastructures.NewTracerInstance(infrastructures.SentryConfig{
-		DSN:                cfg.Sentry.DSN,
-		Environment:        cfg.Sentry.Environment,
-		Debug:              cfg.Sentry.Debug,
-		Release:            cfg.Sentry.Release,
-		TracesSampleRate:   cfg.Sentry.TracesSampleRate,
-		ProfilesSampleRate: cfg.Sentry.ProfilesSampleRate,
-		Name:               "fiber-rest",
-		WithStacktrace:     false,
-	}).ConnectTracer()
-	if err != nil {
-		log.Fatal("❌ Error connecting to Tracer", slog.Any("error", err))
-	}
-	slog.Info("✅ Created Tracer")
 
 	ristrettoInstance := infrastructures.CreateRistrettoInstance(cfg.Ristretto)
 

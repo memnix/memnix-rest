@@ -71,7 +71,7 @@ func (i *InstanceSingleton) registerMiddlewares(e *echo.Echo) {
 		e.Use(middleware.Logger())
 	}
 
-	// e.Use(middleware.Recover())
+	e.Use(middleware.Recover())
 
 	e.Use(middleware.Secure())
 

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	db "github.com/memnix/memnix-rest/db/sqlc"
-	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/utils"
 )
 
@@ -26,9 +25,6 @@ func (u UseCase) GetName(ctx context.Context, id string) string {
 
 // GetByID returns the user with the given id.
 func (u UseCase) GetByID(ctx context.Context, id int32) (db.User, error) {
-	_, span := infrastructures.GetTracerInstance().Tracer().Start(ctx, "GetUserByID")
-	defer span.End()
-
 	if risrettoHit, err := u.IRistrettoRepository.Get(ctx, id); err == nil {
 		return risrettoHit, nil
 	}
