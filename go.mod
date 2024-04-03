@@ -1,10 +1,10 @@
 module github.com/memnix/memnix-rest
 
-go 1.21.7
+go 1.22.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
-	github.com/a-h/templ v0.2.646
+	github.com/a-h/templ v0.2.648
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.27.0
@@ -30,7 +30,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	golang.org/x/exp v0.0.0-20240318143956-a85f2c67cd81 // indirect
+	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 )
