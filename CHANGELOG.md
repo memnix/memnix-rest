@@ -1,3 +1,19 @@
+## v2.0.0-a15 (2024-05-06)
+
+### build
+
+- **deps**: bump golang.org/x/net from 0.22.0 to 0.23.0
+- **deps**: bump golang.org/x/net from 0.22.0 to 0.23.0
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- update deps
+- update deps
+
+### 🔥⚰️  Clean up
+
+- **devbox**: remove devbox in favor of devcontainers
+
 ## v2.0.0-a14 (2024-04-03)
 
 ### 💚👷 CI & Build
