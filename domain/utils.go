@@ -51,4 +51,5 @@ type Nonce struct {
 	TwNonce          string
 	HyperscriptNonce string
 	PreloadNonce     string
+	UmamiNonce       string
 }

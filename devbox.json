@@ -1,22 +1,23 @@
 {
   "packages": [
-    "go@1.21.7",
+    "go@1.22.1",
     "hadolint@2.12.0",
-    "commitizen@3.14.1",
+    "commitizen@3.20.0",
     "python@3.10",
     "tailwindcss@3.4.1",
-    "air@1.49.0",
-    "templ@0.2.598",
-    "go-task@3.34.1",
+    "air@1.51.0",
+    "templ@0.2.646",
+    "go-task@3.35.1",
     "wire@0.6.0",
-    "gofumpt@0.3.1",
-    "gotools@0.7.0",
-    "gci@0.11.0",
-    "golangci-lint@1.55.2",
-    "pre-commit@3.3.3",
+    "gofumpt@0.6.0",
+    "gotools@0.18.0",
+    "gci@0.13.1",
+    "golangci-lint@1.57.1",
+    "pre-commit@3.6.2",
     "ggshield@1.24.0",
     "sqlc@1.25.0",
-    "atlas@0.19.2"
+    "atlas@0.20.0",
+    "python310Packages.pip"
   ],
   "env": {
     "GOPATH": "${workspaceRoot}",
@@ -25,15 +26,15 @@
   "shell": {
     "init_hook": [
       "export \"GOROOT=$(go env GOROOT)\"",
-      "export PATH=$PATH:$GOPATH/bin"
+      "export PATH=$PATH:$GOPATH/bin",
+      ". $VENV_DIR/bin/activate"
     ],
     "scripts": {
       "test": "go test ./...",
       "install:cz": "pip install cz-conventional-gitmoji",
       "install:go-mod-upgrade": "go install github.com/oligot/go-mod-upgrade@latest",
-      "install:betteralign": "go install https://github.com/dkorunic/betteralignt",
+      "install:betteralign": "go install github.com/dkorunic/betteralign/cmd/betteralign@latest",
       "install:npm": "npm install",
-      "api": "APP_ENV=dev go run ./cmd/v1",
       "hadolint": "hadolint ./Dockerfile --ignore DL3018",
       "commit": "git add -A && cz --name cz_gitmoji commit",
       "bump": "cz bump",

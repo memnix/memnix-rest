@@ -1,4 +1,70 @@
+## v2.0.0-a14 (2024-04-03)
 
+### 💚👷 CI & Build
+
+- **build**: fix buildings and ci tools
+- **codeql**: remove codeql
+
+## v2.0.0-a13 (2024-04-03)
+
+### BREAKING CHANGE
+
+- new paths for assets and build options
+
+### ✅🤡🧪 Tests
+
+- **golang-ci**: improve golangci
+
+### 💚👷 CI & Build
+
+- **assets**: embed assets in production build >>> ⏰ 1h
+
+### 📌➕⬇️ ➖⬆️  Dependencies
+
+- **devbox**: update deps
+- **golang**: 1.22.1
+
+### 🔥⚰️  Clean up
+
+- **tracing**: remove tracing >>> ⏰ 1h
+
+### 🙈 Ignore
+
+- **.vscode**: remove vscode
+
+## v2.0.0-a12 (2024-03-23)
+
+### 🐛🚑️ Fixes
+
+- **csp**: umami csp
+
+## v2.0.0-a11 (2024-03-23)
+
+### ✨ Features
+
+- **docker**: add healthcheck
+
+### 📝💡 Documentation
+
+- **changelog**: prettier
+
+### 🔐🚧📈✏️ 💩👽️🍻💬🥚🌱🚩🥅🩺 Others
+
+- **umami**: add umami tracking
+
+### 🔥⚰️  Clean up
+
+- **css**: remove unused theme
+
+### 🛂 Authentication
+
+- **csp**: add umami nonce
+
+## v2.0.0-a10 (2024-03-23)
+
+### ✨ Features
+
+- **docker**: healthcheck
 
 ## v2.0.0-a9 (2024-03-23)
 
@@ -10,7 +76,7 @@
 
 - **css**: minify
 
-### 📌➕⬇️ ➖⬆️  Dependencies
+### 📌➕⬇️ ➖⬆️ Dependencies
 
 - **gorm**: remove gorm
 

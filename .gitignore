@@ -48,3 +48,5 @@ tmp/*
 .task
 node_modules
 *-lock.json
+
+.vscode

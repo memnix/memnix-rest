@@ -28,11 +28,10 @@ tasks:
     deps:
       - task: generate
     cmds:
-      - go build -o build/memnix ./cmd/v2/main.go
+      - go build -tags dev -o build/memnix ./cmd/v2/main.go
   clean:
     cmds:
       - rm -rf build
-      - rm -rf static/style.css
   generate:
     aliases:
       - gen
@@ -44,9 +43,10 @@ tasks:
       - app/v2/views/**/*.templ
       - tailwind.config.js
       - tailwind.css
+      - assets/static/**/*.css
     cmds:
-      - npx tailwindcss build -i tailwind.css -o assets/static/style.css --minify
+      - npx tailwindcss build -i tailwind.css -o assets/static/css/style.css --minify
       - templ generate
-      - wire ./...
+      - wire gen -tags dev  ./...
       - sqlc generate
-      - go generate ./...
+      - go generate -tags dev ./...

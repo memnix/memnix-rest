@@ -52,23 +52,6 @@ module.exports = {
           "error-content": "#000000",
         },
       },
-      {
-        neobrutalism: {
-          "color-scheme": "light",
-          fontFamily:
-            "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace",
-          primary: "#7f72ff",
-          secondary: "#fad180",
-          accent: "#7be6cd",
-          neutral: "#b4adf9",
-          "neutral-content": "#ffee00",
-          "base-100": "#f8ebd1",
-          "--rounded-box": "0",
-          "--rounded-btn": "0",
-          "--rounded-badge": "0",
-          "--tab-radius": "0",
-        },
-      },
     ],
   },
 };

@@ -2,11 +2,9 @@ package infrastructures
 
 import (
 	"context"
-	"log/slog"
 	"sync"
 	"time"
 
-	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -56,10 +54,6 @@ func (r *RedisManager) ConnectRedis() error {
 		PoolSize:     r.Redisconfig.PoolSize,
 		PoolTimeout:  time.Duration(r.Redisconfig.PoolTimeout) * time.Second,
 	})
-
-	if err := redisotel.InstrumentTracing(r.client); err != nil {
-		slog.Error("failed to instrument redis", slog.Any("error", err))
-	}
 
 	_, err := r.client.Ping(context.Background()).Result()
 	if err != nil {

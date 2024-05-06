@@ -71,7 +71,7 @@ func (i *InstanceSingleton) registerMiddlewares(e *echo.Echo) {
 		e.Use(middleware.Logger())
 	}
 
-	// e.Use(middleware.Recover())
+	e.Use(middleware.Recover())
 
 	e.Use(middleware.Secure())
 
@@ -102,12 +102,13 @@ func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		hyperscriptNonce, _ := generateSecureNonce()
 		twNonce, _ := generateSecureNonce()
 		preloadNonce, _ := generateSecureNonce()
+		umamiNonce, _ := generateSecureNonce()
 
 		htmxCSSHash := "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
 
 		cspHeader := fmt.Sprintf(
-			"default-src 'self'; script-src 'nonce-%s' 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net 'self'",
-			htmxNonce, hyperscriptNonce, preloadNonce, twNonce, htmxCSSHash)
+			"default-src 'self'; connect-src 'self' https://umami.memnix.app ; script-src 'nonce-%s' 'nonce-%s' 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net 'self'",
+			htmxNonce, hyperscriptNonce, preloadNonce, umamiNonce, twNonce, htmxCSSHash)
 
 		c.Response().Header().Set("Content-Security-Policy", cspHeader)
 
@@ -116,12 +117,8 @@ func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			HyperscriptNonce: hyperscriptNonce,
 			TwNonce:          twNonce,
 			PreloadNonce:     preloadNonce,
+			UmamiNonce:       umamiNonce,
 		})
-
-		c.Set("preloadNonce", preloadNonce)
-		c.Set("htmxNonce", htmxNonce)
-		c.Set("twNonce", twNonce)
-		c.Set("hyperscriptNonce", hyperscriptNonce)
 
 		return next(c)
 	}

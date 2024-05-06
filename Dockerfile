@@ -18,11 +18,12 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -o /app/memnixrest ./cmd/v2/main.go \
+RUN go build -ldflags="-s -w -X 'main.Version=${VERSION}'" -tags prod -o /app/memnixrest ./cmd/v2/main.go \
     && upx /app/memnixrest \
     && wget -q -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 \
     && chmod +x /usr/local/bin/dumb-init \
     && apk del upx
+
 
 FROM gcr.io/distroless/static:nonroot AS production
 
@@ -35,11 +36,15 @@ WORKDIR /app
 
 COPY --from=builder  /app/memnixrest /app/memnixrest
 COPY --from=builder  /usr/local/bin/dumb-init /usr/bin/dumb-init
-
+COPY --from=busybox:1.36.0-musl /bin/wget /usr/bin/wget
 
 EXPOSE 1815
 
 USER nonroot
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=3 \
+    CMD ["/usr/bin/wget", "--no-verbose" ,"--tries=1", "--spider", "http://localhost:1815/health"]
+
 CMD ["/app/memnixrest"]

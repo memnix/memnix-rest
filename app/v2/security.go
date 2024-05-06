@@ -3,13 +3,10 @@ package v2
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/labstack/echo/v4"
 	db "github.com/memnix/memnix-rest/db/sqlc"
 	"github.com/memnix/memnix-rest/domain"
-	"github.com/memnix/memnix-rest/infrastructures"
 	"github.com/memnix/memnix-rest/pkg/jwt"
 	"github.com/memnix/memnix-rest/services/user"
 )
@@ -49,9 +46,6 @@ func (j *JwtMiddleware) AuthorizeAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (j *JwtMiddleware) IsConnectedMiddleware(p domain.Permission, next echo.HandlerFunc) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		_, span := infrastructures.GetTracerInstance().Tracer().Start(c.Request().Context(), "IsConnectedMiddleware")
-		defer span.End()
-
 		// get the token from the request header
 		tokenHeader := c.Request().Header.Get("Authorization")
 		// if the token is empty, the userModel is not connected, and we return an error
@@ -69,14 +63,6 @@ func (j *JwtMiddleware) IsConnectedMiddleware(p domain.Permission, next echo.Han
 			return c.JSON(http.StatusUnauthorized, errors.New("unauthorized: invalid user"))
 		}
 
-		sentry.ConfigureScope(func(scope *sentry.Scope) {
-			scope.SetUser(sentry.User{
-				ID:       strconv.Itoa(int(userModel.ID)),
-				Username: userModel.Username.String,
-				Email:    userModel.Email,
-			})
-		})
-
 		// Check permissions
 		if !j.VerifyPermissions(userModel, p) {
 			return c.JSON(http.StatusUnauthorized, errors.New("unauthorized: invalid user"))
@@ -84,7 +70,6 @@ func (j *JwtMiddleware) IsConnectedMiddleware(p domain.Permission, next echo.Han
 
 		// Set userModel in locals
 		SetUserToContext(c, userModel)
-		span.End()
 		return next(c)
 	}
 }

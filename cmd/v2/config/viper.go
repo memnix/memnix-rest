@@ -14,7 +14,6 @@ type Config struct {
 	Log       LogConfig
 	Pgx       infrastructures.PgxConfig
 	Auth      AuthConfig
-	Sentry    infrastructures.SentryConfig
 	Redis     infrastructures.RedisConfig
 	Ristretto infrastructures.RistrettoConfig
 }

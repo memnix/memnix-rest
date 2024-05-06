@@ -32,7 +32,15 @@ templ heroImage() {
 			<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.webp" type="image/webp"/>
 			<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.avif" type="image/avif"/>
 			<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.webp" type="image/webp"/>
-			<img src="/static/img/icon.png" class="mx-auto hidden md:block" alt="Memnix app logo" width="500" height="500"/>
+			<img
+				src="/static/img/icon.png"
+				class="mx-auto hidden md:block"
+				loading="lazy"
+				decoding="async"
+				alt="Memnix app logo"
+				width="500"
+				height="500"
+			/>
 		</picture>
 	</div>
 }
