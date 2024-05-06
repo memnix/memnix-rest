@@ -1,0 +1,30 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+	"name": "Go",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/go:1-1.22-bookworm",
+	"features": {
+		"ghcr.io/eitsupi/devcontainer-features/go-task:1": {},
+		"ghcr.io/guiyomh/features/golangci-lint:0": {},
+		"ghcr.io/marcozac/devcontainer-features/atlas:1": {},
+		"ghcr.io/nucleuscloud/devcontainer-features/sqlc:1": {},
+		"ghcr.io/dusansimic/devcontainer-features/templ:0": {},
+		"ghcr.io/marcozac/devcontainer-features/gofumpt:1": {}
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "go install github.com/cosmtrek/air@latest && go install github.com/dkorunic/betteralign/cmd/betteralign@latest && go install github.com/daixiang0/gci@latest",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

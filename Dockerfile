@@ -8,7 +8,7 @@ LABEL stage=gobuilder
 ENV CGO_ENABLED 0
 ENV GOOS linux
 
-RUN apk --no-cache add tzdata upx vips
+RUN apk --no-cache add tzdata upx
 
 WORKDIR /build
 

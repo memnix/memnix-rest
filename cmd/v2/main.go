@@ -161,7 +161,8 @@ func setupInfrastructures(cfg *config.Config) {
 	// Redis connection
 	err = infrastructures.NewRedisInstance(cfg.Redis).ConnectRedis()
 	if err != nil {
-		log.Fatal("❌ Error connecting to Redis")
+		slog.Error("❌ Error connecting to Redis", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 	slog.Info("✅ Connected to Redis")
 
