@@ -36,7 +36,7 @@ WORKDIR /app
 
 COPY --from=builder  /app/memnixrest /app/memnixrest
 COPY --from=builder  /usr/local/bin/dumb-init /usr/bin/dumb-init
-COPY --from=busybox:1.36.0-musl /bin/wget /usr/bin/wget
+COPY --from=busybox:1.36.1-musl /bin/wget /usr/bin/wget
 
 EXPOSE 1815
 
