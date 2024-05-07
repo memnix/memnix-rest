@@ -45,12 +45,9 @@ func TestRegisterContent(t *testing.T) {
 
 func TestRegisterPage(t *testing.T) {
 	const title = "Register"
-	const isError = false
-	errMsgs := make([]string, 0)
-	sucMsgs := make([]string, 0)
 	r, w := io.Pipe()
 	go func() {
-		_ = page.RegisterPage(title, isError, errMsgs, sucMsgs, domain.Nonce{}, page.RegisterContent()).Render(context.Background(), w)
+		_ = page.RegisterPage(title, domain.Nonce{}, page.RegisterContent()).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 

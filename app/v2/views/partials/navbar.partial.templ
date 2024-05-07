@@ -6,47 +6,20 @@ templ LogoImg() {
 		<source media="(min-width: 768px)" srcset="/static/img/memnix_80x80.webp" type="image/webp"/>
 		<source media="(max-width: 767px)" srcset="/static/img/memnix_64x64.avif" type="image/avif"/>
 		<source media="(max-width: 767px)" srcset="/static/img/memnix_64x64.webp" type="image/webp"/>
-		<img src="/static/img/icon.png" class="mx-auto h-14 w-14 md:h-20 md:w-20" alt="Memnix app logo" width="80" height="80"/>
+		<img src="/static/img/icon.png" class="circle" alt="Memnix app logo" width="80" height="80"/>
 	</picture>
 }
 
 templ Navbar(username string, fromProtected bool) {
-	<nav class="navbar transition-all md:px-5" data-testid="navbar">
-		<div class="navbar-start" data-testid="navbarStart">
-			@LogoImg()
-		</div>
-		<div class="navbar-center" data-testid="navbarCenter">
-			<a hx-swap="transition:true" href="/" class="text-3xl font-bold" preload>
-				Memnix
-			</a>
-		</div>
-		<div class="navbar-end" data-testid="navbarEnd">
-			if fromProtected {
-				<span class="font-bold text-indigo-700 mr-8" data-testid="username">
-					{ username }
-				</span>
-				<button
-					hx-swap="transition:true"
-					hx-post="/todo/logout"
-					hx-confirm="Are you sure you want to log out?"
-					hx-target="body"
-					hx-push-url="true"
-					class="btn btn-ghost text-lg"
-					data-testid="logoutButton"
-				>
-					Logout
-				</button>
-			} else {
-				<a
-					preload
-					hx-swap="transition:true"
-					data-testid="loginButton"
-					class="btn btn-primary text-lg"
-					href="/login"
-				>
-					Login
-				</a>
-			}
-		</div>
-	</nav>
+<nav>
+  <ul>
+    <li><strong>@LogoImg() 
+	</strong></li>
+  </ul>
+  <ul>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Services</a></li>
+    <li><button class="secondary">Products</button></li>
+  </ul>
+</nav>
 }

@@ -46,11 +46,8 @@ func TestLoginContent(t *testing.T) {
 func TestLoginPage(t *testing.T) {
 	r, w := io.Pipe()
 	const title = "Login"
-	const isError = false
-	errMsgs := make([]string, 0)
-	sucMsgs := make([]string, 0)
 	go func() {
-		_ = page.LoginPage(title, isError, errMsgs, sucMsgs, domain.Nonce{}, page.LoginContent()).Render(context.Background(), w)
+		_ = page.LoginPage(title, domain.Nonce{}, page.LoginContent()).Render(context.Background(), w)
 		_ = w.Close()
 	}()
 

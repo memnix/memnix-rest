@@ -45,7 +45,6 @@ tasks:
       - tailwind.css
       - assets/static/**/*.css
     cmds:
-      - npx tailwindcss build -i tailwind.css -o assets/static/css/style.css --minify
       - templ generate
       - wire gen -tags dev  ./...
       - sqlc generate

@@ -100,24 +100,26 @@ func CSPMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		htmxNonce, _ := generateSecureNonce()
 		hyperscriptNonce, _ := generateSecureNonce()
-		twNonce, _ := generateSecureNonce()
+		picoCSSNonce, _ := generateSecureNonce()
+		cssScopeInlineNonce, _ := generateSecureNonce()
 		preloadNonce, _ := generateSecureNonce()
 		umamiNonce, _ := generateSecureNonce()
 
-		htmxCSSHash := "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
+		_ = "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg="
 
 		cspHeader := fmt.Sprintf(
-			"default-src 'self'; connect-src 'self' https://umami.memnix.app ; script-src 'nonce-%s' 'nonce-%s' 'nonce-%s' 'nonce-%s'; style-src 'self' 'nonce-%s' https://fonts.bunny.net '%s'; font-src https://fonts.bunny.net 'self'",
-			htmxNonce, hyperscriptNonce, preloadNonce, umamiNonce, twNonce, htmxCSSHash)
+			"default-src 'self'; connect-src 'self' https://umami.memnix.app ; script-src 'nonce-%s' 'nonce-%s' 'nonce-%s' 'nonce-%s' 'nonce-%s'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src https://fonts.bunny.net 'self'",
+			htmxNonce, hyperscriptNonce, preloadNonce, cssScopeInlineNonce, umamiNonce)
 
 		c.Response().Header().Set("Content-Security-Policy", cspHeader)
 
 		c.Set("nonce", domain.Nonce{
-			HtmxNonce:        htmxNonce,
-			HyperscriptNonce: hyperscriptNonce,
-			TwNonce:          twNonce,
-			PreloadNonce:     preloadNonce,
-			UmamiNonce:       umamiNonce,
+			HtmxNonce:           htmxNonce,
+			HyperscriptNonce:    hyperscriptNonce,
+			PreloadNonce:        preloadNonce,
+			UmamiNonce:          umamiNonce,
+			PicoCSSNonce:        picoCSSNonce,
+			CSSScopeInlineNonce: cssScopeInlineNonce,
 		})
 
 		return next(c)

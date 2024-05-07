@@ -16,7 +16,7 @@ func NewPageController() *PageController {
 func (p *PageController) GetIndex(c echo.Context) error {
 	hero := page.Hero("John")
 
-	index := page.HomePage("Memnix", "", false, false, nil, nil, GetNonce(c), hero)
+	index := page.HomePage("Memnix", "", false, GetNonce(c), hero)
 
 	return Render(c, http.StatusOK, index)
 }
@@ -28,22 +28,15 @@ func (p *PageController) PostClicked(c echo.Context) error {
 }
 
 func (p *PageController) GetLogin(c echo.Context) error {
-	errorMessages := getFlashmessages(c, "error")
-	successMessages := getFlashmessages(c, "success")
-
 	loginContent := page.LoginContent()
-	login := page.LoginPage("Login", false, errorMessages,
-		successMessages, GetNonce(c), loginContent)
+	login := page.LoginPage("Login", GetNonce(c), loginContent)
 
 	return Render(c, http.StatusOK, login)
 }
 
 func (p *PageController) GetRegister(c echo.Context) error {
-	errorMessages := getFlashmessages(c, "error")
-	successMessages := getFlashmessages(c, "success")
-
 	registerContent := page.RegisterContent()
-	register := page.RegisterPage("Register", false, errorMessages, successMessages, GetNonce(c), registerContent)
+	register := page.RegisterPage("Register", GetNonce(c), registerContent)
 
 	return Render(c, http.StatusOK, register)
 }

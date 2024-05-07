@@ -46,10 +46,9 @@ templ RegisterContent() {
 }
 
 templ RegisterPage(  title string,
-    isError bool,
-	errMsgs, sucMsgs []string, nonce domain.Nonce,
+	nonce domain.Nonce,
     cmp templ.Component) {
-	@layout.Base(title, "", false, isError, errMsgs, sucMsgs, nonce) {
+	@layout.Base(title, "", false, nonce) {
 		@cmp
 	}
 }

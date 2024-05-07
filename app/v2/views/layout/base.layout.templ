@@ -3,7 +3,7 @@ package layout
 import "github.com/memnix/memnix-rest/app/v2/views/partials"
 import "github.com/memnix/memnix-rest/domain"
 
-templ Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs []string, nonce domain.Nonce) {
+templ Base(title, username string, fromProtected bool,  nonce domain.Nonce) {
 	<!DOCTYPE html>
 	<html lang="en" data-theme="dark">
 		<head>
@@ -15,7 +15,9 @@ templ Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs
 			/>
 			<meta name="htmx-config" content='{"selfRequestsOnly":"true"}'/>
 			<meta name="google" content="notranslate"/>
-			<link rel="stylesheet" href="/static/css/style.css" nonce={ nonce.TwNonce }/>
+			<link rel="stylesheet" href="/static/css/pico.orange.min.css" nonce={ nonce.PicoCSSNonce }/>
+			<script src="/static/js/css-scope-inline.js" nonce={ nonce.CSSScopeInlineNonce }></script>
+
 			<title>{ title }</title>
 			<script src="/static/js/htmx.min.js" nonce={ nonce.HtmxNonce } defer></script>
 			<script src="/static/js/hyperscript.min.js" nonce={ nonce.HyperscriptNonce } defer></script>
@@ -29,12 +31,11 @@ templ Base(title, username string, fromProtected, isError bool, errMsgs, sucMsgs
 			<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon"/>
 		</head>
 		<body class="sample-transition" hx-boost="true" hx-ext="preload">
-			<header>
+			<header class="container"> 
 				@partials.Navbar(username, fromProtected)
 			</header>
-			<main class={  }>
+			<main class="container">
 				{ children... }
-				@partials.FlashMessages(errMsgs, sucMsgs)
 			</main>
 			<footer></footer>
 		</body>

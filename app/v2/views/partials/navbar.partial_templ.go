@@ -23,7 +23,7 @@ func LogoImg() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<picture><source media=\"(min-width: 768px)\" srcset=\"/static/img/memnix_80x80.avif\" type=\"image/avif\"> <source media=\"(min-width: 768px)\" srcset=\"/static/img/memnix_80x80.webp\" type=\"image/webp\"> <source media=\"(max-width: 767px)\" srcset=\"/static/img/memnix_64x64.avif\" type=\"image/avif\"> <source media=\"(max-width: 767px)\" srcset=\"/static/img/memnix_64x64.webp\" type=\"image/webp\"> <img src=\"/static/img/icon.png\" class=\"mx-auto h-14 w-14 md:h-20 md:w-20\" alt=\"Memnix app logo\" width=\"80\" height=\"80\"></picture>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<picture><source media=\"(min-width: 768px)\" srcset=\"/static/img/memnix_80x80.avif\" type=\"image/avif\"> <source media=\"(min-width: 768px)\" srcset=\"/static/img/memnix_80x80.webp\" type=\"image/webp\"> <source media=\"(max-width: 767px)\" srcset=\"/static/img/memnix_64x64.avif\" type=\"image/avif\"> <source media=\"(max-width: 767px)\" srcset=\"/static/img/memnix_64x64.webp\" type=\"image/webp\"> <img src=\"/static/img/icon.png\" class=\"circle\" alt=\"Memnix app logo\" width=\"80\" height=\"80\"></picture>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -47,7 +47,7 @@ func Navbar(username string, fromProtected bool) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar transition-all md:px-5\" data-testid=\"navbar\"><div class=\"navbar-start\" data-testid=\"navbarStart\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav><ul><li><strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -55,35 +55,7 @@ func Navbar(username string, fromProtected bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"navbar-center\" data-testid=\"navbarCenter\"><a hx-swap=\"transition:true\" href=\"/\" class=\"text-3xl font-bold\" preload>Memnix</a></div><div class=\"navbar-end\" data-testid=\"navbarEnd\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if fromProtected {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"font-bold text-indigo-700 mr-8\" data-testid=\"username\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(username)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/partials/navbar.partial.templ`, Line: 26, Col: 15}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <button hx-swap=\"transition:true\" hx-post=\"/todo/logout\" hx-confirm=\"Are you sure you want to log out?\" hx-target=\"body\" hx-push-url=\"true\" class=\"btn btn-ghost text-lg\" data-testid=\"logoutButton\">Logout</button>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a preload hx-swap=\"transition:true\" data-testid=\"loginButton\" class=\"btn btn-primary text-lg\" href=\"/login\">Login</a>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></nav>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</strong></li></ul><ul><li><a href=\"#\">About</a></li><li><a href=\"#\">Services</a></li><li><button class=\"secondary\">Products</button></li></ul></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
