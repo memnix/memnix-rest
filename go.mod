@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/a-h/templ v0.2.663
+	github.com/a-h/templ v0.2.680
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/fxamacker/cbor/v2 v2.6.0
 	github.com/go-playground/validator/v10 v10.20.0
@@ -31,7 +31,7 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	github.com/bytedance/gopkg v0.0.0-20240419070415-fefc805d4d2a
+	github.com/bytedance/gopkg v0.0.0-20240514070511-01b2cbcf35e1
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
