@@ -23,7 +23,7 @@ func LoginComponent() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4 md:p-8\" data-testid=\"loginComponent\"><form hx-post=\"/login\" hx-swap=\"beforeend\"><div class=\"\"><label class=\"label flex-row\"><span id=\"email-error\" class=\"label-text\">Email</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your email\" type=\"email\" name=\"email\" required></div><span class=\"text-xs text-gray-500\">We'll never share your email with anyone else.</span><div class=\"\"><label class=\"label\"><span id=\"password-error\" class=\"label-text\">Password</span></label> <input class=\"input-bordered input w-full transition duration-100\" placeholder=\"Enter your password\" type=\"password\" name=\"password\" required></div><span class=\"text-xs text-gray-500\">We recommend using a strong password.</span><div class=\"pt-6\"><button class=\"btn-primary btn transition duration-100 w-full\" hx-disabled-elt=\"this\" type=\"post\">Login</button></div></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div data-testid=\"loginComponent\"><form hx-post=\"/login\" hx-swap=\"beforeend\"><fieldset><label id=\"email\">Email <input name=\"email\" type=\"email\" placeholder=\"Email\" autocomplete=\"email\" required> <small id=\"invalid-helper\"></small></label> <label id=\"password\">Password <input type=\"password\" name=\"password\" placeholder=\"Password\"></label></fieldset><input type=\"submit\" hx-disabled-elt=\"this\" type=\"post\" value=\"Login\"></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -47,20 +47,7 @@ func EmailError(err string) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"email-error\" hx-swap-oob=\"true\" class=\"text-red-500\">Email - ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(err)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/login.component.templ`, Line: 50, Col: 76}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label id=\"email\" hx-swap-oob=\"true\">Email <input name=\"email\" type=\"email\" placeholder=\"Email\" autocomplete=\"email\" aria-invalid=\"true\" aria-describedby=\"invalid-helper\" required> <small id=\"invalid-helper\">Maybe it's not the right email ?</small></label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -79,25 +66,12 @@ func PasswordError(err string) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var4 == nil {
-			templ_7745c5c3_Var4 = templ.NopComponent
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"password-error\" hx-swap-oob=\"true\" class=\"text-red-500\">Password - ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(err)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/login.component.templ`, Line: 54, Col: 82}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label id=\"password\" hx-swap-oob=\"true\">Password <input type=\"password\" name=\"password\" placeholder=\"Password\" aria-invalid=\"true\" aria-describedby=\"invalid-helper\"> <small id=\"invalid-helper\">Doesn't look like the right password to me...</small></label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -116,38 +90,16 @@ func LoginError(err string) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"email-error\" hx-swap-oob=\"true\" class=\"text-red-500\">Email - ")
+		templ_7745c5c3_Err = EmailError(err).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(err)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/login.component.templ`, Line: 58, Col: 76}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"password-error\" hx-swap-oob=\"true\" class=\"text-red-500\">Password - ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(err)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/v2/views/components/login.component.templ`, Line: 59, Col: 82}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		templ_7745c5c3_Err = PasswordError(err).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -47,9 +47,10 @@ func (p Permission) IsValid() bool {
 }
 
 type Nonce struct {
-	HtmxNonce        string
-	TwNonce          string
-	HyperscriptNonce string
-	PreloadNonce     string
-	UmamiNonce       string
+	HtmxNonce           string
+	HyperscriptNonce    string
+	PreloadNonce        string
+	UmamiNonce          string
+	PicoCSSNonce        string
+	CSSScopeInlineNonce string
 }

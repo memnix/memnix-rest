@@ -1,3 +1,13 @@
+## v2.0.0-a16 (2024-05-07)
+
+### ♻️  Refactorings
+
+- **css**: use nanocss instead of tailwind
+
+### BREAKING CHANGE
+
+- remove tailwind
+
 ## v2.0.0-a15 (2024-05-06)
 
 ### build

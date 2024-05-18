@@ -5,51 +5,73 @@ import "github.com/memnix/memnix-rest/app/v2/views/components"
 import "github.com/memnix/memnix-rest/domain"
 
 templ LoginContent() {
-	<section class="py-6 sm:py-8 lg:py-12" data-testid="loginContent">
-		<div class="mx-auto max-w-screen-2xl px-4 md:px-8">
-			<h1 class="mb-4 text-center text-2xl font-bold md:mb-8 lg:text-3xl">
-				Login
-			</h1>
-			<div class="mx-auto max-w-lg rounded-lg border">
-				@components.LoginComponent()
-				<div class="flex flex-col gap-4 px-4">
-					<div class="relative flex items-center justify-center">
-						<span class="bg-base-content absolute inset-x-0 h-px"></span>
-						<span class="bg-base-100 relative px-4 text-sm">
-							Log in with social
-						</span>
-					</div>
-					<a
-						class="btn-accent btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100"
-						href="githubEndpoint"
-						data-testid="githubLogin"
-					>
-						Continue with github
-					</a>
-					<a
-						class="btn-secondary btn flex items-center justify-center gap-2 px-8 py-2 transition duration-100"
-						href="discordEndpoint"
-						data-testid="discordLogin"
-					>
-						Continue with discord
-					</a>
-				</div>
-				<div class="flex items-center justify-center p-4">
-					<p class="text-center text-sm">
-						Don't have an account?
-						<a class="text-secondary transition duration-100" href="/register" preload>Register </a>
-					</p>
-				</div>
-			</div>
+	<section data-testid="loginContent">
+		<h1>
+			Login
+		</h1>
+		<div>
+			@components.LoginComponent()
+			<div>
+			<style>
+			me {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				margin-top: 1rem;
+			}
+			</style>
+			<p>
+						<style>
+				me {
+								width: 100%; 
+					text-align: center; 
+					border-bottom: 1px solid; 
+					line-height: 0.1em;
+					margin: 10px 0 20px; 
+				}
+
+				me span {
+						background: var(--pico-background-color); 
+						padding:0 10px; 
+				}
+				</style>
+				<span>
+	
+					Log in with social
+				</span>
+			</p>
+			<a
+				type="button"
+				class="secondary"
+				href="githubEndpoint"
+				data-testid="githubLogin"
+			>
+				Continue with github
+			</a>
+			<a
+				href="discordEndpoint"
+				data-testid="discordLogin"
+				type="button"
+				class="contrast"
+			>
+				Continue with discord
+			</a>
+						</div>
+
+		</div>
+		<div>
+			<p>
+				Don't have an account?
+				<a href="/register" preload>Register </a>
+			</p>
 		</div>
 	</section>
 }
 
-templ LoginPage(  title string,
-    isError bool,
-	errMsgs, sucMsgs []string, nonce domain.Nonce,
-    cmp templ.Component) {
-	@layout.Base(title, "", false, isError, errMsgs, sucMsgs, nonce) {
+templ LoginPage(title string,
+	nonce domain.Nonce,
+	cmp templ.Component) {
+	@layout.Base(title, "", false, nonce) {
 		@cmp
 	}
 }

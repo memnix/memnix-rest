@@ -26,84 +26,76 @@ templ Clicked() {
 }
 
 templ heroImage() {
-	<div class="flex flex-col" data-testid="heroImage">
-		<picture>
-			<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.avif" type="image/avif"/>
-			<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.webp" type="image/webp"/>
-			<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.avif" type="image/avif"/>
-			<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.webp" type="image/webp"/>
-			<img
-				src="/static/img/icon.png"
-				class="mx-auto hidden md:block"
-				loading="lazy"
-				decoding="async"
-				alt="Memnix app logo"
-				width="500"
-				height="500"
-			/>
-		</picture>
-	</div>
+	<picture>
+		<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.avif" type="image/avif"/>
+		<source media="(min-width: 1025px)" srcset="/static/img/memnix_500x500.webp" type="image/webp"/>
+		<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.avif" type="image/avif"/>
+		<source media="(max-width: 1024px)" srcset="/static/img/memnix_400x400.webp" type="image/webp"/>
+		<img
+			src="/static/img/icon.png"
+			class="mx-auto hidden md:block"
+			loading="lazy"
+			decoding="async"
+			alt="Memnix app logo"
+			width="500"
+			height="500"
+		/>
+	</picture>
 }
 
 templ Hero(name string) {
-	<section
-		data-testid="hero"
-		class="mx-auto max-w-6xl px-4 sm:px-6 md:flex md:h-screen md:min-h-[calc(100vh-72px)] 2xl:h-auto"
-	>
-		<div class="block py-12 text-center md:flex md:py-12 md:text-left lg:py-16">
-			<div class="mx-auto flex basis-3/5 items-center pb-12 md:py-0 md:pr-16">
-				<div>
-					<h1
-						class="leading-tighter font-heading mb-4 px-4 text-5xl font-bold tracking-tighter md:px-0 md:text-[3.48rem]"
-					>
-						A <span class="text-accent">spaced repetition </span>
-						<span class="lg:block">learning app </span>
-						<span class="text-secondary sm:whitespace-nowrap">using AI</span>
-					</h1>
-					<div class="mx-auto max-w-3xl">
-						<div
-							class="m-auto flex max-w-xs flex-col flex-nowrap justify-center gap-4 sm:max-w-md sm:flex-row md:m-0 md:justify-start"
-						>
-							<div class="flex w-full sm:w-auto">
-								<a
-									class="btn btn-primary w-full sm:mb-0"
-									href="/login"
-									rel="noopener"
-									preload
-								>
-									Get Started
-								</a>
-							</div>
-							<div class="flex w-full sm:w-auto">
-								<a
-									href="https://github.com/memnix"
-									target="_blank"
-									rel="noopener noreferrer"
-									class="btn btn-outline w-full"
-								>
-									Learn more
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
+			<style>
+			me {
+				align-items: center;
+				padding: 0 1rem;
+				min-height: 100vh;
+				padding-top: 164px;
+				padding-bottom: 164px;
+			}
+		</style>
+	<section data-testid="hero">
+		<style>
+			me {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				padding: 0 1rem;
+			}
+		</style>
+		<div>
+			<h1>
+				A spaced repetition<br/>learning app<br/>using AI
+			</h1>
+			<div>
+				<button
+					href="/login"
+					rel="noopener"
+					preload
+				>
+					Get Started
+				</button>
+				<button
+					href="https://github.com/memnix"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="outline"
+				>
+					Learn more
+				</button>
 			</div>
-			<div class="block flex-1 items-center md:flex">
-				<div class="relative m-auto max-w-4xl">
-					@heroImage()
-				</div>
-			</div>
+		</div>
+		<div>
+			@heroImage()
 		</div>
 	</section>
 }
 
-templ HomePage(  title,
-    username string,
-    fromProtected bool,
-    isError bool,
-	errMsgs, sucMsgs []string, nonce domain.Nonce,
-    cmp templ.Component) {
-	@layout.Base(title, username, fromProtected, isError, errMsgs, sucMsgs, nonce) {
+templ HomePage(title,
+	username string,
+	fromProtected bool, nonce domain.Nonce,
+	cmp templ.Component) {
+	@layout.Base(title, username, fromProtected, nonce) {
 		@cmp
 	}
 }

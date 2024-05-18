@@ -1,60 +1,71 @@
 package components 
 
 templ LoginComponent() {
-	<div class="flex flex-col gap-4 p-4 md:p-8" data-testid="loginComponent">
+	<div data-testid="loginComponent">
 		<form hx-post="/login" hx-swap="beforeend">
-			<div class="">
-				<label class="label flex-row">
-					<span id="email-error" class="label-text">Email</span>
+			<fieldset>
+				<label id="email">
+					Email
+					<input
+						name="email"
+						type="email"
+						placeholder="Email"
+						autocomplete="email"
+						required
+					/>
+					<small id="invalid-helper"></small>
 				</label>
-				<input
-					class="input-bordered input w-full transition duration-100"
-					placeholder="Enter your email"
-					type="email"
-					name="email"
-					required
-				/>
-			</div>
-			<span class="text-xs text-gray-500">
-				We'll never share your email with anyone else.
-			</span>
-			<div class="">
-				<label class="label">
-					<span id="password-error" class="label-text">Password</span>
+				<label id="password">
+					Password
+					<input
+						type="password"
+						name="password"
+						placeholder="Password"
+					/>
 				</label>
-				<input
-					class="input-bordered input w-full transition duration-100"
-					placeholder="Enter your password"
-					type="password"
-					name="password"
-					required
-				/>
-			</div>
-			<span class="text-xs text-gray-500">
-				We recommend using a strong password.
-			</span>
-			<div class="pt-6">
-				<button
-					class="btn-primary btn transition duration-100 w-full"
-					hx-disabled-elt="this"
-					type="post"
-				>
-					Login
-				</button>
-			</div>
+			</fieldset>
+			<input
+				type="submit"
+				hx-disabled-elt="this"
+				type="post"
+				value="Login"
+			/>
 		</form>
+
 	</div>
 }
 
 templ EmailError(err string) {
-	<div id="email-error" hx-swap-oob="true" class="text-red-500">Email - { err }</div>
+	<label id="email" hx-swap-oob="true">
+		Email
+		<input
+			name="email"
+			type="email"
+			placeholder="Email"
+			autocomplete="email"
+			aria-invalid="true"
+			aria-describedby="invalid-helper"
+			required
+		/>
+		<small id="invalid-helper">Maybe it's not the right email ?</small>
+	</label>
 }
 
 templ PasswordError(err string) {
-	<div id="password-error" hx-swap-oob="true" class="text-red-500">Password - { err }</div>
+	<label id="password" hx-swap-oob="true">
+		Password
+		<input
+			type="password"
+			name="password"
+			placeholder="Password"
+			aria-invalid="true"
+			aria-describedby="invalid-helper"
+		/>
+		<small id="invalid-helper">Doesn't look like the right password to me...</small>
+	</label>
 }
 
 templ LoginError(err string) {
-	<div id="email-error" hx-swap-oob="true" class="text-red-500">Email - { err }</div>
-	<div id="password-error" hx-swap-oob="true" class="text-red-500">Password - { err }</div>
+	@EmailError(err)
+	@PasswordError(err)
 }

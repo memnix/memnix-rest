@@ -59,8 +59,6 @@ func (a *AuthController) PostLogin(c echo.Context) error {
 	}
 	c.SetCookie(cookie)
 
-	setFlashmessages(c, "success", "You are now logged in")
-
 	return Redirect(c, "/", http.StatusAccepted)
 }
 
@@ -108,8 +106,6 @@ func (a *AuthController) PostRegister(c echo.Context) error {
 	_, err = a.useCase.Register(c.Request().Context(), registerStruct)
 	if err != nil {
 		slog.Info("Auth: ", slog.String("error", err.Error()))
-		setFlashmessages(c, "error",
-			"The email is probably already in use. Please try again with a different email  or login.")
 		return Redirect(c, "/register", http.StatusForbidden)
 	}
 
