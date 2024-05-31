@@ -31,7 +31,7 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	github.com/bytedance/gopkg v0.0.0-20240514070511-01b2cbcf35e1
+	github.com/bytedance/gopkg v0.0.0-20240531030433-5df24c0168e2
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
