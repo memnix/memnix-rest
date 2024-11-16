@@ -9,7 +9,7 @@ require (
 	github.com/a-h/templ v0.2.793
 	github.com/dgraph-io/ristretto v1.0.1
 	github.com/fxamacker/cbor/v2 v2.7.0
-	github.com/go-playground/validator/v10 v10.22.1
+	github.com/go-playground/validator/v10 v10.23.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/wire v0.6.0
 	github.com/labstack/echo/v4 v4.12.0
