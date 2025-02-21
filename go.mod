@@ -15,7 +15,7 @@ require (
 	github.com/google/wire v0.6.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.7.0
+	github.com/redis/go-redis/v9 v9.7.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	github.com/wagslane/go-password-validator v0.3.0
