@@ -19,7 +19,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	github.com/wagslane/go-password-validator v0.3.0
-	golang.org/x/crypto v0.34.0
+	golang.org/x/crypto v0.35.0
 
 )
 
