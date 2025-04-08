@@ -7,7 +7,7 @@ toolchain go1.24.2
 require (
 	github.com/PuerkitoBio/goquery v1.10.2
 	github.com/a-h/templ v0.3.857
-	github.com/dgraph-io/ristretto v0.2.0
+	github.com/dgraph-io/ristretto/v2 v2.2.0
 	github.com/dgraph-io/ristretto/v2 v2.2.0
 	github.com/fxamacker/cbor/v2 v2.8.0
 	github.com/go-playground/validator/v10 v10.26.0
