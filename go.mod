@@ -6,7 +6,7 @@ toolchain go1.24.3
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
-	github.com/a-h/templ v0.3.865
+	github.com/a-h/templ v0.3.887
 	github.com/dgraph-io/ristretto v0.2.0
 	github.com/dgraph-io/ristretto/v2 v2.2.0
 	github.com/fxamacker/cbor/v2 v2.8.0
